@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adventurePath
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="adventurePath.xsd">
+    <id>RoguelikeMode</id>
+    <name>Roguelike Mode</name>
+    <description>
+        A roguelike mode where you challenge a party against a variety of randomly selected encounters from levesl 1-4 to see how far you can go.
+    </description>
+    <mediumRestFlavorText>Your heroes take a little rest to regain health on their long journey.</mediumRestFlavorText>
+    <startingLevel>1</startingLevel>
+    <startingShopLevel>1</startingShopLevel>
+    <encounters>
+        <narration name="Enter the Dungeon">
+            [Background lore on why there's a randomly generated dungeon goes here.]
+        </narration>
+        <beginChapter>Floor 1</beginChapter>
+        <dawnsbury flavorText="The very first room of the dungeon." shopLevel="1" />
+        <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<levelUp flavorText="You level up :D" />
+		<beginChapter>Floor 2</beginChapter>
+		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="2"  />
+		
+        <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<levelUp flavorText="You level up :D" />
+		<beginChapter>Floor 3</beginChapter>
+		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="3"  />
+		
+        <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<levelUp flavorText="You level up :D" />
+		<beginChapter>Final Boss</beginChapter>
+        <dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="4"  />
+		<encounter filename="HallOfBeginnings.tmx">
+		</encounter>
+		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="4"  />
+    </encounters>
+</adventurePath>

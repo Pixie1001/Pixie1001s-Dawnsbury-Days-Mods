@@ -1,0 +1,10 @@
+BerserkersBrew.png, DragonWhisky.png, EmboldeningMeal.png, FortifyingMeal.png, Herbalism.png, InvigoratingMeal.png, Moonshine.png, Rotgut.png: Created by Unity Asset Store user 'Concept Hamster'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/gui/icons/rpg-item-icons-240226
+
+NoCauseForAlarm.png: Created by flaticon.com user 'Freepik'. Please support the origional artist here: https://www.flaticon.com/free-icons/leader
+
+FeyFortune.png: Created by Unity Asset Store user 'Sahil Gandhi'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/gui/icons/2d-items-set-handpainted-210729
+
+
+
+
+<a href="https://www.flaticon.com/free-icons/leader" title="leader icons">Leader icons created by Freepik - Flaticon</a>

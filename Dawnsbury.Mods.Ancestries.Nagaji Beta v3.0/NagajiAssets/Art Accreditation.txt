@@ -1,0 +1,5 @@
+Whip.png: Origional image has been altered. Created by Unity Asset Store user 'Blink'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/gui/icons/free-rpg-fantasy-spell-icons-200511
+
+BlightBomb.png: Origional image has been altered. Created by Unity Asset Store user 'Sahil Gandhi'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/gui/icons/2d-items-set-handpainted-210729
+
+RaiseNeck.png and all the good looking custom portraits found in the Steamworkshop mod: Origional image has been altered. Artwork by Otoniel Denova, and commissioned as offical Dawnsbury Days artwork.

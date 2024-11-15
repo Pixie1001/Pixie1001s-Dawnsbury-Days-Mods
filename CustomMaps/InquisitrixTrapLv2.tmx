@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="18" height="8" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
+ <properties>
+  <property name="EncounterDescription" value="Placeholder encounter"/>
+  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterLevel" type="int" value="2"/>
+  <property name="EncounterName" value="InquisitrixTrap"/>
+ </properties>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
+ <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="18" height="8">
+  <data encoding="csv">
+22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22
+</data>
+ </layer>
+ <layer id="2" name="Top layer: stones, trees, creatures..." width="18" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+91,91,0,14,0,0,0,28,0,0,0,14,91,91,91,28,0,0,
+91,0,0,0,0,0,0,0,0,0,0,0,0,91,0,0,0,0,
+0,126,0,0,0,0,0,0,38,36,0,0,0,0,0,0,127,0,
+0,28,0,0,0,0,0,0,37,39,0,0,0,0,0,0,132,0,
+0,28,0,0,0,0,0,0,0,0,0,0,0,0,0,28,0,0,
+0,0,0,14,0,0,0,0,0,0,0,14,0,0,0,0,0,91,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="3" name="Topmost layer: Metadata" width="18" height="8">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

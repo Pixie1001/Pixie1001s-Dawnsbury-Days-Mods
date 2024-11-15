@@ -396,3 +396,32 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+*.lnk
+DawnsburyDaysSummonerClass Beta v3.0/DawnsburyDaysSummonerClass/ReferenceCode.cs
+Dawnsbury.Mods.Creatures.RoguelikeMode/Old Code.cs
+Dawnsbury.Mods.Creatures.RoguelikeMode/References.txt
+/CustomMaps/Creatures
+/CustomMaps/CustomCreatures/Shortlist
+CustomMaps/HOW TO CREATE CUSTOM ENCOUNTERS.txt
+CustomMaps/RoguelikeEncounters/BasicTileset.tsx
+/CustomMaps/RoguelikeEncounters/Creatures
+/CustomMaps/RoguelikeEncounters/CustomCreatures/Shortlist
+/CustomMaps/RoguelikeEncounters/Tiles
+/CustomMaps/Tiles
+/CustomMaps/RoguelikeEncounters
+*.tmx-disabled
+CustomMaps/CustomGraveyard.xml
+CustomMaps/DlcTileset.tsx
+CustomMaps/encounter.xsd
+CustomMaps/example-path-narration.wav
+CustomMaps/example-voice-line.wav
+*.xml-disabled
+/CustomMaps/Disabled
+CustomMaps/.idea/CustomMaps.iml
+CustomMaps/.idea/inspectionProfiles/profiles_settings.xml
+CustomMaps/.idea/inspectionProfiles/Project_Default.xml
+CustomMaps/.idea/misc.xml
+CustomMaps/.idea/modules.xml
+CustomMaps/adventurePath.xsd
+CustomMaps/BasicTileset.tsx
+*.pdn

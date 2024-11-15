@@ -1,0 +1,19 @@
+ActTogether.png: Orgional image has been altered. Created by wikimedia user 'Font Awesome' under Creative Commons Attribution 4.0 International license. For more information, please see: https://commons.wikimedia.org/wiki/File:Handshake-solid.svg
+
+Fox.png: Origional image has fallen into the public domain. For more information, please see: https://commons.wikimedia.org/wiki/File:Tibetan_sand_fox_illustration,_transparent_background.png
+
+Deer.png: Origional image has fallen into the public domain. For more information, please see: https://commons.wikimedia.org/wiki/File:The_deer_of_all_lands_(1898)_Swamp_deer_white_background.png
+
+Unicorn.png: Origional image has fallen into the public domain. For more information, please see: https://commons.wikimedia.org/wiki/File:Maerten_de_Vos_-_Unicorn.jpg
+
+ButterflyFairy.png: Origional image has fallen into the public domain. For more information, please see: https://commons.wikimedia.org/wiki/File:SophieAndersonTakethefairfaceofWoman.jpg
+
+FrenziedAssault.png, SeethingFrenzy.png, BeastsCharge.png, AngelicAegis.png, DraconicFrenzy.png: Origional images have been altered. Created by Unity Asset Store user 'Blink'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/gui/icons/free-rpg-fantasy-spell-icons-200511
+
+Drider.png, Chimera.png, EvilUnicorn.png, Lion.png, Succubus.png, WolfEidolon.png: Origional images have been altered. Created by Unity Asset Store user 'Potion Junkies'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/characters/greek-fantasy-enemies-204779
+
+TendrilStrike.png, DisciplineTheLegion.png, OstentatiousArrival.png, TandemStrike.png, Parry.png, PrimalRoar.png, DevotionStance.png, Dismiss.png, EidolonBoost.png, EvolutionSurge.png, ExtendBoost.png, LifeLink.png, ReinforceEidolon.png & TandemMovement.png: Origional images have been altered. Created by Itch.io user 'Wenrexa'. Please support the origional artist here: https://wenrexa.itch.io/spells-5
+
+ConstrictingHold.png: Created by Flaticon.com user 'Freepik'. Please support the origional artist here: https://www.flaticon.com/free-icon/snake_2559297?term=snake&related_id=2559297
+
+EidolonPortraits/ConvertedbaseGameAssets/: Everything in this folder is taken from the base game assets of DawnsburyDays, and altered or recoloured by this mod's auther. Please see the game's credits to support the origional artist.

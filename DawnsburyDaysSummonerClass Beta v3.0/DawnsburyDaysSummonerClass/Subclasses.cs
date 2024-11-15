@@ -1,0 +1,1606 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Threading;
+using Dawnsbury;
+using Dawnsbury.Audio;
+using Dawnsbury.Core;
+using Dawnsbury.Auxiliary;
+using Dawnsbury.Core.Mechanics.Rules;
+using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.CharacterBuilder;
+using Dawnsbury.Core.CharacterBuilder.AbilityScores;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
+using Dawnsbury.Core.CharacterBuilder.Selections.Options;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Coroutines.Requests;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Intelligence;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Damage;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.StatBlocks.Description;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.Display;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display.Text;
+using Dawnsbury.Core.Animations.Movement;
+using Dawnsbury.IO;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Classes.Summoner;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
+using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
+using static Dawnsbury.Mods.Classes.Summoner.Enums;
+using Dawnsbury.Modding;
+using Dawnsbury.Core.Mechanics;
+using Microsoft.Xna.Framework.Graphics;
+using static System.Collections.Specialized.BitVector32;
+using System.Reflection.Metadata.Ecma335;
+
+namespace Dawnsbury.Mods.Classes.Summoner {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    internal static class Subclasses {
+
+        internal static List<Feat> subclasses = new List<Feat>();
+
+        private static readonly string AngelicEidolonFlavour = "Your eidolon is a celestial messenger, a member of the angelic host with a unique link to you, allowing them to carry a special message to the mortal world at your side. " +
+    "Most angel eidolons are roughly humanoid in form, with feathered wings, glowing eyes, halos, or similar angelic features. However, some take the form of smaller angelic servitors like the winged helmet" +
+    "cassisian angel instead. The two of you are destined for an important role in the plans of the celestial realms. Though a true angel, your angel eidolon's link to you as a mortal prevents them " +
+    "from casting the angelic messenger ritual, even if they somehow learn it.";
+
+        private static readonly string AngelicEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Diplomacy, Religion\n\n{b}Initial Eidolon Ability (Hallowed Strikes).{/b} Your Eidolon's strikes deal +1 good damage." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Angelic Aegis).{/b} Your eidolon's primary natural weapon attack gains the parry trait. While parrying they can use the Angelic Aegis {icon:FreeAction} action, " +
+            "which grants an adjacent ally a +2 circumstance bonus to AC until the start of their next turn. In addition, your eidolon can intercept {icon:Reaction} attacks that deal physical damage against the subject of their aegis, reducing the damage by an amount equal to their level.\n\n" +
+            "These benefits extend only while the ally is currently adjacent to your eidolon.";
+
+        private static readonly string DraconicEidolonFlavour = "Because dragons have a strong connection to magic, their minds can often leave an echo floating in the Astral Plane. Such an entity is extremely powerful " +
+            "but unable to interact with the outside world on its own. Dragon eidolons manifest in the powerful, scaled forms they had in life; most take the form of true dragons (albeit smaller), but some manifest as " +
+            "drakes or other draconic beings. You have forged a connection with such a dragon eidolon and together, you seek to grow as powerful as an ancient wyrm.";
+
+        private static readonly string DraconicEidolonCrunch = "\n\n• {b}Tradition{/b} Varies\n• {b}Skills{/b} You gain Intimidation and the knowledge skill associated with your dragon eidolon's magical tradition." +
+            "\n\n{b}Initial Eidolon Ability (Breath Weapon) {icon:TwoActions}.{/b} Your eidolon exhales a 60-foot line or 30-foot cone of energy and deal 2d6 of the damage associated with your eidolon's dragon type to each target. " +
+            "You can't use breath weapon again for 1d4 rounds. This damage increases by 1d6 at 3rd level and every two levels thereafter.\n\n{b}Special.{/b} " +
+            "You must select a specific breed for your dragon. This will determine your spell tradition, one of your bonus skills and the damage type of your eidolon's breath weapon. Your dragon's type also determines the save targeted by its breath weapon." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Draconic Frenzy) {icon:TwoActions}.{/b} Your eidolon makes 3 consecutive attacks, one with its primary natural weapon attack and two with its secondary natural weapon attack. If any of these attacks result in a " +
+            "critical hit, your eidolon's Breath Weapon is immediately recharged.";
+
+        private static readonly string BeastEidolonFlavour = "Your eidolon is a manifestation of the life force of nature in the form of a powerful magical beast that often has animal features, possibly even several from different species. " +
+            "You might have learned the way to connect with the world's life force via a specific philosophy or practice, such as the beliefs of the god callers of Sarkoris, or formed a bond on your own. Regardless, your link to your eidolon " +
+            "allows you both to grow in power and influence to keep your home safe from those who would despoil it.";
+
+        private static readonly string BeastEidolonCrunch = "\n\n• {b}Tradition{/b} Primal\n• {b}Skills{/b} Intimidation, Nature\n\n{b}Initial Eidolon Ability (Beast's Charge) {icon:TwoActions}.{/b} Stride twice. " +
+            "If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy. If your eidolon moved at least 20ft and ends it's movement in a cardinal diraction, " +
+            "it gains a +1 circumstance bonus to this attack roll.\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Primal Roar) {icon:TwoActions}.{/b} Your eidolon unleashes a primal roar or other such terrifying noise that fits your eidolon's form. " +
+            "Your eidolon attempts Intimidation checks to Demoralize each enemy that can hear the roar; these Demoralize attempts don't take any penalty for not sharing a language, and gain a +2 bonus.";
+
+        private static readonly string DevoPhantomEidolonFlavour = "Your eidolon is a lost soul, unable to escape the mortal world due to a strong sense of duty, an undying devotion, or a need to complete an important task. " +
+            "Most phantom eidolons are humanoid with a spectral or ectoplasmic appearance, though some take far stranger forms. Your link with your eidolon prevents them from succumbing to corruption and undeath, and together, " +
+            "you will grow in strength and fulfill your phantom's devotion.";
+
+        private static readonly string DevoPhantomEidolonCrunch = "\n\n• {b}Tradition{/b} Occult\n• {b}Skills{/b} Medicine, Occultism\n\n" +
+            "{b}Initial Eidolon Ability (Dutiful Retaliation) {icon:Reaction}.{/b} Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15ft of you." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Devotion Stance) {icon:Action}.{/b} Your eidolon takes on a patient defensive stance, steeling their focus with thoughts of their devotion." +
+            "\n\nUntil the start of their next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.";
+
+        private static readonly string AzataEidolonFlavour = "Your eidolon is an azata, a celestial embodiment of freedom, creativity, whimsy and revelry. They usually take humanoid forms, sometimes incorporating nature motifs. " +
+            "Your eidolon is happy to serve as your protector and muse as long as you show the same kindness and respect for freedom and autonomy to others as it does.";
+
+        private static readonly string AzataEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Divine, Persuasion\n\n" +
+            "{b}Initial Eidolon Ability (Celestial Passion) {icon:Action}.{/b} One ally within 30-feet of your eidolon gains temporary HP equal to its level, and a +1 bonus to attack and skill checks for 1 round. Cannot be used on the same ally more than once per encounter." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Whimsical Aura).{/b} The wonder and whimsy of Elysium manifests around your eidolon in an aura. Your eidolon and all allies within a 15-foot aura gain a +5-foot status bonus to their speed at the " +
+            "start of their turn. In addition, each ally within this aura at the end of your turn, reduces their frightened value by 1." +
+            "\n\n{b}Credits{/b} {i}Designed by LeoRandger{/i}";
+
+        private static readonly string DevilEidolonFlavour = "Your eidolon is a devil - a creature born in the depths of Nine Hells,the embodiment of order and tyranny. Whether tricked into being linked to each other through an infernal " +
+            "contract or connected through means, your companion represents the interest of his infernal patrons in mortal affairs. He might act authoritative or submit to you, but while your goals align, it shall follow you on your adventures. " +
+            "You only have to worry whether your soul is destined for its home...";
+
+        private static readonly string DevilEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Religion, Intimidation\n\n" +
+            "{b}Initial Eidolon Ability (Hellfire Scourage).{/b} Your eidolon gains resistance to fire equal to their level (minimum 1), and an equivalent weakness to good (minimum 1). In addition, the first attack they make against a Frightened creature each turn, deals an additional 1d4 fire damage." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Legion Commander) {icon:Action}.{/b} Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can use their reaction " +
+            "to make an Intimidation check against an easy DC for their level.\n{b}Critical Success{/b} You grant your ally a +2 circumstance bonus to the triggering check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4." +
+            "\n{b}Success{/b} You grant your ally a +1 circumstance bonus to the triggering check.\n{b}Critical Failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nYour ally also deals extra fire damage equal to half your level, " +
+            "if the action your eidolon was assisting them with was an attack, and double if the attack was a critial success." +
+            "\n\n{b}Credits{/b} {i}Designed by LeoRandger{/i}";
+
+        private static readonly string FeyEidolonFlavour = "Your eidolon is a fey, a capricious being of the mysterious First World. Many fey appear similar to mortal humanoids with unusual features such as pointed ears, " +
+            "wings, or bodies composed of natural elements, but the full variety of fey is endless, and many others appear completely inhuman. Fey from the First World never truly die, instead forming a new creature. " +
+            "Fey eidolons usually come about when a summoner helps stabilize a difficult reformation. This means your fey eidolon likely lived a different life just before meeting you and might remember fragments of its old memories. " +
+            "Together, you might have to unravel a memory from your eidolon's past life among the fey.";
+
+        private static readonly string FeyEidolonCrunch = "\n\n• {b}Tradition{/b} Primal\n• {b}Skills{/b} Nature, Deception\n\n" +
+            "{b}Initial Eidolon Ability (Fey Gifts).{/b} Your eidolon expands your primal magic with enchantment and illusion magic, allowing both of you to wield the power of fey charm and glamour. When you add spells to your repertoire, " +
+            "you can choose from the primal list as well as from enchantment and illusion spells that appear on the arcane spell list. As usual for when you add spells of a different tradition to your spell list, you're still a primal spellcaster, " +
+            "so all of your spells are primal spells.\n\nYour eidolon gains the Magical Understudy summoner feat, despite not meeting the prerequisite level, and it can choose fey gift cantrips in addition to primal cantrips." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Fey Mischief).{/b} Your eidolon's fey magic becomes more powerful and mischievous. Your eidolon gains the Magical Adept feat, despite not meeting the prerequisite level, " +
+            "and can choose from fey gift spells in addition to primal spells.";
+
+        private static readonly string AngerPhantomFlavour = "Your eidolon is a lost soul, bound to the mortal world by undying anger or a bitter grudge. Most phantom eidolons are humanoids with a spectral or ectoplasmic appearance, " +
+            "though some take far stranger forms. Your link with your eidolon prevents it from succumbing to corruption and undeath. Together, you will need to decide whether to work with your eidolon to control its anger, or channel its wrath into power.";
+
+        private static readonly string AngerPhantomCrunch = "\n\n• {b}Tradition{/b} Occult\n• {b}Skills{/b} Occultism, Intimidation\n\n" +
+            "{b}Initial Eidolon Ability (Fenzied Assault) {icon:TwoActions}.{/b} Your eidolon makes two strikes against a single target, one with each of its unarmed attacks, at its current MAP penalty. " +
+            "The damage from both attacks are combined for the purposes of damage resistance." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Seething Frenzy) {icon:Action}.{/b} Your eidolon enters a seething frenzy, disregarding its own safety to tear your foes apart. " +
+            "It gains temporary HP equal to its level, and a +4 damage bonus to its unarmed strike attacks, but it takes a -2 penalty to AC. The rage lasts until the end of the encounter, and leaves your eidolon fatigued if they leave early.";
+
+        private static readonly string PlantEidolonFlavour = "Your eidolon is an intelligent plant, formed from the same disembodied fragments of nature's life energy that become leshys. Plant eidolons tend to be curious and adaptable, " +
+            "with temperaments based on the parts of mortal culture they feel affinity toward. Despite coming from the same source, plant eidolons don't always look like leshys. Plant eidolons have forms that vary greatly and can look like " +
+            "almost any kind of plant creature in existence. Some even resemble plant creatures so strange they are impossible to identify.";
+
+        private static readonly string PlantEidolonCrunch = "\n\n• {b}Tradition{/b} Primal\n• {b}Skills{/b} Nature, Medicine\n\n" +
+            "{b}Initial Eidolon Ability (Tendril Strike) {icon:Action}.{/b} Stretching to extend its body to its limits, your eidolon attacks a foe that would normally be beyond its reach. Your eidolon makes a melee unarmed Strike, " +
+            "increasing its reach by 5 feet for that Strike. If the unarmed attack has the disarm, shove, or trip trait, the eidolon can use the corresponding action instead of a Strike." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Growing Vines).{/b} Your eidolon's vines and branches lengthen even more. All your eidolon's melee unarmed attacks gain the reach trait.";
+
+        private static readonly string UndeadEidolonFlavour = "Your eidolon is an undead spirit pulled from the Ethereal Plane or Negative Energy Plane, embodied, and bound to your life force in an unusual, " +
+            "potentially antithetical way that even other summoners can't quite understand. Undead eidolons take about every imaginable shape and form, as their bodies manifest from their connection to you. " +
+            "Their ultimate form can be influenced by an amalgamation of the echoes and memories of their old life before becoming undead, their cause of death, their encounters in the afterlife, and portions " +
+            "of your own essences. Together, you and your eidolon need to explore the mysteries of life, death, and undeath to understand what your bond means for both of your futures.";
+
+        private static readonly string UndeadEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Religion, Intimidation\n\n" +
+            "{b}Initial Eidolon Ability (Negative Essence).{/b} Your eidolon is undead, though unlike true undead, your connection grants it a sliver of life. It has negative healing, but instead of the usual immunities it gets a " +
+            "+2 circumstance bonus to death, disease and poison effects. Additionally, it gains a +5 bonus to staunch persistent bleed damage." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Drain Life) {icon:TwoActions}.{/b} Your eidolon's link with you sustains it, but it still craves the life essence of the living, whether through blood or pure essence. " +
+            "It gains the Drain Life activity.\n\n" +
+            "Your eidolon attacks a living creature and drains some of the creature's life force to feed your shared link. " +
+            "Your eidolon Strikes a living enemy. If the Strike hits and deals damage, the target must attempt a Fortitude save, with the following effects. On a critical hit, the enemy uses the result one degree worse than it rolled.\n\n" +
+            "{b}Critical Success{/b} No effect.\nSuccess Your eidolon drains a small amount of life force. The enemy takes additional negative damage equal to half your level.\n" +
+            "{b}Failure{/b} Your eidolon drains enough life force to satisfy itself. " +
+            "The enemy takes additional negative damage equal to half your level and is drained 1. Your eidolon gains temporary Hit Points equal to the enemy's level, which last for 1 minute.\n" +
+            "{b}Critical Failure{/b} Your eidolon drains an incredible amount of life force and is thoroughly glutted with energy. As failure, but the enemy is drained 2 and the temporary Hit Points are equal to double the enemy's level.";
+
+        private static readonly string PsychopompEidolonFlavour = "Your eidolon is a psychopomp, a creature whose sworn duty is to usher souls safely to the afterlife and maintain the courts of the dead. " +
+            "Psychopomp eidolons have a variety of appearances, but since they often traffic with mortals, their form typically includes an elaborate mask. You and your psychopomp eidolon share an important " +
+            "fate together, whether it relates directly to your own soul or to a mission that will somehow protect the souls of others.";
+
+        private static readonly string PsychopompEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Religion, Intimidation\n\n" +
+            "{b}Initial Eidolon Ability (Spirit Touch).{/b} Your eidolon's unarmed strikes deals an extra 1 negative damage to living creatures and an extra 1 positive damage to undead, and possess the ghost touch property." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Soul Wrench) {icon:TwoActions}.{/b}\n\n" +
+            "{b}Range {/b}5 feet\n{b}Target {/b}1 undead, or living creature of non-planar origin.\n{b}Saving throw {/b} Will\n\nYour eidolon attempts to wrench the soul from the body of an adjacent creature, holding it in " +
+            "place and stopping it from returning to its origional owner.\n\n" +
+            "At stage 1, the target gains enfeebled and clumsy 1 as they experience their soul being partially wrenched from their body. At stage 2, they gain slowed 1 and enfeebled and clumsy 2. " +
+            "At stage 3, your eidolon removes their soul completely. Living creatures are paralyzed, their bodies left as soulness husks. Undead are immediately destroyed, unless they're of an equal or higher level than your" +
+            " eidolon, in which case they suffer force damage equal to twice your eidolon's level their soul escapes back intoto their body.\n\n" +
+            "{b}Failure{/b} The target gains soul wretch 1.\n" +
+            "{b}Critical Failure{/b} The target gains soul wretch 2.\n\n" +
+            "Your eidolon must sustain this ability each turn to maintain their hold on the target's soul. Each time they do so, the target makes another will saving throw to determine how much progress your " +
+            "eidolon makes towards wretching out their soul completely.\n\n" +
+            "{b}Critical Success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
+            "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
+            "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.";
+
+        internal static IEnumerable<Feat> LoadSubclasses() {
+
+            // Init subclasses
+            subclasses.Add(new EidolonBond(Enums.scAngelicEidolon, AngelicEidolonFlavour, AngelicEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy },
+                new Func<Feat, bool>(ft => new FeatName[] { ftALawfulGood, ftAGood, ftAChaoticGood }.Contains(ft.FeatName)), new List<Trait> { Trait.Celestial })
+            .WithClassFeatures((eidolon, summoner) => AngelEidolonLogic(eidolon))
+            .WithAbilityText("\n{b}Hallowed Strikes.{/b} Your eidolon's unarmed strikes deal +1 extra good damage.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { Enums.scAngelicEidolonAvenger, Enums.scAngelicEidolonEmmissary }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(Enums.scAngelicEidolonAvenger, "Your eidolon is a fierce warrior of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3);
+            yield return CreateEidolonFeat(Enums.scAngelicEidolonEmmissary, "Your eidolon is a regal emmisary of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4);
+
+
+            subclasses.Add(new EidolonBond(scAngerPhantom, AngerPhantomFlavour, AngerPhantomCrunch, Trait.Occult, new List<FeatName>() { FeatName.Occultism, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { })
+            .WithClassFeatures((eidolon, summoner) => AngerPhantomEidolonLogic(eidolon, summoner))
+            .WithActionText("{b}Frenzied Assault{/b} {{icon:TwoActions} Your eidolon makes two strikes against a single target, one with each of its unarmed attacks, at its current MAP penalty. " +
+                "The damage from both attacks are combined for the purposes of damage resistance.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngerPhantomEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scAngerPhantomBerserker, scAngerPhantomAssassin }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scAngerPhantomBerserker, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
+            yield return CreateEidolonFeat(scAngerPhantomAssassin, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, -1, 1 }, 1, 4);
+
+
+            subclasses.Add(new EidolonBond(Enums.scAzataEidolon, AzataEidolonFlavour, AzataEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy },
+                new Func<Feat, bool>(ft => new FeatName[] { Enums.ftAChaoticGood }.Contains(ft.FeatName)), new List<Trait>() { Trait.Homebrew }, new List<Trait> { Trait.Celestial }, null)
+            .WithClassFeatures((eidolon, summoner) => AzataEidolonLogic(eidolon, summoner))
+            .WithActionText("{b}Celestial Passion{/b} {{icon:Action} One ally within 30-feet of your eidolon gains temporary HP equal to its level, and a +1 bonus to attack and skill checks for 1 round. Cannot be used on the same ally more than once per encounter.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AzataEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scAzataEidolonCrusader, scAzataEidolonPoet }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scAzataEidolonCrusader, "Your eidolon is a benevolant crusader of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
+            yield return CreateEidolonFeat(scAzataEidolonPoet, "Your eidolon is an inspiring muse of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, -1, 1, 3 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scBeastEidolon, BeastEidolonFlavour, BeastEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Beast, Trait.Animal })
+            .WithClassFeatures((eidolon, summoner) => BeastEidolonLogic(eidolon, summoner))
+            .WithActionText("{b}Beast's Charge{/b} {{icon:TwoActions} Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy. If your eidolon moved at least 20ft and ends it's movement in a cardinal diraction, it gains a +1 circumstance bonus to this attack roll.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scBeastEidolonBrutal, scBeastEidolonFleet }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scBeastEidolonBrutal, "Your eidolon is a powerful and brutally strong beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3);
+            yield return CreateEidolonFeat(scBeastEidolonFleet, "Your eidolon is a fleet and agile beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scDevoPhantomEidolon, DevoPhantomEidolonFlavour, DevoPhantomEidolonCrunch, Trait.Occult, new List<FeatName>() { FeatName.Occultism, FeatName.Medicine }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { })
+            .WithClassFeatures((eidolon, summoner) => DevoPhantomEidolonLogic(eidolon, summoner))
+            .WithAbilityText("\n{b}Dutiful Retaliation {icon:Reaction}.{/b} Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15ft of you.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DevoPhantomEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scDevoPhantomEidolonStalwart, scDevoPhantomEidolonSwift }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scDevoPhantomEidolonStalwart, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText,new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3);
+            yield return CreateEidolonFeat(scDevoPhantomEidolonSwift, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, 0, 0 }, 1, 4);
+
+
+            subclasses.Add(new Feat(Enums.scDraconicEidolon, DraconicEidolonFlavour, DraconicEidolonCrunch, new List<Trait>() { }, null)
+            .WithTag("{b}Breath Weapon{/b} {{icon:TwoActions} Your eidolon exhales a line or cone of energy and deal 2d6 of the damage associated with your eidolon's dragon type to each target. You can't use breath weapon again for 1d4 rounds.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DragonType", "Dragon Type", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tDragonType))));
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DraconicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { Enums.scDraconicEidolonCunning, Enums.scDraconicEidolonMarauding }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scDraconicEidolonCunning, "Your eidolon is a cunning wyrm.", null, (subclasses.Last()).Tag as string, new int[6] { 1, 4, 1, 2, 1, 1 }, 1, 4);
+            yield return CreateEidolonFeat(scDraconicEidolonMarauding, "Your eidolon is a fierce marauding drake.", null, (subclasses.Last()).Tag as string, new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3);
+
+            // Dragon breath feats
+            Feat dragonLineBreath = new Feat(Enums.ftBreathWeaponLine, "Your dragon eidolon emits a sharp, destructive line of energy.", "Your eidolon's breath weapon hits each creature in a 60-foot line.", new List<Trait>() { Enums.tBreathWeaponArea }, null);
+            Feat dragonConeBreath = new Feat(Enums.ftBreathWeaponCone, "Your dragon eidolon spaws worth a torrent of destructive energy.", "Your eidolon's breath weapon hits each creature in a 30-foot cone.", new List<Trait>() { Enums.tBreathWeaponArea }, null);
+
+
+            subclasses.Add(new EidolonBond(scDevilEidolon, DevilEidolonFlavour, DevilEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Intimidation },
+                new Func<Feat, bool>(ft => new FeatName[] { ftALawfulEvil }.Contains(ft.FeatName)), new List<Trait>() { Trait.Homebrew }, new List<Trait> { Trait.Fiend }, null)
+            .WithClassFeatures((eidolon, summoner) => DevilEidolonLogic(eidolon, summoner))
+            .WithAbilityText("\n{b}Hellfire Scourge{/b} Your eidolon deals +1d4 fire damage to the first frightened creature it strikes each round.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DevilEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scDevilEidolonBarrister, scDevilEidolonLegionnaire }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scDevilEidolonLegionnaire, "Your eidolon is a ruthlessly professional legionnaire of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 2, 0, -1, 2 }, 2, 3);
+            yield return CreateEidolonFeat(scDevilEidolonBarrister, "Your eidolon is a cunning and corruptive barrister of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scFeyEidolon, FeyEidolonFlavour, FeyEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Deception },
+                new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Fey })
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("FeyEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scFeyEidolonSkirmisher, scFeyEidolonTrickster }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scFeyEidolonSkirmisher, "Your eidolon is an illusive predator of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 2, 0, 0, 1 }, 1, 4);
+            yield return CreateEidolonFeat(scFeyEidolonTrickster, "Your eidolon is a mercurial trickster of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 1, -1, 3 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scPsychopompEidolon, PsychopompEidolonFlavour, PsychopompEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Intimidation },
+                ft => new FeatName[] { ftANeutral }.Contains(ft.FeatName), new List<Trait> { Trait.Monitor })
+            .WithClassFeatures(PsychopompEidolonLogic)
+            .WithAbilityText("\n{b}Spirit Touch.{/b} Your eidolon's unarmed strikes deals an extra 1 negative damage to living creatures and an extra 1 positive damage to undead, and possess the ghost touch property.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("PsychopompEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scPsychopompEidolonGuardian, scPsychopompEidolonScribe }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scPsychopompEidolonGuardian, "Your eidolon is a vigilant protector of lost souls destined for the Boneyard.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, 0, 1, -1 }, 2, 3);
+            yield return CreateEidolonFeat(scPsychopompEidolonScribe, "Your eidolon is diligant archiver of prophecy and mortal transgression.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 2, 1, 0 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scPlantEidolon, PlantEidolonFlavour, PlantEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Medicine },
+                new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Plant })
+            .WithClassFeatures(PlantEidolonLogic)
+            .WithAbilityText("\n{b}Tendril Strike {icon:Action}.{/b} Your eidolon makes a melee unarmed Strike, increasing its reach by 5 feet for that Strike. If the unarmed attack has the disarm, shove, or trip trait, the eidolon can use the corresponding action instead of a Strike.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("PlantEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scPlantEidolonGuardian, scPlantEidolonCreeping }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scPlantEidolonGuardian, "Your eidolon is a stalward guardian of nature.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3);
+            yield return CreateEidolonFeat(scPlantEidolonCreeping, "Your eidolon is patient, predatory plant, such as a carnivorous vine or flytrap.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 3, -1, 2, 0 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scUndeadEidolon, UndeadEidolonFlavour, UndeadEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Intimidation },
+                new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Undead })
+            .WithClassFeatures(UndeadEidolonLogic)
+            .WithAbilityText("{b}Negative Essence.{/b} Your eidolon is undead, though unlike true undead, your connection grants it a sliver of life. It has negative healing, but instead of the usual immunities it gets a +2 circumstance bonus to death, disease and poison effects. Additionally, it gains a +5 bonus to staunch persistent bleed damage.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("UndeadEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scUndeadEidolonBrute, scUndeadEidolonStalker }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scUndeadEidolonBrute, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
+            yield return CreateEidolonFeat(scUndeadEidolonStalker, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4);
+
+
+
+            subclasses.Add(new EidolonBond(scElementalEidolon, UndeadEidolonFlavour, UndeadEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Athletics },
+                new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Elemental })
+            .WithClassFeatures(ElementalEidolonLogic)
+            .WithAbilityText("{b}Elemental Core.{/b} ...\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("ElementalEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scElementalEidolonAdaptable, scElementalEidolonPrimordial }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
+            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4);
+
+            // TODO: Transcribe qeffect text
+
+            // Elemental type subfeats
+            yield return new Feat(ModManager.RegisterFeatName("Summoner_AirElemental", "Air Elemental"), "Your eidolon is formed from elemental air and is light as a breeze.", "Your eidolon gains the airborn form evolution feat at 1st level.",
+                new List<Trait>() { Trait.Air, Enums.tElementalType }, null)
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(ftAirbornForm);
+                EidolonBond? bond = (EidolonBond?) sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
+                if (bond != null) {
+                    bond.eidolonTraits.Add(Trait.Air);
+                    bond.AbilityText += "\n{b}Airborn Form.{/b} Your eidolon ignores difficult terrain and and can fly over lava and water.\n";
+                }
+            });
+
+            yield return new Feat(ModManager.RegisterFeatName("Summoner_EarthElemental", "Earth Elemental"), "Your eidolon is formed from elemental earth, and is incredibly hard to move by force.",
+                "Your eidolon gains a +2 circumstance bonus to their save DCs against attempts to Shove or Trip them, and are immune to forced movement.",
+                new List<Trait>() { Trait.Air, Enums.tElementalType }, null)
+            .WithOnSheet(sheet => {
+                EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
+                if (bond != null) {
+                    bond.eidolonTraits.Add(Trait.Earth);
+                    bond.AbilityText += "\n{b}Earth Elemental.{/b} Your eidolon gains a +2 circumstance bonus to their Fortitude or Reflex DCs against attempts to Shove or Trip them, and is immune to forced movement. This bonus might also apply to certain spells or abilitie that knock their targets prone.\n";
+                }
+            });
+
+            yield return new Feat(ModManager.RegisterFeatName("Summoner_FireElemental", "Fire Elemental"), "Your eidolon is formed from elemental fire and burns with embers of flame.",
+                "Your eidolon gains resistance equal to half your level (minimum 1) to fire and an equal amount of weakness to cold and water. Their unarmed attacks deal 1 additional fire damage.",
+                new List<Trait>() { Trait.Fire, Enums.tElementalType }, null)
+            .WithOnSheet(sheet => {
+                EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
+                if (bond != null) {
+                    bond.eidolonTraits.Add(Trait.Fire);
+                    bond.AbilityText += "\n{b}Fire Elemental.{/b} Your eidolon's unarmed attacks deal 1 additional fire damage.\n";
+                }
+            });
+
+            string traitTags = "\n\n{b}" + Trait.VersatileB.HumanizeTitleCase2() + "{/b} " + Trait.VersatileB.GetTraitProperties().RulesText +
+                "\n{b}" + Trait.VersatileP.HumanizeTitleCase2() + "{/b} " + Trait.VersatileP.GetTraitProperties().RulesText +
+                "\n{b}" + Trait.VersatileS.HumanizeTitleCase2() + "{/b} " + Trait.VersatileS.GetTraitProperties().RulesText;
+
+            yield return new Feat(ModManager.RegisterFeatName("Summoner_MetalElemental", "Metal Elemental"), "Your eidolon is formed from elemental metal and can adapt their metallic form to battle.",
+                "One of your eidolon's starting melee unarmed attacks gains the versatile bludgeoning, piercing, or slashing trait, as your eidolon learns how to shift the metal into various weaponlike forms.",
+                new List<Trait>() { Trait.Metal, Enums.tElementalType }, new List<Feat>() {
+                    new Feat(ModManager.RegisterFeatName("MetalElemental_PrimaryUnarmedAttack", "Primary Unarmed Attack"), "",
+                    "Your eidolon's primary natural weapon attack gains the Versatile S, P and B traits." + traitTags, new List<Trait>() { tMetalElementalAtkType }, null),
+                    new Feat(ModManager.RegisterFeatName("MetalElemental_SecondaryUnarmedAttack", "Secondary Unarmed Attack"), "",
+                    "Your eidolon's secondary natural weapon attack gains the Versatile S, P and B traits." + traitTags, new List<Trait>() { tMetalElementalAtkType }, null)
+                })
+            .WithOnSheet(sheet => {
+                EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
+                if (bond != null) {
+                    bond.eidolonTraits.Add(Trait.Metal);
+                }
+            });
+
+            yield return new Feat(ModManager.RegisterFeatName("Summoner_WaterElemental", "Water Elemental"), "Your eidolon is formed from elemental metal and can adapt their metallic form to battle.",
+                "One of your eidolon's starting melee unarmed attacks gains the versatile bludgeoning, piercing, or slashing trait, as your eidolon learns how to shift the metal into various weaponlike forms.",
+                new List<Trait>() { Trait.Water, Enums.tElementalType }, null)
+            .WithOnSheet(sheet => {
+                EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
+                if (bond != null) {
+                    bond.eidolonTraits.Add(Trait.Water);
+                    bond.eidolonTraits.Add(Trait.Aquatic);
+                    bond.AbilityText += "\n{b}Water Elemental.{/b} Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.\n";
+                }
+            });
+
+            yield return new Feat(ModManager.RegisterFeatName("Summoner_WoodElemental", "Wood Elemental"), "Your eidolon is formed from elemental wood, and its living wooden form twists and regrows as you focus your elemental energies.",
+                "...",
+                new List<Trait>() { Trait.Wood, Enums.tElementalType }, null)
+            .WithOnSheet(sheet => {
+                EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
+                if (bond != null) {
+                    bond.eidolonTraits.Add(Trait.Wood);
+                    bond.eidolonTraits.Add(Trait.Plant);
+                    bond.AbilityText += "\n{b}Wood Elemental.{/b} ...\n";
+                }
+            });
+
+            // Dragon Type Subfeats
+
+            // Primal
+            yield return new EidolonBond(ModManager.RegisterFeatName("BrineDragon", "Brine Dragon"), "Your eidolon is an orderly brine dragon from the elemental plane of water.", "Your eidolon's breath weapon deals acid damage vs. Reflex.\n\nBrine dragons are associated with the {b}Primal{/b} spellcasting tradition.",
+                Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Lawful)),
+                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("Cloud Dragon", "Cloud Dragon"), "Your eidolon is an adventurous cloud dragon from the elemental plane of air.", "Your eidolon's breath weapon deals electricity damage vs. Reflex.\n\nCloud dragons are associated with the {b}Primal{/b} spellcasting tradition.",
+                Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment)),
+                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("CrystalDragon", "Crystal Dragon"), "Your eidolon is a beautiful crystal dragon from the elemental plane of earth.", "Your eidolon's breath weapon deals piercing damage vs. Reflex.\n\nCrystal dragons are associated with the {b}Primal{/b} spellcasting tradition.",
+                Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment)),
+                new List<Trait>() { Trait.VersatileP, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("MagmaDragon", "Magma Dragon"), "Your eidolon is a volatile magma dragon from the elemental plane of fire.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nMagma dragons are associated with the {b}Primal{/b} spellcasting tradition.",
+                Trait.Primal, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment)),
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("UmbralDragon", "Umbral Dragon"), "Your eidolon is a shadowy umbral dragon from the Shadowfell.",
+                "Your eidolon's breath weapon deals negative damage vs. Reflex.\n\nUmbral dragons are associated with the {b}Occult{/b} spellcasting tradition.\n\n{b}Special{/b} Your dragon's ghostkilling breath deals force damage to undead.",
+                Trait.Occult, new List<FeatName>() { FeatName.Occultism, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
+                new List<Trait>() { Trait.Negative, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+
+            // Chromatic
+            yield return new EidolonBond(ModManager.RegisterFeatName("BlackDragon", "Black Dragon"), "Your eidolon is a vile black dragon.", "Your eidolon's breath weapon deals acid damage vs. Reflex.\n\nBlack dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
+                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("BlueDragon", "Blue Dragon"), "Your eidolon is a sophisticated blue dragon.", "Your eidolon's breath weapon deals electricity damage vs. Reflex.\n\nBlue dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
+                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("GreenDragon", "Green Dragon"), "Your eidolon is a cunning green dragon.", "Your eidolon's breath weapon deals poison damage vs. Fortitude.\n\nGreen dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
+                new List<Trait>() { Trait.Poison, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("RedDragon", "Red Dragon"), "Your eidolon is a tyranical red dragon.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nRed dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("WhiteDragon", "White Dragon"), "Your eidolon is a feral white dragon.", "Your eidolon's breath weapon deals cold damage vs. Reflex.\n\nWhite dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
+                new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+
+            // Metallic
+            yield return new EidolonBond(ModManager.RegisterFeatName("CopperDragon", "Copper Dragon"), "Your eidolon is a wily copper dragon.", "Your eidolon's breath weapon deals acid damage vs. Reflex.\n\nCopper dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.FeatName == Enums.ftAChaoticGood),
+                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("BronzeDragon", "Bronze Dragon"), "Your eidolon is a scholarly bronze dragon.", "Your eidolon's breath weapon deals electricity damage vs. Reflex.\n\nBronze dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Good)),
+                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("BrassDragon", "Brass Dragon"), "Your eidolon is a whimsical brass dragon.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nBrass dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Good)),
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("GoldDragon", "Gold Dragon"), "Your eidolon is an honourable gold dragon.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nGold dragons are associated with the {b}Divine{/b} spellcasting tradition.",
+                Trait.Divine, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.FeatName == Enums.ftALawfulGood),
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+            yield return new EidolonBond(ModManager.RegisterFeatName("SilverDragon", "Silver Dragon"), "Your eidolon is a silver white dragon.", "Your eidolon's breath weapon deals cold damage vs. Reflex.\n\nSilver dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
+                Trait.Arcane, new List<FeatName>() { FeatName.Religion, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Good)),
+                new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+        }
+
+        private static void AngelEidolonLogic(Creature eidolon) {
+            eidolon.AddQEffect(new QEffect("Hallowed Strikes", "Your eidolon's unarmed strikes deal +1 extra good damage.") {
+                AddExtraKindedDamageOnStrike = (action, target) => {
+                    return new KindedDamage(DiceFormula.FromText("1", "Hallowed Strikes"), DamageKind.Good);
+                },
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.UnarmedStrike.Traits.Add(tParry);
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
+                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, IllustrationName.GenericCombatManeuver, "Parry", new Trait[] { }, "Your eidolon gains a +1 bonus to AC until the start of your next turn, and can use the Angelic Aegis action.", Target.Self()
+                            .WithAdditionalRestriction(self => self.HasEffect(qfParrying) == true ? "Already parrying" : null))
+                        .WithActionCost(1)
+                        .WithSoundEffect(SfxName.RaiseShield)
+                        .WithEffectOnSelf(self => {
+                            self.AddQEffect(new QEffect("Parrying", "You have a +1 circumstance bonus to AC.") {
+                                Id = qfParrying,
+                                Illustration = IllustrationName.GenericCombatManeuver,
+                                Source = eidolon,
+                                ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
+                                BonusToDefenses = (qf, action, defence) => {
+                                    if (defence != Defense.AC) {
+                                        return (Bonus)null;
+                                    }
+                                    return new Bonus(1, BonusType.Circumstance, "Parrying");
+                                },
+                            });
+                        });
+                    })
+                });
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
+                        if (eidolon.HasEffect(qfParrying) == false) {
+                            return null;
+                        }
+                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, illAngelicAegis, "Angelic Aegis", new Trait[] { },
+                            "{b}Frequency{/b} Once per round\n{b}Requirements{/b} Your eidolon is parrying.\n\n" +
+                            "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction, your eidolon " +
+                            "may intercept any attack that deals physical damage to them, reducing the damage taken by an amount equal to your level." +
+                            "\n\nThese benefits only apply whilst the target ally is adjacent to your eidolon.", Target.AdjacentFriend()) {
+                            ShortDescription = "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction, your eidolon " +
+                            "may intercept any attack that deals physical damage to them, reducing the damage taken by an amount equal to your level."
+                        }
+                        .WithActionCost(0)
+                        .WithProjectileCone(illAngelicAegis, 5, ProjectileKind.Ray)
+                        .WithSoundEffect(SfxName.Abjuration)
+                        .WithEffectOnSelf(self => {
+                            self.AddQEffect(new QEffect() {
+                                ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn,
+                                PreventTakingAction = (action => action.Name == "Angelic Aegis" ? "Once per round limit." : null)
+                            });
+                        })
+                        .WithEffectOnEachTarget(async (action, self, target, checkResult) => {
+                            target.AddQEffect(new QEffect("Angelic Aegis", $"You have a +2 circumstance bonus to AC and can be protected by {eidolon}, so long as you're adjacent to them.") {
+                                Innate = false,
+                                Illustration = illAngelicAegis,
+                                Source = eidolon,
+                                ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
+                                BonusToDefenses = (qf, action, defence) => {
+                                    if (defence != Defense.AC || qf.Owner.DistanceTo(qf.Source) > 1) {
+                                        return (Bonus)null;
+                                    }
+                                    return new Bonus(2, BonusType.Circumstance, "Angelic Aegis");
+                                },
+                                YouAreDealtDamage = async (qf, attacker, damage, defender) => {
+                                    if (qf.Owner.DistanceTo(qf.Source) > 1) {
+                                        return null;
+                                    }
+                                    if (new DamageKind[] { DamageKind.Bludgeoning, DamageKind.Slashing, DamageKind.Piercing }.Contains(damage.Kind) == false) {
+                                        return null;
+                                    }
+                                    if (await eidolon.Battle.AskToUseReaction(eidolon, (damage.Power != null ? "{b}" + attacker.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" : "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes Angelic Aegis Interception.\nUse your reaction reduce the damage by {qf.Source.Level}?")) {
+                                        return (DamageModification)new ReduceDamageModification(qf.Source.Level, "Angelic Aegis Interception");
+                                    }
+                                    return null;
+                                }
+                            });
+                        });
+                    }),
+                });
+            }
+        }
+
+        private static void DragonEidolonLogic(Creature eidolon, Creature summoner) {
+            SpellRepertoire repertoire = summoner.PersistentCharacterSheet.Calculated.SpellRepertoires[tSummoner];
+            int saveDC = summoner.GetOrCreateSpellcastingSource(SpellcastingKind.Spontaneous, tSummoner, Ability.Charisma, repertoire.SpellList).GetSpellSaveDC();
+
+            Trait damageTrait = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault((Func<Feat, bool>)(ft => ft.HasTrait(tDragonType))).Traits[0];
+            FeatName targetFeat = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault((Func<Feat, bool>)(ft => ft.HasTrait(tBreathWeaponArea))).FeatName;
+            Target target;
+            if (targetFeat == ftBreathWeaponLine) {
+                target = Target.Line(12);
+            } else {
+                target = Target.Cone(6);
+            }
+
+            DamageKind damageKind = TraitToDamage(damageTrait);
+            string damageName = damageKind.HumanizeTitleCase2().ToLower();
+            Defense save = Defense.Reflex;
+
+            if (damageKind == DamageKind.Mental) {
+                save = Defense.Will;
+            } else if (damageKind == DamageKind.Poison) {
+                save = Defense.Fortitude;
+            }
+
+            Trait[] traits = new Trait[] { };
+            if (damageTrait != Trait.VersatileP) {
+                traits = new Trait[] { damageTrait };
+            }
+
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = (Func<QEffect, Possibility>)(qfEidolon => {
+                    Creature summoner = GetSummoner(qfEidolon.Owner);
+                    int dice = 1 + (summoner.Level + 1) / 2;
+                    CombatAction breathWeapon = new CombatAction(qfEidolon.Owner, IllustrationName.BreathWeapon, "Breath Weapon", traits, "{b}Range{/b} " +
+                        (targetFeat == ftBreathWeaponCone ? "30-foot cone" : "60-foot line") + "\n{b}Saving Throw{/b} " +
+                        (save == Defense.Reflex ? "Reflex" : save == Defense.Fortitude ? "Fortitude" : "Will") +
+                        "\n\nYour eidolon exhales a breath of destructive energy. Deal " + dice + "d6 " + damageName +
+                        " damage to each creature in the area.\n\n{b}Special.{/b}Your eidolon can't use breath weapon again for 1d4 rounds.\n\nAt 3rd level, and every 2 levels thereafter, damage increases by 1d6." +
+                        (damageKind == DamageKind.Negative ? "\n\nTheir ghost killing breath weapon deals force damage to undead creatures." : ""), target) {
+                        ShortDescription = "Your eidolon exhales a breath of destructive energy. Deal " + dice + "d6 " + damageName + " damage to each creature in the area."
+                    }
+                    .WithSavingThrow(new SavingThrow(save, (_ => saveDC)))
+                    .WithEffectOnEachTarget(async (action, self, target, checkResult) => {
+                        if (target.HasTrait(Trait.Undead) && damageKind == DamageKind.Negative) {
+                            await CommonSpellEffects.DealBasicDamage(action, self, target, checkResult, $"{dice}d6", DamageKind.Force);
+                        } else {
+                            await CommonSpellEffects.DealBasicDamage(action, self, target, checkResult, $"{dice}d6", damageKind);
+                        }
+                    })
+                    .WithEffectOnChosenTargets(async (self, defenders) => {
+                        int num = R.Next(1, 5);
+
+                        self.AddQEffect(new QEffect("Recharging Fire Breath", "This creature can't use Fire Breath until the value counts down to zero.", ExpirationCondition.CountsDownAtEndOfYourTurn, self, (Illustration)IllustrationName.Recharging) {
+                            Id = QEffectId.Recharging,
+                            CountsAsADebuff = true,
+                            PreventTakingAction = (Func<CombatAction, string>)(ca => !(ca.Name == "Breath Weapon") ? (string)null : "This ability is recharging."),
+                            Value = num
+                        });
+                    })
+                    .WithSoundEffect(SfxName.Fireball)
+                    .WithActionCost(2);
+
+                    if (targetFeat == ftBreathWeaponLine) {
+                        breathWeapon.WithProjectileCone(IllustrationName.BreathWeapon, 30, ProjectileKind.Cone);
+                    } else {
+                        breathWeapon.WithProjectileCone(IllustrationName.BreathWeapon, 20, ProjectileKind.Ray);
+                    }
+
+                    Possibility output = (Possibility)(ActionPossibility)breathWeapon;
+                    if (eidolon.Level >= 7) {
+                        output.PossibilitySize = PossibilitySize.Half;
+                    }
+
+                    return output;
+                }),
+            });
+
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = (Func<QEffect, Possibility>)(qfEidolon => {
+                        Possibility output = (Possibility)(ActionPossibility)new CombatAction(eidolon, illDraconicFrenzy, "Draconic Frenzy", new Trait[] { },
+                            "Your eidolon makes one Strike with their primary unarmed attack and two Strikes with their secondary unarmed attack (in any order). " +
+                            "If any of these attacks critically hits an enemy, your eidolon instantly recovers the use of their Breath Weapon.",
+                            Target.Self().WithAdditionalRestriction((Func<Creature, string>)(self => {
+                                if (!self.CanMakeBasicUnarmedAttack && self.QEffects.All<QEffect>(qf => qf.AdditionalUnarmedStrike == null))
+                                    return "You must be able to attack to use Draconic Frenzy.";
+                                foreach (Item obj in self.MeleeWeapons.Where<Item>((Func<Item, bool>)(weapon => weapon.HasTrait(Trait.Unarmed)))) {
+                                    if (self.CreateStrike(obj).CanBeginToUse(self).CanBeUsed)
+                                        return (string)null;
+                                }
+                                return "There is no nearby enemy or you can't make attacks.";
+                            })))
+                        .WithActionCost(2)
+                        .WithSoundEffect(SfxName.BeastRoar)
+                        .WithEffectOnEachTarget(async (action, self, target, result) => {
+                            self.AddQEffect(new QEffect() {
+                                Value = 0,
+                                Key = "Draconic Frenzy",
+                                AfterYouDealDamage = async (self2, action2, target) => {
+                                    if (action2 == null || !action2.HasTrait(Trait.Strike)) {
+                                        return;
+                                    }
+                                    if (action2.CheckResult == CheckResult.CriticalSuccess) {
+                                        if (self2.RemoveAllQEffects(qf => qf.Name == "Recharging Fire Breath") > 0) {
+                                            self.Occupies.Overhead("{b}{i}breath weapon recharged{/i}{/b}", Color.White, self?.ToString() + "'s breath weapon has recharged.");
+                                        }
+                                    }
+                                }
+                            });
+                            for (int i = 0; i < 3; ++i) {
+                                await self.Battle.GameLoop.StateCheck();
+                                List<Option> options = new List<Option>();
+                                CombatAction strike = self.CreateStrike((i == 0 ? self.UnarmedStrike : self.MeleeWeapons.ToArray()[1]));
+                                strike.WithActionCost(0);
+                                GameLoop.AddDirectUsageOnCreatureOptions(strike, options, true);
+                                if (options.Count > 0) {
+                                    Option chosenOption;
+                                    if (options.Count >= 2) {
+                                        options.Add((Option)new CancelOption(true));
+                                        chosenOption = (await self.Battle.SendRequest(new AdvancedRequest(self, "Choose a creature to Strike.", options) {
+                                            TopBarText = $"Choose a creature to Strike or right-click to cancel. ({i + 1}/3)",
+                                            TopBarIcon = illDraconicFrenzy
+                                        })).ChosenOption;
+                                    } else
+                                        chosenOption = options[0];
+
+                                    if (chosenOption is CancelOption) {
+                                        action.RevertRequested = true;
+                                        return;
+                                    }
+                                    int num = await chosenOption.Action() ? 1 : 0;
+                                }
+                            }
+                            self.RemoveAllQEffects(qf => qf.Key == "Draconic Frenzy");
+                        });
+                        output.PossibilitySize = PossibilitySize.Half;
+                        return output;
+                    }),
+                });
+            }
+        }
+
+        private static void BeastEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = qfSelf => {
+                    SubmenuPossibility output = new SubmenuPossibility(illBeastsCharge, "Beast's Charge");
+                    output.Subsections.Add(new PossibilitySection("Charge Option"));
+
+                    output.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfSelf.Owner, illBeastsCharge, "Beast's Charge (Line)", new Trait[] { Trait.Move },
+                        "Stride up to twice your speed in a direct line, then strike. If you moved at least 20-feet, the strike gains a +1 circumstance bonus." +
+                        "\n\nThis movement will not path around hazards or attacks of opportunity.",
+                        Target.Self()) {
+                        ShortDescription = "Stride up to twice your speed, then strike. If you travelled at least 20-feet and only in a straight line, the strike gains a +1 circumstance bonus."
+                    }
+                    .WithActionCost(2)
+                    .WithSoundEffect(SfxName.Footsteps)
+                    .WithEffectOnSelf(async (action, self) => {
+                        MovementStyle movementStyle = new MovementStyle() {
+                            //MaximumSquares = self.Speed * 2 * 5,
+                            MaximumSquares = self.Speed * 2,
+                            ShortestPath = false,
+                            PermitsStep = false,
+                            IgnoresUnevenTerrain = false,
+                        };
+
+                        Tile startingTile = self.Occupies;
+                        Tile? destTile = await GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Beast's Charge.", illBeastsCharge);
+
+                        if (destTile == null) {
+                            action.RevertRequested = true;
+                        } else {
+                            movementStyle.Shifting = self.HasEffect(QEffectId.Mobility) && destTile.InIteration.RequiresProvokingAttackOfOpportunity;
+                            await self.MoveTo(destTile, action, movementStyle);
+                            QEffect? chargeBonus = null;
+                            if (self.DistanceTo(startingTile) >= 4) {
+                                self.AddQEffect(chargeBonus = new QEffect("Charge Bonus", "+1 circumstance bonus to your next strike action.") {
+                                    BonusToAttackRolls = (qf, action, target) => {
+                                        return new Bonus(1, BonusType.Circumstance, "Beast's Charge");
+                                    },
+                                    Illustration = illBeastsCharge,
+                                });
+                            }
+                            await CommonCombatActions.StrikeAdjacentCreature(self);
+                            if (chargeBonus != null) {
+                                chargeBonus.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        }
+                    })
+                    );
+
+                    output.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfSelf.Owner, illBeastsCharge, "Beast's Charge (Mobile)", new Trait[] { Trait.Move, Trait.Basic },
+                    "Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy, but do not gain a charge bonus to the attack roll.", (Target)Target.Self())
+                    .WithActionCost(2)
+                    .WithSoundEffect(SfxName.Footsteps)
+                    .WithEffectOnSelf(async (action, self) => {
+                        if (!await self.StrideAsync("Choose where to Stride with Beast's Charge. (1/2)", allowCancel: true)) {
+                            action.RevertRequested = true;
+                        } else {
+                            int num = await self.StrideAsync("Choose where to Stride with Beast's Charge. You should end your movement within melee reach of an enemy. (2/2)", allowPass: true) ? 1 : 0;
+                            await CommonCombatActions.StrikeAdjacentCreature(self);
+                        }
+                    }));
+
+                    if (eidolon.Level >= 7) {
+                        output.PossibilitySize = PossibilitySize.Half;
+                    }
+                    return output;
+                },
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
+                        Possibility output = (Possibility)(ActionPossibility)new CombatAction(eidolon, illPrimalRoar, "Primal Roar", new Trait[] { },
+                            "Your eidolon unleashes a primal roar or other such terrifying noise that fits your eidolon's form. Your eidolon attempts Intimidation " +
+                            "checks with a +2 bonus to Demoralize each enemy that can hear the roar; these Demoralize attempts don't take any penalty for not sharing a language.",
+                            Target.Emanation(30))
+                        .WithActionCost(2)
+                        .WithSoundEffect(SfxName.BeastRoar)
+                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Intimidation), Checks.DefenseDC(Defense.Will)))
+                        .WithNoSaveFor((action, target) => target.OwningFaction == action.Owner.OwningFaction || target.QEffects.FirstOrDefault(qf => qf.Name == "Immunity to " + ActionId.Demoralize.HumanizeTitleCase2() + " by " + action.Owner.Name) != null)
+                        .WithEffectOnEachTarget(async (action, self, target, checkResult) => {
+                            if (target.OwningFaction == action.Owner.OwningFaction) {
+                                target.Occupies.Overhead("{b}{i}unaffected{/i}{/b}", Color.White, target?.ToString() + " is an ally.");
+                                return;
+                            }
+
+                            if (target.QEffects.FirstOrDefault(qf => qf.Name == "Immunity to " + ActionId.Demoralize.HumanizeTitleCase2() + " by " + self.Name) != null) {
+                                target.Occupies.Overhead("{b}{i}unaffected{/i}{/b}", Color.White, target?.ToString() + " has already been demoralized this combat.");
+                                return;
+                            }
+
+                            if (checkResult == CheckResult.CriticalSuccess) {
+                                target.AddQEffect(QEffect.Frightened(2));
+                            } else if (checkResult == CheckResult.Success) {
+                                target.AddQEffect(QEffect.Frightened(1));
+                            }
+                            target.AddQEffect(QEffect.ImmunityToTargeting(ActionId.Demoralize, self));
+                        });
+                        output.PossibilitySize = PossibilitySize.Half;
+                        return output;
+                    }),
+                    BonusToSkillChecks = (skill, action, target) => {
+                        return new Bonus(2, BonusType.Untyped, "Primal Roar");
+                    }
+                });
+            }
+        }
+
+        private static void DevoPhantomEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect("Dutiful Retaliation {icon:Reaction}", "Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15ft of you."));
+            summoner.AddQEffect(new QEffect() {
+                AfterYouTakeDamage = (async (qf, amount, damagekind, action, critical) => {
+                    if (!action.HasTrait(Trait.Strike) || action.Owner == null) {
+                        return;
+                    }
+
+                    Creature eidolon = GetEidolon(qf.Owner);
+
+                    if (eidolon == null || eidolon.Destroyed || !eidolon.Actions.CanTakeActions()) {
+                        return;
+                    }
+
+                    if (qf.Owner.DistanceTo(action.Owner) <= 3 && qf.Owner.DistanceTo(eidolon) <= 3) {
+                        CombatAction combatAction = eidolon.CreateStrike(eidolon.UnarmedStrike, 0).WithActionCost(0);
+
+                        // Check if eidolon cannot make strikes
+                        foreach (QEffect restriction in eidolon.QEffects) {
+                            if (restriction.PreventTakingAction != null && restriction.PreventTakingAction(combatAction) != null) {
+                                return;
+                            }
+                        }
+
+                        // Check if triggering creature cannot be targetted
+                        foreach (QEffect condition in action.Owner.QEffects) {
+                            if (condition.PreventTargetingBy != null && condition.PreventTargetingBy(combatAction) != null) {
+                                return;
+                            }
+                        }
+
+                        if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + action.Owner.Name + "{/b} uses {b}" + action.Name + "{/b} which provokes Dutiful Retaliation.\nUse your reaction to make an attack of opportunity?")) {
+                            int map = eidolon.Actions.AttackedThisManyTimesThisTurn;
+                            eidolon.Occupies.Overhead("*dutiful devotion*", Color.White);
+                            await eidolon.MakeStrike(action.Owner, eidolon.UnarmedStrike, 0);
+                            eidolon.Actions.AttackedThisManyTimesThisTurn = map;
+                        }
+                    }
+                })
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
+                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, illDevoStance, "Devotion Stance", new Trait[] { }, "Your eidolon takes on a patient defensive stance, steeling their focus with thoughts of their devotion.\n\nUntil the start of their next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.", Target.Self())
+                        .WithActionCost(1)
+                        .WithSoundEffect(SfxName.RaiseShield)
+                        .WithEffectOnSelf(self => {
+                            self.AddQEffect(new QEffect() {
+                                ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn,
+                                PreventTakingAction = (action => action.Name == "Devotion Stance" ? "Once per round limit." : null)
+                            });
+                            self.AddQEffect(new QEffect("Devotion Stance", "You have a +2 circumstance bonus to AC, and deal +4 damage with attacks made outside your turn.") {
+                                Illustration = illDevoStance,
+                                Source = eidolon,
+                                ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
+                                BonusToDefenses = (qf, action, defence) => {
+                                    if (defence != Defense.AC) {
+                                        return (Bonus)null;
+                                    }
+                                    return new Bonus(2, BonusType.Circumstance, "Devotion Stance");
+                                },
+                                BonusToDamage = (qf, action, defender) => {
+                                    if (qf.Owner.Battle.ActiveCreature == qf.Owner || qf.Owner.Battle.ActiveCreature == GetSummoner(qf.Owner)) {
+                                        return null;
+                                    }
+                                    return new Bonus(4, BonusType.Untyped, "Devotion Stance");
+                                }
+                            });
+                        });
+                    })
+                });
+            }
+        }
+
+        private static void AngerPhantomEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = effect => {
+                    Possibility output = new ActionPossibility(new CombatAction(effect.Owner, illFrenziedAssault, "Frenzied Assault", new Trait[4] {
+                                tSummoner, Trait.Basic, Trait.AlwaysHits, Trait.IsHostile },
+                      "Make two Strikes against the same target, one with each of your melee natural weapon attacks, each using your current multiple attack penalty." +
+                      "\n\nCombine the damage for the purposes of weakness and resistance. This counts as two attacks when calculating your multiple attack penalty.", (Target)Target.Melee())
+                        .WithActionCost(2)
+                        .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
+                            int map = self.Actions.AttackedThisManyTimesThisTurn;
+
+                            Creature enemy = targets.ChosenCreature;
+
+                            await self.MakeStrike(enemy, self.UnarmedStrike, map);
+                            await self.MakeStrike(enemy, self.MeleeWeapons.ToArray()[1], map);
+
+                            GetSummoner(eidolon).Actions.AttackedThisManyTimesThisTurn = self.Actions.AttackedThisManyTimesThisTurn;
+                        }))
+                    .WithTargetingTooltip((Func<CombatAction, Creature, int, string>)((power, target, index) => power.Description)));
+                    if (eidolon.Level >= 7) {
+                        output.PossibilitySize = PossibilitySize.Half;
+                    }
+                    return output;
+                }
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = effect => {
+                        if (effect.Owner.HasEffect(qfSeethingFrenzy)) {
+                            return null;
+                        }
+                        Possibility output = new ActionPossibility(new CombatAction(effect.Owner, illSeethingFrenzy, "Seething Frenzy", new Trait[] {
+                                tSummoner, Trait.Emotion, Trait.Mental, Trait.Concentrate },
+                            "Your eidolon enters a seething frenzy, disregarding its own safety to tear your foes apart. It gains temporary HP equal to its level, and a +4 damage bonus to its unarmed strike attacks, " +
+                            "but it takes a -2 penalty to AC. The rage lasts until the end of the encounter, and leaves your eidolon fatigued if they leave early.", (Target)Target.Self())
+                            .WithActionCost(1)
+                            .WithSoundEffect(SfxName.BeastRoar)
+                            .WithEffectOnSelf((async (self) => {
+                                self.GainTemporaryHP(self.Level);
+                                self.AddQEffect(new QEffect("Seething Frenzy", "You take a -2 penalty to AC, but your strikes deal +4 bonus damage.") {
+                                    Illustration = illSeethingFrenzy,
+                                    Id = qfSeethingFrenzy,
+                                    BonusToDefenses = (effect, action, defence) => {
+                                        if (defence == Defense.AC) {
+                                            return new Bonus(-2, BonusType.Untyped, "Seething Frenzy");
+                                        }
+                                        return null;
+                                    },
+                                    BonusToDamage = (effect, action, target) => {
+                                        if (action.HasTrait(Trait.Strike) && action.HasTrait(Trait.Unarmed)) {
+                                            return new Bonus(4, BonusType.Untyped, "Seething Frenzy");
+                                        }
+                                        return null;
+                                    },
+                                    WhenExpires = effect => {
+                                        effect.Owner.AddQEffect(QEffect.Fatigued());
+                                    }
+                                });
+                            }))
+                        );
+                        output.PossibilitySize = PossibilitySize.Half;
+                        return output;
+                    }
+                });
+            }
+        }
+
+        private static void AzataEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = qfCelestialPassion => {
+                    return (Possibility)(ActionPossibility)new CombatAction(qfCelestialPassion.Owner, IllustrationName.AngelicHalo, "Celestial Passion",
+                        new Trait[] { Trait.Divine, Trait.Concentrate, Trait.Emotion, Trait.Mental, Trait.Auditory },
+                        "{b}Range{/b} 30 feet\n\nYour eidolon inspires an ally with a display of heavenly artistry, or heart warming encouragment.\n\n" +
+                        "Target ally gains temporary HP equal to your level, and a +1 status bonus to attack rolls and skill checks until the start of your next turn.\n\n" +
+                        "The target is then immune to this ability for the rest of the encounter.", Target.RangedFriend(6))
+                    .WithProjectileCone(IllustrationName.AngelicHalo, 10, ProjectileKind.Cone)
+                    .WithActionId(acCelestialPassion)
+                    .WithActionCost(1)
+                    .WithSoundEffect(SfxName.Bless)
+                    .WithEffectOnEachTarget(async (action, caster, target, result) => {
+                        target.GainTemporaryHP(caster.Level);
+                        target.AddQEffect(new QEffect("Celestial Passion", "+1 status bonus to all attack rolls and skill checks.") {
+                            Illustration = IllustrationName.AngelicHalo,
+                            Source = caster,
+                            ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
+                            BonusToAttackRolls = (qf, action, defender) => new Bonus(1, BonusType.Status, "Celestial Passion"),
+                            BonusToSkillChecks = (skill, action, target) => new Bonus(1, BonusType.Status, "Celestial Passion"),
+                        });
+                        QEffect.ImmunityToTargeting(acCelestialPassion, caster);
+                    });
+                }
+            });
+            if (eidolon.Level >= 7) {
+                AuraAnimation auraAnimation = eidolon.AnimationData.AddAuraAnimation(IllustrationName.BlessCircle, 3f);
+                //auraAnimation.Color = Color.LightSeaGreen;
+                auraAnimation.Color = Color.LawnGreen;
+                //auraAnimation.Color = Color.HotPink;
+
+                eidolon.AddQEffect(new QEffect("Whimsical Aura", "Your eidolon has a +5ft status bonus to its speed, and grants this benefit to all allies that start their turn within 15ft of it. At the end of your eidolon's turn, all allies within the aura reduce their frightened condition by 1.") {
+                    BonusToAllSpeeds = qf => new Bonus(1, BonusType.Status, "Whimsical Aura"),
+                    StateCheck = effect => {
+                        //qf.Tag = qf.Owner.Battle.AllCreatures.Where(creature => creature.OwningFaction == eidolon.OwningFaction);
+                        foreach (Creature creature in effect.Owner.Battle.AllCreatures) {
+                            if (creature.HasEffect(qfWhimsicalAura) || creature.QEffects.FirstOrDefault(qf => qf.Name == "Whimsical Aura") != null) {
+                                continue;
+                            }
+                            creature.AddQEffect(new QEffect() {
+                                Id = qfWhimsicalAura,
+                                Tag = false,
+                                StartOfYourTurn = async (effect, self) => {
+                                    effect.Tag = false;
+                                    List<Creature> auraHavers = self.Battle.AllCreatures.Where(c => c.OwningFaction == self.OwningFaction && c.QEffects.FirstOrDefault(qf => qf.Name == "Whimsical Aura") != null && c.DistanceTo(self) <= 3).ToList();
+                                    if (auraHavers.Count > 0) {
+                                        effect.Tag = true;
+                                        self.Occupies.Overhead("*+5ft status bonus to speed*", Color.White);
+                                    }
+                                },
+                                BonusToAllSpeeds = qf => (bool)qf.Tag == true ? new Bonus(1, BonusType.Status, "Whimsical Aura") : null,
+                            });
+                        }
+                    },
+                    EndOfYourTurn = async (qf, self) => {
+                        foreach (Creature ally in qf.Owner.Battle.AllCreatures.Where(creature => creature.OwningFaction == eidolon.OwningFaction)) {
+                            if (ally.DistanceTo(self) > 3) {
+                                continue;
+                            }
+                            QEffect? frightened = ally.QEffects.FirstOrDefault(effect => effect.Id == QEffectId.Frightened);
+                            if (frightened != null) {
+                                frightened.Value -= 1;
+                                if (frightened.Value == 0) {
+                                    frightened.ExpiresAt = ExpirationCondition.Immediately;
+                                }
+                                ally.Occupies.Overhead("*frightened reduced by 1*", Color.White);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        private static void DevilEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, Math.Max(1, (eidolon.Level / 2))));
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, (eidolon.Level / 2))));
+            eidolon.AddQEffect(new QEffect("Hellfire Scourge", "Your eidolon deals +1d4 fire damage to the first frightened creature it strikes each round.") {
+                Tag = false,
+                StartOfYourTurn = async (effect, self) => {
+                    effect.Tag = false;
+                },
+                AddExtraKindedDamageOnStrike = (action, target) => {
+                    if (target.HasEffect(QEffectId.Frightened) && (bool)action.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Hellfire Scourge").Tag == false) {
+                        action.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Hellfire Scourge").Tag = true;
+                        return new KindedDamage(DiceFormula.FromText("1d4"), DamageKind.Fire);
+                    }
+                    return null;
+                }
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = effect => {
+                        return new ActionPossibility(new CombatAction(effect.Owner, illDisciplineTheLegion, "Discipline the Legion", new Trait[] {
+                                tSummoner, Trait.Linguistic, Trait.Concentrate, Trait.Mental, Trait.Emotion },
+                            "Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can " +
+                            "use their reaction to make an Intimidation check against an easy DC for their level.\n\n{b}Critical Success{/b} You grant your ally a +2 circumstance bonus to the triggering " +
+                            "check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4.\n{b}Success{/b} You grant your ally a +1 circumstance bonus to " +
+                            "the triggering check.\n{b}Critical Failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nYour ally also deals extra fire damage equal to half your " +
+                            "level, if the action your eidolon was assisting them with was an attack, and double if the attack was a critial success.", (Target)Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((source, target) => {
+                                if (target.QEffects.FirstOrDefault(qf => qf.Key == "Infernal Command") == null) {
+                                    return Usability.Usable;
+                                }
+                                return Usability.NotUsableOnThisCreature("Your eidolon has already disciplined this creature.");
+                            }))
+                            .WithActionCost(1)
+                            .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
+                                targets.ChosenCreature.AddQEffect(new QEffect("Infernal Command", $"This creature has the attention of {self.Name}, and is ready to be spurred into decisive action.") {
+                                    Illustration = illDisciplineTheLegion,
+                                    Source = self,
+                                    Key = "Infernal Command",
+                                    ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
+                                    BeforeYourActiveRoll = async (effect, action, innerTarget) => {
+                                        if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + effect.Owner + "{/b} is about to use {b}" + action.Name + "{/b} against " + innerTarget?.ToString() + ". \nRoll for Discipline the Legion?")) {
+                                            CheckResult result = CommonSpellEffects.RollCheck("Discipline the Legion", new ActiveRollSpecification(Checks.SkillCheck(new Skill[] { Skill.Intimidation, Skill.Deception }), Checks.FlatDC(GetDCByLevel(self.Level) - 2)), self, effect.Owner);
+                                            int bonus = 0;
+
+                                            if (result == CheckResult.CriticalSuccess) {
+                                                bonus = Math.Max((int)self.Proficiencies.Get(Trait.Intimidation), (int)self.Proficiencies.Get(Trait.Deception));
+                                                bonus = Math.Max(2, bonus / 2);
+                                            } else if (result == CheckResult.Success) {
+                                                bonus = 1;
+                                            } else if (result == CheckResult.CriticalFailure) {
+                                                bonus = -1;
+                                            }
+
+                                            effect.Owner.AddQEffect(new QEffect() {
+                                                BonusToSkillChecks = (skill, action, target) => {
+                                                    return new Bonus(bonus, BonusType.Circumstance, "Infernal Command");
+                                                },
+                                                BonusToAttackRolls = (effect, action, target) => {
+                                                    return new Bonus(bonus, BonusType.Circumstance, "Infernal Command");
+                                                },
+                                                AfterYouDealDamage = async (self, action, target) => {
+                                                    if (effect.UsedThisTurn) {
+                                                        return;
+                                                    }
+
+                                                    if (target.OwningFaction != self.OwningFaction && target == innerTarget) {
+                                                        int damage = self.Level / 2;
+                                                        if (action.CheckResult == CheckResult.CriticalSuccess) {
+                                                            damage *= 2;
+                                                        }
+                                                        effect.UsedThisTurn = true;
+                                                        await self.DealDirectDamage(null, DiceFormula.FromText($"{damage}"), target, action.CheckResult, DamageKind.Fire);
+                                                    }
+                                                },
+                                                AfterYouTakeAction = async (effect, action) => {
+                                                    effect.ExpiresAt = ExpirationCondition.Immediately;
+                                                }
+                                            });
+                                        }
+                                    },
+                                });
+                            }))
+                        );
+                    }
+                });
+            }
+        }
+
+        private static void PlantEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect("Tendril Strike {icon:Action}", "Your eidolon makes a melee unarmed Strike, increasing its reach by 5 feet for that Strike. If the unarmed attack has the disarm, shove, or trip trait, the eidolon can use the corresponding action instead of a Strike.") {
+                ProvideStrikeModifierAsPossibility = item => {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                        return null;
+                    }
+
+                    int range = item.HasTrait(Trait.Reach) ? 3 : 2;
+
+                    CombatAction action = eidolon.CreateStrike(item, -1, null);
+                    action.Name = "Tendril Strike (" + item.Name + ")";
+
+                    var split = action.Description.Split("\n");
+                    action.Description = "";
+                    split[0] = "{b}Reach{/b} " + range * 5 + " feet";
+                    foreach (string line in split) {
+                        action.Description += line + "\n";
+                    }
+
+                    action.Target = (Target)Target.Ranged(range);
+                    action.Traits.Add(Trait.Basic);
+                    action.WithProjectileCone(IllustrationName.None, 0, ProjectileKind.None);
+                    action.Illustration = new SideBySideIllustration(illTendrilStrike, item.Illustration);
+                    return (ActionPossibility)action;
+                }
+            });
+            eidolon.AddQEffect(new QEffect() {
+                ProvideStrikeModifierAsPossibility = item => {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                        return null;
+                    }
+
+                    if (!item.HasTrait(Trait.Disarm)) {
+                        return null;
+                    }
+
+                    int range = item.HasTrait(Trait.Reach) ? 3 : 2;
+
+                    CombatAction action = CombatManeuverPossibilities.CreateDisarmAction(eidolon, item);
+                    action.Name = "Tendril Strike (disarm)";
+                    action.Target = (Target)Target.Ranged(range).WithAdditionalConditionOnTargetCreature((a, d) => !d.HeldItems.Any(hi => !hi.HasTrait(Trait.Grapplee)) ? Usability.CommonReasons.TargetHasNoWeapon : Usability.Usable);
+                    action.WithProjectileCone(IllustrationName.None, 0, ProjectileKind.None);
+                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.GenericCombatManeuver);
+                    return (ActionPossibility)action;
+                }
+            });
+            eidolon.AddQEffect(new QEffect() {
+                ProvideStrikeModifierAsPossibility = item => {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                        return null;
+                    }
+
+                    if (!item.HasTrait(Trait.Shove)) {
+                        return null;
+                    }
+
+                    int range = item.HasTrait(Trait.Reach) ? 3 : 2;
+
+                    CombatAction action = CombatManeuverPossibilities.CreateShoveAction(eidolon, item);
+                    action.Name = "Tendril Strike (shove)";
+                    action.Target = (Target)Target.Ranged(range);
+                    action.WithProjectileCone(IllustrationName.None, 0, ProjectileKind.None);
+                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.GenericCombatManeuver);
+                    return (ActionPossibility)action;
+                }
+            });
+            eidolon.AddQEffect(new QEffect() {
+                ProvideStrikeModifierAsPossibility = item => {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                        return null;
+                    }
+
+                    if (!item.HasTrait(Trait.Trip)) {
+                        return null;
+                    }
+
+                    int range = item.HasTrait(Trait.Reach) ? 3 : 2;
+
+                    CombatAction action = CombatManeuverPossibilities.CreateTripAction(eidolon, item);
+                    action.Name = "Tendril Strike (trip)";
+                    action.Target = (Target)Target.Ranged(range).WithAdditionalConditionOnTargetCreature((a, d) => d.HasEffect(QEffectId.Prone) ? Usability.CommonReasons.TargetIsAlreadyProne : Usability.Usable);
+                    action.WithProjectileCone(IllustrationName.None, 0, ProjectileKind.None);
+                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.Trip);
+                    return (ActionPossibility)action;
+                }
+            });
+            if (eidolon.Level >= 7) {
+                Item[] attacks = new Item[] { eidolon.UnarmedStrike, eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike };
+
+                foreach (Item attack in attacks) {
+                    if (!attack.HasTrait(Trait.Reach)) {
+                        attack.Traits.Add(Trait.Reach);
+                    }
+                }
+            }
+        }
+
+        private static void UndeadEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect("Negative Essence", "Your eidolon is undead, though unlike true undead, your connection grants it a sliver of life. It has negative healing, but instead of the usual immunities it gets a +2 circumstance bonus to death, disease and poison effects. Additionally, it gains a +5 bonus to staunch persistent bleed damage.") {
+                StartOfCombat = async self => {
+                    string[] qfNames = new string[] { QEffect.DamageImmunity(DamageKind.Bleed).Name, QEffect.DamageImmunity(DamageKind.Poison).Name, QEffect.ImmunityToCondition(QEffectId.Paralyzed).Name };
+
+                    eidolon.RemoveAllQEffects(qf => qfNames.Contains(qf.Name) && qf.Name != null || qf.ImmuneToTrait == Trait.Death);
+                },
+                BonusToDefenses = (self, action, defence) => {
+                    if (defence != Defense.AC && action != null && action.Traits.ContainsOneOf(new Trait[] { Trait.Death, Trait.Disease, Trait.Poison })) {
+                        return new Bonus(2, BonusType.Circumstance, "Negative Essence");
+                    }
+                    return null;
+                },
+                ReducesPersistentDamageRecoveryCheckDc = (self, pd, kind) => kind == DamageKind.Bleed
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideStrikeModifierAsPossibility = item => {
+                        if (item != eidolon.UnarmedStrike && eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ToList().FirstOrDefault(qf => qf.AdditionalUnarmedStrike == item) == null) {
+                            return null;
+                        }
+
+                        CombatAction action = eidolon.CreateStrike(item, -1, null);
+
+                        CombatAction drainLife = new CombatAction(eidolon, IllustrationName.VampiricTouch2, "Drain Life", new Trait[] { Trait.Divine, tEidolon, Trait.Necromancy, Trait.Negative }, "", Target.Ranged(1));
+
+                        StrikeModifiers modifiers = new StrikeModifiers() {
+                            OnEachTarget = async (a, d, strikeResult) => {
+                                CheckResult saveResult = CommonSpellEffects.RollSavingThrow(d, action, Defense.Fortitude, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC());
+                                if (strikeResult == CheckResult.CriticalSuccess && saveResult != CheckResult.CriticalFailure) {
+                                    saveResult -= 1;
+                                }
+
+                                if (saveResult <= CheckResult.Success) {
+                                    await CommonSpellEffects.DealDirectDamage(drainLife, DiceFormula.FromText($"{eidolon.Level / 2}"), d, saveResult, DamageKind.Negative);
+                                }
+                                if (saveResult == CheckResult.Failure) {
+                                    eidolon.GainTemporaryHP(d.Level);
+                                    d.AddQEffect(QEffect.Drained(1));
+                                }
+                                if (saveResult == CheckResult.CriticalFailure) {
+                                    eidolon.GainTemporaryHP(d.Level * 2);
+                                    d.AddQEffect(QEffect.Drained(2));
+                                }
+                            }
+                        };
+
+                        action.StrikeModifiers = modifiers;
+
+                        action.Name = $"Drain Life ({item.Name})";
+                        action.ActionCost = 2;
+                        action.Traits.AddRange(new Trait[] { Trait.Divine, tEidolon, Trait.Necromancy, Trait.Negative });
+                        action.Description = "Your eidolon attacks a living creature and drains some of the creature's life force to feed your shared link.\nYour eidolon Strikes a living enemy. " +
+                        "If the Strike hits and deals damage, the target must attempt a Fortitude save, with the following effects. On a critical hit, the enemy uses the result one degree worse " +
+                        "than it rolled.\n\n{b}Critcal Success.{/b} No effect.\r\n{b}Success.{/b} Your eidolon drains a small amount of life force. The enemy takes additional negative damage equal to " +
+                        "half your level.\n{b}Failure.{/b} Your eidolon drains enough life force to satisfy itself. The enemy takes additional negative damage equal to half your level and is drained 1. " +
+                        "Your eidolon gains temporary Hit Points equal to the enemy's level, which last for 1 minute.\n{b}Critical Failure.{/b} Your eidolon drains an incredible amount of life force " +
+                        "and is thoroughly glutted with energy. As failure, but the enemy is drained 2 and the temporary Hit Points are equal to double the enemy's level.";
+                        action.Target = (action.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => !d.IsLivingCreature ? Usability.CommonReasons.TargetIsNotAlive : Usability.Usable);
+                        action.Illustration = new SideBySideIllustration(IllustrationName.VampiricTouch2, item.Illustration);
+                        return (ActionPossibility)action;
+                    }
+                });
+            }
+        }
+
+        private static void PsychopompEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect("Spirit Touch", "Your eidolon's unarmed strikes deals an extra 1 negative damage to living creatures and an extra 1 positive damage to undead, and possess the ghost touch property.") {
+                AddExtraKindedDamageOnStrike = (action, target) => {
+                    if (target.HasTrait(Trait.Undead)) {
+                        return new KindedDamage(DiceFormula.FromText("1", "Spirit Touch"), DamageKind.Positive);
+                    }
+                    return new KindedDamage(DiceFormula.FromText("1", "Spirit Touch"), DamageKind.Negative);
+                },
+                YourStrikeGainsDamageType = (self, strike) => {
+                    if (strike.HasTrait(Trait.Strike) && strike.ChosenTargets.ChosenCreature != null && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Undead) && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Incorporeal)) {
+                        return DamageKind.Force;
+                    }
+                    return null;
+                }
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        return (ActionPossibility)new CombatAction(eidolon, illSoulWrench, "Soul Wrench", new Trait[] { Trait.Necromancy, Trait.Magical, Trait.Incapacitation },
+                            "{b}Range {/b}5 feet\n{b}Target {/b}1 undead, or living creature of non-planar origin.\n{b}Saving throw {/b} Will\n\nYour eidolon attempts to wrench the soul from the body of an adjacent creature, holding it in " +
+                            "place and stopping it from returning to its origional owner.\n\n" +
+                            "At stage 1, the target gains enfeebled and clumsy 1 as they experience their soul being partially wrenched from their body. At stage 2, they gain slowed 1 and enfeebled and clumsy 2. " +
+                            "At stage 3, your eidolon removes their soul completely. Living creatures are paralyzed, their bodies left as soulness husks. Undead are immediately destroyed, unless they're of an equal or higher level than your" +
+                            " eidolon, in which case they suffer force damage equal to twice your eidolon's level their soul escapes back intoto their body.\n\n" +
+                            "{b}Failure{/b} The target gains soul wretch 1.\n" +
+                            "{b}Critical Failure{/b} The target gains soul wretch 2.\n\n" +
+                            "Your eidolon must sustain this ability each turn to maintain their hold on the target's soul. Each time they do so, the target makes another will saving throw to determine how much progress your " +
+                            "eidolon makes towards wretching out their soul completely.\n\n" +
+                            "{b}Critical Success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
+                            "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
+                            "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.",
+                            Target.Ranged(1)
+                            .WithAdditionalConditionOnTargetCreature((a, d) => new Trait[] {
+                                Trait.Incorporeal, Trait.Celestial, Trait.Fiend, Trait.Monitor, Trait.Archon, Trait.Angel, Trait.Elemental, Trait.Construct }
+                                .ContainsOneOf(d.Traits) ? Usability.NotUsableOnThisCreature("no external soul") : Usability.Usable)
+                            .WithAdditionalConditionOnTargetCreature((a, d) => d.HasEffect(qfSoulSiphon) ? Usability.NotUsableOnThisCreature("soul already being siphoned") : Usability.Usable)) {
+                            ShortDescription = "Your eidolon attempts to wrench the soul from the body of an adjacent creature, holding it in place and stopping it from returning to its origional owner."
+                        }
+                        .WithActionCost(2)
+                        .WithSoundEffect(SfxName.Necromancy)
+                        .WithSpellInformation(eidolon.Level / 2 + 1, "", null)
+                        .WithProjectileCone(illSoulWrench, 5, ProjectileKind.Cone)
+                        .WithSavingThrow(new SavingThrow(Defense.Will, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC()))
+                        .WithEffectOnEachTarget(async (action, a, d, checkResult) => {
+                            // Remove soul siphon from previous target
+                            self.UsedThisTurn = true;
+                            Creature? prevTarget = a.Battle.AllCreatures.FirstOrDefault(cr => cr.QEffects.FirstOrDefault(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon) != null);
+                            if (prevTarget != null) {
+                                prevTarget.RemoveAllQEffects(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon);
+                            }
+
+                            QEffect soulSiphon = new QEffect("Soul Wrench", "Your soul is being wrenched away from your body by a psychopomp.\n" +
+                                "{b}Stage 1{/b} You enfeebled and clumsy 1\n{b}Stage 2{/b} You gain slowed 1 and enfeebled and clumsy 2.\n" +
+                                "{b}Stage 3{/b} Your soul is removed completely. If you are a living creatures are are paralyzed. Undead are " +
+                                "immediately destroyed, unless they're of an equal or higher level than the psychopomp, in which case they suffer force damage equal to twice the psychomp's level, and the condition ends.") {
+                                Id = qfSoulSiphon,
+                                Innate = false,
+                                CountsAsADebuff = true,
+                                Illustration = illSoulWrench,
+                                Source = eidolon,
+                                ExpiresAt = ExpirationCondition.ExpiresAtEndOfSourcesTurn,
+                                CannotExpireThisTurn = true,
+                                StateCheck = self => {
+                                    switch (self.Value) {
+                                        case 1:
+                                            self.Owner.AddQEffect(QEffect.Enfeebled(1).WithExpirationEphemeral());
+                                            self.Owner.AddQEffect(QEffect.Clumsy(1).WithExpirationEphemeral());
+                                            break;
+                                        case 2:
+                                            self.Owner.AddQEffect(QEffect.Enfeebled(2).WithExpirationEphemeral());
+                                            self.Owner.AddQEffect(QEffect.Clumsy(2).WithExpirationEphemeral());
+                                            self.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationEphemeral());
+                                            break;
+                                        case 3:
+                                            if (self.Owner.HasTrait(Trait.Undead)) {
+                                                if (self.Owner.Level < eidolon.Level) {
+                                                    self.Owner.Occupies.Overhead("*vaporised*", Color.AliceBlue, $"{self.Owner.Name} was vaporised by Soul Wrench, destroying it instantly.");
+                                                    self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
+                                                } else {
+                                                    self.Owner.Occupies.Overhead("*soul tearing*", Color.AliceBlue, $"{self.Owner.Name}'s essence was too powerful for {eidolon.Name} to destroy.");
+                                                    CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText($"{eidolon.Level * 2}"), self.Owner, CheckResult.Success, DamageKind.Force);
+                                                }
+                                                self.ExpiresAt = ExpirationCondition.Immediately;
+                                            }
+                                            self.Owner.AddQEffect(QEffect.Paralyzed().WithExpirationEphemeral());
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                },
+                            };
+
+                            if (checkResult == CheckResult.Failure) {
+                                soulSiphon.Value = 1;
+                                d.AddQEffect(soulSiphon);
+                            } else if (checkResult == CheckResult.CriticalFailure) {
+                                soulSiphon.Value = 2;
+                                d.AddQEffect(soulSiphon);
+                            }
+                        })
+                        ;
+                    },
+                    ProvideContextualAction = self => {
+                        if (self.UsedThisTurn) {
+                            return null;
+                        }
+                        
+                        if (self.Owner.Battle.AllCreatures.Where(cr => cr.QEffects.FirstOrDefault(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon) != null).Count() <= 0) {
+                            return null;
+                        }
+
+                        return (ActionPossibility)new CombatAction(eidolon, illSoulWrench, "Sustain Soul Wrench", new Trait[] { Trait.Necromancy, Trait.Magical, Trait.Incapacitation },
+                            "Your eidolon continues the battle of tug of war for their victim's soul.\n\n" +
+                            "{b}Critical Success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
+                            "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
+                            "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.\n\n",
+                            Target.Self()) {
+                                ShortDescription = "Your eidolon continues the battle of tug of war for their victim's soul."
+                        }
+                        .WithActionCost(1)
+                        .WithSpellInformation(eidolon.Level / 2 + 1, "", null)
+                        .WithProjectileCone(illSoulWrench, 5, ProjectileKind.Cone)
+                        .WithEffectOnSelf(async (action, user) => {
+                            self.UsedThisTurn = true;
+                            Creature target = user.Battle.AllCreatures.FirstOrDefault(cr => cr.QEffects.FirstOrDefault(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon) != null);
+                            QEffect soulSiphon = target.QEffects.FirstOrDefault(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon);
+                            CheckResult result = CommonSpellEffects.RollSavingThrow(target, action, Defense.Will, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC());
+                            
+                            soulSiphon.CannotExpireThisTurn = true;
+                            if (result == CheckResult.CriticalSuccess) {
+                                target.RemoveAllQEffects(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon);
+                                target.Occupies.Overhead("*escaped soul wrench*", Color.White, $"{target.Name} tugged their soul free of {eidolon.Name}'s grasp.");
+                                await target.Battle.GameLoop.StateCheck();
+                            } else if (result == CheckResult.Failure) {
+                                soulSiphon.Value += 1;
+                                if (soulSiphon.Value > 3) {
+                                    soulSiphon.Value = 3;
+                                }
+                                target.Occupies.Overhead("*soul wrench increased by 1*", Color.White, $"{target.Name}'s soul wrench has increased to stage {soulSiphon.Value}.");
+                            } else if (result == CheckResult.CriticalFailure) {
+                                soulSiphon.Value += 2;
+                                if (soulSiphon.Value > 3) {
+                                    soulSiphon.Value = 3;
+                                }
+                                target.Occupies.Overhead("*soul wrench increased by 2*", Color.White, $"{target.Name}'s soul wrench has increased to stage {soulSiphon.Value}.");
+                            }
+                        });
+                    }
+                });
+                    
+            }
+        }
+
+        private static void ElementalEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect("Elemental Core", "Your eidolon's elemental nature grants it a +2 circumstance bonus to saves against being poisoned, and against the paralyze spell. Additionally, it gains a +5 bonus to staunch persistent bleed damage.") {
+                StartOfCombat = async self => {
+                    string[] qfNames = new string[] { QEffect.DamageImmunity(DamageKind.Bleed).Name, QEffect.DamageImmunity(DamageKind.Poison).Name, QEffect.ImmunityToCondition(QEffectId.Paralyzed).Name };
+
+                    eidolon.RemoveAllQEffects(qf => qfNames.Contains(qf.Name) && qf.Name != null);
+                },
+                BonusToDefenses = (self, action, defence) => {
+                    if (defence != Defense.AC && action != null && (action.Traits.ContainsOneOf(new Trait[] { Trait.Poison }) || action.SpellId == SpellId.Paralyze)) {
+                        return new Bonus(2, BonusType.Circumstance, "Elemental Core");
+                    }
+                    return null;
+                },
+                ReducesPersistentDamageRecoveryCheckDc = (self, pd, kind) => kind == DamageKind.Bleed
+            });
+
+            switch (summoner.PersistentCharacterSheet.Calculated.AllFeats.First(ft => ft.HasTrait(tElementalType)).Traits[0]) {
+                case Trait.Earth:
+                    // TODO: Match desc with feat
+                    eidolon.AddQEffect(new QEffect("Earth Elemental", "Your eidolon gains a +2 circumstance bonus to their save DCs against attempts to Shove or Trip them, and is immune to forced movement.") {
+                        BonusToDefenses = (self, action, defence) => {
+                            List<SpellId> shoveSpells = new List<SpellId>() { SpellId.PummelingRubble, SpellId.HydraulicPush, SpellId.KineticRam, SpellId.TelekineticManeuver, SpellId.Grease };
+                            if (action != null && defence != Defense.AC && (action.ActionId == ActionId.Trip || action.ActionId == ActionId.Shove || shoveSpells.Contains(action.SpellId))) {
+                                return new Bonus(2, BonusType.Circumstance, "Earth Elemental");
+                            }
+                            return null;
+                        },
+                        StateCheck = self => {
+                            self.Owner.WeaknessAndResistance.ImmunityToForcedMovement = true;
+                        }
+                    });
+                    break;
+                case Trait.Fire:
+                    // TODO: Add weakness/res to print method
+                    eidolon.AddQEffect(new QEffect("Fire Elemental", "Your eidolon's unarmed attacks deal 1 additional fire damage, and they have weakness equal to half their level attacks with the water trait.") {
+                        AddExtraKindedDamageOnStrike = (action, target) => {
+                            return new KindedDamage(DiceFormula.FromText("1", "Fire Elemental"), DamageKind.Fire);
+                        },
+                        StateCheck = self => {
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Fire, int.Max(1, eidolon.Level / 2));
+                            self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Cold, int.Max(1, eidolon.Level / 2));
+                        },
+                        YouAreDealtDamage = async (self, a, damage, d) => {
+                            if (damage.Power != null && damage.Power.HasTrait(Trait.Water)) {
+                                return new IncreaseDamageModification(int.Max(1, eidolon.Level / 2), "water weakness");
+                            }
+                            return null;
+                        }
+                    });
+                    break;
+                case Trait.Metal:
+                    Item chosenAttack = summoner.PersistentCharacterSheet.Calculated.AllFeats.First(ft => ft.HasTrait(tMetalElementalAtkType)).FeatName.HumanizeTitleCase2().ToLower().Contains("primary") ?
+                        eidolon.UnarmedStrike :
+                        eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike;
+
+                    Trait[] nTraits = new Trait[3] { Trait.VersatileB, Trait.VersatileP, Trait.VersatileS };
+                    nTraits.ForEach(t => {
+                        if (!chosenAttack.Traits.Contains(t)) {
+                            chosenAttack.Traits.Add(t);
+                        }
+                    });
+                    break;
+                case Trait.Water:
+                    // TODO: Match desc with feat
+                    eidolon.AddQEffect(new QEffect("Water Elemental", "Your eidolon is not flat-footed while underwater, and doesn't take the usual penalties for using a bludgeoning or slashing melee weapon in water.") {
+                        YouAcquireQEffect = (self, newEffect) => {
+                            if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (water elemental)") {
+                                return new QEffect("Aquatic Combat (water elemental)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.") {
+                                    Id = QEffectId.AquaticCombat,
+                                    DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
+                                    Illustration = IllustrationName.ElementWater,
+                                    StateCheck = (Action<QEffect>)(qfAquaticCombat =>
+                                    {
+                                        if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
+                                            return;
+                                        qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                            Id = QEffectId.CountsAllTerrainAsDifficultTerrain
+                                        });
+                                    }),
+                                    PreventTakingAction = (Func<CombatAction, string>)(action =>
+                                    {
+                                        if (action.HasTrait(Trait.Impulse))
+                                            return (string)null;
+                                        if (action.HasTrait(Trait.Fire))
+                                            return "You can't use fire actions underwater.";
+                                        return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : (string)null;
+                                    })
+                                };
+                            }
+                            return newEffect;
+                        }
+                    });
+                    break;
+                case Trait.Wood:
+                    // TODO: Add wood ability
+                    // Once per 
+                    eidolon.AddQEffect(new QEffect() {
+                        ProvideMainAction = self => {
+                            if (summoner.PersistentUsedUpResources.UsedUpActions.Contains("Regrowth")) {
+                                return null;
+                            }
+
+                            return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.FlourishingFlora, "Regrowth", new Trait[] { Trait.Healing, Trait.Magical, tEidolon, Trait.Abjuration }, "...", Target.Self())
+                            .WithActionCost(1)
+                            .WithSoundEffect(SfxName.NaturalHealing)
+                            .WithProjectileCone(IllustrationName.FlourishingFlora, 5, ProjectileKind.Cone)
+                            .WithEffectOnSelf(async (action, user) => {
+                                await user.HealAsync(DiceFormula.FromText($"{user.Level * 2}", "Regrowth"), action);
+                                summoner.PersistentUsedUpResources.UsedUpActions.Add("Regrowth");
+                            });
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        return null;
+                    }
+                });
+            }
+        }
+
+
+
+        private static bool IsSlashingOrBludgeoning(CombatAction action) {
+            Item obj1 = action.Item;
+            DamageKind? damageKind1;
+            int num1;
+            if (obj1 == null) {
+                num1 = 0;
+            } else {
+                damageKind1 = obj1.WeaponProperties?.DamageKind;
+                DamageKind damageKind2 = DamageKind.Slashing;
+                num1 = damageKind1.GetValueOrDefault() == damageKind2 & damageKind1.HasValue ? 1 : 0;
+            }
+            if (num1 == 0) {
+                Item obj2 = action.Item;
+                int num2;
+                if (obj2 == null) {
+                    num2 = 0;
+                } else {
+                    damageKind1 = obj2.WeaponProperties?.DamageKind;
+                    DamageKind damageKind3 = DamageKind.Bludgeoning;
+                    num2 = damageKind1.GetValueOrDefault() == damageKind3 & damageKind1.HasValue ? 1 : 0;
+                }
+                if (num2 == 0)
+                    return false;
+            }
+            Item obj3 = action.Item;
+            return (obj3 != null ? (obj3.HasTrait(Trait.VersatileP) ? 1 : 0) : 0) == 0;
+        }
+
+    }
+}
+
+
+
+            
+            
+            //} else if (summoner.HasFeat(scBeastEidolon)) {
+            //    
+            //    }
+            //} else if (summoner.HasFeat(scDevoPhantomEidolon)) {
+            //    
+            //    }
+            //} else if (summoner.HasFeat(scAzataEidolon)) {
+            //    
+            //} else if (summoner.HasFeat(scDevilEidolon)) {
+            //    
+            //} else if (summoner.HasFeat(scAngerPhantom)) {
+            //    
+            //}
