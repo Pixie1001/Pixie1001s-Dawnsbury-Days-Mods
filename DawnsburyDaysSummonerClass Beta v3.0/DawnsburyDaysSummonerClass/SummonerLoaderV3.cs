@@ -241,18 +241,39 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }));
 
             // Init eidolon ability boosts
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("EidolonStrengthBoost", "Strength Boost"), 5, "Your eidolon grows stronger.",
-                "Your eidolon increases its strength modifier by +1.", new Trait[] { tEidolonASI }, e => e.Abilities.Strength += 1, null);
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("EidolonDexterityBoost", "Dexterity Boost"), 5, "Your eidolon grows fasters.",
-                "Your eidolon increases its dexterity modifier by +1.", new Trait[] { tEidolonASI }, e => e.Abilities.Dexterity += 1, null);
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("EidolonConstitutionBoost", "Constitution Boost"), 5, "Your eidolon becomes sturdier.",
-                "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", new Trait[] { tEidolonASI }, e => e.Abilities.Constitution += 1, null);
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("EidolonIntelligenceBoost", "Intelligence Boost"), 5, "Your eidolon grows more cunning.",
-                "Your eidolon increases its intelligence modifier by +1.", new Trait[] { tEidolonASI }, e => e.Abilities.Intelligence += 1, null);
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("EidolonWisdomBoost", "Wisdom Boost"), 5, "Your eidolon's insticts grow sharper.",
-                "Your eidolon increases its wisdom modifier by +1.", new Trait[] { tEidolonASI }, e => e.Abilities.Wisdom += 1, null);
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("EidolonCharismaBoost", "Charisma Boost"), 5, "Your eidolon's presence grows.",
-                "Your eidolon increases its charisma modifier by +1.", new Trait[] { tEidolonASI }, e => e.Abilities.Charisma += 1, null);
+            yield return new Feat(ftStrengthBoost, "Your eidolon grows stronger.", "Your eidolon increases its strength modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? != Ability.Strength, "You cannot raise an ability score above +4.");
+            yield return new Feat(ftDexterityBoost, "Your eidolon grows fasters.",
+                "Your eidolon increases its dexterity modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+            //.WithPrerequisite(sheet => !sheet.HasFeat(ftKeyEidolonAbilityDex), "You cannot raise an ability score above +4.");
+            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? != Ability.Dexterity, "You cannot raise an ability score above +4.");
+            //.WithPrerequisite(sheet => {
+            //    //Feat? feat = sheet.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEidolonArray));
+            //    Feat? feat = null;
+            //    for (int i = 0; i < sheet.AllFeats.Count; i++) {
+            //        if (sheet.AllFeats[i].HasTrait(tEidolonArray)) {
+            //            feat = sheet.AllFeats[i];
+            //            break;
+            //        }
+            //    }
+            //    if (feat == null) {
+            //         return true;
+            //     }
+            //     Ability? mainAbility = (Ability?)feat.Tag;
+            //     if (mainAbility == null || mainAbility != Ability.Dexterity) {
+            //         return true;
+            //     }
+
+            //     return false;
+            // }, "You cannot raise an ability score above +4.");
+            yield return new Feat(ftConstitutionBoost, "Your eidolon becomes sturdier.",
+                "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", new List<Trait>() { tEidolonASI }, null);
+            yield return new Feat(ftIntelligenceBoost, "Your eidolon grows more cunning.",
+                "Your eidolon increases its intelligence modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+            yield return new Feat(ftWisdomBoost, "Your eidolon's insticts grow sharper.",
+                "Your eidolon increases its wisdom modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+            yield return new Feat(ftCharismaBoost, "Your eidolon's presence grows.",
+                "Your eidolon increases its charisma modifier by +1.", new List<Trait>() { tEidolonASI }, null);
 
             // Generate energy optinon feats
             DamageKind[] energyDamageTypes = new DamageKind[] { DamageKind.Acid, DamageKind.Cold, DamageKind.Electricity, DamageKind.Fire, DamageKind.Sonic, DamageKind.Positive, DamageKind.Negative };
@@ -857,7 +878,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }.WithRangeIncrement(6)
                 )}), null),
                 new EvolutionFeat(ModManager.RegisterFeatName("Piercing_RangedCombatant", "Piercing"), 1, "", "Your eidolon's ranged attack deals piercing damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
-                    AdditionalUnarmedStrike = new Item(IllustrationName.ArrowProjectile, "Shoot", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing) {
+                    AdditionalUnarmedStrike = new Item(IllustrationName.MagneticPinions, "Shoot", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing) {
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.ArrowProjectile)
                     }.WithRangeIncrement(6)
                 )}), null),
@@ -1129,7 +1150,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
 
         internal static Feat CreateEidolonFeat(FeatName featName, string flavorText, string? abilityText, string? actionText, int[] abilityScores, int ac, int dexCap) {
-            return new Feat(featName, flavorText, "Your eidolon has the following characteristics at level 1:\n\n" + PrintEidolonStatBlock(featName, abilityText, actionText, abilityScores, ac, dexCap), new List<Trait>() { }, (List<Feat>)null)
+            return new Feat(featName, flavorText, "Your eidolon has the following characteristics at level 1:\n\n" + PrintEidolonStatBlock(featName, abilityText, actionText, abilityScores, ac, dexCap), new List<Trait>() { tEidolonArray }, (List<Feat>)null)
             .WithOnCreature((Action<CalculatedCharacterSheetValues, Creature>)((sheet, summoner) => summoner
             .AddQEffect(new ActionShareEffect() {
                 Id = qfSharedActions,
@@ -1750,17 +1771,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static Creature CreateEidolonBase(string name, Creature summoner, int[] abilityScores, int ac, int dexCap) {
-            int strength = abilityScores[0];
-            int dexterity = abilityScores[1];
-            int constitution = abilityScores[2];
-            int intelligence = abilityScores[3];
-            int wisdom = abilityScores[4];
-            int charisma = abilityScores[5];
+            int strength = abilityScores[0] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftStrengthBoost) && abilityScores[0] < 4 ? 1 : 0);
+            int dexterity = abilityScores[1] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftDexterityBoost) && abilityScores[1] < 4 ? 1 : 0); ;
+            int constitution = abilityScores[2] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftConstitutionBoost) ? 1 : 0); ;
+            int intelligence = abilityScores[3] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftIntelligenceBoost) ? 1 : 0); ;
+            int wisdom = abilityScores[4] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftWisdomBoost) ? 1 : 0); ;
+            int charisma = abilityScores[5] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftCharismaBoost) ? 1 : 0); ;
             int level = summoner.Level;
             int trained = 2 + level;
             int expert = trained + 2;
             int master = expert + 2;
-            Abilities abilities1 = new Abilities(strength, dexterity, constitution, intelligence, wisdom, charisma);
+
+            Abilities abilities = new Abilities(strength, dexterity, constitution, intelligence, wisdom, charisma);
             Illustration illustration1 = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPortrait)).Illustration;
             string name1 = name;
             List<Trait> alignment = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault((Func<Feat, bool>)(ft => ft.HasTrait(tAlignment))).Traits;
@@ -1772,14 +1794,23 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
             traits = traits.Concat(subclass.eidolonTraits).ToList();
             traits.Add(tEidolon);
-            int perception = wisdom + (summoner.Proficiencies.AllProficiencies[Trait.Perception] == Proficiency.Trained ? trained : expert) + level;
+            int perception = wisdom + (int)summoner.Proficiencies.Get(Trait.Perception) + level;
             int speed1 = 5;
             Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + (level >= 11 ? expert : trained), constitution + (level >= 11 ? master : expert), dexterity + (level >= 9 ? expert : trained), wisdom + (level >= 15 ? master : expert));
             int hp = summoner.MaxHP;
-            Skills skills = summoner.Skills;
-            Abilities abilities2 = abilities1;
+            //summoner.Skills.IsTrained
+            Trait[] skillTraits = new Trait[] { Trait.Acrobatics, Trait.Arcana, Trait.Athletics, Trait.Crafting, Trait.Deception, Trait.Diplomacy, Trait.Intimidation,
+                Trait.Medicine, Trait.Nature, Trait.Occultism, Trait.Performance, Trait.Religion, Trait.Society, Trait.Stealth, Trait.Survival, Trait.Thievery };
+            Skills skills = new Skills();
+            foreach (Trait trait in skillTraits) {
+                int prof = (int)summoner.Proficiencies.Get(trait);
+                Skill? skill = (Skill)Skills.TraitToSkill(trait);
+                if (skill != null && prof >= 2) {
+                    skills.Set((Skill)skill, prof + level + abilities.Get(Skills.GetSkillAbility((Skill)skill)));
+                }
+            }
 
-            return new Creature(illustration1, name1, (IList<Trait>)traits, level, perception, speed1, defenses, hp, abilities2, skills)
+            return new Creature(illustration1, name1, (IList<Trait>)traits, level, perception, speed1, defenses, hp, abilities, skills)
                 .WithProficiency(Trait.Unarmed, (level >= 5 ? (level >= 13 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
                 .WithProficiency(Trait.UnarmoredDefense, (level >= 11 ? (level >= 19 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
                 .WithEntersInitiativeOrder(false)
@@ -2183,6 +2214,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     int healing = selfShareHP.HP - self.HP;
                     partner.Heal($"{healing}", selfShareHP.CA);
                 }
+
+                selfShareHP.Reset();
+                //selfShareHP.SoftReset();
             }
         }
 

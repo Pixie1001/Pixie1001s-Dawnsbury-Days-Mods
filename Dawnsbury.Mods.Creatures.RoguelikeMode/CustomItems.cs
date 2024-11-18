@@ -150,7 +150,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.DoNotAddToShop, Trait.Crossbow, Trait.Simple, Traits.CasterWeapon, Traits.CannotHavePropertyRune })
             .WithMainTrait(Traits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
-            .WithDescription("");
+            .WithDescription("This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.\n\n" +
+            "After the wielder expends a spell slot, the Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 wielder.AddQEffect(new QEffect("Hexshot", "After expending a spell slot, your Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.") {
@@ -181,6 +182,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                     return 0;
                                 },
                                 AfterYouTakeAction = async (self, action) => {
+                                    // TODO: Test this with spellstrike and 
                                     if (action != null && action.Item != null && action.Item.ItemName == Hexshot && action.HasTrait(Trait.Strike)) {
                                         self.ExpiresAt = ExpirationCondition.Immediately;
                                     }

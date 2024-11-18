@@ -63,9 +63,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class Level1EliteEncounter : Encounter
     {
-        public Level1EliteEncounter(string name, string filename, List<Item> rewards = null) : base(name, filename, rewards, 0) {
+        public Level1EliteEncounter(string name, string filename, List<(Item, string)>? eliteRewards = null, List<Item>? rewards = null) : base(name, filename, rewards, 0) {
             this.CharacterLevel = 1;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.ELITE);
+            if (eliteRewards != null && Rewards.Count == 0) {
+                CommonEncounterFuncs.SetItemRewards(Rewards, CharacterLevel, EncounterType.ELITE);
+            }
 
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
@@ -75,7 +78,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
+                if (eliteRewards != null) {
+                    await CommonEncounterFuncs.PresentEliteRewardChoice(battle, eliteRewards);
+                }
                 await CommonEncounterFuncs.StandardEncounterResolve(battle);
+
             });
         }
 

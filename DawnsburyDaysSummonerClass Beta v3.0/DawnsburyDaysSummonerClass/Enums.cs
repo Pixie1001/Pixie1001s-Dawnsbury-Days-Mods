@@ -42,6 +42,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static Trait tEidolonsWrathType = ModManager.RegisterTrait("EidolonsWrathDamageType", new TraitProperties("", false));
         internal static Trait tSummonerSubclass = ModManager.RegisterTrait("SummonerEidolonBond", new TraitProperties("Eidolon", false));
         internal static Trait tMetalElementalAtkType = ModManager.RegisterTrait("SummonerMetalElementalAttackType", new TraitProperties("", false));
+        internal static Trait tEidolonArray = ModManager.RegisterTrait("eidolonabilityscorearray", new TraitProperties("Eidolon Ability Score Array", false));
 
         // Feat names
         internal static FeatName classSummoner = ModManager.RegisterFeatName("SummonerClass", "Summoner");
@@ -133,6 +134,16 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftSHorn = ModManager.RegisterFeatName("S_Horn", "Horn");
         internal static FeatName ftSTail = ModManager.RegisterFeatName("S_Tail", "Tail");
 
+        // Ability BoostOptions
+        internal static FeatName ftStrengthBoost = ModManager.RegisterFeatName("EidolonStrengthBoost", "Strength Boost");
+        internal static FeatName ftDexterityBoost = ModManager.RegisterFeatName("EidolonDexterityBoost", "Dexterity Boost");
+        internal static FeatName ftConstitutionBoost = ModManager.RegisterFeatName("EidolonConstitutionBoost", "Constitution Boost");
+        internal static FeatName ftIntelligenceBoost = ModManager.RegisterFeatName("EidolonIntelligenceBoost", "Intelligence Boost");
+        internal static FeatName ftWisdomBoost = ModManager.RegisterFeatName("EidolonWisdomBoost", "Wisdom Boost");
+        internal static FeatName ftCharismaBoost = ModManager.RegisterFeatName("EidolonCharismaBoost", "Charisma Boost");
+        internal static FeatName ftKeyEidolonAbilityStr = ModManager.RegisterFeatName("ftKeyEidolonAbilityStr", "Key Ability: Strength");
+        internal static FeatName ftKeyEidolonAbilityDex = ModManager.RegisterFeatName("ftKeyEidolonAbilityDex", "Key Ability: Dexterity");
+
         // Alignment Options
         internal static FeatName ftALawfulGood = ModManager.RegisterFeatName("LawfulGood", "Lawful Good");
         internal static FeatName ftAGood = ModManager.RegisterFeatName("Good", "Good");
@@ -159,6 +170,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static QEffectId qfWhimsicalAura = ModManager.RegisterEnumMember<QEffectId>("Whimsical Aura");
         internal static QEffectId qfSeethingFrenzy = ModManager.RegisterEnumMember<QEffectId>("Seething Frenzy");
         internal static QEffectId qfSoulSiphon = ModManager.RegisterEnumMember<QEffectId>("Soul Siphon");
+        internal static QEffectId qfElementalBurst = ModManager.RegisterEnumMember<QEffectId>("Elemental Burst");
 
         // Actions
         internal static ActionId acCelestialPassion = ModManager.RegisterEnumMember<ActionId>("CelestialPassion");
@@ -192,5 +204,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static ModdedIllustration illConstrictingHold = new ModdedIllustration("SummonerAssets/ConstrictingHold.png");
         internal static ModdedIllustration illTendrilStrike = new ModdedIllustration("SummonerAssets/TendrilStrike.png");
         internal static ModdedIllustration illSoulWrench = new ModdedIllustration("SummonerAssets/SoulWrench.png");
+        internal static ModdedIllustration illElementalBurst = new ModdedIllustration("SummonerAssets/ElementalBurst.png");
     }
 }

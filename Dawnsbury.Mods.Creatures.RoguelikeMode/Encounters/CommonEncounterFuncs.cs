@@ -72,9 +72,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
 
             }
 
-            // Inferor/ supreme double HP md
-            // 
-
             creature.Level += levelAdjustment;
             creature.MaxHP += hpAdjustment;
             creature.Defenses.Set(Defense.AC, creature.Defenses.GetBaseValue(Defense.AC) + adjustmentValue);
@@ -155,6 +152,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
             return (int) gold;
         }
 
+        public static void SetItemRewards(List<Item> rewards, int level, ModEnums.EncounterType type) {
+            Func<int, bool> levelRange = type == EncounterType.NORMAL ? itemLevel => Between(itemLevel, level - 1, level + 1) : itemLevel => Between(itemLevel, level + 1, level + 2);
+
+            rewards.Add(LootTables.RollConsumable(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
+            int bonusConsumable = R.NextD20();
+            if (bonusConsumable >= 18) {
+                rewards.Add(LootTables.RollConsumable(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
+            }
+            rewards.Add(LootTables.RollWeapon(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
+            int bonusWearable = R.NextD20();
+            if (bonusWearable >= 11) {
+                rewards.Add(LootTables.RollWearable(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
+            }
+        }
+
         public static async Task StandardEncounterSetup(TBattle battle, ModEnums.EncounterType type=ModEnums.EncounterType.NORMAL) {
         }
 
@@ -173,38 +185,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
         //}
 
         public static async Task StandardEncounterResolve(TBattle battle, ModEnums.EncounterType type = ModEnums.EncounterType.NORMAL) {
-            Creature[] party = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToArray();
-            battle.CampaignState.CommonLoot.Add(LootTables.RollConsumable(party[R.Next(0, party.Count())]));
-            int bonusConsumable = R.NextD20();
-            if (bonusConsumable >= 18) {
-                battle.CampaignState.CommonLoot.Add(LootTables.RollConsumable(party[R.Next(0, party.Count())]));
-            }
-            battle.CampaignState.CommonLoot.Add(LootTables.RollWeapon(party[R.Next(0, party.Count())]));
-            int bonusWearable = R.NextD20();
-            if (bonusWearable >= 11) {
-                battle.CampaignState.CommonLoot.Add(LootTables.RollWearable(party[R.Next(0, party.Count())]));
-            }
+            //Creature[] party = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToArray();
+            //battle.CampaignState.CommonLoot.Add(LootTables.RollConsumable(party[R.Next(0, party.Count())]));
+            //int bonusConsumable = R.NextD20();
+            //if (bonusConsumable >= 18) {
+            //    battle.CampaignState.CommonLoot.Add(LootTables.RollConsumable(party[R.Next(0, party.Count())]));
+            //}
+            //battle.CampaignState.CommonLoot.Add(LootTables.RollWeapon(party[R.Next(0, party.Count())]));
+            //int bonusWearable = R.NextD20();
+            //if (bonusWearable >= 11) {
+            //    battle.CampaignState.CommonLoot.Add(LootTables.RollWearable(party[R.Next(0, party.Count())]));
+            //}
             await battle.EndTheGame(true, "You defeated all enemies!");
         }
 
-        public static async Task PresentEliteRewardChoice(TBattle battle) {
+        public static async Task PresentEliteRewardChoice(TBattle battle, List<(Item, string)> options) {
             if (battle.CampaignState == null || battle.CampaignState.AdventurePath == null || battle.CampaignState.AdventurePath.Id != "RoguelikeMode") {
                 return;
             }
-
+            await battle.Cinematics.NarratorLineAsync("Searching through the loot, some of your opponent's equipment is still intact.");
             battle.Cinematics.ExitCutscene();
 
-            // TODO: Hook up loot tables
-            Item option1 = Items.CreateNew(ItemName.NecklaceOfFireballsI);
-            Item option2 = Items.CreateNew(ItemName.BarbariansGloves);
-            Item option3 = Items.CreateNew(ItemName.StrikingRunestone);
-
             Dictionary<string, (Item, string)> itemOptions = new Dictionary<string, (Item, string)>();
-
-            // TODO: Replace this with a loot table look up thing
-            itemOptions.Add(option1.Name, (option1, "A necklace with flickering rubies that can be thrown to produce fiery explosions. (DC 21; 4d6 x2, 6d6 x1)"));
-            itemOptions.Add(option2.Name, (option2, "These might gloves grant the wearer a +1 bonus to athletics, and can be activated {icon:TwoActions} to remove the fatigued condition and heal the wearer for 3d8 HP."));
-            itemOptions.Add(option3.Name, (option3, "A powerful rune that upgrades the damage of a weapon."));
+            options.ForEach(item => itemOptions.Add(item.Item1.Name.CapitalizeEachWord(), (item.Item1, item.Item2)));
 
             string text = "Select your reward:";
             foreach (var option in itemOptions) {
@@ -213,13 +216,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
 
             Creature looter = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsHumanControlled);
 
-            ChoiceButtonOption choice = await looter.AskForChoiceAmongButtons(IllustrationName.GoldPouch, text, itemOptions.Select(o => o.Key).ToArray());
+            ChoiceButtonOption choice = await looter.AskForChoiceAmongButtons(IllustrationName.ChestOpen, text, itemOptions.Select(o => o.Key).ToArray());
 
             foreach (var option in itemOptions) {
                 if (option.Key == choice.Caption) {
                     battle.CampaignState.CommonLoot.Add(option.Value.Item1);
+                    battle.Encounter.RewardGold += option.Value.Item1.Price;
                 }
             }
+        }
+
+        private static bool Between(int value, int lower, int upper) {
+            if (value >= lower && value <= upper) {
+                return true;
+            }
+            return false;
         }
 
     }

@@ -41,6 +41,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             LoggedCreature = null;
             ActionHistory = null;
             LoggedThisTurn = false;
+            HP = Owner.HP;
+            TempHP = Owner.TemporaryHP;
+        }
+
+        public void SoftReset() {
+            HP = Owner.HP;
+            TempHP = Owner.TemporaryHP;
         }
 
         public void LogAction(Creature self, CombatAction? action, Creature? creature, SummonerClassEnums.InterceptKind type) {

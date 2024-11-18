@@ -62,6 +62,12 @@ using Dawnsbury.Core.Mechanics;
 using Microsoft.Xna.Framework.Graphics;
 using static System.Collections.Specialized.BitVector32;
 using System.Reflection.Metadata.Ecma335;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Dawnsbury.Core.Noncombat;
+using Microsoft.VisualBasic;
+using static System.Net.Mime.MediaTypeNames;
+using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -196,7 +202,27 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
             "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.";
 
+        private static readonly string ElementalEidolonFlavour = "Your eidolon is a primal chunk of elemental matter infused with sapience, power, and identity, but unable to manifest a true form of their own without the life force you provide" +
+               "via your connection. Most elementals in their natural environment already have different sorts of forms, from vaguely humanoid, to animalistic, to simple masses of their component element. As your life force "
+               + "provides your eidolon the instincts necessary to adopt a physical form, their appearance varies based on the strength of their own self image and your prior exposure to elementals. Elemental eidolons tend to " +
+               "reach their unusual state— powerful but formless—as the result of large scale events or cataclysms, such as the war to seal the benevolent Elemental Lords or their recent unsealing.\n\n" +
+               "Whether elemental eidolons possess any memories of a previous life or are a new sapience formed from leftover essence of a mighty servant of the Elemental Lords brought low varies from eidolon to eidolon. " +
+               "Together, you might undertake a journey to understand your eidolon's mysterious past or leave the past behind and forge a new destiny of your own.";
+
+        private static readonly string ElementalEidolonCrunch = "\n\n• {b}Tradition{/b} Primal\n• {b}Skills{/b} Nature, Athletics\n\n" +
+            "{b}Initial Eidolon Ability (Elemental Core).{/b} Your eidolon's elemental nature grants it a +2 circumstance bonus to saves against being poisoned, and against the paralyze spell. " +
+            "Additionally, it gains a +5 bonus to staunch persistent bleed damage. You can choose to form a bond with an {i}air, earth, fire, metal{/i} or {/i}water{/i} elemental. Your eidolon and all their unarmed attacks " +
+            "gain the trait of the chosen element, as well as additional effects based on your choice." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Elemental Burst) {icon:TwoActions}.{/b}\n\n" +
+            "{b}Range{/b} 60 feet\n{b}Area{/b} 20 foot burst\n{b}Saving throw{/b} basic Reflex\n{b}Frequency{/b} 1/ encounter\n\n" +
+            "Your eidolon rips off a chunk of elemental matter from their own form and hurls it into a group of foes. Your eidolon loses a number of Hit Points equal to your level, dealing 6d6 damage to all creatures inside the burst. " +
+            "The damage increases by 1d6 for each level you have beyond 7th. The damage's type is either fire damage if your eidolon is a fire elemental, or the same physical damage type as your eidolon's primary unarmed attack if your " +
+            "eidolon isn't a fire elemental. Elemental Burst gains any traits that your eidolon's unarmed attacks gain from elemental core.";
+
         internal static IEnumerable<Feat> LoadSubclasses() {
+
+            //yield return new Feat(ftKeyEidolonAbilityStr, "", "", new List<Trait>() { }, null);
+            //yield return new Feat(ftKeyEidolonAbilityDex, "", "", new List<Trait>() { }, null);
 
             // Init subclasses
             subclasses.Add(new EidolonBond(Enums.scAngelicEidolon, AngelicEidolonFlavour, AngelicEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy },
@@ -207,8 +233,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { Enums.scAngelicEidolonAvenger, Enums.scAngelicEidolonEmmissary }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(Enums.scAngelicEidolonAvenger, "Your eidolon is a fierce warrior of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3);
-            yield return CreateEidolonFeat(Enums.scAngelicEidolonEmmissary, "Your eidolon is a regal emmisary of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4);
+            yield return CreateEidolonFeat(Enums.scAngelicEidolonAvenger, "Your eidolon is a fierce warrior of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(Enums.scAngelicEidolonEmmissary, "Your eidolon is a regal emmisary of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4).WithTag(Ability.Dexterity);
 
 
             subclasses.Add(new EidolonBond(scAngerPhantom, AngerPhantomFlavour, AngerPhantomCrunch, Trait.Occult, new List<FeatName>() { FeatName.Occultism, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { })
@@ -219,8 +245,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngerPhantomEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scAngerPhantomBerserker, scAngerPhantomAssassin }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scAngerPhantomBerserker, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
-            yield return CreateEidolonFeat(scAngerPhantomAssassin, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, -1, 1 }, 1, 4);
+            yield return CreateEidolonFeat(scAngerPhantomBerserker, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scAngerPhantomAssassin, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, -1, 1 }, 1, 4).WithTag(Ability.Dexterity);
 
 
             subclasses.Add(new EidolonBond(Enums.scAzataEidolon, AzataEidolonFlavour, AzataEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy },
@@ -231,8 +257,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AzataEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scAzataEidolonCrusader, scAzataEidolonPoet }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scAzataEidolonCrusader, "Your eidolon is a benevolant crusader of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
-            yield return CreateEidolonFeat(scAzataEidolonPoet, "Your eidolon is an inspiring muse of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, -1, 1, 3 }, 1, 4);
+            yield return CreateEidolonFeat(scAzataEidolonCrusader, "Your eidolon is a benevolant crusader of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scAzataEidolonPoet, "Your eidolon is an inspiring muse of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, -1, 1, 3 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -243,8 +269,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scBeastEidolonBrutal, scBeastEidolonFleet }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scBeastEidolonBrutal, "Your eidolon is a powerful and brutally strong beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3);
-            yield return CreateEidolonFeat(scBeastEidolonFleet, "Your eidolon is a fleet and agile beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4);
+            yield return CreateEidolonFeat(scBeastEidolonBrutal, "Your eidolon is a powerful and brutally strong beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scBeastEidolonFleet, "Your eidolon is a fleet and agile beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -255,8 +281,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DevoPhantomEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scDevoPhantomEidolonStalwart, scDevoPhantomEidolonSwift }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scDevoPhantomEidolonStalwart, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText,new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3);
-            yield return CreateEidolonFeat(scDevoPhantomEidolonSwift, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, 0, 0 }, 1, 4);
+            yield return CreateEidolonFeat(scDevoPhantomEidolonStalwart, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText,new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scDevoPhantomEidolonSwift, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, 0, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
             subclasses.Add(new Feat(Enums.scDraconicEidolon, DraconicEidolonFlavour, DraconicEidolonCrunch, new List<Trait>() { }, null)
@@ -266,8 +292,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DraconicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { Enums.scDraconicEidolonCunning, Enums.scDraconicEidolonMarauding }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scDraconicEidolonCunning, "Your eidolon is a cunning wyrm.", null, (subclasses.Last()).Tag as string, new int[6] { 1, 4, 1, 2, 1, 1 }, 1, 4);
-            yield return CreateEidolonFeat(scDraconicEidolonMarauding, "Your eidolon is a fierce marauding drake.", null, (subclasses.Last()).Tag as string, new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3);
+            yield return CreateEidolonFeat(scDraconicEidolonCunning, "Your eidolon is a cunning wyrm.", null, (subclasses.Last()).Tag as string, new int[6] { 1, 4, 1, 2, 1, 1 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scDraconicEidolonMarauding, "Your eidolon is a fierce marauding drake.", null, (subclasses.Last()).Tag as string, new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3).WithTag(Ability.Strength);
 
             // Dragon breath feats
             Feat dragonLineBreath = new Feat(Enums.ftBreathWeaponLine, "Your dragon eidolon emits a sharp, destructive line of energy.", "Your eidolon's breath weapon hits each creature in a 60-foot line.", new List<Trait>() { Enums.tBreathWeaponArea }, null);
@@ -282,8 +308,22 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DevilEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scDevilEidolonBarrister, scDevilEidolonLegionnaire }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scDevilEidolonLegionnaire, "Your eidolon is a ruthlessly professional legionnaire of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 2, 0, -1, 2 }, 2, 3);
-            yield return CreateEidolonFeat(scDevilEidolonBarrister, "Your eidolon is a cunning and corruptive barrister of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4);
+            yield return CreateEidolonFeat(scDevilEidolonLegionnaire, "Your eidolon is a ruthlessly professional legionnaire of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 2, 0, -1, 2 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scDevilEidolonBarrister, "Your eidolon is a cunning and corruptive barrister of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4).WithTag(Ability.Dexterity);
+
+
+
+            subclasses.Add(new EidolonBond(scElementalEidolon, ElementalEidolonFlavour, ElementalEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Athletics },
+                new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Elemental })
+            .WithClassFeatures(ElementalEidolonLogic)
+            .WithAbilityText("{b}Elemental Core.{/b} Your eidolon's elemental nature grants it a +2 circumstance bonus to saves against being poisoned, and against the paralyze spell. Additionally, it gains a +5 bonus to staunch persistent bleed damage.\n")
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow(new SingleFeatSelectionOption("ElementalType", "Eidolon Element", 1, ft => ft.HasTrait(tElementalType)));
+                values.AddSelectionOptionRightNow(new SingleFeatSelectionOption("ElementalEidolonArray", "Eidolon Ability Scores", 1, (ft => new FeatName[] { scElementalEidolonAdaptable, scElementalEidolonPrimordial }.Contains(ft.FeatName))));
+            })));
+
+            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scElementalEidolonAdaptable, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 3, 0, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -293,8 +333,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("FeyEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scFeyEidolonSkirmisher, scFeyEidolonTrickster }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scFeyEidolonSkirmisher, "Your eidolon is an illusive predator of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 2, 0, 0, 1 }, 1, 4);
-            yield return CreateEidolonFeat(scFeyEidolonTrickster, "Your eidolon is a mercurial trickster of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 1, -1, 3 }, 1, 4);
+            yield return CreateEidolonFeat(scFeyEidolonSkirmisher, "Your eidolon is an illusive predator of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 2, 0, 0, 1 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scFeyEidolonTrickster, "Your eidolon is a mercurial trickster of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 1, -1, 3 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -306,8 +346,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("PsychopompEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scPsychopompEidolonGuardian, scPsychopompEidolonScribe }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scPsychopompEidolonGuardian, "Your eidolon is a vigilant protector of lost souls destined for the Boneyard.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, 0, 1, -1 }, 2, 3);
-            yield return CreateEidolonFeat(scPsychopompEidolonScribe, "Your eidolon is diligant archiver of prophecy and mortal transgression.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 2, 1, 0 }, 1, 4);
+            yield return CreateEidolonFeat(scPsychopompEidolonGuardian, "Your eidolon is a vigilant protector of lost souls destined for the Boneyard.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, 0, 1, -1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scPsychopompEidolonScribe, "Your eidolon is diligant archiver of prophecy and mortal transgression.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 2, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -319,8 +359,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("PlantEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scPlantEidolonGuardian, scPlantEidolonCreeping }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scPlantEidolonGuardian, "Your eidolon is a stalward guardian of nature.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3);
-            yield return CreateEidolonFeat(scPlantEidolonCreeping, "Your eidolon is patient, predatory plant, such as a carnivorous vine or flytrap.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 3, -1, 2, 0 }, 1, 4);
+            yield return CreateEidolonFeat(scPlantEidolonGuardian, "Your eidolon is a stalward guardian of nature.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scPlantEidolonCreeping, "Your eidolon is patient, predatory plant, such as a carnivorous vine or flytrap.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 3, -1, 2, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -332,55 +372,49 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("UndeadEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scUndeadEidolonBrute, scUndeadEidolonStalker }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scUndeadEidolonBrute, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
-            yield return CreateEidolonFeat(scUndeadEidolonStalker, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4);
+            yield return CreateEidolonFeat(scUndeadEidolonBrute, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scUndeadEidolonStalker, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
-
-            subclasses.Add(new EidolonBond(scElementalEidolon, UndeadEidolonFlavour, UndeadEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Athletics },
-                new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Elemental })
-            .WithClassFeatures(ElementalEidolonLogic)
-            .WithAbilityText("{b}Elemental Core.{/b} ...\n")
-            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
-                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("ElementalEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scElementalEidolonAdaptable, scElementalEidolonPrimordial }.Contains(ft.FeatName))));
-            })));
-
-            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3);
-            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4);
-
-            // TODO: Transcribe qeffect text
 
             // Elemental type subfeats
-            yield return new Feat(ModManager.RegisterFeatName("Summoner_AirElemental", "Air Elemental"), "Your eidolon is formed from elemental air and is light as a breeze.", "Your eidolon gains the airborn form evolution feat at 1st level.",
-                new List<Trait>() { Trait.Air, Enums.tElementalType }, null)
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_AirElemental", "Air Elemental"), 1, "Your eidolon is formed from elemental air and is light as a breeze.", "Your eidolon gains the airborn form evolution feat at 1st level.",
+                new Trait[] { Trait.Air, Enums.tElementalType }, cr => {
+                        cr.UnarmedStrike.Traits.Add(Trait.Air);
+                        cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Air);
+                }, null)
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(ftAirbornForm);
                 EidolonBond? bond = (EidolonBond?) sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
-                    bond.eidolonTraits.Add(Trait.Air);
-                    bond.AbilityText += "\n{b}Airborn Form.{/b} Your eidolon ignores difficult terrain and and can fly over lava and water.\n";
+                    bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Air };
                 }
             });
 
-            yield return new Feat(ModManager.RegisterFeatName("Summoner_EarthElemental", "Earth Elemental"), "Your eidolon is formed from elemental earth, and is incredibly hard to move by force.",
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_EarthElemental", "Earth Elemental"), 1, "Your eidolon is formed from elemental earth, and is incredibly hard to move by force.",
                 "Your eidolon gains a +2 circumstance bonus to their save DCs against attempts to Shove or Trip them, and are immune to forced movement.",
-                new List<Trait>() { Trait.Air, Enums.tElementalType }, null)
+                new Trait[] { Trait.Earth, Enums.tElementalType }, cr => {
+                    cr.UnarmedStrike.Traits.Add(Trait.Earth);
+                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Earth);
+                }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
-                    bond.eidolonTraits.Add(Trait.Earth);
-                    bond.AbilityText += "\n{b}Earth Elemental.{/b} Your eidolon gains a +2 circumstance bonus to their Fortitude or Reflex DCs against attempts to Shove or Trip them, and is immune to forced movement. This bonus might also apply to certain spells or abilitie that knock their targets prone.\n";
+                    bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Earth };
                 }
             });
 
-            yield return new Feat(ModManager.RegisterFeatName("Summoner_FireElemental", "Fire Elemental"), "Your eidolon is formed from elemental fire and burns with embers of flame.",
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_FireElemental", "Fire Elemental"), 1, "Your eidolon is formed from elemental fire and burns with embers of flame.",
                 "Your eidolon gains resistance equal to half your level (minimum 1) to fire and an equal amount of weakness to cold and water. Their unarmed attacks deal 1 additional fire damage.",
-                new List<Trait>() { Trait.Fire, Enums.tElementalType }, null)
+                new Trait[] { Trait.Fire, Enums.tElementalType }, cr => {
+                    cr.UnarmedStrike.Traits.Add(Trait.Fire);
+                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Fire);
+                }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
-                    bond.eidolonTraits.Add(Trait.Fire);
-                    bond.AbilityText += "\n{b}Fire Elemental.{/b} Your eidolon's unarmed attacks deal 1 additional fire damage.\n";
+                    bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Fire };
+                    //bond.AbilityText += "\n{b}Fire Elemental.{/b} Your eidolon's unarmed attacks deal 1 additional fire damage.\n";
                 }
             });
 
@@ -388,9 +422,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 "\n{b}" + Trait.VersatileP.HumanizeTitleCase2() + "{/b} " + Trait.VersatileP.GetTraitProperties().RulesText +
                 "\n{b}" + Trait.VersatileS.HumanizeTitleCase2() + "{/b} " + Trait.VersatileS.GetTraitProperties().RulesText;
 
-            yield return new Feat(ModManager.RegisterFeatName("Summoner_MetalElemental", "Metal Elemental"), "Your eidolon is formed from elemental metal and can adapt their metallic form to battle.",
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_MetalElemental", "Metal Elemental"), 1, "Your eidolon is formed from elemental metal and can adapt their metallic form to battle.",
                 "One of your eidolon's starting melee unarmed attacks gains the versatile bludgeoning, piercing, or slashing trait, as your eidolon learns how to shift the metal into various weaponlike forms.",
-                new List<Trait>() { Trait.Metal, Enums.tElementalType }, new List<Feat>() {
+                new Trait[] { Trait.Metal, Enums.tElementalType }, cr => {
+                    cr.UnarmedStrike.Traits.Add(Trait.Metal);
+                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Metal);
+                }, new List<Feat>() {
                     new Feat(ModManager.RegisterFeatName("MetalElemental_PrimaryUnarmedAttack", "Primary Unarmed Attack"), "",
                     "Your eidolon's primary natural weapon attack gains the Versatile S, P and B traits." + traitTags, new List<Trait>() { tMetalElementalAtkType }, null),
                     new Feat(ModManager.RegisterFeatName("MetalElemental_SecondaryUnarmedAttack", "Secondary Unarmed Attack"), "",
@@ -399,31 +436,34 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
-                    bond.eidolonTraits.Add(Trait.Metal);
+                    bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Metal };
                 }
             });
 
-            yield return new Feat(ModManager.RegisterFeatName("Summoner_WaterElemental", "Water Elemental"), "Your eidolon is formed from elemental metal and can adapt their metallic form to battle.",
-                "One of your eidolon's starting melee unarmed attacks gains the versatile bludgeoning, piercing, or slashing trait, as your eidolon learns how to shift the metal into various weaponlike forms.",
-                new List<Trait>() { Trait.Water, Enums.tElementalType }, null)
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_WaterElemental", "Water Elemental"), 1, "Your eidolon is formed from elemental water and swims with ease.",
+                "Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.",
+                new Trait[] { Trait.Water, Enums.tElementalType }, cr => {
+                    cr.UnarmedStrike.Traits.Add(Trait.Water);
+                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Water);
+                }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
-                    bond.eidolonTraits.Add(Trait.Water);
-                    bond.eidolonTraits.Add(Trait.Aquatic);
-                    bond.AbilityText += "\n{b}Water Elemental.{/b} Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.\n";
+                    bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Aquatic, Trait.Water };
+                    //bond.AbilityText += "\n{b}Water Elemental.{/b} Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.\n";
                 }
             });
 
-            yield return new Feat(ModManager.RegisterFeatName("Summoner_WoodElemental", "Wood Elemental"), "Your eidolon is formed from elemental wood, and its living wooden form twists and regrows as you focus your elemental energies.",
-                "...",
-                new List<Trait>() { Trait.Wood, Enums.tElementalType }, null)
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_WoodElemental", "Wood Elemental"), 1, "Your eidolon is formed from elemental wood, and its living wooden form twists and regrows as you focus your elemental energies.",
+                "Your eidolon cans the regrowth ability.\n\n{b}Regrowth {icon:Action}.{/b} Your eidolon regains a number of hits points equal to three times its level. Usable once per day.",
+                new Trait[] { Trait.Wood, Enums.tElementalType }, cr => {
+                    cr.UnarmedStrike.Traits.Add(Trait.Wood);
+                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Wood);
+                }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
-                    bond.eidolonTraits.Add(Trait.Wood);
-                    bond.eidolonTraits.Add(Trait.Plant);
-                    bond.AbilityText += "\n{b}Wood Elemental.{/b} ...\n";
+                    bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Plant, Trait.Wood };
                 }
             });
 
@@ -1445,7 +1485,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 ReducesPersistentDamageRecoveryCheckDc = (self, pd, kind) => kind == DamageKind.Bleed
             });
 
-            switch (summoner.PersistentCharacterSheet.Calculated.AllFeats.First(ft => ft.HasTrait(tElementalType)).Traits[0]) {
+            Trait element = summoner.PersistentCharacterSheet.Calculated.AllFeats.First(ft => ft.HasTrait(tElementalType)).Traits[1];
+
+            switch (element) {
                 case Trait.Earth:
                     // TODO: Match desc with feat
                     eidolon.AddQEffect(new QEffect("Earth Elemental", "Your eidolon gains a +2 circumstance bonus to their save DCs against attempts to Shove or Trip them, and is immune to forced movement.") {
@@ -1462,7 +1504,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     });
                     break;
                 case Trait.Fire:
-                    // TODO: Add weakness/res to print method
                     eidolon.AddQEffect(new QEffect("Fire Elemental", "Your eidolon's unarmed attacks deal 1 additional fire damage, and they have weakness equal to half their level attacks with the water trait.") {
                         AddExtraKindedDamageOnStrike = (action, target) => {
                             return new KindedDamage(DiceFormula.FromText("1", "Fire Elemental"), DamageKind.Fire);
@@ -1523,20 +1564,22 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     });
                     break;
                 case Trait.Wood:
-                    // TODO: Add wood ability
-                    // Once per 
                     eidolon.AddQEffect(new QEffect() {
                         ProvideMainAction = self => {
                             if (summoner.PersistentUsedUpResources.UsedUpActions.Contains("Regrowth")) {
                                 return null;
                             }
 
-                            return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.FlourishingFlora, "Regrowth", new Trait[] { Trait.Healing, Trait.Magical, tEidolon, Trait.Abjuration }, "...", Target.Self())
+                            return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.FlourishingFlora, "Regrowth", new Trait[] { Trait.Healing, Trait.Magical, tEidolon, Trait.Abjuration },
+                                $"Your eidolon regains a number of hits points equal to three times its level ({self.Owner.Level * 3}). Usable once per day.",
+                                Target.Self().WithAdditionalRestriction(caster => caster.HP >= caster.MaxHP ? "full HP" : null)) {
+                                ShortDescription = $"Regain {self.Owner.Level * 3} HP."
+                            }
                             .WithActionCost(1)
                             .WithSoundEffect(SfxName.NaturalHealing)
                             .WithProjectileCone(IllustrationName.FlourishingFlora, 5, ProjectileKind.Cone)
                             .WithEffectOnSelf(async (action, user) => {
-                                await user.HealAsync(DiceFormula.FromText($"{user.Level * 2}", "Regrowth"), action);
+                                await user.HealAsync(DiceFormula.FromText($"{user.Level * 3}", "Regrowth"), action);
                                 summoner.PersistentUsedUpResources.UsedUpActions.Add("Regrowth");
                             });
                         }
@@ -1548,7 +1591,28 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             if (eidolon.Level >= 7) {
                 eidolon.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
-                        return null;
+                        if (self.Owner.HasEffect(qfElementalBurst)) {
+                            return null;
+                        }
+
+                        string damage = $"{self.Owner.Level - 1}d6";
+                        DamageKind kind = element == Trait.Fire ? DamageKind.Fire : self.Owner.UnarmedStrike.WeaponProperties.DamageKind;
+
+                        return (ActionPossibility)new CombatAction(self.Owner, illElementalBurst, "Elemental Burst", new Trait[] { Trait.Evocation, Trait.Primal },
+                            "{b}Range{/b} 60 feet\n{b}Area{/b} 20 foot burst\n{b}Saving throw{/b} basic Reflex\n{b}Frequency{/b} 1/encounter\n\n" +
+                            $"Your eidolon rips off a chunk of elemental matter from their own form and hurls it into a group of foes. Your eidolon loses a number of Hit Points equal to your level, dealing {damage} {kind.HumanizeTitleCase2()} damage to all creatures inside the burst. ",
+                            Target.Burst(12, 4)) {
+                            ShortDescription = $"20 foot burst, basic Reflex; {damage} {kind.HumanizeTitleCase2()} damage"
+                        }
+                        .WithActionCost(2)
+                        .WithSoundEffect(SfxName.Fireball)
+                        .WithProjectileCone(illElementalBurst, 20, ProjectileKind.Cone)
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, summoner.ClassOrSpellDC()))
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) => await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, damage, kind))
+                        .WithEffectOnSelf(async (action, user) => {
+                            await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText($"{user.Level}", "Elemental Burst Cost"), user, CheckResult.Success, DamageKind.Force);
+                            user.AddQEffect(new QEffect() { Id = qfElementalBurst });
+                        });
                     }
                 });
             }

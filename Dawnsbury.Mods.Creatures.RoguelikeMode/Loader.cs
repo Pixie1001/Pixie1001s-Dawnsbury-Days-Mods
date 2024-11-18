@@ -136,7 +136,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");
 
             // Other
-            RegisterEncounter<TestMap>("TestHall.tmx", "TestHall.tmx");
+            ModManager.RegisterEncounter<TestMap>("TestHall.tmx");
         }
 
         private static void RegisterEncounter<T>(string filename, string key) where T : Encounter {

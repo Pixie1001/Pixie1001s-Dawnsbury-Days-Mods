@@ -40,25 +40,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             encounters[1].Add(new TypedEncounterCampaignStop<DrowAmbushLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<RatSwarmLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv2>());
-            encounters[0].Add(new TypedEncounterCampaignStop<SpiderNestLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<SpiderNestLv2>());
 
             // level1Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<RatSwarmLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv3>());
-            encounters[0].Add(new TypedEncounterCampaignStop<SpiderNestLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<SpiderNestLv3>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<WitchCovenLv1>());
+            eliteEncounters[0].Add(new TypedEncounterCampaignStop<AqueductsLv1>());
 
             // level1EliteEncounters
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<HallOfSmokeLv2>());
-            eliteEncounters[0].Add(new TypedEncounterCampaignStop<WitchCovenLv2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<WitchCovenLv2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<AqueductsLv2>());
 
             // level1EliteEncounters
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<HallOfSmokeLv3>());
-            eliteEncounters[0].Add(new TypedEncounterCampaignStop<WitchCovenLv3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<WitchCovenLv3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<AqueductsLv3>());
 
             // Boss Fights
             bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());

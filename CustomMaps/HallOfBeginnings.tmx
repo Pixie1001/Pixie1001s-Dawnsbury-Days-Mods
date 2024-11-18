@@ -4,7 +4,7 @@
   <property name="EncounterDescription" value="Start point for roguelike mode"/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="1"/>
-  <property name="EncounterName" value="Hall of Beginnings"/>
+  <property name="EncounterName" value="Random Encounter"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>

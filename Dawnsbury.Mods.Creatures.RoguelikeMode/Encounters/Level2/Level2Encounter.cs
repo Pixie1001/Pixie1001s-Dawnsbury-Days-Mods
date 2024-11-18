@@ -68,6 +68,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
         {
             this.CharacterLevel = 2;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
+            if (Rewards.Count == 0) {
+                CommonEncounterFuncs.SetItemRewards(Rewards, 2, EncounterType.NORMAL);
+            }
 
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {

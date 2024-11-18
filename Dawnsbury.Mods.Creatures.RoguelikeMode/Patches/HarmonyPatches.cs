@@ -37,10 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
         //}
 
         [HarmonyPostfix]
-        //[HarmonyPatch(typeof(CampaignState), MethodType.Constructor)]
         [HarmonyPatch(typeof(CampaignState), MethodType.Constructor, new Type[] { typeof(List<CharacterSheet>), typeof(AdventurePath) })]
-        // new Type[] { typeof(List<CharacterSheet>), typeof(AdventurePath) }
-
         private static void CampaignStatePatch(CampaignState __instance, List<CharacterSheet> heroes, AdventurePath adventurePath) {
             if (__instance.AdventurePath != null && __instance.AdventurePath.Id == "RoguelikeMode")
             __instance.Tags.Add("new run", "true");
@@ -82,7 +79,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
         private static void CreateViewsPatch(CampaignMenuPhase __instance) {
             CampaignState state = __instance.CurrentCampaignState;
 
-            if (state.AdventurePath.CampaignStops[2].Name == "Hall of Beginnings" || state.Tags.ContainsKey("new run")) {
+            if (state.AdventurePath.CampaignStops[2].Name == "Random Encounter" || state.Tags.ContainsKey("new run")) {
                 GenerateRun(state);
             }
         }
@@ -93,7 +90,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             }
 
             List<CampaignStop> path = campaign.AdventurePath.CampaignStops;
-
+            LootTables.GenerateParty(campaign);
             EncounterTables.LoadEncounterTables();
 
             // Debug for testing
@@ -147,6 +144,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
 
             // TODO: Override the .Description property of DawnsburyStop to instead show my credits if city name matches one from this adventure path.
             //(path.Last() as DawnsburyStop).Description = Loader.Credits;
+            
+            
+            
+            var stop = path[path.Count - 1];
+
+            var t1 = (string)typeof(DawnsburyStop).GetField("flavorText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
+            var t2 = (int)typeof(DawnsburyStop).GetField("dawnsburyStopIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
+            var t3 = (int)typeof(DawnsburyStop).GetField("<ShopLevel>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
+
+            path[path.Count - 1] = new CustomLastStop(path[path.Count - 1] as DawnsburyStop, path[path.Count - 1].Index);
+
 
             //path.Remove(path.Last());
             //path.Add(new DawnsburyStop("You won! Congrats!", path.Last().Index + 1, level, false, "Post Init"));

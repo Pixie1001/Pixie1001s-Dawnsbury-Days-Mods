@@ -192,7 +192,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 })
                 .WithProficiency(Trait.Weapon, Proficiency.Expert)
                 .AddQEffect(new QEffect() {
-                    Id = QEffectId.SwiftSneak
+                    Id = QEffectId.SwiftSneak,
+                    BonusToInitiative = self => new Bonus(-20, BonusType.Untyped, "Patient Stalker")
                 })
                 .AddQEffect(new QEffect("Shadowsilk Cloak", "Target can always attempt to sneak or hide, even when unobstructed.") {
                     Id = QEffectId.HideInPlainSight,
@@ -201,29 +202,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
                         Creature target = party.OrderBy(c => c.HP / 100 * (c.Defenses.GetBaseValue(Defense.AC) * 5)).ToList()[0];
 
+                        // TODO: Set so that lurking ends after taking their bonus turn
                         self.Owner.AddQEffect(new QEffect {
                             Id = QEffectIds.Lurking,
-                            Value = 2,
                             PreventTakingAction = action => action.ActionId != ActionId.Sneak ? "Stalking prey, cannot act." : null,
-                            StateCheck = self => {
-                                if (!self.Owner.DetectionStatus.Undetected) {
-                                    QEffect startled = QEffect.Stunned(2);
-                                    startled.Illustration = IllustrationName.Dazzled;
-                                    startled.Name = "Startled";
-                                    startled.Description = "The assassin is startled by their premature discovery.\nAt the beginning of their next turn, they will lose 2 actions.\n\nThey can't take reactions.";
-                                    self.Owner.Occupies.Overhead("*startled!*", Color.Black);
-                                    self.Owner.AddQEffect(startled);
-                                    Sfxs.Play(SfxName.DazzlingFlash);
-                                    self.ExpiresAt = ExpirationCondition.Immediately;
-                                }
-                            },
+                            //StateCheck = self => {
+                            //    if (!self.Owner.DetectionStatus.Undetected) {
+                            //        QEffect startled = QEffect.Stunned(2);
+                            //        startled.Illustration = IllustrationName.DazzlingFlash;
+                            //        startled.Name = "Startled";
+                            //        startled.Description = "The assassin is startled by their premature discovery.\nAt the beginning of their next turn, they will lose 2 actions.\n\nThey can't take reactions.";
+                            //        self.Owner.Occupies.Overhead("*startled!*", Color.Black);
+                            //        self.Owner.AddQEffect(startled);
+                            //        Sfxs.Play(SfxName.DazzlingFlash);
+                            //        self.ExpiresAt = ExpirationCondition.Immediately;
+                            //    }
+                            //},
                             BonusToSkillChecks = (skill, action, target) => {
                                 if (skill == Skill.Stealth && action.Name == "Sneak") {
                                     return new Bonus(7, BonusType.Status, "Lurking");
                                 }
                                 return null;
                             },
-                            ExpiresAt = ExpirationCondition.CountsDownAtEndOfYourTurn,
+                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
                         });
 
                         foreach (Creature player in party) {
@@ -824,8 +825,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             Creatures.Add(ModEnums.CreatureId.WITCH_CRONE,
             encounter => new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
             new Abilities(2, 2, 3, 4, 2, 0), new Skills(nature: 13, occultism: 9, intimidation: 10, religion: 9))
-            .WithProficiency(Trait.Unarmed, Proficiency.Expert)
-            .WithProficiency(Trait.BattleformAttack, Proficiency.Master)
+            .WithProficiency(Trait.Unarmed, Proficiency.Trained)
+            .WithProficiency(Trait.BattleformAttack, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Trained)
             .WithBasicCharacteristics()
             .WithUnarmedStrike(new Item(IllustrationName.Fist, "nails", new Trait[] { Trait.Unarmed, Trait.Melee, Trait.Brawling, Trait.Finesse }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)))
@@ -882,6 +883,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     });
                     owner.Battle.SpawnCreature(summon, owner.OwningFaction, spawnPt.X, spawnPt.Y);
                     summon.Occupies.Overhead("*Curse of Skittering Paws*", Color.White, $"{summon.Name} is drawn to aide the coven by the curse of skittering paws.");
+                    summon.Battle.SmartCenter(summon.Occupies.X, summon.Occupies.Y);
                     Sfxs.Play(SfxName.BeastRoar);
                 },
             })

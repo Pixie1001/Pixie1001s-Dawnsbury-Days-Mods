@@ -65,6 +65,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class WitchCovenLv1 : Level1EliteEncounter
     {
-        public WitchCovenLv1(string filename) : base("Witch Coven", filename) { }
+        public WitchCovenLv1(string filename) : base("Witch Coven", filename, eliteRewards: new List<(Item, string)> {
+            (Items.CreateNew(CustomItems.Hexshot), "A worn pistol etched with malevolent purple runes that seem to glow brightly in response to spellcraft."),
+            (Items.CreateNew(CustomItems.ProtectiveAmulet), "An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings, that might be held aloft to protect others from harm.")
+        }) { }
     }
 }
