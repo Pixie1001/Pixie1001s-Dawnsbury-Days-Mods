@@ -87,14 +87,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
                 if (spell.SpellId == SpellId.TrueStrike) {
                     // Gain goodness based on strike possiblities and their goodness?
-                    spell.WithGoodness((t, a, d) => {
-                        if (a.Actions.AttackedThisManyTimesThisTurn > 0) {
+                    spell.Target = Target.Self((cr, ai) => {
+                        if (cr.Actions.AttackedThisManyTimesThisTurn > 0) {
                             return int.MinValue;
-                        } else if (a.Actions.ActionsLeft <= 1) {
+                        } else if (cr.Actions.ActionsLeft <= 1) {
                             return int.MinValue;
                         }
                         return 10f;
                     });
+
+
                     spell.WithEffectOnEachTarget(async (action, a, d, checkResult) => {
                         d.AddQEffect(new QEffect() {
                             AdditionalGoodness = (self, action, target) => {
@@ -108,21 +110,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     });
                 }
 
-                if (spell.SpellId == SpellId.KineticRam) {
-                    // Good for close enemies, or enemies flanking allies
-                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
-                        float score = 0.5f;
-                        foreach (Creature ally in a.Battle.AllCreatures.Where(cr => cr.OwningFaction == a.OwningFaction)) {
-                            if (d.PrimaryWeapon != null && ally.IsFlatfootedToBecause(d, d.CreateStrike(d.PrimaryWeapon)) == "flanking") {
-                                score += 3;
-                            }
-                            if (d.DistanceTo(a) < 3) {
-                                score += 2;
-                            }
-                        }
-                        return score;
-                    });
-                }
+                //if (spell.SpellId == SpellId.KineticRam) {
+                //    // Good for close enemies, or enemies flanking allies
+                //    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                //        float score = 0.5f;
+                //        foreach (Creature ally in a.Battle.AllCreatures.Where(cr => cr.OwningFaction == a.OwningFaction)) {
+                //            if (d.PrimaryWeapon != null && ally.IsFlatfootedToBecause(d, d.CreateStrike(d.PrimaryWeapon)) == "flanking") {
+                //                score += 3;
+                //            }
+                //            if (d.DistanceTo(a) < 3) {
+                //                score += 2;
+                //            }
+                //        }
+                //        return score;
+                //    });
+                //}
 
                 if (spell.SpellId == SpellId.FlourishingFlora) {
                     spell.WithGoodnessAgainstEnemy((t, a, d) => 5f * spell.SpellLevel);

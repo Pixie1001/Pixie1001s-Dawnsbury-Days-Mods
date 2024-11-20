@@ -67,6 +67,7 @@ using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
 using System.IO;
+using System.Buffers.Text;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
@@ -76,7 +77,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         //public static List<ItemName> items = new List<ItemName>();
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
-            return new Item(itemName, IllustrationName.Whip, "scourge of fangs", 2, 60,
+            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 2, 60,
                 new Trait[] { Trait.Magical, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Martial, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop, Traits.LegendaryItem })
             .WithMainTrait(Trait.Whip)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
@@ -84,7 +85,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             }
             .WithAdditionalDamage("1d6", DamageKind.Mental))
             .WithDescription("A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence. " +
-            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.");
+            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    BonusToAttackRolls = (self, action, d) => {
+                        int bonus = self.Owner.Abilities.Wisdom - int.Max(self.Owner.Abilities.Strength, self.Owner.Abilities.Dexterity);
+                        if (action != null && action.Item != null && action.Item == weapon && bonus > 0) {
+                            return new Bonus(bonus, BonusType.Untyped, "Wisdom");
+                        }
+                        return null;
+                    }
+                });
+            };
+            return item;
         });
 
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
@@ -146,21 +161,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         });
 
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
-            Item item = new Item(itemName, IllustrationName.RepeatingHandCrossbow, "hexshot", 3, 60,
-                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.DoNotAddToShop, Trait.Crossbow, Trait.Simple, Traits.CasterWeapon, Traits.CannotHavePropertyRune })
+            Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToShop, Traits.CasterWeapon, Traits.CannotHavePropertyRune })
             .WithMainTrait(Traits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
             .WithDescription("This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.\n\n" +
             "After the wielder expends a spell slot, the Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
-                wielder.AddQEffect(new QEffect("Hexshot", "After expending a spell slot, your Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.") {
+                wielder.AddQEffect(new QEffect("Hexshot", "After expending a spell slot or using a scroll, your Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.") {
                     ExpiresAt = ExpirationCondition.Ephemeral,
                     AfterYouTakeAction = async (self, spell) => {
-                        if (spell != null && spell.HasTrait(Trait.Spell) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus)) {
+                        if (spell != null && (((spell.HasTrait(Trait.Spell) || spell.HasTrait(Trait.Spellstrike)) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus)) || (spell.Name.StartsWith("Channel Smite")))) {
+                            string damage = spell.SpellLevel != 0 ? $"{spell.SpellLevel * 2}" : $"{(self.Owner.Level + 2) / 2 * 2}";
                             self.Owner.AddQEffect(new QEffect("Hexshot Charged",
-                                $"Your Hexshot pistol is charged by the casting of a spell. The next shot you take with it gains a +2 status bonus, and deals an additional {spell.SpellLevel * 2} force damage.",
-                                ExpirationCondition.Never, null, item.Illustration) {
+                                $"Your Hexshot pistol is charged by the casting of a spell. The next shot you take with it gains a +2 status bonus, and deals an additional {damage} force damage.",
+                                ExpirationCondition.Never, null, Illustrations.HexshotStatusIcon) {
                                 Value = spell.SpellLevel,
                                 Key = "Hexshot Charged",
                                 BonusToAttackRolls = (self, action, target) => {
@@ -171,7 +187,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                 },
                                 AddExtraKindedDamageOnStrike = (action, target) => {
                                     if (action != null && action.Item != null && action.Item.ItemName == Hexshot) {
-                                        return new KindedDamage(DiceFormula.FromText($"{spell.SpellLevel * 2}", "Hexshot"), DamageKind.Force);
+                                        return new KindedDamage(DiceFormula.FromText($"{damage}", "Hexshot"), DamageKind.Force);
                                     }
                                     return null;
                                 },
@@ -182,7 +198,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                     return 0;
                                 },
                                 AfterYouTakeAction = async (self, action) => {
-                                    // TODO: Test this with spellstrike and 
                                     if (action != null && action.Item != null && action.Item.ItemName == Hexshot && action.HasTrait(Trait.Strike)) {
                                         self.ExpiresAt = ExpirationCondition.Immediately;
                                     }
@@ -197,7 +212,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         });
 
         public static ItemName SmokingSword { get; } = ModManager.RegisterNewItemIntoTheShop("Smoking Sword", itemName => {
-            return new Item(itemName, new WandIllustration(IllustrationName.ElementFire, IllustrationName.Longsword), "smoking sword", 3, 60,
+            return new Item(itemName, new WandIllustration(IllustrationName.ElementFire, IllustrationName.Longsword), "smoking sword", 3, 25,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Martial, Trait.Sword, Trait.Fire, Trait.VersatileP, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune, Traits.BoostedWeapon
             })
             .WithMainTrait(Trait.Longsword)
@@ -206,12 +221,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 AdditionalDamageKind = DamageKind.Fire
             })
                 .WithDescription("Smoke constantly belches from this longsword. Any hit with this sword deals 1 extra fire damage." +
-                "You can use a special action while holding the sword to command the blade's edges to light on fire.\r\r{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
+                "You can use a special action while holding the sword to command the blade's edges to light on fire.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
                 " of your turn, the sword deals 1d6 extra fire damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
             });
 
         public static ItemName StormHammer { get; } = ModManager.RegisterNewItemIntoTheShop("Storm Hammer", itemName => {
-            return new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.Warhammer), "storm hammer", 3, 60,
+            return new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.Warhammer), "storm hammer", 3, 25,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune, Traits.BoostedWeapon })
             .WithMainTrait(Trait.Warhammer)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Bludgeoning) {
@@ -219,12 +234,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 AdditionalDamageKind = DamageKind.Electricity
             })
             .WithDescription("Sparks of crackling electricity arc from this warhammer, and the head thrums with distant thunder. Any hit with this hammer deals 1 extra electricity damage." +
-            "You can use a special action while holding the hammer to transform the sparks into lightning bolts.\r\r{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
+            "You can use a special action while holding the hammer to transform the sparks into lightning bolts.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the hammer deals 1d6 extra electricity damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
         });
 
         public static ItemName ChillwindBow { get; } = ModManager.RegisterNewItemIntoTheShop("Chillwind Bow", itemName => {
-            return new Item(itemName, Illustrations.ChillwindBow, "chillwind bow", 3, 60,
+            return new Item(itemName, Illustrations.ChillwindBow, "chillwind bow", 3, 25,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.Cold, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune, Traits.BoostedWeapon })
             .WithMainTrait(Trait.Shortbow)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing) {
@@ -233,12 +248,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             }
             .WithRangeIncrement(12))
             .WithDescription("The yew of this bow is cold to the touch, and its arrows pool with fog as they're nocked. Any hit with this bow deals 1 extra cold damage." +
-            "You can use a special action while holding the bow to coat the bow in fridgid icy scales.\r\r{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
+            "You can use a special action while holding the bow to coat the bow in fridgid icy scales.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the bow deals 1d6 extra cold damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
         });
 
         public static ItemName Sparkcaster { get; } = ModManager.RegisterNewItemIntoTheShop("Sparkcaster", itemName => {
-            Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.HeavyCrossbow), "sparkcaster", 3, 60,
+            Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.HeavyCrossbow), "sparkcaster", 3, 25,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Reload2, Trait.Simple, Trait.Bow, Trait.TwoHanded, Trait.Crossbow, Trait.WizardWeapon, Trait.Electricity, Trait.DoNotAddToShop, Traits.CasterWeapon, Traits.CannotHavePropertyRune })
             .WithMainTrait(Trait.HeavyCrossbow)
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing) {
@@ -247,7 +262,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             }
             .WithRangeIncrement(24))
             .WithDescription("Sparks of crackling electricity arc from this crossbow. Any hit with this crossbow deals 1 extra electricity damage." +
-            "You can use a special action while holding the crossbow to fire a crackling bolt of lightning in a great arc.\r\r{b}Activate {icon:Action}.{/b} concentrate, manipulate; {b}Effect.{/b} Each creature in a 30-foot line " +
+            "You can use a special action while holding the crossbow to fire a crackling bolt of lightning in a great arc.\n\n{b}Activate {icon:Action}.{/b} concentrate, manipulate; {b}Effect.{/b} Each creature in a 30-foot line " +
             "suffers 2d6 electricity damage, mitigated by a basic Reflex save. After you use this action, you can't use it again until the end of the encounter.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -298,7 +313,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         });
 
         public static ItemName SpiderChopper { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Chopper", itemName => {
-            Item item = new Item(itemName, Illustrations.SpiderChopper, "spider chopper", 3, 60,
+            Item item = new Item(itemName, Illustrations.SpiderChopper, "spider chopper", 3, 25,
                                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune })
             .WithMainTrait(Trait.BattleAxe)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
@@ -323,8 +338,83 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             return item;
         });
 
+        public static ItemName Widowmaker { get; } = ModManager.RegisterNewItemIntoTheShop("Widowmaker", itemName => {
+            Item item = new Item(itemName, Illustrations.Widowmaker, "widowmaker", 3, 25,
+                               new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Traits.CannotHavePropertyRune })
+            .WithMainTrait(Trait.Dagger)
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing))
+            .WithDescription("A wicked looking dagger, with a small hollow at the tip of the blade, from which a steady supply of deadly poison drips.\n\nAttacks made against flat footed creatures using this dagger expose them to spider venom.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                QEffect poison = CommonQEffects.SpiderVenomAttack(weapon.Level + 14, weapon.Name).WithExpirationEphemeral();
+                poison.AfterYouDealDamage = async (attacker, action, target) => {
+                    if (!target.IsFlatFootedTo(attacker, action)) {
+                        return;
+                    }
+
+                    if (action.Item == weapon && action.HasTrait(Trait.Strike)) {
+                        Affliction poison = Affliction.CreateSpiderVenom();
+                        poison.DC = weapon.Level + 14 + attacker.Level;
+
+                        await Affliction.ExposeToInjury(poison, attacker, target);
+                    }
+                };
+                wielder.AddQEffect(poison);
+            };
+
+            return item;
+        });
+
+        public static ItemName FlashingRapier { get; } = ModManager.RegisterNewItemIntoTheShop("Flashing Rapier", itemName => {
+            Item item = new Item(itemName, IllustrationName.Rapier, "flashing rapier", 3, 25,
+                               new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Traits.CannotHavePropertyRune })
+            .WithMainTrait(Trait.Rapier)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing))
+            .WithDescription("A brilliant sparkling rapier, that causes the light to bend around its blade in strange prismatic patterns."+
+            "\n\nThe flashing rapier dazzles enemies on a crit, and can be activated {icon:Action} once per day to flash forward in a swirl of light, appearing in a new location 40ft away.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                    YouHaveCriticalSpecialization = (self, item, action, target) => {
+                        if (item.ItemName == FlashingRapier) {
+                            target.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(self.Owner, 1));
+                        }
+                        return false;
+                    },
+                    ProvideStrikeModifierAsPossibility = item => {
+                        if (item != weapon || item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
+                            return null;
+                        }
+
+                        CombatAction action = new CombatAction(wielder, new SideBySideIllustration(IllustrationName.DazzlingFlash, weapon.Illustration), $"Activate {weapon.Name.CapitalizeEachWord()}", new Trait[] { Trait.Magical, Trait.Teleportation, Trait.Light },
+                            "{b}Range{/b} 40-foot\n\nLaunch yourself forward as a zipping ribbon of line, appearing in an unoccupied space within range.", Target.TileYouCanSeeAndTeleportTo(6)) {
+                            ShortDescription = $"Teleport to a space within 40 feet."
+                        }
+                        .WithItem(item)
+                        .WithActionCost(1)
+                        .WithProjectileCone(IllustrationName.DazzlingFlash, 5, ProjectileKind.Ray)
+                        .WithSoundEffect(SfxName.DazzlingFlash)
+                        .WithEffectOnChosenTargets(async (spell, caster, targets) => {
+                            Tile target = targets.ChosenTile;
+                            if (!target.IsTrulyGenuinelyFreeTo(caster)) {
+                                target = target.GetShuntoffTile(caster);
+                            }
+                            caster.TranslateTo(target);
+                            caster.AnimationData.ColorBlink(Color.LightGoldenrodYellow);
+                            caster.Battle.SmartCenterAlways(target);
+                            spell.Item.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
+                        });
+
+                        return (ActionPossibility)action;
+                    }
+                });
+            };
+
+            return item;
+        });
+
         public static ItemName HungeringBlade { get; } = ModManager.RegisterNewItemIntoTheShop("Hungering Blade", itemName => {
-            Item item = new Item(itemName, Illustrations.HungeringBlade, "hungering blade", 3, 60,
+            Item item = new Item(itemName, Illustrations.HungeringBlade, "hungering blade", 3, 25,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune })
             .WithMainTrait(Trait.Greatsword)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
@@ -374,13 +464,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             .WithDescription("Flexible jetblack armour of elven make, sewn from some exotic underdark silk.\n\nThe wearer of this armour may pass through webs unhindered.");
         });
 
+        public static ItemName MaskOfConsumption { get; } = ModManager.RegisterNewItemIntoTheShop("Mask of Consumption", itemName => {
+            return new Item(itemName, Illustrations.MaskOfConsumption, "mask of consumption", 2, 50,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy })
+            .WithWornAt(Trait.Mask)
+            .WithDescription("This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.\n\n" +
+            "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
+            "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wear may consume it to heal for an amount of hit points " +
+            "equal to 20% of their original max HP.")
+            .WithPermanentQEffectWhenWorn((qfMoC, item) => {
+                qfMoC.Innate = true;
+                qfMoC.Name = "Mask of Consumption";
+                qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage";
+                qfMoC.StateCheck = self => {
+                    if (qfMoC.Owner.Traits.Any(trait => trait.HumanizeTitleCase2() == "Summoner")) {
+                        QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
+                        if (eidolon != null && eidolon.Source != null)
+                            eidolon.Source.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
+                    }
+                    self.Owner.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
+                    Item unarmed = qfMoC.Owner.UnarmedStrike;
+                    qfMoC.Owner.ReplacementUnarmedStrike = self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "hungry claws", "1d10", DamageKind.Slashing, Trait.Agile, Trait.Finesse, Trait.Brawling, Trait.Unarmed)
+                    .WithAdditionalWeaponProperties(properties => {
+                        properties.AdditionalPersistentDamageFormula = "1d6";
+                        properties.AdditionalPersistentDamageKind = DamageKind.Bleed;
+                     });
+                };
+                qfMoC.AfterYouDealDamage = async (a, strike, d) => {
+                    if (strike != null && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == a.UnarmedStrike.Name && d.IsLivingCreature) {
+                        await a.HealAsync(DiceFormula.FromText($"{a.TrueMaximumHP * 0.2}", "Mask of Consumption"), strike);
+                    }
+                };
+            });
+        });
+
         internal static void LoadItems() {
 
             //items.Add("wand of fireball", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate };
+            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker };
 
             // Wands
             CreateWand(SpellId.Fireball, null);

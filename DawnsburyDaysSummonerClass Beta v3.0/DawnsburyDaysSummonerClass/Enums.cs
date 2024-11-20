@@ -165,6 +165,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static QEffectId qfParrying = ModManager.RegisterEnumMember<QEffectId>("Eidolon Parry");
         internal static QEffectId qfInvestedWeapon = ModManager.RegisterEnumMember<QEffectId>("Invested Weapon");
         internal static QEffectId qfDrainedMirror = ModManager.RegisterEnumMember<QEffectId>("Drained (Mirror)");
+        internal static QEffectId qfMummyRotMirror = ModManager.RegisterEnumMember<QEffectId>("Mummy Rot (Mirror)");
         internal static QEffectId qfEidolonsWrath = ModManager.RegisterEnumMember<QEffectId>("Eidolon's Wrath QF");
         internal static QEffectId qfOstentatiousArrival = ModManager.RegisterEnumMember<QEffectId>("Ostentatious Arrival Toggled");
         internal static QEffectId qfWhimsicalAura = ModManager.RegisterEnumMember<QEffectId>("Whimsical Aura");

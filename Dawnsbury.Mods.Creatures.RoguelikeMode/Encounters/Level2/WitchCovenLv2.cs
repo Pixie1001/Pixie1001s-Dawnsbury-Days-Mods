@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2 {
     internal class WitchCovenLv2 : Level2EliteEncounter
     {
         public WitchCovenLv2(string filename) : base("Witch Coven", filename, eliteRewards: new List<(Item, string)> {
-            (Items.CreateNew(CustomItems.Hexshot), "A worn pistol etched with malevolent purple runes that seem to glow brightly in response to spellcraft."),
+            (Items.CreateNew(CustomItems.Hexshot).WithModificationPlusOne(), "A worn pistol etched with malevolent purple runes that seem to glow brightly in response to spellcraft."),
             (Items.CreateNew(CustomItems.ProtectiveAmulet), "An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings, that might be held aloft to protect others from harm.")
         }) { }
     }

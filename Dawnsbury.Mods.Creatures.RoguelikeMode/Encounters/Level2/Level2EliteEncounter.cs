@@ -68,7 +68,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
         {
             this.CharacterLevel = 2;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.ELITE);
-            if (eliteRewards != null && Rewards.Count == 0) {
+            if (eliteRewards == null && Rewards.Count == 0) {
                 CommonEncounterFuncs.SetItemRewards(Rewards, CharacterLevel, EncounterType.ELITE);
             }
 

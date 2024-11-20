@@ -92,6 +92,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             items.Add(Items.CreateNew(CustomItems.ChillwindBow).WithModificationPlusOne());
             items.Add(Items.CreateNew(CustomItems.SpiderChopper).WithModificationPlusOne());
             items.Add(Items.CreateNew(CustomItems.Sparkcaster).WithModificationPlusOne());
+            items.Add(Items.CreateNew(CustomItems.SmokingSword).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.StormHammer).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.HungeringBlade).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.ChillwindBow).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.SpiderChopper).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.Sparkcaster).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.ScourgeOfFangs));
             items.Add(Items.CreateNew(CustomItems.WebwalkerArmour));
             items.Add(Items.CreateNew(CustomItems.DreadPlate));
@@ -171,7 +177,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 }
             } else if (new string[] { "psychic", "witch", "bard", "sorcerer", "wizard", "cleric", "druid", "oracle" }.Contains(className)) {
                 // Full caster
-                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || (item.HasTrait(Traits.CasterWeapon) || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))).ToList();
+                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(Traits.CasterWeapon)).ToList();
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(Traits.Wand) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
             } else if (new string[] { "monk", "shifter", }.Contains(className)) {
                 // unarmed
                 weaponTable = itemList.Where(item => item.Name.Contains("handwraps of mighty blows")).ToList();
@@ -184,11 +191,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 } else {
                     weaponTable = weaponTable.Concat(itemList.Where(item => item.HasTrait(Trait.SpecificMagicWeapon) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
-                weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || (item.HasTrait(Traits.CasterWeapon) || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits)))).ToList();
+                weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(Traits.CasterWeapon))).ToList();
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(Traits.Wand) && levelRange(item.Level))).ToList();
             } else if (new string[] { "kineticist", }.Contains(className)) {
                 if (character.CarriedItems.Where(i => i.ItemName == ItemName.GateAttenuator).Count() == 0) {
                     weaponTable = itemList.Where(item => item.HasTrait(Trait.Kineticist)).ToList();
-                } else {
+                } else { 
                     weaponTable = new List<Item>() { RollWearable(character, levelRange) };
                 }
                 if (weaponTable.Count == 0) {

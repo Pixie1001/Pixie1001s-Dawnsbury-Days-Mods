@@ -87,6 +87,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
                 }
             }
 
+            var split = creature.MainName.Split(" ");
+            creature.MainName = "";
+            for (int i = 1; i < split.Count(); i++) {
+                creature.MainName += split[i] + (i == split.Count() - 1 ? "" : " ");
+            }
+
             creature.RemoveAllQEffects(qf => qf == adjustmentEffect);
         }
         
@@ -134,7 +140,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
                     enemy.ApplyWeakAdjustments(false);
                 } else if (adj == QEffectId.Weak) {
                     RemoveDifficultyAdjustment(enemy);
-                    enemy.ApplyWeakAdjustments(true);
+                    enemy.ApplyWeakAdjustments(false, true);
                 }
             }
         }

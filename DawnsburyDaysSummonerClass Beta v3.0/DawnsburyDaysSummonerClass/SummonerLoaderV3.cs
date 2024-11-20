@@ -1303,6 +1303,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         qf.Owner.RemoveAllQEffects(effect => effect.Id == qfDrainedMirror);
                     }
 
+                    QEffect mummyrot = qf.Owner.FindQEffect(QEffectId.MummyRot);
+                    if (mummyrot != null) {
+                        eidolon.AddQEffect(new QEffect() {
+                            Id = qfMummyRotMirror,
+                            Key = "MummyRotMirror",
+                            StateCheck = mummyrot.StateCheck,
+                            Value = mummyrot.Value,
+                        });
+                    } else if (qf.Owner.HasEffect(qfMummyRotMirror) && eidolon.HasEffect(QEffectId.MummyRot) == false) {
+                        qf.Owner.RemoveAllQEffects(effect => effect.Id == qfMummyRotMirror);
+                    }
+
                     // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
                     if (eidolon.Destroyed == true) {
                         return;
@@ -1333,11 +1345,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     // Handle healing
-                    if (qf.Owner.HP < eidolon.HP) {
-                        qf.Owner.Heal($"{eidolon.HP - qf.Owner.HP}", null);
-                    } else if (qf.Owner.HP > eidolon.HP) {
-                        eidolon.Heal($"{qf.Owner.HP - eidolon.HP}", null);
-                    }
+                    HealthShareSafetyCheck(qf.Owner, eidolon);
                 }),
                 EndOfYourTurn = (Func<QEffect, Creature, Task>)(async (qfEndOfTurn, summoner) => {
                     Creature eidolon = GetEidolon(summoner);
@@ -1797,7 +1805,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             int perception = wisdom + (int)summoner.Proficiencies.Get(Trait.Perception) + level;
             int speed1 = 5;
             Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + (level >= 11 ? expert : trained), constitution + (level >= 11 ? master : expert), dexterity + (level >= 9 ? expert : trained), wisdom + (level >= 15 ? master : expert));
-            int hp = summoner.MaxHP;
+            int hp = summoner.TrueMaximumHP;
             //summoner.Skills.IsTrained
             Trait[] skillTraits = new Trait[] { Trait.Acrobatics, Trait.Arcana, Trait.Athletics, Trait.Crafting, Trait.Deception, Trait.Diplomacy, Trait.Intimidation,
                 Trait.Medicine, Trait.Nature, Trait.Occultism, Trait.Performance, Trait.Religion, Trait.Society, Trait.Stealth, Trait.Survival, Trait.Thievery };
@@ -1855,6 +1863,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             qf.Owner.RemoveAllQEffects(effect => effect.Id == qfDrainedMirror);
                         }
 
+                        QEffect mummyrot = qf.Owner.FindQEffect(QEffectId.MummyRot);
+                        if (mummyrot != null) {
+                            summoner.AddQEffect(new QEffect() {
+                                Id = qfMummyRotMirror,
+                                Key = "MummyRotMirror",
+                                StateCheck = mummyrot.StateCheck,
+                                Value = mummyrot.Value,
+                            });
+                        } else if (qf.Owner.HasEffect(qfMummyRotMirror) && summoner.HasEffect(QEffectId.MummyRot) == false) {
+                            qf.Owner.RemoveAllQEffects(effect => effect.Id == qfMummyRotMirror);
+                        }
+
                         // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
                         if (qf.Owner.Destroyed == true) {
                             return;
@@ -1900,11 +1920,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             summoner.GainTemporaryHP(qf.Owner.TemporaryHP);
                         }
 
-                        if (qf.Owner.HP < summoner.HP) {
-                            qf.Owner.Heal($"{summoner.HP - qf.Owner.HP}", null);
-                        } else if (qf.Owner.HP > summoner.HP) {
-                            summoner.Heal($"{qf.Owner.HP - summoner.HP}", null);
-                        }
+                        // Handle emergency HP correction
+                        HealthShareSafetyCheck(qf.Owner, summoner);
                     }),
                     EndOfCombat = (Func<QEffect, bool, Task>)(async (qfRemoveHandwraps, won) => {
                         Item? handwraps = qfRemoveHandwraps.Owner.CarriedItems.FirstOrDefault<Item>((Func<Item, bool>)(backpackItem => backpackItem.ItemName == ItemName.HandwrapsOfMightyBlows && backpackItem.IsWorn));
@@ -2164,6 +2181,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             oldActiveCreature = (Creature)null;
         }
 
+        private static void HealthShareSafetyCheck(Creature self, Creature partner) {
+            if (self.TrueMaximumHP < partner.TrueMaximumHP) {
+                self.Heal($"{partner.TrueMaximumHP - self.TrueMaximumHP}", null);
+            } else if (self.TrueMaximumHP > partner.TrueMaximumHP) {
+                partner.Heal($"{self.TrueMaximumHP - partner.TrueMaximumHP}", null);
+            }
+        }
+
         private async static Task HandleHealthShare(Creature self, Creature partner, CombatAction action, SummonerClassEnums.InterceptKind interceptKind) {
             HPShareEffect selfShareHP = (HPShareEffect)self.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == partner));
             HPShareEffect partnerShareHP = (HPShareEffect)partner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == self));
@@ -2214,8 +2239,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     int healing = selfShareHP.HP - self.HP;
                     partner.Heal($"{healing}", selfShareHP.CA);
                 }
-
                 selfShareHP.Reset();
+
                 //selfShareHP.SoftReset();
             }
         }

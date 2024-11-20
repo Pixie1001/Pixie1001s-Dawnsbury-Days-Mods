@@ -11,6 +11,8 @@
 	<li>SpiderChopper.png</li>
 	<li>Wand.png</li>
 	<li>WebWalkerArmour.png (Modified)</li>
+	<li>MaskOfConsumption.png</li>
+	<li>Widowmaker.png</li>
 </ul>
 
 ## Modified Base Game Assets
@@ -31,6 +33,7 @@
 	<li>DrowPriestess.png</li>
 	<li>DrowTempleGuard.png</li>
 	<li>HuntingSpider.png</li>
+	<li>HexshotPistol.png</li>
 </ul>
 
 ## Volunteer Contributions

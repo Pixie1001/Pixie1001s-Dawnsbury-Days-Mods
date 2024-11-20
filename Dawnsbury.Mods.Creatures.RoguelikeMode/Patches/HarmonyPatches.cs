@@ -43,6 +43,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             __instance.Tags.Add("new run", "true");
         }
 
+        // AddRuneTo
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(RunestoneRules), "AddRuneTo")]
+        private static void AddRuneToPatch(Item runestone, Item equipment) {
+            if (equipment.HasTrait(Trait.SpecificMagicWeapon)) {
+                equipment.Price += Items.GetItemTemplate(equipment.ItemName).Price;
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(RunestoneRules), "AttachSubitem")]
         private static bool AttachSubitemPatch(ref bool __result, Item runestone, Item? equipment) {

@@ -163,7 +163,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Assassin
             Creatures.Add(ModEnums.CreatureId.DROW_ASSASSIN,
-                encounter => new Creature(IllustrationName.Shadow, "Drow Assassin", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 1, 7, 6, new Defenses(18, 4, 10, 7), 18, new Abilities(-1, 4, 1, 2, 2, 1), new Skills(stealth: 10, acrobatics: 7))
+                encounter => new Creature(Illustrations.DrowAssassin, "Drow Assassin", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 1, 7, 6, new Defenses(18, 4, 10, 7), 18, new Abilities(-1, 4, 1, 2, 2, 1), new Skills(stealth: 10, acrobatics: 7))
                 .WithAIModification(ai => {
                     ai.OverrideDecision = (self, options) => {
 
@@ -392,26 +392,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             Creatures.Add(ModEnums.CreatureId.DROW_SHOOTIST,
             encounter => new Creature(Illustrations.DrowShootist, "Drow Shootist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(-1, 4, 1, 1, 2, 2), new Skills(acrobatics: 7, stealth: 7, deception: 7, intimidation: 5))
-            //.WithAIModification(ai => {
-            //    ai.OverrideDecision = (self, options) => {
-            //        Creature creature = self.Self;
-            //        // Check if has crossbow
-            //        Item? handcrossbow = creature.HeldItems.FirstOrDefault(item => item.ItemName == ItemName.HandCrossbow);
-
-            //        if (handcrossbow == null) {
-            //            return null;
-            //        }
-
-            //        // Check if crossbow is loaded
-            //        if (handcrossbow.EphemeralItemProperties.NeedsReload) {
-            //            // foreach (Option option in options.Where(opt => opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name.StartsWith("Reload") || opt.Text == "Reload")) {
-            //            foreach (Option option in options.Where(opt => opt.Text == "Reload" || (opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload"))) {
-            //                option.AiUsefulness.MainActionUsefulness = 1f;
-            //            }
-            //        }
-            //        return null;
-            //    };
-            //})
+            .WithAIModification(ai => {
+                ai.OverrideDecision = (self, options) => {
+                    Creature creature = self.Self;
+                    foreach (Option option in options.Where(opt => opt.Text == "Reload" || (opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload"))) {
+                        option.AiUsefulness.MainActionUsefulness = 0f;
+                    }
+                    return null;
+                };
+            })
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(QEffect.SneakAttack("1d8"))
             .WithBasicCharacteristics()
@@ -465,14 +454,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         return null;
                     }
 
-                    CombatAction action = new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.HandCrossbow, IllustrationName.HandCrossbow), "Reloading Trick", new Trait[] { Trait.Manipulate }, "", Target.Self())
+                    CombatAction action = new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.HandCrossbow, IllustrationName.HandCrossbow), "Reloading Trick", new Trait[] { Trait.Manipulate }, "The Drow Shootist relaods both of their hand crossbows", Target.Self((cr, ai) => 15))
                     .WithActionCost(1)
                     .WithSoundEffect(SfxName.OpenLock)
                     .WithEffectOnSelf(user => {
                         xbow1.EphemeralItemProperties.NeedsReload = false;
                         xbow2.EphemeralItemProperties.NeedsReload = false;
                     })
-                    .WithGoodness((targeting, a, d) => 15)
                     ;
                     return (ActionPossibility)action;
                 }
@@ -538,7 +526,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(CommonQEffects.DrowClergy())
             .WithBasicCharacteristics()
-            .WithProficiency(Trait.Weapon, Proficiency.Expert)
+            .WithProficiency(Trait.Weapon, Proficiency.Trained)
             .WithProficiency(Trait.Divine, Proficiency.Expert)
             .AddHeldItem(Items.CreateNew(CustomItems.ScourgeOfFangs))
             .WithSpellProficiencyBasedOnSpellAttack(11, Ability.Wisdom)
@@ -618,7 +606,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Arcanist
             Creatures.Add(ModEnums.CreatureId.DROW_ARCANIST,
-            encounter => new Creature(IllustrationName.DarkPoet256, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
+            encounter => new Creature(Illustrations.DrowArcanist, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
             new Abilities(1, 3, 0, 5, 1, 1), new Skills(acrobatics: 10, intimidation: 6, arcana: 8, deception: 8))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -700,6 +688,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             Creatures.Add(ModEnums.CreatureId.DROW_SHADOWCASTER,
             encounter => {
                 Creature creature = Creatures[ModEnums.CreatureId.DROW_ARCANIST](encounter);
+                creature.Illustration = Illustrations.DrowShadowcaster;
                 creature.Level = 3;
                 creature.Defenses = new Defenses(creature.Defenses.GetBaseValue(Defense.AC) + 2, creature.Defenses.GetBaseValue(Defense.Fortitude) + 2, creature.Defenses.GetBaseValue(Defense.Reflex) + 2, creature.Defenses.GetBaseValue(Defense.Will) + 2);
                 creature.Perception += 2;
@@ -882,9 +871,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         }
                     });
                     owner.Battle.SpawnCreature(summon, owner.OwningFaction, spawnPt.X, spawnPt.Y);
-                    summon.Occupies.Overhead("*Curse of Skittering Paws*", Color.White, $"{summon.Name} is drawn to aide the coven by the curse of skittering paws.");
-                    summon.Battle.SmartCenter(summon.Occupies.X, summon.Occupies.Y);
-                    Sfxs.Play(SfxName.BeastRoar);
+                    await summon.Battle.Cinematics.PlayCutscene(async cin => {
+                        cin.EnterCutscene();
+                        summon.Battle.SmartCenter(summon.Occupies.X, summon.Occupies.Y);
+                        Sfxs.Play(SfxName.BeastRoar, 0.75f);
+                        summon.Occupies.Overhead("*Curse of Skittering Paws*", Color.White, $"{summon.Name} is drawn to aide the coven by the curse of skittering paws.");
+                        await cin.WaitABit();
+                        cin.ExitCutscene();
+                    });
                 },
             })
             .AddQEffect(new QEffect("Wild Shape", "At the start of each turn, if wounded, Agatha Agaricus takes on a new animal form, preventing her from casting spells but allowing her access to new attacks.") {
@@ -949,6 +943,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             };
                             goto case 10;
                         case 10:
+                            Sfxs.Play(SfxName.BeastRoar, 1.33f);
                             self.Owner.AddQEffect(transform);
                             break;
                         default:
@@ -1052,8 +1047,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 }
             })
             .AddSpellcastingSource(SpellcastingKind.Prepared, Traits.Witch, Ability.Intelligence, Trait.Arcane).WithSpells(
-                level1: new SpellId[] { SpellId.ChillTouch, SpellId.TrueStrike, SpellId.KineticRam, SpellId.FlourishingFlora },
-                level2: new SpellId[] { SpellId.KineticRam, SpellId.TrueStrike }).Done()
+                level1: new SpellId[] { SpellId.ChillTouch, SpellId.TrueStrike, SpellId.FlourishingFlora, SpellId.FlourishingFlora },
+                level2: new SpellId[] { SpellId.TrueStrike, SpellId.TrueStrike }).Done()
             );
             ModManager.RegisterNewCreature("Witch Maiden", Creatures[ModEnums.CreatureId.WITCH_MAIDEN]);
 

@@ -33,6 +33,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Drider = new ModdedIllustration("RoguelikeModeAssets/Enemies/Drider.png");
         internal static ModdedIllustration HuntingSpider = new ModdedIllustration("RoguelikeModeAssets/Enemies/HuntingSpider.png");
         internal static ModdedIllustration DrowShootist = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowShootist.png");
+        internal static ModdedIllustration DrowAssassin = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowAssassin.png");
+        internal static ModdedIllustration DrowArcanist = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowArcanist.png");
+        internal static ModdedIllustration DrowShadowcaster = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowShadowcaster.png");
         internal static ModdedIllustration AnimalFormBear = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimalFormBear.png");
         internal static ModdedIllustration AnimalFormSnake = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimalFormSnake.png");
         internal static ModdedIllustration AnimalFormWolf = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimalFormWolf.png");
@@ -45,5 +48,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration SpiderChopper = new ModdedIllustration("RoguelikeModeAssets/Items/SpiderChopper.png");
         internal static ModdedIllustration WebWalkerArmour = new ModdedIllustration("RoguelikeModeAssets/Items/WebWalkerArmour.png");
         internal static ModdedIllustration ProtectiveAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/ProtectiveAmulet.png");
+        internal static ModdedIllustration Hexshot = new ModdedIllustration("RoguelikeModeAssets/Items/HexshotPistol.png");
+        internal static ModdedIllustration HexshotStatusIcon = new ModdedIllustration("RoguelikeModeAssets/Items/HexshotPistolStatusIcon.png");
+        internal static ModdedIllustration MaskOfConsumption = new ModdedIllustration("RoguelikeModeAssets/Items/MaskOfConsumption.png");
+        internal static ModdedIllustration Widowmaker = new ModdedIllustration("RoguelikeModeAssets/Items/Widowmaker.png");
     }
 }

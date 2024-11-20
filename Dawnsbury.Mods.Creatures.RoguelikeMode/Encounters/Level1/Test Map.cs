@@ -70,14 +70,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
 
-                td.AddQEffect(new QEffect() {
-                    AdditionalGoodness = (self, action, target) => {
-                        if (action.HasTrait(Trait.Strike)) {
-                            return 7;
-                        }
-                        return 0;
-                    }
-                });
+                CommonEncounterFuncs.ApplyEliteAdjustments(battle);
+
+                //td.AddQEffect(new QEffect() {
+                //    AdditionalGoodness = (self, action, target) => {
+                //        if (action.HasTrait(Trait.Strike)) {
+                //            return 7;
+                //        }
+                //        return 0;
+                //    }
+                //});
                 //td.Traits.Add(Trait.Undead);
                 //td.Level = 9;
             });
