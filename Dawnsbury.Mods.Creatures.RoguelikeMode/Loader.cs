@@ -100,6 +100,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             CustomItems.LoadItems();
             CreatureList.LoadCreatures();
+            CreatureList.LoadObjects();
             ScriptHooks.LoadHooks();
             SpellLoader.LoadSpells();
             LoadEncounters();

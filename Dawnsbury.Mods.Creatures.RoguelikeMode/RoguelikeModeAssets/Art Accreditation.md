@@ -34,6 +34,9 @@
 	<li>DrowTempleGuard.png</li>
 	<li>HuntingSpider.png</li>
 	<li>HexshotPistol.png</li>
+	<li>ChokingMushroom.png</li>
+	<li>BoomShroom.png</li>
+	<li>SpiderShrine.png</li>
 </ul>
 
 ## Volunteer Contributions

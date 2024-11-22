@@ -74,6 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class CreatureList {
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
+        internal static Dictionary<ModEnums.ObjectId, Func<Encounter?, Creature>> Objects = new Dictionary<ModEnums.ObjectId, Func<Encounter?, Creature>>();
 
         internal static void LoadCreatures() {
             // TODO: Setup to teleport to random spot and be hidden at start of combat, so logic can be removed from encounter.
@@ -545,8 +546,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;
 
-                    AiFuncs.PositionalGoodness(monster, options, (t, cr) => cr.HasEffect(QEffectIds.DrowClergy) && t.DistanceTo(cr.Occupies) <= 3, 2f);
-                    AiFuncs.PositionalGoodness(monster, options, (t, cr) => cr.HasEffect(QEffectIds.DrowClergy) && t.DistanceTo(cr.Occupies) <= 2, 1f);
+                    AiFuncs.PositionalGoodness(monster, options, (t, _, _, cr) => cr.HasEffect(QEffectIds.DrowClergy) && t.DistanceTo(cr.Occupies) <= 3, 2f);
+                    AiFuncs.PositionalGoodness(monster, options, (t, _, _, cr) => cr.HasEffect(QEffectIds.DrowClergy) && t.DistanceTo(cr.Occupies) <= 2, 1f);
 
                     return null;
                 };
@@ -607,48 +608,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             // CREATURE - Drow Arcanist
             Creatures.Add(ModEnums.CreatureId.DROW_ARCANIST,
             encounter => new Creature(Illustrations.DrowArcanist, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
-            new Abilities(1, 3, 0, 5, 1, 1), new Skills(acrobatics: 10, intimidation: 6, arcana: 8, deception: 8))
+            new Abilities(1, 3, 0, 4, 1, 1), new Skills(acrobatics: 10, intimidation: 6, arcana: 8, deception: 8))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
                     Creature creature = self.Self;
-
-                    // Get current proximity score
-                    float currScore = 0f;
-                    foreach (Creature enemy in creature.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(creature.OwningFaction))) {
-                        currScore += creature.DistanceTo(enemy);
-                    }
-
-                    // Find how close allies are to the party
-                    List<Creature> allies = creature.Battle.AllCreatures.Where(cr => cr.Alive && cr.OwningFaction == creature.OwningFaction).ToList();
-                    float allyScore = 0;
-                    foreach (Creature ally in allies) {
-                        foreach (Creature enemy in creature.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(creature.OwningFaction))) {
-                           allyScore += ally.DistanceTo(enemy);
-                        }
-                    }
-                    allyScore /= allies.Count;
-
-                    foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o is TileOption)) {
-                        TileOption option2 = option as TileOption;
-                        float personalScore = 0f;
-                        foreach (Creature enemy in creature.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(creature.OwningFaction))) {
-                            personalScore += option2.Tile.DistanceTo(enemy.Occupies);
-                        }
-
-                        if (option2.Text == "Stride" && creature.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(creature.OwningFaction) && cr.Threatens(creature.Occupies)).ToArray().Length == 0) {
-                            if (personalScore > allyScore && currScore < allyScore) {
-                                option2.AiUsefulness.MainActionUsefulness += 5f;
-                            } else if (personalScore < allyScore) {
-                                option2.AiUsefulness.MainActionUsefulness -= 15f;
-                            }
-                        } else if (option2.Text == "Step") {
-                            if (personalScore > allyScore && currScore < allyScore) {
-                                option2.AiUsefulness.MainActionUsefulness += 5f;
-                            } else if (personalScore < allyScore) {
-                                option2.AiUsefulness.MainActionUsefulness -= 15f;
-                            }
-                        }
-                    }
+                    AiFuncs.PositionalGoodness(creature, options, (t, crSelf, step, cr) => (step || crSelf.Occupies == t) && t.IsAdjacentTo(cr.Occupies) && cr.OwningFaction.EnemyFactionOf(crSelf.OwningFaction), -0.2f, false);
+                    AiFuncs.AverageDistanceGoodness(creature, options, cr => cr.OwningFaction.EnemyFactionOf(creature.OwningFaction), cr => cr.OwningFaction.AlliedFactionOf(creature.OwningFaction), -15, 5);
 
                     return null;
                 };
@@ -686,23 +651,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Shadowcaster
             Creatures.Add(ModEnums.CreatureId.DROW_SHADOWCASTER,
-            encounter => {
-                Creature creature = Creatures[ModEnums.CreatureId.DROW_ARCANIST](encounter);
-                creature.Illustration = Illustrations.DrowShadowcaster;
-                creature.Level = 3;
-                creature.Defenses = new Defenses(creature.Defenses.GetBaseValue(Defense.AC) + 2, creature.Defenses.GetBaseValue(Defense.Fortitude) + 2, creature.Defenses.GetBaseValue(Defense.Reflex) + 2, creature.Defenses.GetBaseValue(Defense.Will) + 2);
-                creature.Perception += 2;
-                foreach (Skill skill in Skills.RelevantSkills) {
-                    if (creature.Skills.Get(skill) > 5) {
-                        creature.Skills.Set(skill, creature.Skills.Get(skill) + 2);
+            encounter => new Creature(Illustrations.DrowShadowcaster, "Drow Shadowcaster", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid }, 3, 9, 6, new Defenses(17, 6, 9, 12), 31,
+            new Abilities(1, 3, 0, 4, 1, 2), new Skills(acrobatics: 10, intimidation: 11, arcana: 13, deception: 11))
+            .WithAIModification(ai => {
+                ai.OverrideDecision = (self, options) => {
+                    Creature creature = self.Self;
+                    AiFuncs.PositionalGoodness(creature, options, (t, crSelf, step, cr) => (step || crSelf.Occupies == t) && t.IsAdjacentTo(cr.Occupies) && cr.OwningFaction.EnemyFactionOf(crSelf.OwningFaction), -0.2f, false);
+                    AiFuncs.AverageDistanceGoodness(creature, options, cr => cr.OwningFaction.EnemyFactionOf(creature.OwningFaction), cr => cr.OwningFaction.AlliedFactionOf(creature.OwningFaction), -15, 5);
+
+                    return null;
+                };
+            })
+            .WithProficiency(Trait.Melee, Proficiency.Trained)
+            .WithProficiency(Trait.Arcane, Proficiency.Expert)
+            .WithBasicCharacteristics()
+            .AddHeldItem(Items.CreateNew(ItemName.RepeatingHandCrossbow))
+            .AddQEffect(CommonQEffects.Drow())
+            .AddQEffect(new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
+                AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
+                    if (!(action.HasTrait(Trait.Melee) || (action.Owner != null && action.Owner.IsAdjacentTo(self.Owner)))) {
+                        return;
+                    }
+
+                    if (self.UseReaction()) {
+                        self.Owner.AddQEffect(new QEffect("Slip Away", "+1 circumstance bonus to AC.") {
+                            Illustration = IllustrationName.Shield,
+                            BonusToDefenses = (self, action, defence) => defence == Defense.AC ? new Bonus(1, BonusType.Circumstance, "Slip Away") : null,
+                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfAnyTurn
+                        });
+                        await self.Owner.StepAsync("Choose tile for Slip Away");
                     }
                 }
-                creature.Spellcasting.Sources.Clear();
-                creature.AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Wizard, Ability.Intelligence, Trait.Arcane).WithSpells(
-                new SpellId[] { SpellId.MagicMissile, SpellId.MagicMissile, SpellId.GrimTendrils, SpellId.Fear, SpellId.ChillTouch, SpellId.ProduceFlame, SpellId.Shield },
-                new SpellId[] { SpellId.MagicMissile, SpellId.AcidArrow, SpellId.HideousLaughter }).Done();
-                return creature;
-            });
+            })
+            .AddQEffect(new QEffect("Dark Arts", "The drow shadwcaster excels at causing pain with their black practice. Their non-cantrip spells gain a +4 status bonus to damage.") {
+                BonusToDamage = (qfSelf, spell, target) => {
+                    return spell.HasTrait(Trait.Spell) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus) && spell.CastFromScroll == null ? new Bonus(4, BonusType.Status, "Dark Arts") : null;
+                }
+            })
+            .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Wizard, Ability.Intelligence, Trait.Arcane).WithSpells(
+            new SpellId[] { SpellId.MagicMissile, SpellId.MagicMissile, SpellId.GrimTendrils, SpellId.Fear, SpellId.ChillTouch, SpellId.ProduceFlame, SpellId.Shield },
+            new SpellId[] { SpellId.AcidArrow, SpellId.AcidArrow, SpellId.HideousLaughter }).Done()
+            );
             ModManager.RegisterNewCreature("Drow Shadowcaster", Creatures[ModEnums.CreatureId.DROW_SHADOWCASTER]);
 
 
@@ -966,7 +955,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;
 
-                    AiFuncs.PositionalGoodness(monster, options, (tile, cr) => cr.HasTrait(Traits.Witch) && cr.DistanceTo(tile) <= 3, 1.5f, false);
+                    AiFuncs.PositionalGoodness(monster, options, (tile, _, _, cr) => cr.HasTrait(Traits.Witch) && cr.DistanceTo(tile) <= 3, 1.5f, false);
                     return null;
                 };
             })
@@ -1054,6 +1043,172 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // Add new creature here
 
+        }
+
+        internal static void LoadObjects() {
+            // HAZARD - Deep Mushroom
+            Objects.Add(ModEnums.ObjectId.CHOKING_MUSHROOM,
+                encounter => {
+                    QEffect qfCurrentDC = new QEffect() { Value = 15 };
+
+                    Creature hazard = new Creature(Illustrations.ChokingMushroom, "Choking Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+                    .WithTactics(Tactic.DoNothing)
+                    .WithEntersInitiativeOrder(false)
+                    .AddQEffect(qfCurrentDC)
+                    .AddQEffect(CommonQEffects.Hazard())
+                    .AddQEffect(new QEffect("Choking Spores", "This predatory mushroom exhudes a cloud of poisonous spores to suffocate its prey. Creatures walking through the spores suffer 1d6 poison damage vs. a DC 17 Basic fortitude save, and become sickened 1 on a critical failure."))
+                    ;
+
+                    QEffect effect = new QEffect("Interactable", "You can use Medicine and Nature to interact with this mushroom.") {
+                        StateCheckWithVisibleChanges = async self => {
+                            if (!self.Owner.Alive) {
+                                return;
+                            }
+
+                            self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Fire, 5);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 5);
+
+                            if (self.Tag == null) {
+                                self.Tag = self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2).ToList();
+                            }
+
+                            // Add contextual actions
+                            foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                                hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                    ProvideContextualAction = qfContextActions => {
+                                        return (Possibility)new SubmenuPossibility(Illustrations.ChokingMushroom, "Interactions") {
+                                            Subsections = {
+                                                new PossibilitySection(hazard.Name) {
+                                                    Possibilities = {
+                                                        (Possibility)(ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DisarmTrap, "Soothe Mushrooms", new Trait[] { Trait.Manipulate, Trait.Basic },
+                                                        "...", Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                        .WithActionCost(1)
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Nature), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                            if (result == CheckResult.CriticalFailure) {
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
+                                                            }
+                                                            if (result == CheckResult.Success) {
+                                                                target.AddQEffect(new QEffect() {
+                                                                    Value = 2,
+                                                                    Id = QEffectId.Recharging,
+                                                                    ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
+                                                                    Source = caster,
+                                                                });
+                                                            }
+                                                            if (result == CheckResult.CriticalSuccess) {
+                                                                target.AddQEffect(new QEffect() {
+                                                                    Value = 100,
+                                                                    Id = QEffectId.Recharging,
+                                                                    ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
+                                                                    Source = caster,
+                                                                });
+                                                            }
+                                                        }),
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
+                                                            "...", Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
+                                                            .WithAdditionalConditionOnTargetCreature((a, d) => !a.HasFreeHand ? Usability.NotUsable("No free hand") : Usability.Usable)
+                                                            .WithAdditionalConditionOnTargetCreature((a, d) => d.QEffects.Any(qf => qf.Id == QEffectIds.Harvested) ? Usability.NotUsable("Already harvested") : Usability.Usable)
+                                                            )
+                                                        .WithActionCost(1)
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Occultism), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                            if (result == CheckResult.CriticalFailure) {
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("2d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
+                                                            }
+                                                            if (result == CheckResult.Success) {
+                                                                target.AddQEffect(new QEffect() { Id = QEffectIds.Harvested });
+                                                                List<Option> options = new List<Option>();
+
+                                                                foreach (Creature ally in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.AlliedFactionOf(caster.OwningFaction) && cr.DistanceTo(caster) <= 1)) {
+                                                                    options.Add(new CreatureOption(ally, $"Heal {ally.Name} with pollen.", async() => {
+                                                                        await ally.HealAsync(DiceFormula.FromText("2d6", "Harvest Mushroom"), CombatAction.CreateSimple(target));
+                                                                        ally.Occupies.Overhead("*healed*", Color.Green, $"{ally.Name} was healed by {caster.Name} using healing pollen.");
+                                                                    }, 7, true));
+                                                                }
+                                                                var chosenOption = (await caster.Battle.SendRequest(new AdvancedRequest(caster, "Select an ally to heal with the nectar.", options) {
+                                                                    IsMainTurn = false,
+                                                                    TopBarIcon = IllustrationName.DashOfHerbs,
+                                                                    TopBarText = "Select an ally to heal with the nectar."
+                                                                })).ChosenOption;
+                                                                await chosenOption.Action();
+                                                            }
+                                                            if (result == CheckResult.CriticalSuccess) {
+                                                                                                                            target.AddQEffect(new QEffect() { Id = QEffectIds.Harvested });
+                                                                List<Option> options = new List<Option>();
+
+                                                                foreach (Creature ally in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.AlliedFactionOf(caster.OwningFaction) && cr.DistanceTo(caster) <= 1)) {
+                                                                    options.Add(new CreatureOption(ally, $"Heal {ally.Name} with pollen.", async() => {
+                                                                        await ally.HealAsync(DiceFormula.FromText("3d6", "Harvest Mushroom"), CombatAction.CreateSimple(target));
+                                                                        ally.Occupies.Overhead("*healed*", Color.Green, $"{ally.Name} was healed by {caster.Name} using healing pollen.");
+                                                                    }, 7, true));
+                                                                }
+                                                                var chosenOption = (await caster.Battle.SendRequest(new AdvancedRequest(caster, "Select an ally to heal with the nectar.", options) {
+                                                                    IsMainTurn = false,
+                                                                    TopBarIcon = IllustrationName.DashOfHerbs,
+                                                                    TopBarText = "Select an ally to heal with the nectar."
+                                                                })).ChosenOption;
+                                                                await chosenOption.Action();
+                                                            }
+                                                        }),
+                                                    }
+
+                                                }
+                                            }
+                                        };
+                                    }
+                                });
+                            }
+
+                            if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.Recharging)) {
+                                foreach (Tile tile in self.Tag as List<Tile>) {
+                                    if (tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
+                                        tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.ChokingSpores);
+                                    }
+                                }
+                                return;
+                            }
+
+                            // Apply poison to tiles
+                            foreach (Tile tile in self.Tag as List<Tile>) {
+                                if (!tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
+                                    TileQEffect spores = new TileQEffect(tile) {
+                                        TileQEffectId = QEffectIds.ChokingSpores,
+                                        ExpiresAt = ExpirationCondition.Never,
+                                        Illustration = IllustrationName.Fog,
+                                        TransformsTileIntoHazardousTerrain = true,
+                                        AfterCreatureBeginsItsTurnHere = async victim => {
+                                            if (victim.IsImmuneTo(Trait.Poison)) {
+                                                return;
+                                            }
+                                            CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 19);
+                                            await CommonSpellEffects.DealBasicDamage(CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison), hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d6", "Choking Spores"), DamageKind.Poison));
+                                            if (result == CheckResult.CriticalFailure) {
+                                                victim.AddQEffect(QEffect.Sickened(1, 17));
+                                            }
+                                        },
+                                        StateCheck = self => {
+                                            self.Owner.FoggyTerrain = true;
+                                        }
+                                    };
+                                    spores.AfterCreatureEntersHere = async victim => await spores.AfterCreatureBeginsItsTurnHere(victim);
+                                    tile.AddQEffect(spores);
+                                }
+                            }
+                        }
+                    };
+
+                    //effect.AddGrantingOfTechnical(cr => !cr.OwningFaction.IsHumanControlled, qfShroom => {
+                    //    qfShroom.ai
+                    //});
+
+                    hazard.AddQEffect(effect);
+
+                    return hazard;
+                }
+            );
+
+            ModManager.RegisterNewCreature("Choking Mushroom", Objects[ModEnums.ObjectId.CHOKING_MUSHROOM]);
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]

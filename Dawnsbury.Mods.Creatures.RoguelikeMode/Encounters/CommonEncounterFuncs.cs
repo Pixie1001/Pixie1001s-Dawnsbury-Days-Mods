@@ -118,7 +118,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
 
             // TODO: Figure out how to dynamically replace high level arcanists with shadowcasters.
 
-            foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy)) {
+            foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard))) {
                 QEffectId adj = GetAdjustmentRank(enemy);
                 if (adj == QEffectId.Weak) {
                     RemoveDifficultyAdjustment(enemy);
@@ -132,7 +132,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
         }
 
         public static void ApplyWeakAdjustments(TBattle battle) {
-            foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy)) {
+            foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard))) {
                 QEffectId adj = GetAdjustmentRank(enemy);
                 if (adj == QEffectId.Elite) {
                     RemoveDifficultyAdjustment(enemy);

@@ -116,6 +116,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             };
         }
 
+        public static QEffect Hazard() {
+            return new QEffect("Hazard", "This is a potentially hazardous terrain feature that may be attacked, but does not need to be destroyed in order to complete the encounter.") {
+                Id = QEffectIds.Hazard,
+                StateCheck = self => {
+                    if (!self.Owner.Battle.AllCreatures.Any(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard))) {
+                        self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
+                    }
+                }
+            };
+        }
+
         public static QEffect SpiderVenomAttack(int baseDC, string weapon) {
             return new QEffect("Spider Poison", "Set Later") {
                 StateCheck = async self => {

@@ -225,55 +225,35 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             // Init class
             yield return new ClassSelectionFeat(classSummoner, SummonerFlavour, tSummoner,
                 new EnforcedAbilityBoost(Ability.Charisma), 10, new Trait[5] { Trait.Unarmed, Trait.Simple, Trait.UnarmoredDefense, Trait.Reflex, Trait.Perception }, new Trait[2] { Trait.Fortitude, Trait.Will }, 3, SummonerCrunch, Subclasses.subclasses)
-                    .WithOnSheet((Action<CalculatedCharacterSheetValues>)(sheet => {
-                        sheet.AddFocusSpellAndFocusPoint(tSummoner, Ability.Charisma, spells[SummonerSpellId.EvolutionSurge]);
-                        sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPortrait", "Eidolon Portrait", 1, ft => ft.HasTrait(tPortraitCategory)));
-                        sheet.AddSelectionOption((SelectionOption)new SingleFeatSelectionOption("EvolutionFeat", "Evolution Feat", 1, (Func<Feat, bool>)(ft => ft.HasTrait(tEvolution) && ft.HasTrait(tSummoner))));
-                        sheet.AddAtLevel(3, _ => _.SetProficiency(Trait.Perception, Proficiency.Expert));
-                        sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI), 4)));
-                        sheet.AddAtLevel(9, _ => _.SetProficiency(Trait.Spell, Proficiency.Expert));
-                        sheet.AddAtLevel(9, _ => _.SetProficiency(Trait.Reflex, Proficiency.Expert));
-                        sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Fortitude, Proficiency.Master));
-                        sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Simple, Proficiency.Expert));
-                        sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Unarmed, Proficiency.Expert));
-                        sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.UnarmoredDefense, Proficiency.Expert));
-                        sheet.AddAtLevel(15, _ => _.SetProficiency(Trait.Will, Proficiency.Master));
-                    }));
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(sheet => {
+                sheet.AddFocusSpellAndFocusPoint(tSummoner, Ability.Charisma, spells[SummonerSpellId.EvolutionSurge]);
+                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPortrait", "Eidolon Portrait", 1, ft => ft.HasTrait(tPortraitCategory)));
+                sheet.AddSelectionOption((SelectionOption)new SingleFeatSelectionOption("EvolutionFeat", "Evolution Feat", 1, (Func<Feat, bool>)(ft => ft.HasTrait(tEvolution) && ft.HasTrait(tSummoner))));
+                sheet.AddAtLevel(3, _ => _.SetProficiency(Trait.Perception, Proficiency.Expert));
+                sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI), 4)));
+                sheet.AddAtLevel(9, _ => _.SetProficiency(Trait.Spell, Proficiency.Expert));
+                sheet.AddAtLevel(9, _ => _.SetProficiency(Trait.Reflex, Proficiency.Expert));
+                sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Fortitude, Proficiency.Master));
+                sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Simple, Proficiency.Expert));
+                sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Unarmed, Proficiency.Expert));
+                sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.UnarmoredDefense, Proficiency.Expert));
+                sheet.AddAtLevel(15, _ => _.SetProficiency(Trait.Will, Proficiency.Master));
+            }));
 
             // Init eidolon ability boosts
-            yield return new Feat(ftStrengthBoost, "Your eidolon grows stronger.", "Your eidolon increases its strength modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+            yield return new Feat(ftStrengthBoost, "Your eidolon grows stronger.",
+                "Your eidolon increases its strength modifier by +1.\n\nIf your eidolon already has strength modifier of +4, this has no effect.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Strength);
             //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? != Ability.Strength, "You cannot raise an ability score above +4.");
             yield return new Feat(ftDexterityBoost, "Your eidolon grows fasters.",
-                "Your eidolon increases its dexterity modifier by +1.", new List<Trait>() { tEidolonASI }, null);
-            //.WithPrerequisite(sheet => !sheet.HasFeat(ftKeyEidolonAbilityDex), "You cannot raise an ability score above +4.");
-            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? != Ability.Dexterity, "You cannot raise an ability score above +4.");
-            //.WithPrerequisite(sheet => {
-            //    //Feat? feat = sheet.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEidolonArray));
-            //    Feat? feat = null;
-            //    for (int i = 0; i < sheet.AllFeats.Count; i++) {
-            //        if (sheet.AllFeats[i].HasTrait(tEidolonArray)) {
-            //            feat = sheet.AllFeats[i];
-            //            break;
-            //        }
-            //    }
-            //    if (feat == null) {
-            //         return true;
-            //     }
-            //     Ability? mainAbility = (Ability?)feat.Tag;
-            //     if (mainAbility == null || mainAbility != Ability.Dexterity) {
-            //         return true;
-            //     }
-
-            //     return false;
-            // }, "You cannot raise an ability score above +4.");
+                "Your eidolon increases its dexterity modifier by +1.\n\nIf your eidolon already has dexterity modifier of +4, this has no effect.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Dexterity);
             yield return new Feat(ftConstitutionBoost, "Your eidolon becomes sturdier.",
-                "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", new List<Trait>() { tEidolonASI }, null);
+                "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Constitution); ;
             yield return new Feat(ftIntelligenceBoost, "Your eidolon grows more cunning.",
-                "Your eidolon increases its intelligence modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+                "Your eidolon increases its intelligence modifier by +1.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Intelligence); ;
             yield return new Feat(ftWisdomBoost, "Your eidolon's insticts grow sharper.",
-                "Your eidolon increases its wisdom modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+                "Your eidolon increases its wisdom modifier by +1.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Wisdom); ;
             yield return new Feat(ftCharismaBoost, "Your eidolon's presence grows.",
-                "Your eidolon increases its charisma modifier by +1.", new List<Trait>() { tEidolonASI }, null);
+                "Your eidolon increases its charisma modifier by +1.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Charisma); ;
 
             // Generate energy optinon feats
             DamageKind[] energyDamageTypes = new DamageKind[] { DamageKind.Acid, DamageKind.Cold, DamageKind.Electricity, DamageKind.Fire, DamageKind.Sonic, DamageKind.Positive, DamageKind.Negative };
@@ -1151,6 +1131,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         internal static Feat CreateEidolonFeat(FeatName featName, string flavorText, string? abilityText, string? actionText, int[] abilityScores, int ac, int dexCap) {
             return new Feat(featName, flavorText, "Your eidolon has the following characteristics at level 1:\n\n" + PrintEidolonStatBlock(featName, abilityText, actionText, abilityScores, ac, dexCap), new List<Trait>() { tEidolonArray }, (List<Feat>)null)
+            //.WithOnSheet(sheet => {
+            //    if (abilityScores[0] == 4) {
+            //        sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
+            //    } else {
+            //        sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
+            //    }
+            //})
             .WithOnCreature((Action<CalculatedCharacterSheetValues, Creature>)((sheet, summoner) => summoner
             .AddQEffect(new ActionShareEffect() {
                 Id = qfSharedActions,

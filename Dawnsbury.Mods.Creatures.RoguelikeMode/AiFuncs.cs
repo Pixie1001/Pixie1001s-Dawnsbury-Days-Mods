@@ -80,7 +80,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         // - Run bonus on postion 
         // - Cowardly
 
-        internal static void PositionalGoodness(Creature monster, List<Option> options, Func<Tile, Creature, bool> filter, float modifier, bool flat = true) {
+        /// <summary>
+        /// The MONSTER considers all OPTIONS, and determines which creatures in the encounter feat the conditions of FILTER(postion, self, is a step?, other creature).
+        /// They then gain goodness bonus equal their MODIFIER. If FLAT is false, they gain this bonus for each creature that meets the conditions set by filter.
+        /// </summary>
+        internal static void PositionalGoodness(Creature monster, List<Option> options, Func<Tile, Creature, bool, Creature, bool> filter, float modifier, bool flat = true) {
 
             float localMod = 0;
 
@@ -88,7 +92,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
                 TileOption? option2 = option as TileOption;
                 if (option2 != null) {
-                    int hits = monster.Battle.AllCreatures.Where(cr => filter(option2.Tile, cr)).Count();
+                    int hits = monster.Battle.AllCreatures.Where(cr => filter(option2.Tile, monster, option2.Text == "Step", cr)).Count();
                     if (hits > 0) {
                         localMod = flat ? modifier : modifier * hits;
                         option2.AiUsefulness.MainActionUsefulness += localMod;
@@ -97,7 +101,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             }
 
             foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere && o.AiUsefulness.MainActionUsefulness != 0)) {
-                int hits = monster.Battle.AllCreatures.Where(cr => filter(monster.Occupies, cr)).Count();
+                int hits = monster.Battle.AllCreatures.Where(cr => filter(monster.Occupies, monster, false, cr)).Count();
                 if (hits > 0) {
                     localMod = flat ? modifier : modifier * hits;
                     option.AiUsefulness.MainActionUsefulness += localMod;
@@ -137,14 +141,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     // Closer than compareTo allies
                     if (personalScore > allyScore && currScore < allyScore) {
                         option2.AiUsefulness.MainActionUsefulness += aversion;
-                    } else if (personalScore < allyScore) {
+                    } else if (personalScore < allyScore && currScore > allyScore) {
                         option2.AiUsefulness.MainActionUsefulness += attraction;
                     }
                 } else if (option2.Text == "Step") {
                     // Closer than compareTo allies
                     if (personalScore > allyScore && currScore < allyScore) {
                         option2.AiUsefulness.MainActionUsefulness += aversion;
-                    } else if (personalScore < allyScore) {
+                    } else if (personalScore < allyScore && currScore > allyScore) {
                         option2.AiUsefulness.MainActionUsefulness += attraction;
                     }
                 }

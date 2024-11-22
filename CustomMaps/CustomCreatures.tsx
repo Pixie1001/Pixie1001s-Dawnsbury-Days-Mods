@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="13" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="17" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -78,5 +78,23 @@
    <property name="Id" value="Witch Mother"/>
   </properties>
   <image source="CustomCreatures/Witch_Mother.png" width="256" height="256"/>
+ </tile>
+ <tile id="13">
+  <properties>
+   <property name="Id" value="Drow Shadowcaster"/>
+  </properties>
+  <image source="CustomCreatures/DrowShadowcaster.png" width="256" height="256"/>
+ </tile>
+ <tile id="14">
+  <properties>
+   <property name="Id" value="Choking Mushroom"/>
+  </properties>
+  <image source="CustomCreatures/Choking_Mushroom.png" width="256" height="256"/>
+ </tile>
+ <tile id="15">
+  <image source="CustomCreatures/Boom_Shroom.png" width="256" height="256"/>
+ </tile>
+ <tile id="16">
+  <image source="CustomCreatures/Spider_Shrine.png" width="256" height="256"/>
  </tile>
 </tileset>

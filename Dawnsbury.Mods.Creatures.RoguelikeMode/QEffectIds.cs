@@ -77,5 +77,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static QEffectId ExtraTurn { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ExtraTurnMiniBoss");
         internal static QEffectId DrowClergy { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_DrowClergy");
         internal static QEffectId BloodBond { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_BloodBond");
+        internal static QEffectId Harvested { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Harvested");
+        internal static QEffectId Hazard { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Hazard");
+
+        // Tile Effects IDs
+        internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");
     }
 }
