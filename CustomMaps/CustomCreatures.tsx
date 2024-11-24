@@ -92,9 +92,15 @@
   <image source="CustomCreatures/Choking_Mushroom.png" width="256" height="256"/>
  </tile>
  <tile id="15">
+  <properties>
+   <property name="Id" value="Explosive Mushroom"/>
+  </properties>
   <image source="CustomCreatures/Boom_Shroom.png" width="256" height="256"/>
  </tile>
  <tile id="16">
+  <properties>
+   <property name="Id" value="Spider Queen Shrine"/>
+  </properties>
   <image source="CustomCreatures/Spider_Shrine.png" width="256" height="256"/>
  </tile>
 </tileset>

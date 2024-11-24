@@ -1069,7 +1069,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 5);
 
                             if (self.Tag == null) {
-                                self.Tag = self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2).ToList();
+                                self.Tag = self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2 && !new TileKind[] { TileKind.BlocksMovementAndLineOfEffect, TileKind.Tree, TileKind.Rock, TileKind.Wall }.Contains(t.Kind)).ToList();
                             }
 
                             // Add contextual actions
@@ -1209,6 +1209,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             );
 
             ModManager.RegisterNewCreature("Choking Mushroom", Objects[ModEnums.ObjectId.CHOKING_MUSHROOM]);
+
+
+            // HAZARD - Deep Mushroom
+            Objects.Add(ModEnums.ObjectId.BOOM_SHROOM,
+                encounter => {
+                    Creature hazard = new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+                    .WithTactics(Tactic.DoNothing)
+                    .WithEntersInitiativeOrder(false)
+                    .AddQEffect(CommonQEffects.Hazard())
+                    .AddQEffect(new QEffect("Combustible Spores",
+                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 17 Basic reflex save to each creature within a 2 tile radius.") {
+                        AfterYouTakeDamageOfKind = async (self, action, kind) => {
+                            string name = self.Owner.Name;
+
+                            if (!self.UsedThisTurn && (kind == DamageKind.Fire || (action != null && action.HasTrait(Trait.Fire)))) {
+                                CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire }, "", Target.SelfExcludingEmanation(2))
+                                .WithSoundEffect(SfxName.Fireball)
+                                .WithSavingThrow(new SavingThrow(Defense.Reflex, 17))
+                                .WithProjectileCone(IllustrationName.Fireball, 15, ProjectileKind.Cone)
+                                .WithEffectOnEachTarget(async (spell, a, d, r) => {
+                                    await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText("4d6", "Combustible Spores"), DamageKind.Fire);
+                                })
+                                ;
+                                self.Owner.Battle.AllCreatures.Where(cr => cr != self.Owner && cr.DistanceTo(self.Owner.Occupies) <= 2).ForEach(cr => explosion.ChosenTargets.ChosenCreatures.Add(cr));
+                                await CommonAnimations.CreateConeAnimation(self.Owner.Battle, self.Owner.Occupies.ToCenterVector(), self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2).ToList(), 15, ProjectileKind.Cone, IllustrationName.Fireball);
+                                self.UsedThisTurn = true;
+                                await explosion.AllExecute();
+                                self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        }
+                    })
+                    ;
+
+                    return hazard;
+                }
+            );
+
+            ModManager.RegisterNewCreature("Explosive Mushroom", Objects[ModEnums.ObjectId.BOOM_SHROOM]);
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]

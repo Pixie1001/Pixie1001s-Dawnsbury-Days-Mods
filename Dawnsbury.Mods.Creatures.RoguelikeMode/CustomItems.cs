@@ -172,7 +172,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 wielder.AddQEffect(new QEffect("Hexshot", "After expending a spell slot or using a scroll, your Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.") {
                     ExpiresAt = ExpirationCondition.Ephemeral,
                     AfterYouTakeAction = async (self, spell) => {
-                        if (spell != null && (((spell.HasTrait(Trait.Spell) || spell.HasTrait(Trait.Spellstrike)) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus)) || (spell.Name.StartsWith("Channel Smite")))) {
+                        if (spell != null && (((spell.HasTrait(Trait.Spell) || spell.HasTrait(Trait.Spellstrike)) && !spell.HasTrait(Trait.SustainASpell) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus)) || (spell.Name.StartsWith("Channel Smite")))) {
                             string damage = spell.SpellLevel != 0 ? $"{spell.SpellLevel * 2}" : $"{(self.Owner.Level + 2) / 2 * 2}";
                             self.Owner.AddQEffect(new QEffect("Hexshot Charged",
                                 $"Your Hexshot pistol is charged by the casting of a spell. The next shot you take with it gains a +2 status bonus, and deals an additional {damage} force damage.",
@@ -471,11 +471,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             .WithDescription("This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.\n\n" +
             "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
             "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wear may consume it to heal for an amount of hit points " +
-            "equal to 20% of their original max HP.")
+            "equal to damage dealt.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
                 qfMoC.Innate = true;
                 qfMoC.Name = "Mask of Consumption";
-                qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage";
+                qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage and deals you for an amount equal to damage dealt.";
                 qfMoC.StateCheck = self => {
                     if (qfMoC.Owner.Traits.Any(trait => trait.HumanizeTitleCase2() == "Summoner")) {
                         QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
@@ -490,11 +490,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         properties.AdditionalPersistentDamageKind = DamageKind.Bleed;
                      });
                 };
-                qfMoC.AfterYouDealDamage = async (a, strike, d) => {
-                    if (strike != null && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == a.UnarmedStrike.Name && d.IsLivingCreature) {
-                        await a.HealAsync(DiceFormula.FromText($"{a.TrueMaximumHP * 0.2}", "Mask of Consumption"), strike);
-                    }
-                };
+                //qfMoC.AfterYouDealDamage = async (a, strike, d) => {
+                //    if (strike != null && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == a.UnarmedStrike.Name && d.IsLivingCreature) {
+                //        await a.HealAsync(DiceFormula.FromText($"{a.TrueMaximumHP * 0.2}", "Mask of Consumption"), strike);
+                //    }
+                //};
+                qfMoC.AddGrantingOfTechnical(cr => cr.OwningFaction.IsEnemy && cr.IsLivingCreature, qfTechnical => {
+                    qfTechnical.Key = "Mask of Consumption Technical";
+                    qfTechnical.AfterYouTakeAmountOfDamageOfKind = async (self, strike, damage, kind) => {
+                        if (strike != null && strike.Owner != null && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == strike.Owner.UnarmedStrike.Name && self.Owner.IsLivingCreature) {
+                            await strike.Owner.HealAsync(DiceFormula.FromText($"{damage}", "Mask of Consumption"), strike);
+                        }
+                    };
+                });
             });
         });
 
