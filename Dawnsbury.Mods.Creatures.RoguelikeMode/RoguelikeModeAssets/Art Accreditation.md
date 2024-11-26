@@ -21,7 +21,6 @@
 	<li>AnimalFormBear.png (Modified)</li>
 	<li>AnimalFormSnake.png (Modified)</li>
 	<li>AnimalFormWolf.png (Modified)</li>
-	<li>DrowShootist.png (Modified)</li>
 </ul>
 
 ## Self Produced Assets
@@ -37,6 +36,8 @@
 	<li>ChokingMushroom.png</li>
 	<li>BoomShroom.png</li>
 	<li>SpiderShrine.png</li>
+	<li>DrowShootist.png</li>
+	<li>DrowSniper.png (edited using base game assets)</li>
 </ul>
 
 ## Volunteer Contributions

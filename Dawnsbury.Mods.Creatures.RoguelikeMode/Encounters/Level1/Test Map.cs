@@ -70,7 +70,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
 
-                CommonEncounterFuncs.ApplyEliteAdjustments(battle);
+                battle.AllCreatures.FirstOrDefault(cr => cr.BaseName == "test summoner").AddQEffect(new QEffect() { BonusToDefenses = (self, action, defence) => defence == Defense.Fortitude ? new Bonus(-5, BonusType.Untyped, "Testing") : null });
+                // Debug
+                //await Affliction.ExposeToInjury(Affliction.CreateSpiderVenom(), td, battle.AllCreatures.FirstOrDefault(cr => cr.BaseName == "test summoner"));
+
+                //CommonEncounterFuncs.ApplyEliteAdjustments(battle);
 
                 //td.AddQEffect(new QEffect() {
                 //    AdditionalGoodness = (self, action, target) => {
@@ -83,6 +87,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
                 //td.Traits.Add(Trait.Undead);
                 //td.Level = 9;
             });
+
+            //this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
+            //    Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
+
+
+            //    // Debug
+            //    await Affliction.ExposeToInjury(Affliction.CreateSpiderVenom(), td, battle.AllCreatures.FirstOrDefault(cr => cr.BaseName == "test summoner"));
+            //});
         }
 
     }

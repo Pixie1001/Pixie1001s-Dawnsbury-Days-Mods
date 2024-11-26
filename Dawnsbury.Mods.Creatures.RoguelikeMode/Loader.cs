@@ -124,6 +124,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<AqueductsLv1>("Aqueducts.tmx", "AqueductsLv1");
             RegisterEncounter<AqueductsLv2>("Aqueducts.tmx", "AqueductsLv2");
             RegisterEncounter<AqueductsLv3>("Aqueducts.tmx", "AqueductsLv3");
+            RegisterEncounter<TempleOfTheSpiderQueenLv1>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv1");
+            RegisterEncounter<TempleOfTheSpiderQueenLv2>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv2");
+            RegisterEncounter<TempleOfTheSpiderQueenLv3>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

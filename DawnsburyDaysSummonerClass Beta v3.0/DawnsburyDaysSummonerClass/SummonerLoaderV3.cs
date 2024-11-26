@@ -1253,10 +1253,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         if (eidolon.QEffects[i].StartOfCombat != null)
                             await eidolon.QEffects[i].StartOfCombat(eidolon.QEffects[i]);
                     }
-
                 }),
                 StartOfYourTurn = (Func<QEffect, Creature, Task>)(async (qfStartOfTurn, summoner) => {
                     Creature eidolon = GetEidolon(summoner);
+
+                    if (eidolon.Destroyed || eidolon.HP <= 0) {
+                        return;
+                    }
 
                     await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
 
@@ -1311,6 +1314,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (qf.Owner.Actions.IsReactionUsedUp == true) {
                         eidolon.Actions.UseUpReaction();
                     }
+
+                    // TODO: Add a check for a targeted attack being mislabled as a damage attack
 
                     // Handle AoO
                     if (qf.Owner.HasEffect(qfReactiveStrikeCheck)) {
@@ -1816,7 +1821,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 .AddQEffect(new QEffect("Eidolon Bond", "You and your eidolon share your actions and multiple attack penalty. Each round, you can use any of your actions (including reactions and free actions) for yourself or your eidolon. " +
                 "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities.") {
                     YouAcquireQEffect = (Func<QEffect, QEffect, QEffect?>)((qfVanishOnDeath, qfNew) => {
-                        if (qfNew.Id == QEffectId.Dying) {
+                        if (qfNew.Id == QEffectId.Dying || qfNew.Id == QEffectId.Unconscious) {
                             qfVanishOnDeath.Owner.Battle.RemoveCreatureFromGame(qfVanishOnDeath.Owner);
                             return null;
                         }
@@ -1867,6 +1872,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             return;
                         }
 
+                        if (qf.Owner.HP <= 0) {
+                            qf.Owner.Battle.RemoveCreatureFromGame(qf.Owner);
+                        }
+
                         if (summoner.OwningFaction != qf.Owner.OwningFaction) {
                             qf.Owner.OwningFaction = summoner.OwningFaction;
                         }
@@ -1906,6 +1915,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         } else if (qf.Owner.TemporaryHP > summoner.TemporaryHP) {
                             summoner.GainTemporaryHP(qf.Owner.TemporaryHP);
                         }
+
+                        // TODO: Remove debug logs
+                        summoner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"SUMMONER HP: {summoner.HP}");
+                        qf.Owner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"EIDOLON HP: {qf.Owner.HP}");
 
                         // Handle emergency HP correction
                         HealthShareSafetyCheck(qf.Owner, summoner);
@@ -2170,9 +2183,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {
             if (self.TrueMaximumHP < partner.TrueMaximumHP) {
-                self.Heal($"{partner.TrueMaximumHP - self.TrueMaximumHP}", null);
+                self.Heal(DiceFormula.FromText($"{partner.TrueMaximumHP - self.TrueMaximumHP}", "Eidolon Health Share"), null);
             } else if (self.TrueMaximumHP > partner.TrueMaximumHP) {
-                partner.Heal($"{self.TrueMaximumHP - partner.TrueMaximumHP}", null);
+                partner.Heal(DiceFormula.FromText($"{self.TrueMaximumHP - partner.TrueMaximumHP}", "Eidolon Health Share"), null);
             }
         }
 
@@ -2201,18 +2214,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HARM) {
                     if (totalHPPartner < totalHPSelf) {
                         int damage = totalHPSelf - totalHPPartner;
-                        await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}"), self, CheckResult.Success, DamageKind.Untyped);
+                        await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", "Eidolon Health Share"), self, CheckResult.Success, DamageKind.Untyped);
                     } else if (totalHPPartner > totalHPSelf) {
                         int damage = totalHPPartner - totalHPSelf;
-                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}"), partner, CheckResult.Success, DamageKind.Untyped);
+                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", "Eidolon Health Share"), partner, CheckResult.Success, DamageKind.Untyped);
                     }
                 } else if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
                     if (partner.HP < self.HP) {
                         int healing = self.HP - partner.HP;
-                        partner.Heal($"{healing}", selfShareHP.CA);
+                        partner.Heal(DiceFormula.FromText($"{healing}", "Eidolon Health Share"), selfShareHP.CA);
                     } else if (partner.HP > self.HP) {
                         int healing = partner.HP - self.HP;
-                        self.Heal($"{healing}", partnerShareHP.CA);
+                        self.Heal(DiceFormula.FromText($"{healing}", "Eidolon Health Share"), partnerShareHP.CA);
                     }
                 }
             } else {
@@ -2220,11 +2233,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HARM) {
                     //int damage = totalHPPartner - totalHPSelf;
                     int damage = (selfShareHP.HP + selfShareHP.TempHP) - totalHPSelf;
-                    await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}"), partner, CheckResult.Success, DamageKind.Untyped);
+                    await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", "Eidolon Health Share"), partner, CheckResult.Success, DamageKind.Untyped);
                 } else if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
-                    //int healing = (self.HP) - (partner.HP);
-                    int healing = selfShareHP.HP - self.HP;
-                    partner.Heal($"{healing}", selfShareHP.CA);
+                    int healing = self.HP - selfShareHP.HP;
+                    partner.Heal(DiceFormula.FromText($"{healing}", "Eidolon Health Share"), selfShareHP.CA);
                 }
                 selfShareHP.Reset();
 

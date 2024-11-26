@@ -176,7 +176,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             string damage = spell.SpellLevel != 0 ? $"{spell.SpellLevel * 2}" : $"{(self.Owner.Level + 2) / 2 * 2}";
                             self.Owner.AddQEffect(new QEffect("Hexshot Charged",
                                 $"Your Hexshot pistol is charged by the casting of a spell. The next shot you take with it gains a +2 status bonus, and deals an additional {damage} force damage.",
-                                ExpirationCondition.Never, null, Illustrations.HexshotStatusIcon) {
+                                ExpirationCondition.Never, null, new SameSizeDualIllustration(Illustrations.StatusBackdrop, weapon.Illustration)) {
                                 Value = spell.SpellLevel,
                                 Key = "Hexshot Charged",
                                 BonusToAttackRolls = (self, action, target) => {
@@ -772,62 +772,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 default:
                     return 0;
             }
-        }
-    }
-
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public record WandIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
-        public override string IllustrationAsIconString => Center.IllustrationAsIconString;
-
-        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
-            int num = rectangle.Width / 6;
-            int num2 = rectangle.Height / 6;
-            //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-            // Primitives.DrawImage(Assets.TextureFromName(Main), rectangle, color, scale, scaleUp, scaleBgColor);
-
-            Primitives.DrawImage(NewMain, rectangle: new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-            Primitives.DrawImage(Center, rectangle, color, scale, scaleUp, scaleBgColor);
-
-            //Primitives.DrawImage(NewMain, rectangle, color, scale, scaleUp, scaleBgColor);
-            //Primitives.DrawImage(rectangle: new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), illustration: Center, color: color, scale: scale, scaleUp: scaleUp, scaleBgColor: scaleBgColor);
-
-        }
-
-        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
-            int num = rectangle.Width / 6;
-            int num2 = rectangle.Height / 6;
-            //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-            //Primitives.DrawImageNative(Assets.TextureFromName(Main), rectangle, color, scale, scaleUp, scaleBgColor);
-            Primitives.DrawImageNative(NewMain, new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-            Primitives.DrawImageNative(Center, rectangle, color, scale, scaleUp, scaleBgColor);
-        }
-    }
-
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public record DualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
-        public override string IllustrationAsIconString => Center.IllustrationAsIconString;
-
-        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
-            int num = rectangle.Width / 6;
-            int num2 = rectangle.Height / 6;
-            //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-            // Primitives.DrawImage(Assets.TextureFromName(Main), rectangle, color, scale, scaleUp, scaleBgColor);
-
-            Primitives.DrawImage(NewMain, rectangle, color, scale, scaleUp, scaleBgColor);
-            Primitives.DrawImage(Center, rectangle: new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-
-            //Primitives.DrawImage(NewMain, rectangle, color, scale, scaleUp, scaleBgColor);
-            //Primitives.DrawImage(rectangle: new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), illustration: Center, color: color, scale: scale, scaleUp: scaleUp, scaleBgColor: scaleBgColor);
-
-        }
-
-        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
-            int num = rectangle.Width / 6;
-            int num2 = rectangle.Height / 6;
-            //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
-            //Primitives.DrawImageNative(Assets.TextureFromName(Main), rectangle, color, scale, scaleUp, scaleBgColor);
-            Primitives.DrawImageNative(NewMain, rectangle, color, scale, scaleUp, scaleBgColor);
-            Primitives.DrawImageNative(Center, new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
         }
     }
 }

@@ -63,8 +63,8 @@ using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class ShrineLv1 : Level1Encounter
+    internal class TempleOfTheSpiderQueenLv1 : Level1Encounter
     {
-        public ShrineLv1(string filename) : base("Shrine", filename) { }
+        public TempleOfTheSpiderQueenLv1(string filename) : base("Temple of the Spider Queen", filename) { }
     }
 }

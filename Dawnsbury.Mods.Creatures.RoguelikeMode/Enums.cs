@@ -81,6 +81,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             DROW_INQUISITRIX,
             DROW_TEMPLEGUARD,
             DROW_SHOOTIST,
+            DROW_SNIPER,
             DRIDER,
             WITCH_CRONE,
             WITCH_MOTHER,

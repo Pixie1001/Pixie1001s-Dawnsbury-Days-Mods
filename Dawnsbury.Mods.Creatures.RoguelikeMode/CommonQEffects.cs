@@ -358,12 +358,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             effect.AddGrantingOfTechnical(filter, qf => {
                 qf.YouAreDealtDamage = async (qfAlly, attacker, damageStuff, defender) => {
-                    if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 3)
-                        return (DamageModification)null;
+                    if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 3 || effect.Owner.DistanceTo(defender) > 3)
+                        return null;
                     if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker?.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + reduction.ToString() + " of that damage?"))
-                        return (DamageModification)null;
+                        return null;
 
-                    List<Tile> validStepTiles = effect.Owner.Battle.Map.AllTiles.Where(t => t.IsAdjacentTo(effect.Owner.Occupies) && t.DistanceTo(attacker.Occupies) < 3 && attacker.HasLineOfEffectTo(attacker.Occupies) < CoverKind.Blocked).ToList();
+                    List<Tile> validStepTiles = effect.Owner.Battle.Map.AllTiles.Where(t => t.IsFree && t.IsAdjacentTo(effect.Owner.Occupies) && t.DistanceTo(attacker.Occupies) < 3 && attacker.HasLineOfEffectTo(attacker.Occupies) < CoverKind.Blocked).ToList();
 
                     effect.Owner.Occupies.Overhead("retributive strike!", Color.Orange, effect.Owner?.ToString() + " uses retributive strike!");
                     effect.Owner.AddQEffect(new QEffect(ExpirationCondition.Never) {
