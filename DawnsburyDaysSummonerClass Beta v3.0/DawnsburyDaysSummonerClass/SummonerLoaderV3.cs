@@ -1315,18 +1315,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         eidolon.Actions.UseUpReaction();
                     }
 
-                    // TODO: Add a check for a targeted attack being mislabled as a damage attack
-
                     // Handle AoO
-                    if (qf.Owner.HasEffect(qfReactiveStrikeCheck)) {
-                        qf.Owner.RemoveAllQEffects(qf => qf.Id == qfReactiveStrikeCheck);
-                        HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-                        await HandleHealthShare(qf.Owner, eidolon, shareHP.LoggedAction, SummonerClassEnums.InterceptKind.TARGET);
+                    HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                    if (shareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
+                        await HandleHealthShare(eidolon, qf.Owner, SummonerClassEnums.InterceptKind.TARGET);
                     }
-                    if (eidolon.HasEffect(qfReactiveStrikeCheck)) {
-                        summoner.RemoveAllQEffects(qf => qf.Id == qfReactiveStrikeCheck);
-                        HPShareEffect shareHP = (HPShareEffect)eidolon.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-                        await HandleHealthShare(eidolon, qf.Owner, shareHP.LoggedAction, SummonerClassEnums.InterceptKind.TARGET);
+
+                    HPShareEffect eidolonShareHP = (HPShareEffect)eidolon.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                    if (eidolonShareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
+                        await HandleHealthShare(qf.Owner, eidolon, SummonerClassEnums.InterceptKind.TARGET);
                     }
 
                     // Handle tempHP
@@ -1386,7 +1383,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                    shareHP.Owner.AddQEffect(new QEffect() { Id = qfReactiveStrikeCheck });
                 }),
                 AfterYouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfShareHP, action) => {
                     if (action.Name == "Command your Eidolon") {
@@ -1400,7 +1396,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Creature summoner = qfShareHP.Owner;
                     Creature eidolon = GetEidolon(summoner);
 
-                    await HandleHealthShare(summoner, eidolon, action, SummonerClassEnums.InterceptKind.TARGET);
+                    await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.TARGET, action.Name);
                 }),
                 EndOfAnyTurn = (Action<QEffect>)(qfHealOrHarm => {
                     HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
@@ -1421,7 +1417,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
 
                     // Check if caught by target check
-                    if (shareHP.CompareEffects(damageStuff.Power, attacker)) {
+                    if (shareHP.CheckForTargetLog(damageStuff.Power, attacker)) {
                         return null;
                     }
 
@@ -1441,7 +1437,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Creature summoner = qfPostHazardDamage.Owner;
                     Creature eidolon = GetEidolon(summoner);
 
-                    await HandleHealthShare(summoner, eidolon, action, SummonerClassEnums.InterceptKind.DAMAGE);
+                    await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.DAMAGE, action.Name);
                 }),
                 AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                     Creature summoner = qf.Owner;
@@ -1898,15 +1894,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
 
                         // Handle AoO
-                        if (qf.Owner.HasEffect(qfReactiveStrikeCheck)) {
-                            qf.Owner.RemoveAllQEffects(qf => qf.Id == qfReactiveStrikeCheck);
-                            HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-                            await HandleHealthShare(qf.Owner, summoner, shareHP.LoggedAction, SummonerClassEnums.InterceptKind.TARGET);
+                        HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                        if (shareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
+                            await HandleHealthShare(summoner, qf.Owner, SummonerClassEnums.InterceptKind.TARGET);
                         }
-                        if (summoner.HasEffect(qfReactiveStrikeCheck)) {
-                            summoner.RemoveAllQEffects(qf => qf.Id == qfReactiveStrikeCheck);
-                            HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-                            await HandleHealthShare(summoner, qf.Owner, shareHP.LoggedAction, SummonerClassEnums.InterceptKind.TARGET);
+
+                        HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                        if (summonerShareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
+                            await HandleHealthShare(qf.Owner, summoner, SummonerClassEnums.InterceptKind.TARGET);
                         }
 
                         // Handle tempHP
@@ -1917,8 +1912,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
 
                         // TODO: Remove debug logs
-                        summoner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"SUMMONER HP: {summoner.HP}");
-                        qf.Owner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"EIDOLON HP: {qf.Owner.HP}");
+                        //summoner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"SUMMONER HP: {summoner.HP}");
+                        //qf.Owner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"EIDOLON HP: {qf.Owner.HP}");
 
                         // Handle emergency HP correction
                         HealthShareSafetyCheck(qf.Owner, summoner);
@@ -1938,7 +1933,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
 
                         shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                        shareHP.Owner.AddQEffect(new QEffect() { Id = qfReactiveStrikeCheck });
                     }),
                     BonusToSpellSaveDCs = qf => {
                         int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
@@ -1957,7 +1951,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         Creature summoner = GetSummoner(qfShareHP.Owner);
                         Creature eidolon = qfShareHP.Owner;
 
-                        await HandleHealthShare(eidolon, summoner, action, SummonerClassEnums.InterceptKind.TARGET);
+                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.TARGET);
                     }),
                     EndOfAnyTurn = (Action<QEffect>)(qfEndOfTurn => {
                         HPShareEffect shareHP = (HPShareEffect)qfEndOfTurn.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
@@ -1986,7 +1980,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
 
                         // Check if caught by target check
-                        if (shareHP.CompareEffects(damageStuff.Power, attacker)) {
+                        if (shareHP.CheckForTargetLog(damageStuff.Power, attacker)) {
                             return null;
                         }
 
@@ -2002,7 +1996,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         Creature summoner = GetSummoner(qfPostHazardDamage.Owner);
                         Creature eidolon = qfPostHazardDamage.Owner;
 
-                        await HandleHealthShare(eidolon, summoner, action, SummonerClassEnums.InterceptKind.DAMAGE);
+                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.DAMAGE);
                     }),
                     BonusToSkillChecks = (Func<Skill, CombatAction, Creature?, Bonus?>)((skill, action, creature) => {
                         if (action.Owner.BaseName == "Pseudocreature") {
@@ -2183,65 +2177,91 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {
             if (self.TrueMaximumHP < partner.TrueMaximumHP) {
-                self.Heal(DiceFormula.FromText($"{partner.TrueMaximumHP - self.TrueMaximumHP}", "Eidolon Health Share"), null);
+                self.Heal(DiceFormula.FromText($"{partner.TrueMaximumHP - self.TrueMaximumHP}", "Eidolon Health Share (failsafe)"), null);
             } else if (self.TrueMaximumHP > partner.TrueMaximumHP) {
-                partner.Heal(DiceFormula.FromText($"{self.TrueMaximumHP - partner.TrueMaximumHP}", "Eidolon Health Share"), null);
+                partner.Heal(DiceFormula.FromText($"{self.TrueMaximumHP - partner.TrueMaximumHP}", "Eidolon Health Share (failsafe))"), null);
             }
         }
 
-        private async static Task HandleHealthShare(Creature self, Creature partner, CombatAction action, SummonerClassEnums.InterceptKind interceptKind) {
+        private async static Task HandleHealthShare(Creature self, Creature partner, SummonerClassEnums.InterceptKind interceptKind, string? actionName = null) {
             HPShareEffect selfShareHP = (HPShareEffect)self.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == partner));
             HPShareEffect partnerShareHP = (HPShareEffect)partner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == self));
 
-            // Remove target check
-            if (interceptKind == SummonerClassEnums.InterceptKind.TARGET) {
-                self.RemoveAllQEffects(qf => qf.Id == qfReactiveStrikeCheck);
-            }
+            List<HPShareLogEntry> list = selfShareHP.Logs.Where(l => l.Type == interceptKind && !l.Processed && l.LoggedAction != selfShareHP.CA && l.LoggedAction != partnerShareHP.CA).ToList();
 
-            if (selfShareHP.Type != interceptKind) {
-                return;
-            }
+            foreach (HPShareLogEntry log in list) {
+                int totalHPSelf = self.HP + self.TemporaryHP;
+                int totalHPPartner = partner.HP + partner.TemporaryHP;
+                HPShareLogEntry? partnerLog = null;
+                SummonerClassEnums.EffectKind aoeCheck = log.CompareEffects(partnerShareHP, out partnerLog);
 
-            if (action == selfShareHP.CA || action == partnerShareHP.CA) {
-                return;
-            }
+                if (aoeCheck != SummonerClassEnums.EffectKind.NONE) {
+                    // Same effect
+                    if (aoeCheck == SummonerClassEnums.EffectKind.HARM) {
+                        if (totalHPPartner < totalHPSelf) {
+                            int damage = totalHPSelf - totalHPPartner;
+                            await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, CheckResult.Success, DamageKind.Untyped);
+                        } else if (totalHPPartner > totalHPSelf) {
+                            int damage = totalHPPartner - totalHPSelf;
+                            await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, CheckResult.Success, DamageKind.Untyped);
+                        }
+                    } else if (aoeCheck == SummonerClassEnums.EffectKind.HEAL) {
+                        if (partner.HP < self.HP) {
+                            int healing = self.HP - partner.HP;
+                            partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
+                        } else if (partner.HP > self.HP) {
+                            int healing = partner.HP - self.HP;
+                            self.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
+                        }
+                    } else if (aoeCheck == SummonerClassEnums.EffectKind.HEAL_HARM) {
+                        if (partnerLog.Processed) {
+                            log.Processed = true;
+                            continue;
+                        }
+                        partnerLog.Processed = true;
 
-            int totalHPSelf = self.HP + self.TemporaryHP;
-            int totalHPPartner = partner.HP + partner.TemporaryHP;
+                        int healing = self.HP - log.HP;
+                        partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
 
-            if (partnerShareHP.CompareEffects(selfShareHP)) {
-                // Same effect
-                if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HARM) {
-                    if (totalHPPartner < totalHPSelf) {
-                        int damage = totalHPSelf - totalHPPartner;
-                        await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", "Eidolon Health Share"), self, CheckResult.Success, DamageKind.Untyped);
-                    } else if (totalHPPartner > totalHPSelf) {
-                        int damage = totalHPPartner - totalHPSelf;
-                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", "Eidolon Health Share"), partner, CheckResult.Success, DamageKind.Untyped);
+                        int damage = (partnerLog.HP + partnerLog.TempHP) - totalHPPartner;
+                        await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, CheckResult.Success, DamageKind.Untyped);
+
+                        selfShareHP.UpdateLogs(damage, log);
+                        partnerShareHP.UpdateLogs(-healing, log);
+                    } else if (aoeCheck == SummonerClassEnums.EffectKind.HARM_HEAL) {
+                        if (partnerLog.Processed) {
+                            log.Processed = true;
+                            continue;
+                        }
+                        partnerLog.Processed = true;
+
+                        int damage = (log.HP + log.TempHP) - totalHPSelf;
+                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, CheckResult.Success, DamageKind.Untyped);
+
+                        int healing = partner.HP - partnerLog.HP;
+                        self.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
+
+                        selfShareHP.UpdateLogs(-healing, log);
+                        partnerShareHP.UpdateLogs(damage, log);
                     }
-                } else if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
-                    if (partner.HP < self.HP) {
-                        int healing = self.HP - partner.HP;
-                        partner.Heal(DiceFormula.FromText($"{healing}", "Eidolon Health Share"), selfShareHP.CA);
-                    } else if (partner.HP > self.HP) {
-                        int healing = partner.HP - self.HP;
-                        self.Heal(DiceFormula.FromText($"{healing}", "Eidolon Health Share"), partnerShareHP.CA);
+                } else {
+                    // Invividual effect
+                    if (log.HealOrHarm(self) == SummonerClassEnums.EffectKind.HARM) {
+                        //int damage = totalHPPartner - totalHPSelf;
+                        int damage = (log.HP + log.TempHP) - totalHPSelf;
+                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, CheckResult.Success, DamageKind.Untyped);
+                        selfShareHP.UpdateLogs(damage, log);
+                    } else if (log.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
+                        int healing = self.HP - log.HP;
+                        partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
+                        selfShareHP.UpdateLogs(-healing, log);
                     }
                 }
-            } else {
-                // Invividual effect
-                if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HARM) {
-                    //int damage = totalHPPartner - totalHPSelf;
-                    int damage = (selfShareHP.HP + selfShareHP.TempHP) - totalHPSelf;
-                    await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", "Eidolon Health Share"), partner, CheckResult.Success, DamageKind.Untyped);
-                } else if (selfShareHP.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
-                    int healing = self.HP - selfShareHP.HP;
-                    partner.Heal(DiceFormula.FromText($"{healing}", "Eidolon Health Share"), selfShareHP.CA);
-                }
-                selfShareHP.Reset();
+                log.Processed = true;
+            }
+            selfShareHP.Clean();
 
                 //selfShareHP.SoftReset();
-            }
         }
 
         private static Possibility? GenerateTandemStrikeAction(Creature self, Creature partner, Creature summoner) {

@@ -10,17 +10,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class HPShareEffect : QEffect {
-        public SummonerClassEnums.InterceptKind Type { get; set; }
-        public CombatAction? LoggedAction { get; set; }
-        public Creature? LoggedCreature { get; set; }
-        public List<CombatAction>? ActionHistory { get; set; }
-        public bool LoggedThisTurn { get; set; }
-        public int HP { get; set; }
-        public int TempHP { get; set; }
+        public List<HPShareLogEntry> Logs { get; private set; }
         private CombatAction ca;
         public CombatAction CA { get { return ca; } }
 
@@ -33,31 +28,65 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private void Init(Creature owner) {
+            Logs = new List<HPShareLogEntry>();
             this.ca = new CombatAction(owner, (Illustration)IllustrationName.ElementWater, "SummonerClass: Share HP", new Trait[0], "", new UncastableTarget("Not a real ability"));
         }
 
         public void Reset() {
-            LoggedAction = null;
-            LoggedCreature = null;
-            ActionHistory = null;
-            LoggedThisTurn = false;
-            HP = Owner.HP;
-            TempHP = Owner.TemporaryHP;
+            Logs.Clear();
         }
 
-        public void SoftReset() {
-            HP = Owner.HP;
-            TempHP = Owner.TemporaryHP;
+        public void Clean() {
+            Logs.RemoveAll(log => log.Processed && log.Type != SummonerClassEnums.InterceptKind.TARGET);
         }
 
-        public void LogAction(Creature self, CombatAction? action, Creature? creature, SummonerClassEnums.InterceptKind type) {
+        //public void SoftReset() {
+        //    HP = Owner.HP;
+        //    TempHP = Owner.TemporaryHP;
+        //}
+
+        public void LogAction(Creature self, CombatAction? action, Creature? attacker, SummonerClassEnums.InterceptKind type) {
+            Logs.Add(new HPShareLogEntry(self, action, attacker, type));
+        }
+
+        public void UpdateLogs(int damage, HPShareLogEntry triggeringLog) {
+            foreach (HPShareLogEntry log in Logs.Where(l => l != triggeringLog)) {
+                log.HP -= damage;
+            }
+        }
+
+        public bool CheckForTargetLog(CombatAction action, Creature attacker) {
+            foreach (HPShareLogEntry log in Logs) {
+                if (log.Type == SummonerClassEnums.InterceptKind.TARGET && log.LoggedAction == action && log.LoggedCreature == attacker && log.ActionHistory == attacker.Actions.ActionHistoryThisTurn && log.LoggedThisTurn) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public class HPShareLogEntry {
+        public SummonerClassEnums.InterceptKind Type { get; set; }
+        public CombatAction? LoggedAction { get; set; }
+        public Creature? LoggedCreature { get; set; }
+        public List<CombatAction>? ActionHistory { get; set; }
+        public bool LoggedThisTurn { get; set; }
+        public int HP { get; set; }
+        public int TempHP { get; set; }
+        public Creature Owner { get; set; }
+        public bool Processed { get; set; }
+
+        public HPShareLogEntry(Creature self, CombatAction? action, Creature? attacker, SummonerClassEnums.InterceptKind type) {
+            Processed = false;
+            Owner = self;
             Type = type;
             HP = self.HP;
             TempHP = self.TemporaryHP;
             LoggedAction = action;
-            LoggedCreature = creature;
-            if (creature != null) {
-                ActionHistory = creature.Actions.ActionHistoryThisTurn;
+            LoggedCreature = attacker;
+            if (attacker != null) {
+                ActionHistory = attacker.Actions.ActionHistoryThisTurn;
             } else {
                 ActionHistory = null;
             }
@@ -74,20 +103,42 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             return SummonerClassEnums.EffectKind.NONE;
         }
 
-        public bool CompareEffects(HPShareEffect effectLog) {
-            if (this.LoggedAction == effectLog.LoggedAction && this.LoggedCreature == effectLog.LoggedCreature && this.ActionHistory == effectLog.ActionHistory && this.LoggedThisTurn == effectLog.LoggedThisTurn) {
-                if (this.HealOrHarm(this.Owner) == effectLog.HealOrHarm(effectLog.Owner)) {
-                    return true;
+        //public bool CompareEffects(HPShareEffect partnerLogs) {
+        //    foreach (HPShareLogEntry log in partnerLogs.Logs) {
+        //        if (this.LoggedAction == log.LoggedAction && this.LoggedCreature == log.LoggedCreature && this.ActionHistory == log.ActionHistory && this.LoggedThisTurn == log.LoggedThisTurn) {
+        //            if (this.HealOrHarm(this.Owner) == log.HealOrHarm(log.Owner)) {
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        public SummonerClassEnums.EffectKind CompareEffects(HPShareEffect partnerLogs, out HPShareLogEntry? matchingLog) {
+            foreach (HPShareLogEntry log in partnerLogs.Logs) {
+                if (this.LoggedAction == log.LoggedAction && this.LoggedCreature == log.LoggedCreature && this.ActionHistory == log.ActionHistory && this.LoggedThisTurn == log.LoggedThisTurn) {
+                    matchingLog = log;
+                    if (this.HealOrHarm(this.Owner) == log.HealOrHarm(log.Owner)) {
+                        return this.HealOrHarm(this.Owner);
+                    }
+                    if (this.HealOrHarm(this.Owner) == SummonerClassEnums.EffectKind.HEAL && log.HealOrHarm(log.Owner) == SummonerClassEnums.EffectKind.HARM) {
+                        return SummonerClassEnums.EffectKind.HEAL_HARM;
+                    }
+                    if (this.HealOrHarm(this.Owner) == SummonerClassEnums.EffectKind.HARM && log.HealOrHarm(log.Owner) == SummonerClassEnums.EffectKind.HEAL) {
+                        return SummonerClassEnums.EffectKind.HARM_HEAL;
+                    }
+                    return SummonerClassEnums.EffectKind.NONE;
                 }
             }
-            return false;
+            matchingLog = null;
+            return SummonerClassEnums.EffectKind.NONE;
         }
 
-        public bool CompareEffects(CombatAction action, Creature attacker) {
-            if (this.LoggedAction == action && this.LoggedCreature == attacker && this.ActionHistory == attacker.Actions.ActionHistoryThisTurn && this.LoggedThisTurn == true) {
-                return true;
-            }
-            return false;
-        }
+        //public bool CompareEffects(CombatAction action, Creature attacker) {
+        //    if (this.LoggedAction == action && this.LoggedCreature == attacker && this.ActionHistory == attacker.Actions.ActionHistoryThisTurn && this.LoggedThisTurn == true) {
+        //        return true;
+        //    }
+        //    return false;
+        //}
     }
 }

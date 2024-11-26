@@ -10,6 +10,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public enum EffectKind {
             HARM,
             HEAL,
+            HEAL_HARM,
+            HARM_HEAL,
             NONE
         }
 
