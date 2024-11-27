@@ -47,6 +47,9 @@ using Dawnsbury.Core.Mechanics.Damage;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.Design;
 using System.Text;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics.Metrics;
 using Microsoft.Xna.Framework.Audio;
 using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
@@ -57,46 +60,11 @@ using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
 {
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class TestMap : Encounter
+    internal class AbandonedTempleLv3 : Level3Encounter
     {
-
-        public TestMap(string filename) : base("Test Map", filename, null, 0)
-        {
-            // Run setup
-            this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
-
-                battle.AllCreatures.FirstOrDefault(cr => cr.BaseName == "test summoner").AddQEffect(new QEffect() { BonusToDefenses = (self, action, defence) => defence == Defense.Fortitude ? new Bonus(-5, BonusType.Untyped, "Testing") : null });
-                // Debug
-                //await Affliction.ExposeToInjury(Affliction.CreateSpiderVenom(), td, battle.AllCreatures.FirstOrDefault(cr => cr.BaseName == "test summoner"));
-
-                //CommonEncounterFuncs.ApplyEliteAdjustments(battle);
-
-                //td.AddQEffect(new QEffect() {
-                //    AdditionalGoodness = (self, action, target) => {
-                //        if (action.HasTrait(Trait.Strike)) {
-                //            return 7;
-                //        }
-                //        return 0;
-                //    }
-                //});
-                //td.Traits.Add(Trait.Undead);
-                //td.Level = 9;
-            });
-
-            this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-                Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
-
-
-                // Debug
-                battle.AllCreatures.FirstOrDefault(cr => cr.BaseName.ToLower() == "test summoner's eidolon").AddQEffect(new QEffect() { BonusToDefenses = (self, action, defence) => defence == Defense.Fortitude ? new Bonus(-5, BonusType.Status, "Testing") : null });
-                await Affliction.ExposeToInjury(Affliction.CreateSpiderVenom(), td, battle.AllCreatures.FirstOrDefault(cr => cr.BaseName.ToLower() == "test summoner's eidolon"));
-            });
-        }
-
+        public AbandonedTempleLv3(string filename) : base("Abandoned Temple", filename) { }
     }
 }

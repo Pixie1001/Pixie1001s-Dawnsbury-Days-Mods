@@ -127,6 +127,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             };
         }
 
+        //public static QEffect BlocksLoS() {
+        //    return new QEffect() {
+        //        StateCheck = self => {
+        //            if (self.Owner.Alive && self.Owner.Occupies.Kind != TileKind.BlocksMovementAndLineOfEffect) {
+        //                self.Tag = self.Owner.Occupies.Kind;
+        //                self.Owner.Occupies.Kind = TileKind.Rock;
+        //                self.Owner.Occupies.AlwaysBlocksLineOfEffect = true;
+        //            } else if (!self.Owner.Alive && self.Owner.Occupies.Kind == TileKind.BlocksMovementAndLineOfEffect) {
+        //                self.Owner.Occupies.Kind = (TileKind)self.Tag;
+        //            }
+        //        }
+        //    };
+        //}
+
         public static QEffect SpiderVenomAttack(int baseDC, string weapon) {
             return new QEffect("Spider Poison", "Set Later") {
                 StateCheck = async self => {

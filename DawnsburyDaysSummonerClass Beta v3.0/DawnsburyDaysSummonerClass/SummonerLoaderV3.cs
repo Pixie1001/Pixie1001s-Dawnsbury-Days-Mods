@@ -1816,13 +1816,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 })
                 .AddQEffect(new QEffect("Eidolon Bond", "You and your eidolon share your actions and multiple attack penalty. Each round, you can use any of your actions (including reactions and free actions) for yourself or your eidolon. " +
                 "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities.") {
-                    YouAcquireQEffect = (Func<QEffect, QEffect, QEffect?>)((qfVanishOnDeath, qfNew) => {
-                        if (qfNew.Id == QEffectId.Dying || qfNew.Id == QEffectId.Unconscious) {
-                            qfVanishOnDeath.Owner.Battle.RemoveCreatureFromGame(qfVanishOnDeath.Owner);
-                            return null;
-                        }
-                        return qfNew;
-                    }),
+                    //YouAcquireQEffect = (Func<QEffect, QEffect, QEffect?>)((qfVanishOnDeath, qfNew) => {
+                    //    if (qfNew.Id == QEffectId.Dying || qfNew.Id == QEffectId.Unconscious) {
+                    //        qfVanishOnDeath.Owner.Battle.RemoveCreatureFromGame(qfVanishOnDeath.Owner);
+                    //        return null;
+                    //    }
+                    //    return qfNew;
+                    //}),
                     PreventTakingAction = action => {
                         if (action.ActionId == ActionId.Delay) {
                             return "Your eidolon cannot take this action.";

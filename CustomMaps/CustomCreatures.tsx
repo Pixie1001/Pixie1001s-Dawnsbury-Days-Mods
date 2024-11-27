@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="17" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="18" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -102,5 +102,11 @@
    <property name="Id" value="Spider Queen Shrine"/>
   </properties>
   <image source="CustomCreatures/Spider_Shrine.png" width="256" height="256"/>
+ </tile>
+ <tile id="17">
+  <properties>
+   <property name="Id" value="Drow Sniper"/>
+  </properties>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/DrowSniper.png" width="256" height="256"/>
  </tile>
 </tileset>

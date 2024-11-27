@@ -36,6 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             encounters[0].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<SpiderNestLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<TempleOfTheSpiderQueenLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<AbandonedTempleLv1>());
 
             // level2Encounters
             encounters[1].Add(new TypedEncounterCampaignStop<DrowAmbushLv2>());
@@ -43,6 +44,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             encounters[1].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<SpiderNestLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<TempleOfTheSpiderQueenLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<AbandonedTempleLv2>());
 
             // level1Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
@@ -50,6 +52,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             encounters[2].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<SpiderNestLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<TempleOfTheSpiderQueenLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<AbandonedTempleLv3>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());

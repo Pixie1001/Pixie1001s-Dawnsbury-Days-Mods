@@ -1071,7 +1071,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     .WithEntersInitiativeOrder(false)
                     .AddQEffect(qfCurrentDC)
                     .AddQEffect(CommonQEffects.Hazard())
-                    .AddQEffect(new QEffect("Choking Spores", "This predatory mushroom exhudes a cloud of poisonous spores to suffocate its prey. Creatures walking through the spores suffer 1d6 poison damage vs. a DC 17 Basic fortitude save, and become sickened 1 on a critical failure."))
+                    .AddQEffect(new QEffect("Choking Spores", "This predatory mushroom exhudes a cloud of poisonous spores to suffocate its prey. Creatures walking through the spores suffer 1d4 poison damage vs. a DC 17 Basic fortitude save, and become sickened 1 on a critical failure."))
                     ;
 
                     QEffect effect = new QEffect("Interactable", "You can use Medicine, Nature and Occultism to interact with this mushroom.") {
@@ -1097,14 +1097,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                                     Possibilities = {
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Soothe Mushroom", new Trait[] { Trait.Manipulate, Trait.Basic },
                                                         "Folktales speak of ancient rites and traditions used by cavern folk to appease the mushroom forests. Make an Occultism check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("The mushroom will stop emitting spores for the rest of the encounter.",
-                                                        "The mushroom will stop emitting spores for 2 rounds.", null, "You take 2d6 poison damage."),
+                                                        "The mushroom will stop emitting spores for 2 rounds.", null, "You take 1d6 poison damage."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Occultism), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {
-                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("2d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
+                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
                                                                 }
                                                             }
                                                             if (result >= CheckResult.Success) {
@@ -1137,14 +1137,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                                             await hazard.Battle.GameLoop.StateCheck();
                                                         }),
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Recall Knowledge", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                        "Make a Nature check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this font by 3.", "Reduce all DCs on this font by 2.", null, "You take 2d6 poison damage and increase all DCs on this font by 1."),
+                                                        "Make a Nature check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this font by 3.", "Reduce all DCs on this font by 2.", null, "You take 1d6 poison damage and increase all DCs on this font by 1."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Nature), Checks.FlatDC(qfCurrentDC.Value - 2)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {
-                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("2d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
+                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
                                                                 }
                                                                 qfCurrentDC.Value += 1;
                                                             }
@@ -1155,23 +1155,36 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                                                 qfCurrentDC.Value -= 3;
                                                             }
                                                         }),
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
+                                                        self.Owner.QEffects.Any(qf => qf.Id == QEffectIds.Harvested) ? (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
                                                             "Make a Medicine check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Heal your or an adjacent ally for 3d6 HP and inoculate them against the effects of spore clouds. This mushroom then cannot be harvested from again.",
-                                                            "As per a critical success, but you only heal for 2d6 HP.", null, "You take 2d6 poison damage."),
+                                                            "As per a critical success, but you only heal for 2d6 HP.", null, "You take 1d6 poison damage."),
                                                             Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
                                                             .WithAdditionalConditionOnTargetCreature((a, d) => !a.HasFreeHand ? Usability.NotUsable("No free hand") : Usability.Usable)
-                                                            .WithAdditionalConditionOnTargetCreature((a, d) => d.QEffects.Any(qf => qf.Id == QEffectIds.Harvested) ? Usability.NotUsable("Already harvested") : Usability.Usable)
-                                                            )
+                                                            .WithAdditionalConditionOnTargetCreature((a, d) => {
+                                                                return Usability.NotUsable("Already harvested");
+                                                            })) :
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
+                                                            "Make a Medicine check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Heal your or an adjacent ally for 3d6 HP and inoculate them against the effects of spore clouds. This mushroom then cannot be harvested from again.",
+                                                            "As per a critical success, but you only heal for 2d6 HP.", null, "You take 1d6 poison damage."),
+                                                            Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
+                                                            .WithAdditionalConditionOnTargetCreature((a, d) => !a.HasFreeHand ? Usability.NotUsable("No free hand") : Usability.Usable))
+                                                            //.WithAdditionalConditionOnTargetCreature((a, d) => {
+                                                            //    if (d.QEffects.Any(qf => qf.Id == QEffectIds.Harvested)) {
+                                                            //        return Usability.NotUsable("Already harvested");
+                                                            //    }
+                                                            //    return Usability.Usable;
+                                                            //}))
                                                         .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Occultism), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Medicine), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {
-                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("2d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
+                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
                                                                 }
                                                             }
                                                             if (result >= CheckResult.Success) {
-                                                                target.AddQEffect(new QEffect() { Id = QEffectIds.Harvested });
+                                                                //target.AddQEffect(new QEffect() { Id = QEffectIds.Harvested });
+                                                                target.AddQEffect(new QEffect("Harvested", "Pollen cannot be harvested again", ExpirationCondition.Never, caster, IllustrationName.DashOfHerbs) { Id = QEffectIds.Harvested });
                                                                 List<Option> options = new List<Option>();
 
                                                                 foreach (Creature ally in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.AlliedFactionOf(caster.OwningFaction) && cr.DistanceTo(caster) <= 1)) {
@@ -1209,17 +1222,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                 if (!tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
                                     TileQEffect spores = new TileQEffect(tile) {
                                         Name = "Choking Spores",
-                                        VisibleDescription = "Toxic spores used by Choking Mushrooms to hunt for nutrients. Suffer 2d6 poison damage vs. a Basic fort save after entering or starting your turn within the spores.",
+                                        VisibleDescription = "Toxic spores used by Choking Mushrooms to hunt for nutrients. Suffer 1d4 poison damage vs. a Basic (DC 17) fort save after entering or starting your turn within the spores, that inflicts sickened 1 on a critical failure.",
                                         TileQEffectId = QEffectIds.ChokingSpores,
                                         ExpiresAt = ExpirationCondition.Never,
                                         Illustration = IllustrationName.Fog,
                                         TransformsTileIntoHazardousTerrain = true,
                                         AfterCreatureBeginsItsTurnHere = async victim => {
-                                            if (victim.IsImmuneTo(Trait.Poison) || victim.FindQEffect(QEffectIds.MushroomInoculation) != null) {
+                                            if (victim.IsImmuneTo(Trait.Poison) || victim.WeaknessAndResistance.Immunities.Contains(DamageKind.Poison) || victim.FindQEffect(QEffectIds.MushroomInoculation) != null) {
                                                 return;
                                             }
-                                            CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 19);
-                                            await CommonSpellEffects.DealBasicDamage(CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison), hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d6", "Choking Spores"), DamageKind.Poison));
+                                                CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 17);
+                                            await CommonSpellEffects.DealBasicDamage(CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison), hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d4", "Choking Spores"), DamageKind.Poison));
                                             if (result == CheckResult.CriticalFailure) {
                                                 victim.AddQEffect(QEffect.Sickened(1, 17));
                                             }
