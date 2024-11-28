@@ -805,11 +805,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return;
                     }
 
-                    int bonus = 0;
-
-                    if (StrikeRules.GetBestHandwraps(self) != null) {
-                        bonus = StrikeRules.GetBestHandwraps(self).WeaponProperties.ItemBonus;
-                    }
+                    int bonus = self.UnarmedStrike.WeaponProperties.ItemBonus;
 
                     if ((damageType == DamageKind.Slashing || damageType == DamageKind.Piercing) && action.CheckResult == CheckResult.CriticalSuccess) {
                         target.AddQEffect(QEffect.PersistentDamage("1d6" + (bonus > 0 ? $"+{bonus}" : ""), DamageKind.Bleed));
@@ -1169,82 +1165,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Creature eidolon = CreateEidolon(featName, abilityScores, ac, dexCap, summoner);
                     eidolon.MainName = qfSummonerTechnical.Owner.Name + "'s " + eidolon.MainName;
 
-                    Item? armour = summoner.BaseArmor;
-                    if (armour != null) {
-                        List<Item> runes = armour.Runes;
-
-                        foreach (Item rune in runes) {
-                            switch (rune.RuneProperties.RuneKind) {
-                                case RuneKind.ArmorResilient:
-                                    eidolon.Defenses.Set(Defense.Fortitude, eidolon.Defenses.GetSavingThrow(Defense.Fortitude).Bonus + 1);
-                                    eidolon.Defenses.Set(Defense.Reflex, eidolon.Defenses.GetSavingThrow(Defense.Reflex).Bonus + 1);
-                                    eidolon.Defenses.Set(Defense.Will, eidolon.Defenses.GetSavingThrow(Defense.Will).Bonus + 1);
-                                    break;
-                                case RuneKind.ArmorPotency:
-                                    eidolon.Defenses.Set(Defense.AC, eidolon.Defenses.GetSavingThrow(Defense.AC).Bonus + 1);
-                                    break;
-                            }
-                        }
-                    }
-
-                    // Share item bonuses
-                    List<Item> wornItems = summoner.CarriedItems.Where(item => item.IsWorn == true && item.HasTrait(Trait.Invested) && item.PermanentQEffectActionWhenWorn != null).ToList<Item>();
-                    foreach (Item item in wornItems) {
-                        QEffect qf1 = new QEffect() {
-                            Source = summoner,
-                            Owner = eidolon
-                        };
-                        QEffect qf2 = new QEffect();
-                        item.PermanentQEffectActionWhenWorn(qf2, item);
-                        qf1.BonusToSkills = qf2.BonusToSkills;
-                        eidolon.AddQEffect(qf1);
-                    }
-
-                    // TODO: Bookmark for invested weapon code
-                    // Share benfits of handwraps
-                    Item handwraps = StrikeRules.GetBestHandwraps(summoner);
-                    List<Item> weapons = summoner.HeldItems;
-                    if (handwraps != null) {
-                        Item eidolonHandwraps = handwraps.Duplicate();
-                        eidolon.CarriedItems.Add(eidolonHandwraps);
-                        eidolonHandwraps.IsWorn = true;
-                        summoner.AddQEffect(new QEffect($"Invested Weapon ({eidolonHandwraps.Name})", "Your eidolon also benefits from these handwraps of mighty blows.") {
-                            Tag = handwraps,
-                            Id = qfInvestedWeapon,
-                            Illustration = handwraps.Illustration
-                        });
-                    } else if (weapons.Count() > 0 && weapons[0].Runes.Count > 0) {
-                        Item eidolonHandwraps = new Item(ItemName.HandwrapsOfMightyBlows, null, weapons[0].Name, 2, 0, new Trait[] { Trait.Invested, Trait.Magical, Trait.Transmutation }) {
-                            WeaponProperties = new WeaponProperties("1d6", DamageKind.Bludgeoning)
-                        }.WithWornAt(Trait.Gloves);
-                        eidolonHandwraps.Name = $"{weapons[0]}";
-                        foreach (Item rune in weapons[0].Runes) {
-                            eidolonHandwraps.Runes.Add(rune);
-                            rune.RuneProperties.ModifyItem(eidolonHandwraps);
-                        }
-                        summoner.AddQEffect(new QEffect($"Invested Weapon ({weapons[0].Name})", "While wielding this weapon, your eidolon benefits from its runestones.") {
-                            Tag = weapons[0],
-                            Id = qfInvestedWeapon,
-                            Illustration = weapons[0].Illustration
-                        });
-                        eidolon.CarriedItems.Add(eidolonHandwraps);
-                        eidolonHandwraps.IsWorn = true;
-                    } else if (weapons.Count() == 2 && weapons[1].Runes.Count > 0) {
-                        Item eidolonHandwraps = new Item(ItemName.HandwrapsOfMightyBlows, null, weapons[1].Name, 2, 0, new Trait[] { Trait.Invested, Trait.Magical, Trait.Transmutation }) {
-                            WeaponProperties = new WeaponProperties("1d6", DamageKind.Bludgeoning)
-                        }.WithWornAt(Trait.Gloves);
-                        foreach (Item rune in weapons[1].Runes) {
-                            eidolonHandwraps.Runes.Add(rune);
-                            rune.RuneProperties.ModifyItem(eidolonHandwraps);
-                        }
-                        summoner.AddQEffect(new QEffect($"Invested Weapon ({weapons[1].Name})", "While wielding this weapon, your eidolon benefits from its runestones.") {
-                            Tag = weapons[1],
-                            Id = qfInvestedWeapon,
-                            Illustration = weapons[1].Illustration
-                        });
-                        eidolon.CarriedItems.Add(eidolonHandwraps);
-                        eidolonHandwraps.IsWorn = true;
-                    }
+                    InvestedWeaponLogic.MagicItemLogic(summoner, eidolon);
 
                     summoner.Battle.SpawnCreature(eidolon, summoner.OwningFaction, summoner.Occupies);
 
@@ -1459,78 +1380,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
                 })
             })
-            .AddQEffect(new QEffect() {
-                ProvideSectionIntoSubmenu = (self, submenu) => {
-                    if (submenu.SubmenuId == SubmenuId.OtherManeuvers) {
-                        return new PossibilitySection("Summoner").WithPossibilitySectionId(psSummonerExtra);
-                    }
-                    return null;
-                },
-                ProvideActionIntoPossibilitySection = (qf, section) => {
-                    if (section.PossibilitySectionId != psSummonerExtra) {
-                        return null;
-                    }
-
-                    // Determine options
-                    List<Item> itemOptions = new List<Item>();
-                    Item? handwraps = StrikeRules.GetBestHandwraps(qf.Owner);
-                    if (handwraps != null && handwraps.Runes.Count > 0) {
-                        itemOptions.Add(handwraps);
-                    }
-                    List<Item> weapons = qf.Owner.HeldItems;
-                    if (weapons.Count >= 1 && weapons[0].WeaponProperties != null && weapons[0].Runes.Count > 0) {
-                        itemOptions.Add(weapons[0]);
-                    }
-                    if (weapons.Count == 2 && weapons[1].WeaponProperties != null && weapons[1].Runes.Count > 0) {
-                        itemOptions.Add(weapons[1]);
-                    }
-                    if (qf.Owner.FindQEffect(qfInvestedWeapon) != null) {
-                        itemOptions.Remove((Item)qf.Owner.FindQEffect(qfInvestedWeapon).Tag);
-                    }
-
-                    SubmenuPossibility menu = new SubmenuPossibility(illInvest, "Invest Weapon");
-                    menu.Subsections.Add(new PossibilitySection("Invest Weapon"));
-
-                    foreach (Item item in itemOptions) {
-                        menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(summoner, item.Illustration, $"Invest {item.Name}", new Trait[] { Trait.Manipulate },
-                            $"Invest {item.Name}, so your eidolon can benefit from it. This will cause your previously invested weapon to become uninvested.", Target.Self())
-                        .WithSoundEffect(SfxName.MagicWeapon)
-                        .WithActionCost(1)
-                        .WithEffectOnSelf(async self => {
-                            Creature eidolon = GetEidolon(self);
-                            eidolon.CarriedItems.Clear();
-
-                            QEffect? oldInvestedEffect = qf.Owner.FindQEffect(qfInvestedWeapon);
-                            if (oldInvestedEffect != null) {
-                                oldInvestedEffect.ExpiresAt = ExpirationCondition.Immediately;
-                            }
-
-                            Item eidolonHandwraps = new Item(ItemName.HandwrapsOfMightyBlows, null, item.Name, 2, 0, new Trait[] { Trait.Invested, Trait.Magical, Trait.Transmutation }) {
-                                WeaponProperties = new WeaponProperties("1d6", DamageKind.Bludgeoning)
-                            }.WithWornAt(Trait.Gloves);
-                            foreach (Item rune in item.Runes) {
-                                eidolonHandwraps.Runes.Add(rune);
-                                rune.RuneProperties.ModifyItem(eidolonHandwraps);
-                            }
-                            summoner.AddQEffect(new QEffect($"Invested Weapon ({item.Name})",
-                                item.ItemName == ItemName.HandwrapsOfMightyBlows ? "Your eidolon also benefits from these handwraps of mighty blows." : "While wielding this weapon, your eidolon benefits from its runestones.") {
-                                Tag = item,
-                                Id = qfInvestedWeapon,
-                                Illustration = item.Illustration
-                            });
-                            eidolon.CarriedItems.Add(eidolonHandwraps);
-                            eidolonHandwraps.IsWorn = true;
-                        })
-                        );
-                    }
-
-                    foreach (ActionPossibility possibility in menu.Subsections[0].Possibilities) {
-                        possibility.PossibilitySize = PossibilitySize.Half;
-                    }
-                    menu.WithPossibilityGroup("Summoner");
-                    return menu;
-                }
-            })
+            .AddQEffect(InvestedWeaponLogic.SummonerInvestedWeaponQEffect())
             .AddQEffect(new QEffect() {
                 ProvideActionIntoPossibilitySection = (self, section) => {
                     Creature? eidolon = GetEidolon(self.Owner);
@@ -1814,6 +1664,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 .AddQEffect(new ActionShareEffect() {
                     Id = qfSharedActions,
                 })
+                .AddQEffect(InvestedWeaponLogic.EidolonInvestedWeaponQEffect())
                 .AddQEffect(new QEffect("Eidolon Bond", "You and your eidolon share your actions and multiple attack penalty. Each round, you can use any of your actions (including reactions and free actions) for yourself or your eidolon. " +
                 "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities.") {
                     //YouAcquireQEffect = (Func<QEffect, QEffect, QEffect?>)((qfVanishOnDeath, qfNew) => {
@@ -1881,18 +1732,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             summoner.Actions.UseUpReaction();
                         }
 
-                        // Handle handwraps
-                        if (summoner.FindQEffect(qfInvestedWeapon) != null) {
-                            QEffect investedWeaponQf = summoner.FindQEffect(qfInvestedWeapon);
-                            Item investedWeapon = investedWeaponQf.Tag as Item;
-                            Item handwraps = qf.Owner.CarriedItems.FirstOrDefault(item => item.ItemName == ItemName.HandwrapsOfMightyBlows && item.Name == investedWeapon.Name);
-                            if (investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows && summoner.HeldItems.FirstOrDefault(item => item == investedWeapon) == null) {
-                                handwraps.IsWorn = false;
-                            } else {
-                                handwraps.IsWorn = true;
-                            }
-                        }
-
                         // Handle AoO
                         HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
                         if (shareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
@@ -1917,12 +1756,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         // Handle emergency HP correction
                         HealthShareSafetyCheck(qf.Owner, summoner);
-                    }),
-                    EndOfCombat = (Func<QEffect, bool, Task>)(async (qfRemoveHandwraps, won) => {
-                        Item? handwraps = qfRemoveHandwraps.Owner.CarriedItems.FirstOrDefault<Item>((Func<Item, bool>)(backpackItem => backpackItem.ItemName == ItemName.HandwrapsOfMightyBlows && backpackItem.IsWorn));
-                        if (handwraps != null) {
-                            qfRemoveHandwraps.Owner.CarriedItems.Remove(handwraps);
-                        }
                     }),
                     YouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfHealOrHarm, action) => {
                         HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
@@ -1997,38 +1830,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         Creature eidolon = qfPostHazardDamage.Owner;
 
                         await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.DAMAGE);
-                    }),
-                    BonusToSkillChecks = (Func<Skill, CombatAction, Creature?, Bonus?>)((skill, action, creature) => {
-                        if (action.Owner.BaseName == "Pseudocreature") {
-                            return null;
-                        }
-                        
-                        Item naturalWeapon1 = action.Owner.UnarmedStrike;
-                        Item naturalWeapon2 = action.Owner.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike;
-
-                        Trait[] traits = naturalWeapon1.Traits.Concat(naturalWeapon2.Traits).ToArray();
-
-                        bool applies = false;
-
-                        if (action.ActionId == ActionId.Disarm && traits.Contains(Trait.Disarm)) {
-                            applies = true;
-                        } else if (action.ActionId == ActionId.Trip && traits.Contains(Trait.Trip)) {
-                            applies = true;
-                        } else if (action.ActionId == ActionId.Shove && traits.Contains(Trait.Shove)) {
-                            applies = true;
-                        } else if (action.ActionId == ActionId.Grapple && traits.Contains(tGrapple)) {
-                            applies = true;
-                        }
-
-                        if (!applies) {
-                            return null;
-                        }
-
-                        Item? handwraps = StrikeRules.GetBestHandwraps(action.Owner);
-                        if (handwraps != null) {
-                            return new Bonus(handwraps.WeaponProperties.ItemBonus, BonusType.Item, handwraps.Name);
-                        }
-                        return null;
                     }),
                     AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                         Creature eidolon = qf.Owner;
