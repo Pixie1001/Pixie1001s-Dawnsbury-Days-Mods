@@ -47,6 +47,9 @@ using Dawnsbury.Core.Mechanics.Damage;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.Design;
 using System.Text;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics.Metrics;
 using Microsoft.Xna.Framework.Audio;
 using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
@@ -56,36 +59,20 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
-using System.Xml.Linq;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class Level3EliteEncounter : Encounter
+    internal class AntiPartyLv1 : Level1EliteEncounter
     {
-
-        public Level3EliteEncounter(string name, string filename, List<(Item, string)>? eliteRewards = null, List<Item> rewards=null) : base(name, filename, rewards, 0) {
-            this.CharacterLevel = 3;
-            this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.ELITE);
-            if (eliteRewards == null && Rewards.Count == 0) {
-                CommonEncounterFuncs.SetItemRewards(Rewards, CharacterLevel, EncounterType.ELITE);
-            }
-
+        public AntiPartyLv1(string filename) : base("Fissure Duel", filename, eliteRewards: new List<(Item, string)> {
+            (Items.CreateNew(CustomItems.BloodBondAmulet), "A matching set of amulet set with a blood red ruby, that allow the wearers to siphon vitality from an ally wearing their amulet's twin."),
+            (Items.CreateNew(CustomItems.ScourgeOfFangs), "A twitching three pronged whip tipped by three snapping serpent heads, with a malevolent intelligence meant to compensate for a priestess's lack of martial prowess.")
+        }) {
             // Run setup
-            this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                CommonEncounterFuncs.ApplyEliteAdjustments(battle);
-                await CommonEncounterFuncs.StandardEncounterSetup(battle);
-            });
-
-            // Run cleanup
-            this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                if (eliteRewards != null) {
-                    await CommonEncounterFuncs.PresentEliteRewardChoice(battle, eliteRewards);
-                }
-                await CommonEncounterFuncs.StandardEncounterResolve(battle);
+            this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
+                await Cutscenes.AntipartyCutscene(battle);
             });
         }
-
     }
 }

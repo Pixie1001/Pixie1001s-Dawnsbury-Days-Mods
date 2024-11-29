@@ -107,7 +107,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
 
         private static void LoadEncounters() {
-
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
             RegisterEncounter<DrowAmbushLv1>("DrowAmbushLv2.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbushLv2.tmx", "DrowAmbushLv2");
@@ -141,6 +140,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<WitchCovenLv1>("Elite_WitchCoven.tmx", "Elite_WitchCovenLv1");
             RegisterEncounter<WitchCovenLv2>("Elite_WitchCoven.tmx", "Elite_WitchCovenLv2");
             RegisterEncounter<WitchCovenLv3>("Elite_WitchCoven.tmx", "Elite_WitchCovenLv3");
+            RegisterEncounter<AntiPartyLv1>("Antiparty.tmx", "AntipartyLv1");
+            RegisterEncounter<AntiPartyLv2>("Antiparty.tmx", "AntipartyLv2");
+            RegisterEncounter<AntiPartyLv3>("Antiparty.tmx", "AntipartyLv3");
 
             // Boss fights
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");

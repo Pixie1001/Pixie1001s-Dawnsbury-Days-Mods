@@ -17,6 +17,9 @@
     <Reference Include="Dawnsbury Days">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\Dawnsbury Days.dll</HintPath>
     </Reference>
+    <Reference Include="FmodForFoxes">
+      <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\FmodForFoxes.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\MonoGame.Framework.dll</HintPath>
     </Reference>

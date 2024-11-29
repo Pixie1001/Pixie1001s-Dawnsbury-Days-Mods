@@ -77,7 +77,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         //public static List<ItemName> items = new List<ItemName>();
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
-            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 2, 60,
+            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
                 new Trait[] { Trait.Magical, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Martial, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop, Traits.LegendaryItem })
             .WithMainTrait(Trait.Whip)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
@@ -541,7 +541,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         public static ItemName BloodBondAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Blood Bond Amulet", itemName => {
             return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 40,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy })
             .WithWornAt(Trait.Necklace)
             // TODO: Add description
             .WithDescription("...")
@@ -574,7 +574,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing };
+            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
