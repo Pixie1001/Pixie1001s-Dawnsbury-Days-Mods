@@ -1325,7 +1325,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         shareHP.Reset();
                     }
                 }),
-                YouAreDealtDamage = (Func<QEffect, Creature, DamageStuff, Creature, Task<DamageModification?>>)(async (qfPreHazardDamage, attacker, damageStuff, defender) => {
+                YouAreDealtDamage = async (qfPreHazardDamage, attacker, damageStuff, defender) => {
                     if (GetEidolon(qfPreHazardDamage.Owner) == null || GetEidolon(qfPreHazardDamage.Owner).Destroyed) {
                         return null;
                     }
@@ -1344,7 +1344,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     shareHP.LogAction(qfPreHazardDamage.Owner, damageStuff.Power, attacker, SummonerClassEnums.InterceptKind.DAMAGE);
                     return null;
-                }),
+                },
                 AfterYouTakeDamageOfKind = (async (qfPostHazardDamage, action, kind) => {
                     if (GetEidolon(qfPostHazardDamage.Owner) == null || GetEidolon(qfPostHazardDamage.Owner).Destroyed) {
                         return;
@@ -1360,6 +1360,30 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.DAMAGE, action.Name);
                 }),
+                AfterYouAreHealed = async (self, action, amount) => {
+                    if (GetEidolon(self.Owner) == null || GetEidolon(self.Owner).Destroyed) {
+                        return;
+                    }
+
+                    // Check if effect is coming from self
+                    if (action != null && action.Name == "SummonerClass: Share HP") {
+                        return;
+                    }
+
+                    Creature summoner = self.Owner;
+                    Creature eidolon = GetEidolon(summoner);
+
+                    HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+
+                    // Check if caught by target check
+                    if (shareHP.CheckForTargetLog(action, action.Owner)) {
+                        return;
+                    }
+
+                    eidolon.Heal(DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
+
+                    //await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.DAMAGE, action.Name);
+                },
                 AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                     Creature summoner = qf.Owner;
                     Creature eidolon = GetEidolon(summoner);
@@ -1831,6 +1855,28 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.DAMAGE);
                     }),
+                    AfterYouAreHealed = async (self, action, amount) => {
+                        if (self.Owner.Destroyed) {
+                            return;
+                        }
+
+                        // Check if effect is coming from self
+                        if (action != null && action.Name == "SummonerClass: Share HP") {
+                            return;
+                        }
+
+                        Creature eidolon = self.Owner;
+                        Creature summoner = GetSummoner(eidolon);
+
+                        HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+
+                        // Check if caught by target check
+                        if (shareHP.CheckForTargetLog(action, action.Owner)) {
+                            return;
+                        }
+
+                        summoner.Heal(DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
+                    },
                     AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                         Creature eidolon = qf.Owner;
 
@@ -1977,10 +2023,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {
-            if (self.TrueMaximumHP < partner.TrueMaximumHP) {
-                self.Heal(DiceFormula.FromText($"{partner.TrueMaximumHP - self.TrueMaximumHP}", "Eidolon Health Share (failsafe)"), null);
-            } else if (self.TrueMaximumHP > partner.TrueMaximumHP) {
-                partner.Heal(DiceFormula.FromText($"{self.TrueMaximumHP - partner.TrueMaximumHP}", "Eidolon Health Share (failsafe))"), null);
+            if (self.TrueMaximumHP - self.Damage < partner.TrueMaximumHP - partner.Damage) {
+                self.Heal(DiceFormula.FromText($"{(partner.TrueMaximumHP - partner.Damage) - (self.TrueMaximumHP - self.Damage)}", "Eidolon Health Share (failsafe)"), null);
+            } else if (self.TrueMaximumHP - self.Damage > partner.TrueMaximumHP - partner.Damage) {
+                partner.Heal(DiceFormula.FromText($"{(self.TrueMaximumHP - self.Damage) - (partner.TrueMaximumHP - partner.Damage)}", "Eidolon Health Share (failsafe))"), null);
             }
         }
 

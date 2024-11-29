@@ -425,3 +425,4 @@ CustomMaps/.idea/modules.xml
 CustomMaps/adventurePath.xsd
 CustomMaps/BasicTileset.tsx
 *.pdn
+/CustomMaps/Unused

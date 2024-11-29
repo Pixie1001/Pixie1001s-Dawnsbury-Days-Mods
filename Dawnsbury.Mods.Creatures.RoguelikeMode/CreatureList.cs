@@ -154,7 +154,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(QEffect.SneakAttack("1d8"))
                 .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Fist, "Fists", "2d4", DamageKind.Bludgeoning, new Trait[] { Trait.Unarmed, Trait.Magical, Trait.Finesse, Trait.Melee, Trait.Agile }))
-                .WithAdditionalUnarmedStrike(new Item(IllustrationName.FourWinds, "Slicing Wind", new Trait[] { Trait.Ranged, Trait.Electricity, Trait.Magical }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing) {
+                .WithAdditionalUnarmedStrike(new Item(IllustrationName.FourWinds, "Slicing Wind", new Trait[] { Trait.Ranged, Trait.Air, Trait.Magical }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing) {
                     VfxStyle = new VfxStyle(5, ProjectileKind.Cone, IllustrationName.FourWinds),
                     Sfx = SfxName.AeroBlade
                 }.WithRangeIncrement(4)))
@@ -1155,25 +1155,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                                                 qfCurrentDC.Value -= 3;
                                                             }
                                                         }),
-                                                        self.Owner.QEffects.Any(qf => qf.Id == QEffectIds.Harvested) ? (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
                                                             "Make a Medicine check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Heal your or an adjacent ally for 3d6 HP and inoculate them against the effects of spore clouds. This mushroom then cannot be harvested from again.",
                                                             "As per a critical success, but you only heal for 2d6 HP.", null, "You take 1d6 poison damage."),
                                                             Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
                                                             .WithAdditionalConditionOnTargetCreature((a, d) => !a.HasFreeHand ? Usability.NotUsable("No free hand") : Usability.Usable)
                                                             .WithAdditionalConditionOnTargetCreature((a, d) => {
-                                                                return Usability.NotUsable("Already harvested");
-                                                            })) :
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
-                                                            "Make a Medicine check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Heal your or an adjacent ally for 3d6 HP and inoculate them against the effects of spore clouds. This mushroom then cannot be harvested from again.",
-                                                            "As per a critical success, but you only heal for 2d6 HP.", null, "You take 1d6 poison damage."),
-                                                            Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
-                                                            .WithAdditionalConditionOnTargetCreature((a, d) => !a.HasFreeHand ? Usability.NotUsable("No free hand") : Usability.Usable))
-                                                            //.WithAdditionalConditionOnTargetCreature((a, d) => {
-                                                            //    if (d.QEffects.Any(qf => qf.Id == QEffectIds.Harvested)) {
-                                                            //        return Usability.NotUsable("Already harvested");
-                                                            //    }
-                                                            //    return Usability.Usable;
-                                                            //}))
+                                                                if (d.QEffects.Any(qf => qf.Id == QEffectIds.Harvested)) {
+                                                                    return Usability.NotUsableOnThisCreature("Already harvested");
+                                                                }
+                                                                return Usability.Usable;
+                                                            }))
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Medicine), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {

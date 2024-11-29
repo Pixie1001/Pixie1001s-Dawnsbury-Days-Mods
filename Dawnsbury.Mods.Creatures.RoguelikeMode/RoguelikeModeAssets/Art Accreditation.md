@@ -13,6 +13,9 @@
 	<li>WebWalkerArmour.png (Modified)</li>
 	<li>MaskOfConsumption.png</li>
 	<li>Widowmaker.png</li>
+	<li>DolmanOfVanishing (modified).png</li>
+	<li>BloodBondAmulet (modified).png</li>
+</ul>
 </ul>
 
 ## Modified Base Game Assets
@@ -21,6 +24,7 @@
 	<li>AnimalFormBear.png (Modified)</li>
 	<li>AnimalFormSnake.png (Modified)</li>
 	<li>AnimalFormWolf.png (Modified)</li>
+	<li>CloakOfAir.png (Modified)</li>
 </ul>
 
 ## Self Produced Assets

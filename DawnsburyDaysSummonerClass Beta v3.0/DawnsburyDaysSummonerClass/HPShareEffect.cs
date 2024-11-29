@@ -55,7 +55,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
         }
 
-        public bool CheckForTargetLog(CombatAction action, Creature attacker) {
+        public bool CheckForTargetLog(CombatAction action, Creature? attacker) {
+            if (attacker == null) {
+                return false;
+            }
             foreach (HPShareLogEntry log in Logs) {
                 if (log.Type == SummonerClassEnums.InterceptKind.TARGET && log.LoggedAction == action && log.LoggedCreature == attacker && log.ActionHistory == attacker.Actions.ActionHistoryThisTurn && log.LoggedThisTurn) {
                     return true;

@@ -340,7 +340,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         public static ItemName Widowmaker { get; } = ModManager.RegisterNewItemIntoTheShop("Widowmaker", itemName => {
             Item item = new Item(itemName, Illustrations.Widowmaker, "widowmaker", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Traits.CannotHavePropertyRune })
+                               new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune })
             .WithMainTrait(Trait.Dagger)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing))
             .WithDescription("A wicked looking dagger, with a small hollow at the tip of the blade, from which a steady supply of deadly poison drips.\n\nAttacks made against flat footed creatures using this dagger expose them to spider venom.");
@@ -367,7 +367,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         public static ItemName FlashingRapier { get; } = ModManager.RegisterNewItemIntoTheShop("Flashing Rapier", itemName => {
             Item item = new Item(itemName, IllustrationName.Rapier, "flashing rapier", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Traits.CannotHavePropertyRune })
+                               new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToShop, Traits.CannotHavePropertyRune })
             .WithMainTrait(Trait.Rapier)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing))
             .WithDescription("A brilliant sparkling rapier, that causes the light to bend around its blade in strange prismatic patterns."+
@@ -461,12 +461,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             return new Item(itemName, Illustrations.DreadPlate, "dread plate", 3, 80,
                 new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToShop })
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
-            .WithDescription("Flexible jetblack armour of elven make, sewn from some exotic underdark silk.\n\nThe wearer of this armour may pass through webs unhindered.");
+            .WithDescription("This cold, black steel suit of plate armour radiates a spiteful presence, feeding off its wearer's own lifeforce to strike at any who would dare mar it.\n\nWhile wearing this cursed armour, you take an additional 1d4 negative damage when damaged by an adjacent creature, but deal 1d6 negative damage in return.");
+        });
+
+        public static ItemName DolmanOfVanishing { get; } = ModManager.RegisterNewItemIntoTheShop("Dolman of Vanishing", itemName => {
+            return new Item(itemName, Illustrations.DolmanOfVanishing, "dolman of vanishing", 2, 35,
+                new Trait[] { Trait.Magical, Trait.Armor, Trait.UnarmoredDefense, Trait.Cloth, Trait.DoNotAddToShop })
+            .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
+            .WithDescription("A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it.\n\nThe wearer of this cloak gains a +2 item bonus to stealth and can hide in plain sight..");
         });
 
         public static ItemName MaskOfConsumption { get; } = ModManager.RegisterNewItemIntoTheShop("Mask of Consumption", itemName => {
             return new Item(itemName, Illustrations.MaskOfConsumption, "mask of consumption", 2, 50,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
             .WithWornAt(Trait.Mask)
             .WithDescription("This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.\n\n" +
             "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
@@ -506,13 +513,68 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             });
         });
 
+        public static ItemName CloakOfAir { get; } = ModManager.RegisterNewItemIntoTheShop("Cloak of Air", itemName => {
+            return new Item(itemName, Illustrations.CloakOfAir, "cloak of air", 2, 50,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Evocation, Trait.Elemental, Trait.Air, Trait.DoNotAddToShop })
+            .WithWornAt(Trait.Cloak)
+            .WithDescription("This swooshing cloak seem to be perpetually billowing in the wind.\n\nThe wear of this cloak may dramatically swoosh it about, to send a blade of air at their enemies for 1d8 damage, 20ft range. In addition, Kineticists wearing this cloak deal +2 damage with their air impulses.")
+            .WithItemAction((item, user) => {
+                Item weapon = new Item(IllustrationName.AerialBoomerang256, "Slicing Wind", new Trait[] { Trait.Ranged, Trait.Air, Trait.Magical, Trait.Unarmed }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing) {
+                    VfxStyle = new VfxStyle(5, ProjectileKind.Cone, IllustrationName.AerialBoomerang256),
+                    Sfx = SfxName.AeroBlade
+                }.WithRangeIncrement(4));
+                return user.CreateStrike(weapon);
+                //return (ActionPossibility)new CombatAction(user, IllustrationName.AerialBoomerang256, "Cutting Wind", new Trait[] { Trait.Air, Trait.Evocation, Trait.Ranged, Trait.Magical }, Target.RangedCreature(5));
+            }, (_, _) => true )
+            .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.Innate = true;
+                qfCoA.Name = "Cloak of Air";
+                qfCoA.Description = "+2 damage to Air impulses.";
+                qfCoA.BonusToDamage = (self, action, target) => {
+                    if (action != null && action.HasTrait(Trait.Impulse) && action.HasTrait(Trait.Air)) {
+                        return new Bonus(2, BonusType.Item, "Coak of Air");
+                    }
+                    return null;
+                };
+            });
+        });
+
+        public static ItemName BloodBondAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Blood Bond Amulet", itemName => {
+            return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 40,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
+            .WithWornAt(Trait.Necklace)
+            // TODO: Add description
+            .WithDescription("...")
+            .WithItemAction((item, user) => {
+                return new CombatAction(user, IllustrationName.BloodVendetta, "Life Transfer", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
+                .WithAdditionalConditionOnTargetCreature(new FriendCreatureTargetingRequirement())
+                .WithAdditionalConditionOnTargetCreature((a, d) => {
+                    if (d.CarriedItems.Any(i => i.ItemName == BloodBondAmulet && i.IsWorn == true)) {
+                        return Usability.Usable;
+                    } else {
+                        return Usability.NotUsableOnThisCreature("No matching amulet");
+                    }
+                }))
+                .WithActionCost(1)
+                .WithSoundEffect(SfxName.ElementalBlastWater)
+                .WithProjectileCone(IllustrationName.VampiricExsanguination, 7, ProjectileKind.Ray)
+                .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {
+                    int prevHP = target.HP;
+                    await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("2d8", "Activate Blood Bond"), target, CheckResult.Success, DamageKind.Bleed);
+                    int healAmount = (prevHP - target.HP);
+                    await caster.HealAsync(DiceFormula.FromText(healAmount.ToString(), "Activate Blood Bond"), spell);
+                })
+                ;
+            }, (_, _) => true);
+        });
+
         internal static void LoadItems() {
 
             //items.Add("wand of fireball", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker };
+            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -558,6 +620,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
                 if (creature.BaseArmor.ItemName == WebwalkerArmour) {
                     creature.AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb });
+                }
+
+                if (creature.BaseArmor.ItemName == DolmanOfVanishing) {
+                    creature.AddQEffect(new QEffect("Cloak of Vanishing", "This creature moves through webs unimpeded.") {
+                        Id = QEffectId.HideInPlainSight,
+                        BonusToSkills = skill => skill == Skill.Stealth ? new Bonus(2, BonusType.Item, "Dolman of Vanishing") : null
+                    });
                 }
             });
 

@@ -52,6 +52,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Hexshot = new ModdedIllustration("RoguelikeModeAssets/Items/HexshotPistol.png");
         internal static ModdedIllustration MaskOfConsumption = new ModdedIllustration("RoguelikeModeAssets/Items/MaskOfConsumption.png");
         internal static ModdedIllustration Widowmaker = new ModdedIllustration("RoguelikeModeAssets/Items/Widowmaker.png");
+        internal static ModdedIllustration DolmanOfVanishing = new ModdedIllustration("RoguelikeModeAssets/Items/DolmanOfVanishing.png");
+        internal static ModdedIllustration CloakOfAir = new ModdedIllustration("RoguelikeModeAssets/Items/CloakOfAir.png");
+        internal static ModdedIllustration BloodBondAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/BloodBondAmulet.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");

@@ -120,6 +120,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                                 Id = QEffectId.AquaticCombat,
                                 DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                                 Illustration = IllustrationName.ElementWater,
+                                Innate = false,
                                 StateCheck = (Action<QEffect>)(qfAquaticCombat =>
                                 {
                                     if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
@@ -149,7 +150,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.SLIPPERY_PREY], 2, "You're able to escape bonds more easily than others.",
                 "When you attempt to Escape using Acrobatics or Athletics, you reduce the multiple attack penalty for repeated attempts to –4 and –8 if you're trained in the skill. " +
                 "The penalty becomes –3 and –6 if you're a master in the appropriate skill.", new Trait[] { Trait.General, Trait.Skill })
-            .WithPermanentQEffect("", self => {
+            .WithPermanentQEffect("Reduce the Escape DC from your MAP by 1 when using a skill. Increase by 2 if you have master proficiancy in the skill.", self => {
                 self.BonusToSkillChecks = (skill, action, target) => {
                     if (action.ActionId != ActionId.Escape) {
                         return null;
@@ -185,7 +186,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             }, "You must be trained in Acrobatics or Athletics");
 
             yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.ESCAPE_ARTIST], 1, "You've a knack for slipping free from other's grasps.", "You gain a +1 circumstance bonus to escape checks.", new Trait[] { Trait.General, Trait.Homebrew })
-            .WithPermanentQEffect("", self => {
+            .WithPermanentQEffect("You gain a +1 circumstance bonus to escape checks.", self => {
                 self.BonusToSkillChecks = (skill, action, target) => {
                     if (action.ActionId != ActionId.Escape) {
                         return null;
@@ -252,7 +253,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             }, "You must be trained in Athletics");
 
             yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.PILGRIMS_TOKEN], 1, "You carry a small token of protection from a site holy to your faith, or you touched your religious symbol to a relic or altar at such a site.", "Your token alerts you to impending peril, granting you a +1 bonus to initiative rolls.", new Trait[] { Trait.General, Trait.Skill })
-            .WithPermanentQEffect("", self => {
+            .WithPermanentQEffect("+1 bonus to inititive.", self => {
                 self.BonusToInitiative = self => new Bonus(1, BonusType.Untyped, "Pilgrim's Token");
             }).WithPrerequisite(sheet => {
                 return sheet.Proficiencies.Get(Trait.Religion) >= Proficiency.Trained;
@@ -494,12 +495,13 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             return null;
                         }
 
-                        return (ActionPossibility) new CombatAction(self.Owner, IllustrationName.ShieldSpell, "Guard Ally", new Trait[] { Trait.Basic }, "", Target.AdjacentFriend())
+                        return (ActionPossibility) new CombatAction(self.Owner, IllustrationName.ShieldSpell, "Guard Ally", new Trait[] { Trait.Basic }, "Target ally gains a +1 circumstance bonus to AC until the start of your next turn, so long as they remain adjacent to you.", Target.AdjacentFriend())
                         .WithSoundEffect(SfxName.RaiseShield)
                         .WithActionCost(0)
                         .WithEffectOnEachTarget(async (action, user, target, result) => {
                             target.AddQEffect(new QEffect("Guarded", $"+1 circumstance bonus to AC while adjacent to {user.Name}.") {
                                 Illustration = IllustrationName.ShieldSpell,
+                                Innate = false,
                                 Source = user,
                                 ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
                                 BonusToDefenses = (self, action, defence) => {
@@ -587,6 +589,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             if (meal == 1) {
                                 ally.AddQEffect(new QEffect("Fortifying Meal", "+1 bonus to fortitude saves.") {
                                     Illustration = BoBAssets.imgs[BoBAssets.ImageId.F_MEAL],
+                                    Innate = false,
                                     Key = "Fortifying Meal",
                                     BonusToDefenses = (self, action, defence) => {
                                         if (defence == Defense.Fortitude) {
@@ -599,6 +602,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             else if (meal == 2) {
                                 ally.AddQEffect(new QEffect("Invigorating Meal", "+5-foot bonus to speed.") {
                                     Illustration = BoBAssets.imgs[BoBAssets.ImageId.I_MEAL],
+                                    Innate = false,
                                     Key = "Invigorating Meal",
                                     BonusToAllSpeeds = (self) => {
                                         return new Bonus(1, BonusType.Untyped, "Invigorating Meal");
@@ -612,6 +616,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             else if (meal == 4) {
                                 ally.AddQEffect(new QEffect("Emboldening Meal", "+1 bonus to will saves.") {
                                     Illustration = BoBAssets.imgs[BoBAssets.ImageId.E_MEAL],
+                                    Innate = false,
                                     Key = "Emboldening Meal",
                                     BonusToDefenses = (self, action, defence) => {
                                         if (defence == Defense.Will) {
@@ -1024,6 +1029,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             .WithEffectOnSelf(async user => {
                                 user.AddQEffect(new QEffect("Fey Fortune", "Until the end of the turn, you gain a +1 bonus to all skill checks.") {
                                     Illustration = BoBAssets.imgs[BoBAssets.ImageId.FEY_FORTUNE],
+                                    Innate = false,
                                     BonusToSkills = skill => new Bonus(1, BonusType.Status, "Fey's Fortune"),
                                     ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn
                                 });
@@ -1074,6 +1080,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 DrinkableEffect = (action, drinker) => {
                     drinker.AddQEffect(new QEffect("Dragon Whisky", $"Until the end of your turn, you may breath a gout of flame as a free action. The effects of the dragon whisky are then lost.") {
                         Illustration = BoBAssets.imgs[BoBAssets.ImageId.DRAGON_WHISKY],
+                        Innate = false,
                         ProvideMainAction = self => {
                             return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.BreathWeapon, "Exhale Dragon Whisky", new Trait[] { Trait.Fire, Trait.Alchemical },
                                 "{b}Range{/b} 15-foot cone\n{b}Saving Throw{/b} Reflex\n\nYou exhale a gout of flame. Deal " + dw_dice + "d6 fire damage to each creature in the area.", Target.Cone(3))
@@ -1107,6 +1114,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             Item berserkersBrew = new Item(iBerserkersBrew, BoBAssets.imgs[BoBAssets.ImageId.BERSERKERS_BREW], "Berserker's Brew", level, 0, new Trait[] { Trait.Consumable, Trait.Potion, Trait.Alchemical, Trait.Drinkable }) {
                 DrinkableEffect = (action, drinker) => {
                     drinker.AddQEffect(new QEffect("Berserker's Brew", $"Gain a +{bonus2} item bonus to attack rolls and saves against fear effects.") {
+                        Innate = false,
                         Illustration = BoBAssets.imgs[BoBAssets.ImageId.BERSERKERS_BREW],
                         Description = "A potent spirit that that sends the drinker into a heedless, drunken rage.\n\n{b}Benefit{/b} You gain a +" + bonus2 + " item bonus to attack rolls and saves against fear effects for the rest of the encounter.\n\n{b}Drawback{/b} If you perform an action with the concentrate trait, you must succeed on a DC 5 flat check, or the action is lost.",
                         BonusToAttackRolls = (self, action, target) => {

@@ -130,6 +130,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<AbandonedTempleLv1>("AbandonedTemple.tmx", "AbandonedTempleLv1");
             RegisterEncounter<AbandonedTempleLv2>("AbandonedTemple.tmx", "AbandonedTempleLv2");
             RegisterEncounter<AbandonedTempleLv3>("AbandonedTemple.tmx", "AbandonedTempleLv3");
+            RegisterEncounter<FungalForestlv1>("FungalForest.tmx", "FungalForestLv1");
+            RegisterEncounter<FungalForestlv2>("FungalForest.tmx", "FungalForestLv2");
+            RegisterEncounter<FungalForestlv3>("FungalForest.tmx", "FungalForestLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
