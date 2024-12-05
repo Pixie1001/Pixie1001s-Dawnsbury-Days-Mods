@@ -488,7 +488,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Priestess
             Creatures.Add(ModEnums.CreatureId.DROW_PRIESTESS,
-            encounter => new Creature(Illustrations.DrowPriestess, "Drow Priestess", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 3, 9, 6, new Defenses(20, 8, 7, 11), 39,
+            encounter => new Creature(Illustrations.DrowPriestess, "Drow Priestess", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid, Trait.Female }, 3, 9, 6, new Defenses(20, 8, 7, 11), 39,
             new Abilities(1, 2, 1, 0, 4, 2), new Skills(deception: 9, stealth: 7, intimidation: 9))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -603,7 +603,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drider
             Creatures.Add(ModEnums.CreatureId.DRIDER,
-            encounter => new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Aberration, Traits.Spider }, 3, 6, 6, new Defenses(17, 12, 7, 6), 56,
+            encounter => new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Aberration, Traits.Spider, Trait.Female }, 3, 6, 6, new Defenses(17, 12, 7, 6), 56,
             new Abilities(5, 3, 3, 1, 3, 2), new Skills(athletics: 10, intimidation: 8))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Expert)
@@ -711,9 +711,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
 
             // CREATURE - Drow Inquisitrix
-            string icDmg = "1d10";
+            string icDmg = "1d8";
             Creatures.Add(ModEnums.CreatureId.DROW_INQUISITRIX,
-            encounter => new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
+            encounter => new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid, Trait.Female }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
             new Abilities(2, 4, 1, 2, 2, 4), new Skills(acrobatics: 8, intimidation: 11, religion: 7))
             .WithProficiency(Trait.Martial, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Trained)
@@ -816,7 +816,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Witch Crone
             Creatures.Add(ModEnums.CreatureId.WITCH_CRONE,
-            encounter => new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
+            encounter => new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
             new Abilities(2, 2, 3, 4, 2, 0), new Skills(nature: 13, occultism: 9, intimidation: 10, religion: 9))
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.BattleformAttack, Proficiency.Expert)
@@ -964,7 +964,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Witch Mother
             Creatures.Add(ModEnums.CreatureId.WITCH_MOTHER,
-            encounter => new Creature(IllustrationName.WaterElemental256, "Mother Cassandra", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch }, 2, 4, 5, new Defenses(16, 8, 5, 11), 40,
+            encounter => new Creature(IllustrationName.WaterElemental256, "Mother Cassandra", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 2, 4, 5, new Defenses(16, 8, 5, 11), 40,
             new Abilities(0, 2, 3, 4, 2, 0), new Skills(nature: 9, occultism: 13, intimidation: 8))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -1006,7 +1006,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Witch Maiden
             Creatures.Add(ModEnums.CreatureId.WITCH_MAIDEN,
-            encounter => new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch }, 2, 6, 5, new Defenses(15, 5, 8, 11), 30,
+            encounter => new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 2, 6, 5, new Defenses(15, 5, 8, 11), 30,
             new Abilities(0, 4, 3, 4, 2, 0), new Skills(nature: 9, occultism: 9, intimidation: 8, arcana: 13))
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.Crossbow, Proficiency.Expert)
@@ -1055,6 +1055,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 level2: new SpellId[] { SpellId.TrueStrike, SpellId.TrueStrike }).Done()
             );
             ModManager.RegisterNewCreature("Witch Maiden", Creatures[ModEnums.CreatureId.WITCH_MAIDEN]);
+
+
+            // CREATURE - Ravenous Rat
+            Creatures.Add(ModEnums.CreatureId.RAVENOUS_RAT,
+            encounter => {
+                Creature monster = MonsterStatBlocks.CreateGiantRat();
+                monster.MainName = "Ravenous Rat";
+                monster.AddQEffect(QEffect.PackAttack("ravenous rat", "1d4"));
+                monster.WithTactics(Tactic.PackAttack);
+                return monster;
+            }
+            );
+            ModManager.RegisterNewCreature("Ravenous Rat", Creatures[ModEnums.CreatureId.RAVENOUS_RAT]);
 
             // Add new creature here
 
@@ -1290,12 +1303,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterNewCreature("Explosive Mushroom", Objects[ModEnums.ObjectId.BOOM_SHROOM]);
 
 
-            // HAZARD - Explosive Mushroom
+            // HAZARD - Spider Queen Shrine
             Objects.Add(ModEnums.ObjectId.SPIDER_QUEEN_SHRINE,
                 encounter => {
+                    int radius = 2;
                     QEffect qfCurrentDC = new QEffect() { Value = 17 };
 
-                    Creature hazard = new Creature(Illustrations.SpiderShrine, "Spider Queen Shrine", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+                    Creature hazard = new Creature(Illustrations.SpiderShrine, "Spider Queen Shrine", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
                     .WithTactics(Tactic.DoNothing)
                     .WithEntersInitiativeOrder(false)
                     .AddQEffect(CommonQEffects.Hazard())
@@ -1303,10 +1317,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     .WithHardness(7)
                     ;
 
-                    var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.KineticistAuraCircle, 3);
+                    var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.KineticistAuraCircle, radius);
                     animation.Color = Color.Black;
 
-                    QEffect effect = new QEffect("Blessings of the Spider Queen", "All spiders and drow within 15-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
+                    QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders and drow within {radius*5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
 
                     QEffect interactable = new QEffect("Interactable", "You can use Religion, Thievery and Crafting to interact with this shrine.") {
                         StateCheckWithVisibleChanges = async self => {
@@ -1378,7 +1392,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         }
                     };
 
-                    effect.AddGrantingOfTechnical(cr => (cr.HasTrait(Traits.Spider) || cr.HasTrait(Traits.Drow)) && cr.DistanceTo(effect.Owner) <= 3, qfTechnical => {
+                    effect.AddGrantingOfTechnical(cr => (cr.HasTrait(Traits.Spider) || cr.HasTrait(Traits.Drow)) && cr.DistanceTo(effect.Owner) <= radius, qfTechnical => {
                         qfTechnical.Name = "Blessings of the Spider Queen";
                         qfTechnical.Description = "+1 bonus to AC, saves and attacks rolls.";
                         qfTechnical.Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.SpiderShrine);
@@ -1396,7 +1410,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     effect.AddGrantingOfTechnical(cr => cr.HasTrait(Traits.Spider) || cr.HasTrait(Traits.Drow), qfTechnical => {
                         qfTechnical.Key = "Blessings of the Spider Queen (Goodness)";
                         qfTechnical.AdditionalGoodness = (self, action, target) => {
-                            if (self.Owner.DistanceTo(effect.Owner) <= 3) {
+                            if (self.Owner.DistanceTo(effect.Owner) <= radius) {
                                 return 2;
                             }
                             return 0f;

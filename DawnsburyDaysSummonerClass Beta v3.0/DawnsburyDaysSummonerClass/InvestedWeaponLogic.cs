@@ -69,6 +69,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Data;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 
 // TODO: Setup to remove handwrap transfer entirely, in case a future patch breaks them, and instead just add runes based on invested weapon
 
@@ -88,9 +89,40 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         List<Item> unarmedAttacks = new List<Item>() { self.Owner.UnarmedStrike };
                         self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike));
 
+                        foreach (Item weapon in unarmedAttacks) {
+                            weapon.WeaponProperties.DamageDieCount = 1;
+                            weapon.WeaponProperties.ItemBonus = 0;
+                        }
+
                         HandleRune(summoner, investedWeapon, unarmedAttacks, RuneKind.WeaponPotency);
                         HandleRune(summoner, investedWeapon, unarmedAttacks, RuneKind.WeaponStriking);
                         HandleRune(summoner, investedWeapon, unarmedAttacks, RuneKind.WeaponProperty);
+
+                        int dice = 1;
+                        int bonus = 0;
+
+                        if (investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows && summoner.HeldItems.Contains(investedWeapon)) {
+                            dice = investedWeapon.WeaponProperties.DamageDieCount;
+                            bonus = investedWeapon.WeaponProperties.ItemBonus;
+                        }
+                        if (self.Owner.QEffects.Any(qf => qf.Name == "Runic Body" && qf.Illustration != null)) {
+                            dice = Math.Max(2, dice);
+                            bonus = Math.Max(1, bonus);
+                        }
+
+                        if (dice > 1 || bonus > 0) {
+                            foreach (Item weapon in unarmedAttacks) {
+                                weapon.WeaponProperties.DamageDieCount = Math.Max(weapon.WeaponProperties.DamageDieCount, dice);
+                                weapon.WeaponProperties.ItemBonus = Math.Max(weapon.WeaponProperties.ItemBonus, bonus);
+                            }
+                        }
+                    } else if (self.Owner.QEffects.Any(qf => qf.Name == "Runic Body" && qf.Illustration != null)) {
+                        List<Item> unarmedAttacks = new List<Item>() { self.Owner.UnarmedStrike };
+                        self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike));
+                        foreach (Item weapon in unarmedAttacks) {
+                            weapon.WeaponProperties.DamageDieCount = self.Owner.UnarmedStrike.WeaponProperties.DamageDieCount;
+                            weapon.WeaponProperties.ItemBonus = self.Owner.UnarmedStrike.WeaponProperties.ItemBonus;
+                        }
                     }
                 },
                 BonusToSkillChecks = (Func<Skill, CombatAction, Creature?, Bonus?>)((skill, action, creature) => {
@@ -120,7 +152,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     if (naturalWeapon1.WeaponProperties.ItemBonus > 0) {
-                        return new Bonus(naturalWeapon1.WeaponProperties.ItemBonus, BonusType.Item, $"{(GetSummoner(action.Owner).FindQEffect(qfInvestedWeapon).Tag as Item).Name}");
+                        return new Bonus(naturalWeapon1.WeaponProperties.ItemBonus, BonusType.Item, $"{action.Name} Trait");
                     }
                     return null;
                 }),
@@ -180,10 +212,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         itemOptions.Add(handwraps);
                     }
                     List<Item> weapons = self.Owner.HeldItems;
-                    if (weapons.Count >= 1 && weapons[0].WeaponProperties != null && weapons[0].Runes.Count > 0) {
+                    if (weapons.Count >= 1 && weapons[0].WeaponProperties != null && (weapons[0].Runes.Count > 0 || weapons[0].WeaponProperties.ItemBonus > 0 || weapons[0].WeaponProperties.DamageDieCount > 1)) {
                         itemOptions.Add(weapons[0]);
                     }
-                    if (weapons.Count == 2 && weapons[1].WeaponProperties != null && weapons[1].Runes.Count > 0) {
+                    if (weapons.Count == 2 && weapons[1].WeaponProperties != null && (weapons[1].Runes.Count > 0 || weapons[1].WeaponProperties.ItemBonus > 0 || weapons[1].WeaponProperties.DamageDieCount > 1)) {
                         itemOptions.Add(weapons[1]);
                     }
                     if (self.Owner.FindQEffect(qfInvestedWeapon) != null) {

@@ -16,6 +16,7 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
 using System.Data;
 using System.Runtime.CompilerServices;
+using Dawnsbury.Core.CharacterBuilder.Feats;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -34,6 +35,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
         //                __result = true;
         //        }
         //    }
+        //}
+
+        //[HarmonyPrefix]
+        //[HarmonyPatch(typeof(CharacterSheet), "ToCreature")]
+        //private static void ToCreaturePatch(CharacterSheet __instance, int level) {
+        //    __instance.IdentityChoice //Calculated.Tags.TryGetValue("KipUp", out object? feat);
+        //    if (feat != null) {
+        //        __instance.Calculated.GrantFeat((FeatName)feat);
+        //    }
+
         //}
 
         [HarmonyPostfix]

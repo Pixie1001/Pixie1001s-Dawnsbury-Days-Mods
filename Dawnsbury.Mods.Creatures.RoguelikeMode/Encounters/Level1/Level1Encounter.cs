@@ -56,6 +56,8 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Campaign.LongTerm;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
@@ -79,7 +81,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
+
+                // TODO: Use this code to add long term effects to skill challenges
+                //var hero = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
+                //string heroName = hero.Name;
+                
+                //hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("test effect", "this is a test thingo for debugging."));
+
                 await CommonEncounterFuncs.StandardEncounterResolve(battle);
+                // TODO: Remove debug code
             });
         }
 

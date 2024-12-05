@@ -85,7 +85,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             DRIDER,
             WITCH_CRONE,
             WITCH_MOTHER,
-            WITCH_MAIDEN
+            WITCH_MAIDEN,
+            RAVENOUS_RAT
         }
 
         internal enum ObjectId {
