@@ -58,6 +58,7 @@ using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Campaign.LongTerm;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
@@ -85,9 +86,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
                 // TODO: Use this code to add long term effects to skill challenges
                 //var hero = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
                 //string heroName = hero.Name;
-                
-                //hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("test effect", "this is a test thingo for debugging."));
 
+                //hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("test effect", "this is a test thingo for debugging."));
+                Creature test = battle.AllCreatures.First(cr => cr.PersistentCharacterSheet != null);
+                //LTEs.GrantBoon(test, BoonId.POISON_IMMUNITY);
+                test.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Test Boon"));
                 await CommonEncounterFuncs.StandardEncounterResolve(battle);
                 // TODO: Remove debug code
             });

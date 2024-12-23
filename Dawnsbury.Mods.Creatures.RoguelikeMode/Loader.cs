@@ -102,6 +102,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             CreatureList.LoadCreatures();
             CreatureList.LoadObjects();
             LTEs.LoadLongTermEffects();
+            //LTEs.LoadBoons();
             ScriptHooks.LoadHooks();
             SpellLoader.LoadSpells();
             LoadEncounters();
@@ -147,6 +148,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             // Boss fights
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");
+
+            // Skill Challenges
+            RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");
+            RegisterEncounter<Level2SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv2");
+            RegisterEncounter<Level3SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv3");
 
             // Other
             ModManager.RegisterEncounter<TestMap>("TestHall.tmx");

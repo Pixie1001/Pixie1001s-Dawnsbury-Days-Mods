@@ -17,6 +17,12 @@ using Dawnsbury.Core.Mechanics.Rules;
 using System.Data;
 using System.Runtime.CompilerServices;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Mechanics;
+using static Dawnsbury.Core.Mechanics.Rules.RunestoneRules;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -37,13 +43,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
         //    }
         //}
 
-        //[HarmonyPrefix]
+        //[HarmonyPostfix]
         //[HarmonyPatch(typeof(CharacterSheet), "ToCreature")]
-        //private static void ToCreaturePatch(CharacterSheet __instance, int level) {
-        //    __instance.IdentityChoice //Calculated.Tags.TryGetValue("KipUp", out object? feat);
-        //    if (feat != null) {
-        //        __instance.Calculated.GrantFeat((FeatName)feat);
+        //private static void ToCreaturePatch(CharacterSheet __instance, ref Creature __result, int level) {
+        //    if (LTEs.PartyBoons.TryGetValue(__instance, out List<QEffect> boons)) {
+        //        LTEs.ApplyBoons(__result);
         //    }
+
+        //    //__instance.Calculated.Tags.TryGetValue("KipUp", out object? feat);
+        //    //if (feat != null) {
+        //    //    __instance.Calculated.GrantFeat((FeatName)feat);
+        //    //}
 
         //}
 
@@ -65,17 +75,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(RunestoneRules), "AttachSubitem")]
-        private static bool AttachSubitemPatch(ref bool __result, Item runestone, Item? equipment) {
+        private static bool AttachSubitemPatch(ref SubitemAttachmentResult __result, Item runestone, Item? equipment) {
             if (runestone.RuneProperties == null) {
                 return true;
             }
 
             if (equipment != null && equipment.HasTrait(Traits.CannotHavePropertyRune) && runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
-                __result = false;
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be inscribed with property runes.");
                 return false;
             }
             if (equipment != null && equipment.HasTrait(Traits.LegendaryItem)) {
-                __result = false;
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Legendary magic items cannot be inscribed with runes."); ;
                 return false;
             }
             return true;
@@ -112,6 +122,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             List<CampaignStop> path = campaign.AdventurePath.CampaignStops;
             LootTables.GenerateParty(campaign);
             EncounterTables.LoadEncounterTables();
+            SkillChallengeTables.LoadSkillChallengeTables();
 
             // Debug for testing
             //if (campaign.Tags.ContainsKey("new run")) {
@@ -123,6 +134,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
                 campaign.Tags.Clear();
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
             }
+
+            if (!Int32.TryParse(campaign.Tags["seed"], out int result)) {
+                throw new ArgumentException("ERROR: Seed is not an integer (Roguelike Mod)");
+            }
+
+            //LTEs.InitBoons(campaign);
+
+            var rand = new Random(result);
+
+            bool newTDList = campaign.Tags.TryAdd("TreasureDemonEncounters", "");
 
             for (int i = 1; i <= 3; i++) {
                 if (!campaign.Tags.ContainsKey($"Lv{i}Encounters")) {
@@ -141,8 +162,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             int level = 1;
             int fightNum = 0;
 
-
-
             for (int i = 0; i < path.Count; i++) {
                 if (path[i] is LevelUpStop) {
                     fightNum = 0;
@@ -152,12 +171,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
 
                 if (path[i] is EncounterCampaignStop) {
                     fightNum += 1;
-                    ModEnums.EncounterType encounterType = level == 4 ? ModEnums.EncounterType.BOSS : fightNum < 3 ? ModEnums.EncounterType.NORMAL : ModEnums.EncounterType.ELITE;
-                    path[i] = GenerateRandomEncounter(campaign.Tags["seed"], removed, level, encounterType, campaign);
+                    ModEnums.EncounterType encounterType = level == 4 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
+                    if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.Next(0, 8) <= 3) {
+                        campaign.Tags["TreasureDemonEncounters"] += $"{i}, ";
+                    }
+                    path[i] = GenerateRandomEncounter(rand, removed, level, encounterType, campaign);
                     path[i].Index = i;
 
                     if (encounterType == ModEnums.EncounterType.NORMAL) {
                         removed += 1;
+                    }
+                    else if (encounterType == ModEnums.EncounterType.EVENT) {
+                        SkillChallengeTables.chosenEvents.Add(i, SkillChallengeTables.events[rand.Next(0, SkillChallengeTables.events.Count())]);
+                        SkillChallengeTables.events.Remove(SkillChallengeTables.chosenEvents[i]);
                     }
                 }
             }
@@ -182,12 +208,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             var test = 3;
         }
 
-        private static CampaignStop GenerateRandomEncounter(string seed, int removed, int level, ModEnums.EncounterType encounterType, CampaignState campaign) {
-            if (!Int32.TryParse(seed, out int result)) {
-                throw new ArgumentException("ERROR: Seed is not an integer (Roguelike Mod)");
-            }
-
-            var rand = new Random(result);
+        private static CampaignStop GenerateRandomEncounter(Random rng, int removed, int level, ModEnums.EncounterType encounterType, CampaignState campaign) {
 
             if (level == 0) {
                 throw new ArgumentException("ERROR: Cannot load level 0 encounters. (Roguelike Mod)");
@@ -196,15 +217,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             EncounterCampaignStop stop = new TypedEncounterCampaignStop<HallOfBeginnings>(); ;
 
             if (encounterType == ModEnums.EncounterType.NORMAL) {
-                stop = EncounterTables.encounters[level - 1][rand.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}Encounters"]) - removed)];
+                stop = EncounterTables.encounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}Encounters"]) - removed)];
                 EncounterTables.encounters[level - 1].Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.ELITE) {
                 // TODO: Rework removed to be a seperate count for elite and regular encounters if I add optional mid-run elite fights.
-                stop = EncounterTables.eliteEncounters[level - 1][rand.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]))];
+                stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]))];
                 EncounterTables.eliteEncounters[level - 1].Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.BOSS) {
-                stop = EncounterTables.bossFights[rand.Next(0, Int32.Parse(campaign.Tags["Bosses"]) - removed)];
+                stop = EncounterTables.bossFights[rng.Next(0, Int32.Parse(campaign.Tags["Bosses"]) - removed)];
                 EncounterTables.bossFights.Remove(stop);
+            } else if (encounterType == ModEnums.EncounterType.EVENT) {
+                if (level == 1) stop = new TypedEncounterCampaignStop<Level1SkillChallenge>();
+                else if (level == 2) stop = new TypedEncounterCampaignStop<Level2SkillChallenge>();
+                else if (level == 3) stop = new TypedEncounterCampaignStop<Level3SkillChallenge>();
             }
 
             // Default value for debugging

@@ -86,7 +86,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             WITCH_CRONE,
             WITCH_MOTHER,
             WITCH_MAIDEN,
-            RAVENOUS_RAT
+            RAVENOUS_RAT,
+            TREASURE_DEMON,
+            DROW_RENEGADE
         }
 
         internal enum ObjectId {
@@ -96,10 +98,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             SPIDER_QUEEN_SHRINE
         }
 
+        internal enum BoonId {
+            POISON_IMMUNITY,
+        }
+
         internal enum EncounterType {
             NORMAL,
             ELITE,
-            BOSS
+            BOSS,
+            EVENT
         }
     }
 }

@@ -69,6 +69,7 @@ using Dawnsbury.Campaign.Encounters.A_Crisis_in_Dawnsbury;
 using System.Buffers;
 using System.Xml.Schema;
 using Microsoft.Xna.Framework.Input;
+using FMOD;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
@@ -814,6 +815,89 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterNewCreature("Drow Inquisitrix", Creatures[ModEnums.CreatureId.DROW_INQUISITRIX]);
 
 
+            // CREATURE - Loot Imp
+            Creatures.Add(ModEnums.CreatureId.TREASURE_DEMON,
+            encounter => new Creature(Illustrations.TreasureDemon, "Treasure Demon", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Fiend, Trait.Demon, Trait.NoPhysicalUnarmedAttack }, 2, 8, 5, new Defenses(17, 5, 8, 11), 25,
+            new Abilities(-1, 4, 0, 3, 1, -1), new Skills(acrobatics: 8, thievery: 10))
+            .WithBasicCharacteristics()
+            .AddQEffect(new QEffect("Treasure Hoarder",
+            "Treasure Demons hop between dimensions, often travelling through the safety of the darklands to endow the demon lord's mortal servants with funds for their foul schemes. Kill it before it escapes to steal it's delivery for yourselves.") {
+                Id = QEffectId.FleeingAllDanger
+            })
+            .AddQEffect(new QEffect("Emergency Planeshift", "When this condition expires, the treasure demon will teleport to safety along with its loot.", ExpirationCondition.CountsDownAtEndOfYourTurn, null, IllustrationName.DimensionDoor) {
+                Value = 3,
+                WhenExpires = async self => {
+                    if (self.Value == 0) {
+                        self.Owner.Battle.SmartCenter(self.Owner.Occupies.X, self.Owner.Occupies.Y);
+                        self.Owner.Occupies.Overhead($"Escaped!", Color.Black, "The treasure demon escaped with its loot!");
+                        self.Owner.AnimationData.ColorBlink(Color.White);
+                        Sfxs.Play(SfxName.SpellFail);
+                        self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
+                    }
+                },
+                WhenCreatureDiesAtStateCheckAsync = async self => {
+                    if (self.Owner.Battle.CampaignState == null) {
+                        return;
+                    }
+                    int amount = 0;
+                    for (int i = 0; i < self.Owner.Battle.Encounter.CharacterLevel; i++) {
+                        amount += R.NextD20();
+                    }
+                    self.Owner.Occupies.Overhead($"{amount} gold", Color.Goldenrod, "The party looted {b}" + amount + " gold{/b} from the treasure demon.");
+                    self.Tag = amount;
+                },
+                EndOfCombat = async (self, victory) => {
+                    if (victory && self.Tag != null) {
+                        self.Owner.Battle.CampaignState.CommonGold += (int)self.Tag;
+                    }
+                }
+            })
+            );
+            ModManager.RegisterNewCreature("Treasure Demon", Creatures[ModEnums.CreatureId.TREASURE_DEMON]);
+
+            // CREATURE - Loot Imp
+            Creatures.Add(ModEnums.CreatureId.DROW_RENEGADE,
+            encounter => {
+                Creature creature = new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, Traits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25,
+                new Abilities(4, 2, 3, 1, 1, 2), new Skills(deception: 7, athletics: 9)) {
+                    SpawnAsFriends= true
+                }
+                .WithBasicCharacteristics()
+                .WithProficiency(Trait.Melee, Proficiency.Expert)
+                .AddHeldItem(Items.CreateNew(ItemName.Greatsword))
+                .AddQEffect(QEffect.AttackOfOpportunity())
+                .AddQEffect(CommonQEffects.Drow())
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Moonbeam, "Crescent Moon Strike", new Trait[] { Trait.Magical, Trait.Divine }, "...", Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy)) {
+                            ShortDescription = "Deal 3d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. The Drow Renegade cannot use this attack again for 1d4 rounds."
+                        }
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr.Level + cr.Abilities.Charisma + 4 + 10))
+                        .WithActionCost(2)
+                        .WithProjectileCone(IllustrationName.Moonbeam, 15, ProjectileKind.Cone)
+                        .WithSoundEffect(SfxName.DivineLance)
+                        .WithEffectOnEachTarget(async (spell, user, defender, result) => {
+                            await CommonSpellEffects.DealBasicDamage(spell, user, defender, result, DiceFormula.FromText("3d6", "Crescent Moon Strike"), DamageKind.Fire);
+                            if (result == CheckResult.CriticalFailure) {
+                                defender.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(user, 1));
+                            }
+                        })
+                        .WithEffectOnSelf(user => {
+                            user.AddQEffect(QEffect.Recharging("Crescent Moon Strike"));
+                            //user.AddQEffect(QEffect.CannotUseForXRound("Crescent Moon Strike", user, DiceFormula.FromText("1d4").Roll().Item1 + 1));
+                        })
+                        .WithGoodnessAgainstEnemy((cone, a, d) => {
+                            return 3.5f * 3 + (d.QEffects.FirstOrDefault(qf => qf.Name == "Dazzled" || qf.Id == QEffectId.Blinded) == null ? 2f : 0f);
+                        })
+                        ;
+                    }
+                });
+                return creature;
+            });
+
+
+            ModManager.RegisterNewCreature("Drow Renegade", Creatures[ModEnums.CreatureId.DROW_RENEGADE]);
+
             // CREATURE - Witch Crone
             Creatures.Add(ModEnums.CreatureId.WITCH_CRONE,
             encounter => new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
@@ -904,10 +988,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = Illustrations.AnimalFormBear;
                                 self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack).WithAdditionalWeaponProperties(properties => {
-                                    properties.OnTarget = async (strike, a, d, result) => {
+                                    properties.WithOnTarget(async (strike, a, d, result) => {
                                         if (result >= CheckResult.Success)
                                             await Possibilities.Grapple(a, d, result);
-                                    };
+                                    });
                                 });
                             };
                             transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack);

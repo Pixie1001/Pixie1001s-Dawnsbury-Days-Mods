@@ -5,7 +5,7 @@
     <id>RoguelikeMode</id>
     <name>Roguelike Mode</name>
     <description>
-        A roguelike mode where you challenge a party against a variety of randomly selected encounters from levesl 1-4 to see how far you can go.
+        A roguelike mode where you challenge a party against a variety of randomly selected encounters from levels 1-4 to see how far you can go.
     </description>
     <mediumRestFlavorText>Your heroes take a little rest to regain health on their long journey.</mediumRestFlavorText>
     <startingLevel>1</startingLevel>
@@ -22,6 +22,8 @@
         </encounter>
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
 		<levelUp flavorText="You level up :D" />
 		<beginChapter>Floor 2</beginChapter>
 		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="2"  />
@@ -32,11 +34,15 @@
         </encounter>
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
 		<levelUp flavorText="You level up :D" />
 		<beginChapter>Floor 3</beginChapter>
 		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="3"  />
 		
         <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>

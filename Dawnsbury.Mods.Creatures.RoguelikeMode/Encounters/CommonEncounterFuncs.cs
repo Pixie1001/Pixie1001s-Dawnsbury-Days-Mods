@@ -8,6 +8,7 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Tiles;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
@@ -174,6 +175,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
         }
 
         public static async Task StandardEncounterSetup(TBattle battle, ModEnums.EncounterType type=ModEnums.EncounterType.NORMAL) {
+            if (battle.CampaignState != null) {
+                var treasureDemonEncounters = battle.CampaignState.Tags["TreasureDemonEncounters"].Split(", ");
+                bool addTD = false;
+                // TODO: Why does this cause a crash?
+                foreach (string index in treasureDemonEncounters) {
+                    
+                    if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
+                        Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
+                        Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).ToList().GetRandom();
+                        battle.SpawnCreature(CreatureList.Creatures[ModEnums.CreatureId.TREASURE_DEMON](battle.Encounter), enemyFaction, freeTile);
+                    }
+                }
+            }
+
+            //if (battle.CampaignState != null && battle.CampaignState.Tags["TreasureDemonEncounters"].Split battle.CampaignState.CurrentStopIndex ==)
         }
 
         //public static void SetLootReward(TBattle battle, List<Item> rewards) {
@@ -235,7 +251,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
             }
         }
 
-        private static bool Between(int value, int lower, int upper) {
+        internal static bool Between(int value, int lower, int upper) {
             if (value >= lower && value <= upper) {
                 return true;
             }

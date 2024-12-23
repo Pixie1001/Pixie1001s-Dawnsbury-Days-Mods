@@ -78,7 +78,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
-                new Trait[] { Trait.Magical, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Martial, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop, Traits.LegendaryItem })
+                new Trait[] { Trait.Magical, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop, Traits.LegendaryItem })
             .WithMainTrait(Trait.Whip)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
                 ItemBonus = 1,
@@ -353,8 +353,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     }
 
                     if (action.Item == weapon && action.HasTrait(Trait.Strike)) {
-                        Affliction poison = Affliction.CreateSpiderVenom();
-                        poison.DC = weapon.Level + 14 + attacker.Level;
+                        Affliction poison = Affliction.CreateGiantSpiderVenom(weapon.Level + 14 + attacker.Level);
 
                         await Affliction.ExposeToInjury(poison, attacker, target);
                     }
@@ -541,10 +540,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         public static ItemName BloodBondAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Blood Bond Amulet", itemName => {
             return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 40,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
             .WithWornAt(Trait.Necklace)
             // TODO: Add description
-            .WithDescription("...")
+            .WithDescription("These matching amulets link the lifeforce of those who wear them, allowing them to freely claw away the vitality of the paired wearer for themselves.\n\n" +
+            "{b}Life Transfer {icon:Action}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, IllustrationName.BloodVendetta, "Life Transfer", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
                 .WithAdditionalConditionOnTargetCreature(new FriendCreatureTargetingRequirement())

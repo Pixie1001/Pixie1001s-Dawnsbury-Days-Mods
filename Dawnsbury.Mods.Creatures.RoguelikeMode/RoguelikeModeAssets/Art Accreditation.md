@@ -16,6 +16,10 @@
 	<li>DolmanOfVanishing (modified).png</li>
 	<li>BloodBondAmulet (modified).png</li>
 </ul>
+
+# Creative Commons Artwork
+<ul>
+	<li>SkillChallengeBG.png By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=22488172</li>
 </ul>
 
 ## Modified Base Game Assets
@@ -42,6 +46,9 @@
 	<li>SpiderShrine.png</li>
 	<li>DrowShootist.png</li>
 	<li>DrowSniper.png (edited using base game assets)</li>
+	<li>DrowRenegade.png</li>
+	<li>TreasureDemon.png</li>
+	<li>AbyssalHandmaiden.png</li>
 </ul>
 
 ## Volunteer Contributions

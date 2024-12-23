@@ -1195,7 +1195,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     action.Name = "Tendril Strike (disarm)";
                     action.Target = (Target)Target.Ranged(range).WithAdditionalConditionOnTargetCreature((a, d) => !d.HeldItems.Any(hi => !hi.HasTrait(Trait.Grapplee)) ? Usability.CommonReasons.TargetHasNoWeapon : Usability.Usable);
                     action.WithProjectileCone(IllustrationName.None, 0, ProjectileKind.None);
-                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.GenericCombatManeuver);
+                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.Disarm);
                     return (ActionPossibility)action;
                 }
             });
@@ -1215,7 +1215,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     action.Name = "Tendril Strike (shove)";
                     action.Target = (Target)Target.Ranged(range);
                     action.WithProjectileCone(IllustrationName.None, 0, ProjectileKind.None);
-                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.GenericCombatManeuver);
+                    action.Illustration = new SideBySideIllustration(illTendrilStrike, IllustrationName.Shove);
                     return (ActionPossibility)action;
                 }
             });

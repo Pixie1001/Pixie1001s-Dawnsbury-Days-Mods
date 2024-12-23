@@ -293,8 +293,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             Item handwraps = StrikeRules.GetBestHandwraps(summoner);
             List<Item> weapons = summoner.HeldItems;
             if (handwraps != null) {
-                Item eidolonHandwraps = handwraps.Duplicate();
-                summoner.AddQEffect(new QEffect($"Invested Weapon ({eidolonHandwraps.Name})", "Your eidolon also benefits from these handwraps of mighty blows.") {
+                summoner.AddQEffect(new QEffect($"Invested Weapon ({handwraps.Name})", "Your eidolon also benefits from these handwraps of mighty blows.") {
                     Tag = handwraps,
                     Id = qfInvestedWeapon,
                     Illustration = illInvest

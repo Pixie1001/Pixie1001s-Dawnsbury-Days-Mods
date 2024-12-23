@@ -146,12 +146,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 StateCheck = async self => {
                     if (self.Description == "Set Later") {
                         self.Name += $" (DC {baseDC + self.Owner.Level})";
-                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: {Affliction.CreateSpiderVenom().StagesDescription}";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: {Affliction.CreateGiantSpiderVenom(baseDC + self.Owner.Level).StagesDescription}";
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
                     if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
-                        Affliction poison = Affliction.CreateSpiderVenom();
+                        Affliction poison = Affliction.CreateGiantSpiderVenom(baseDC + attacker.Level);
                         poison.DC = baseDC + attacker.Level;
                         
                         await Affliction.ExposeToInjury(poison, attacker, target);
