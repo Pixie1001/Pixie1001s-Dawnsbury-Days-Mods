@@ -1,8 +1,8 @@
 # Art Accreditations
 
 ## Paid or Free Public Assets
-# Fisktak
-[i]Please support Fishtak [here (Unity Asset Store)](https://assetstore.unity.com/packages/2d/gui/icons/free-fantasy-items-253853).[/i]
+### Fisktak
+*Please support Fishtak [here (Unity Asset Store)](https://assetstore.unity.com/packages/2d/gui/icons/free-fantasy-items-253853).*
 <ul>
 	<li>ChillwindBow.png</li>
 	<li>DreadPlate.png (Modified)</li>
@@ -17,13 +17,13 @@
 	<li>BloodBondAmulet (modified).png</li>
 </ul>
 
-# Creative Commons Artwork
+## Creative Commons Artwork
 <ul>
 	<li>SkillChallengeBG.png By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=22488172</li>
 </ul>
 
 ## Modified Base Game Assets
-[i]Please see the game's credits for attribution of the origional artists for these assets.[/i]
+*Please see the game's credits for attribution of the origional artists for these assets.*
 <ul>
 	<li>AnimalFormBear.png (Modified)</li>
 	<li>AnimalFormSnake.png (Modified)</li>
@@ -32,7 +32,7 @@
 </ul>
 
 ## Self Produced Assets
-[i]Assets I drew myself for use in this project.[/i]
+*Assets I drew myself for use in this project.*
 <ul>
 	<li>Drider.png</li>
 	<li>DrowFighter.png</li>
@@ -52,7 +52,7 @@
 </ul>
 
 ## Volunteer Contributions
-[i]Assets contributed from other modders or community members.[/i]
+*Assets contributed from other modders or community members.*
 <ul>
 	<li>-</li>
 </ul>
