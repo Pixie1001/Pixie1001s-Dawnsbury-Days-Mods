@@ -38,13 +38,11 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class Traits {
-
+    internal static class ModTraits {
         internal static Trait Wand { get; } = ModManager.RegisterTrait("RL_Wand", new TraitProperties("Wand", true, "Wands allow a creature capable of casting their spell to do so once per day.", false));
         internal static Trait CasterWeapon { get; } = ModManager.RegisterTrait("RL_Caster Weapon", new TraitProperties("Caster Weapon", false));
         internal static Trait CannotHavePropertyRune { get; } = ModManager.RegisterTrait("RL_CannotHavePropertyRune", new TraitProperties("Specific Magic Weapon", true, "This weapon cannot be attached with property runes.", false));

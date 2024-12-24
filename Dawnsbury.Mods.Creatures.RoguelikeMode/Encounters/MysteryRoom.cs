@@ -66,10 +66,11 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class MysteryRoom : Encounter {

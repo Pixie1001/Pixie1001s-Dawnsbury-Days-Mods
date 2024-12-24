@@ -65,18 +65,15 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class HallOfSmokeLv2 : Level2EliteEncounter
-    {
+    internal class HallOfSmokeLv2 : Level2EliteEncounter {
 
-        public HallOfSmokeLv2(string filename) : base("Hall of Smoke", filename)
-        {
+        public HallOfSmokeLv2(string filename) : base("Hall of Smoke", filename) {
 
             //this.CharacterLevel = 2;
             //this.RewardGold = CommonEncounterFuncs.GetGoldReward(this.CharacterLevel, ModEnums.EncounterType.ELITE);

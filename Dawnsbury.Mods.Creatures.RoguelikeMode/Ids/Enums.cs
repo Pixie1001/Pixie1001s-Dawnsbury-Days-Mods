@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -64,24 +63,49 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
+
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class QEffectIds {
+    internal static class ModEnums {
+        internal enum CreatureId {
+            UNSEEN_GUARDIAN,
+            HUNTING_SPIDER,
+            DROW_ASSASSIN,
+            DROW_FIGHTER,
+            DROW_PRIESTESS,
+            DROW_ARCANIST,
+            DROW_SHADOWCASTER,
+            DROW_INQUISITRIX,
+            DROW_TEMPLEGUARD,
+            DROW_SHOOTIST,
+            DROW_SNIPER,
+            DRIDER,
+            WITCH_CRONE,
+            WITCH_MOTHER,
+            WITCH_MAIDEN,
+            RAVENOUS_RAT,
+            TREASURE_DEMON,
+            DROW_RENEGADE
+        }
 
-        internal static QEffectId LethargyPoison { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Drow Lethargy Poison");
-        internal static QEffectId Lurking { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Lurking");
-        internal static QEffectId Stalked { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Stalked");
-        internal static QEffectId ExtraTurn { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ExtraTurnMiniBoss");
-        internal static QEffectId DrowClergy { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_DrowClergy");
-        internal static QEffectId BloodBond { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_BloodBond");
-        internal static QEffectId Harvested { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Harvested");
-        internal static QEffectId Hazard { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Hazard");
-        internal static QEffectId MushroomInoculation { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MushroomInoculation");
+        internal enum ObjectId {
+            CHOKING_MUSHROOM,
+            BOOM_SHROOM,
+            DEEP_HORNETS,
+            SPIDER_QUEEN_SHRINE
+        }
 
-        // Tile Effects IDs
-        internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");
+        internal enum BoonId {
+            POISON_IMMUNITY,
+        }
+
+        internal enum EncounterType {
+            NORMAL,
+            ELITE,
+            BOSS,
+            EVENT
+        }
     }
 }

@@ -54,9 +54,11 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
@@ -74,18 +76,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
                 // TODO: Check why effect isn't removed
 
                 Creature pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
-                //pm.AddQEffect(new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
-                //    StartOfCombat = async self => {
-                //        Creature companion = CreatureList.Creatures[ModEnums.CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
-                //        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
-                //        companion.AddQEffect(new QEffect() {
-                //            Source = self.Owner,
-                //            WhenMonsterDies = qfDeathCheck => self.ExpiresAt = ExpirationCondition.Immediately
-                //        });
-                //        //self.Tag = companion;
-                //    },
+                pm.AddQEffect(new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
+                    StartOfCombat = async self => {
+                        Creature companion = CreatureList.Creatures[ModEnums.CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
+                        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
+                        companion.AddQEffect(new QEffect() {
+                            Source = self.Owner,
+                            WhenMonsterDies = qfDeathCheck => {
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        });
+                        //self.Tag = companion;
+                    },
 
-                //});
+                });
 
                 pm.AddQEffect(QEffect.Drained(2));
                 pm.AddQEffect(new QEffect("Injured", "You've sustained an injury that won't quite fully heal until you've had a full night's rest reducing your max HP by 10% per value.") {

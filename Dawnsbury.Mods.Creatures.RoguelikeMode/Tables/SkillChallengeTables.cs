@@ -24,10 +24,10 @@ using Dawnsbury.Display;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class SkillChallengeTables {
         public static List<SkillChallenge> events = new List<SkillChallenge>();
@@ -38,7 +38,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             events.Add(new SkillChallenge("Cursed Relic", async (level, battle) => {
                 Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom(), lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, lvl + 1)));
-                await battle.Cinematics.NarratorLineAsync("As the party decends further into the winding depths of the Darklands, they emerge into a small chamber that bears the telltale marks of a demonic ritual.");
+                await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.");
                 await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.");
                 await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {cursedItem.Name}, bereft of dust and seemingly abandoned by those it was bequeathed upon...");
                 await battle.Cinematics.NarratorLineAsync($"Perhaps the ritualists responsible for this terrible act where slain by whatever foul creatured they hoped to contact... Or left their loathsome reward behind as a cunning trap.");
@@ -174,7 +174,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             events.Add(new SkillChallenge("Drow Renegades", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("You stumble upon a drow hunting party, adorned in strange luna iconography. After some initial tension, they reveal that they're renegade disciples of the Cerulean Sky, on a mission to liberate their people from the starborn.");
-                await battle.Cinematics.NarratorLineAsync("Yet suspicions still linger. Drow are known for their deceit, and many evil adventurer parties often delve into the darklands to barter for slaves or bargain for demonic boons.");
+                await battle.Cinematics.NarratorLineAsync($"Yet suspicions still linger. Drow are known for their deceit, and many evil adventurer parties often delve into the {Loader.UnderdarkName} to barter for slaves or bargain for demonic boons.");
                 await battle.Cinematics.NarratorLineAsync("To earn their trust and cooperate towards the two groups' mutual goals...");
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy);
@@ -202,7 +202,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
                             }
                         } else if (result == CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.");
-                            await battle.Cinematics.NarratorLineAsync($"It seems even between friends, trust in the Darklands is difficult to find.");
+                            await battle.Cinematics.NarratorLineAsync($"It seems even between friends, trust in the {Loader.UnderdarkName} is difficult to find.");
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Though initially cautious, the renegades eventually warm up to {opt1.Nominee.Name} and before long the party finds themselves engrossed in conversation with the group, swapping war stories and critical intel alike.");
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
@@ -232,7 +232,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
                         break;
                     case 2:
                         await battle.Cinematics.NarratorLineAsync($"The renegades nod in grim agreement, seemingly no strangers to betrayal themselves.");
-                        await battle.Cinematics.NarratorLineAsync($"Nevertheless, they volunteer a small amount of supplies to hasten the party on their journey, for it is a rare thing indeed to meet a group in the Darklands willing to exchange pleasantries without an ulterior motive.");
+                        await battle.Cinematics.NarratorLineAsync($"Nevertheless, they volunteer a small amount of supplies to hasten the party on their journey, for it is a rare thing indeed to meet a group in the {Loader.UnderdarkName} willing to exchange pleasantries without an ulterior motive.");
                         await battle.Cinematics.NarratorLineAsync("The party obtained {b}" + level * 7 + " gold{/b} worth of supplies.");
                         break;
                 }
@@ -240,7 +240,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             events.Add(new SkillChallenge("Escaped Slaves", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.");
-                await battle.Cinematics.NarratorLineAsync("Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the Darklands has little mercy for those who cannot take what they need to survive.");
+                await battle.Cinematics.NarratorLineAsync($"Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.");
                 await battle.Cinematics.NarratorLineAsync("What does the party do?");
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Intimidation);
@@ -284,7 +284,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
                         result = opt2.Roll();
                         result = opt1.Roll();
                         if (result <= CheckResult.Failure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the Darklands prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.");
                             await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.");
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
                         } else if (result >= CheckResult.Success) {
@@ -310,7 +310,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             //events.Add(new SkillChallenge("Magical Traps", async (level, battle) => {
             //    await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.");
-            //    await battle.Cinematics.NarratorLineAsync("Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the Darklands has little mercy for those who cannot take what they need to survive.");
+            //    await battle.Cinematics.NarratorLineAsync("Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.");
             //    await battle.Cinematics.NarratorLineAsync("What does the party do?");
             //    battle.Cinematics.ExitCutscene();
             //    SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Intimidation);
@@ -354,7 +354,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             //            result = opt2.Roll();
             //            result = opt1.Roll();
             //            if (result <= CheckResult.Failure) {
-            //                await battle.Cinematics.NarratorLineAsync("{b}" + PrintResult(result) + "!{/b} " + $"Yet the Darklands prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.");
+            //                await battle.Cinematics.NarratorLineAsync("{b}" + PrintResult(result) + "!{/b} " + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.");
             //                await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.");
             //                opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
             //            } else if (result >= CheckResult.Success) {
@@ -406,7 +406,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
 
         internal static int GetDCByLevel(int level) {
-            return 14 + level + (level / 3);
+            return 14 + level + level / 3;
         }
 
         private static Creature GetNarrator() {
@@ -424,7 +424,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             } else if (result == CheckResult.CriticalSuccess) {
                 colour = "Chartreuse";
             }
-            return "{b}{" + colour + "}" + result.HumanizeTitleCase2().CapitalizeEachWord() + "!{" + colour + "/}{/b}";
+            return "{b}{" + colour + "}" + result.HumanizeTitleCase2().CapitalizeEachWord() + "!{" + colour + "/}{/b} ";
         }
     }
 
@@ -445,7 +445,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
 
         public string printInfoTag() {
-            return "{b}{DimGray}" + $"[{Skill.HumanizeTitleCase2()} {Bonus} (DC {DC})]" + "{/DimGray}{/b} ";
+            return "{b}{DimGray}" + $"[{Skill.HumanizeTitleCase2()} {UtilityFunctions.WithPlus(Bonus)} (DC {DC})]" + "{/DimGray}{/b} ";
         }
 
         public CheckResult Roll() {

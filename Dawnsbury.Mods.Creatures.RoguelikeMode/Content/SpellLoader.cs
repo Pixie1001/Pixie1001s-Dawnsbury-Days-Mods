@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -64,11 +63,11 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using System.IO;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class SpellLoader {
@@ -145,7 +144,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 if (spell.SpellId == SpellId.HideousLaughter) {
                     spell.WithGoodnessAgainstEnemy((t, a, d) => {
                         float score = d.QEffects.Any(qf => qf.Id == QEffectId.Slowed) ? 0 : 7 * a.Level;
-                        string[] reactions = new string[] { "attack of opportunity", "reactive strike", "stand still", "hunted prey", 
+                        string[] reactions = new string[] { "attack of opportunity", "reactive strike", "stand still", "hunted prey",
                             "glimpse of redemption", "retributive strike", "liberating step", "implement's interruption", "ring bell",
                             "amulet's abeyance", "weapon", "amulet", "bell" };
                         if (d.QEffects.Any(qf => reactions.Any(str => qf.Name.ToLower().StartsWith(str)))) {
@@ -157,12 +156,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             });
 
-        //    if (spell.SpellId == SpellId.FlourishingFlora) {
-        //        spell.WithGoodnessAgainstEnemy((t, a, d) => 5f * spell.SpellLevel);
-        //        spell.Variants.ForEach(v => v.GoodnessModifier = (ai, utility) => {
+            //    if (spell.SpellId == SpellId.FlourishingFlora) {
+            //        spell.WithGoodnessAgainstEnemy((t, a, d) => 5f * spell.SpellLevel);
+            //        spell.Variants.ForEach(v => v.GoodnessModifier = (ai, utility) => {
 
-        //        }));
-        //});
+            //        }));
+            //});
         }
     }
 }

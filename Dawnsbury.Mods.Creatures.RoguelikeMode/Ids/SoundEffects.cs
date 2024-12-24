@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -22,10 +21,12 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.Mechanics.Treasure;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class SoundEffects {
+    internal static class SoundEffects
+    {
         // Music
         public static SfxName AntipartTheme = ModManager.RegisterNewSoundEffect("RoguelikeModeAssets/Music/battle-theme-194713.mp3");
     }

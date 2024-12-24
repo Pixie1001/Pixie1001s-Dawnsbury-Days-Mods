@@ -18,9 +18,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class Cutscenes {

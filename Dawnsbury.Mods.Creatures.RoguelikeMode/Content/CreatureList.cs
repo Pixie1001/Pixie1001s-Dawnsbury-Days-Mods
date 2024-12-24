@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -64,36 +63,43 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModTraits;
 using Dawnsbury.Campaign.Encounters.A_Crisis_in_Dawnsbury;
 using System.Buffers;
 using System.Xml.Schema;
 using Microsoft.Xna.Framework.Input;
 using FMOD;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class CreatureList {
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
-        internal static Dictionary<ModEnums.ObjectId, Func<Encounter?, Creature>> Objects = new Dictionary<ModEnums.ObjectId, Func<Encounter?, Creature>>();
+        internal static Dictionary<ObjectId, Func<Encounter?, Creature>> Objects = new Dictionary<ObjectId, Func<Encounter?, Creature>>();
 
         internal static void LoadCreatures() {
             // TODO: Setup to teleport to random spot and be hidden at start of combat, so logic can be removed from encounter.
 
             // CREATURE - Unseen Guardian
             Creatures.Add(ModEnums.CreatureId.UNSEEN_GUARDIAN,
-                encounter => new Creature(IllustrationName.ElectricityMephit256, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 3, 3, 1, 3, 1), new Skills(stealth: 6))
+                encounter => new Creature(IllustrationName.ElectricityMephit256, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 3, 3, 1, 3, 1), new Skills(stealth: 2))
                 .WithAIModification(ai => {
                     ai.IsDemonHorizonwalker = true;
                     ai.OverrideDecision = (self, options) => {
                         Creature creature = self.Self;
 
-                        return creature.Actions.ActionsLeft == 1 && creature.Battle.AllCreatures.All<Creature>((Func<Creature, bool>)(enemy => !enemy.EnemyOf(creature) || creature.DetectionStatus.EnemiesYouAreHiddenFrom.Contains<Creature>(enemy))) && !creature.DetectionStatus.Undetected ? options.Where<Option>((Func<Option, bool>)(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption)).ToList<Option>().GetRandom<Option>() : (Option)null;
+                        if (creature.HasEffect(QEffectIds.Lurking)) {
+                            return options.Where(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption).ToList().GetRandom();
+                        }
+
+                        return creature.Actions.ActionsLeft == 1 && creature.Battle.AllCreatures.All(enemy => !enemy.EnemyOf(creature) || creature.DetectionStatus.EnemiesYouAreHiddenFrom.Contains(enemy)) && !creature.DetectionStatus.Undetected ? options.Where(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption).ToList().GetRandom() : null;
                     };
                 })
                 .WithProficiency(Trait.Weapon, Proficiency.Trained)
-                .AddQEffect(new QEffect("Obliviating Aura", "The unseen guardian feels slippery and elusive in its victim's minds, making it easy for them to lose track of it's postion. It gains a +20 bonus to checks made to sneak or hide and can hide in plain sight.") {
+                .AddQEffect(new QEffect("Obliviating Aura", "The unseen guardian feels slippery and elusive in its victim's minds, making it easy for them to lose track of its postion. It gains a +20 bonus to checks made to sneak or hide and can hide in plain sight.") {
                     Id = QEffectId.HideInPlainSight,
                     Innate = true,
                     Illustration = IllustrationName.Blur,
@@ -104,32 +110,60 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         return null;
                     },
                     StartOfCombat = async self => {
+                        //List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsPlayer).ToList();
+
+                        //foreach (Creature player in party) {
+                        //    self.Owner.DetectionStatus.HiddenTo.Add(player);
+                        //}
+                        //self.Owner.DetectionStatus.Undetected = true;
+                        //List<Tile> spawnPoints = self.Owner.Battle.Encounter.Map.AllTiles.Where(t => {
+                        //    if (!t.IsFree) {
+                        //        return false;
+                        //    }
+
+                        //    foreach (Creature pc in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer)) {
+                        //        if (pc.DistanceTo(t) < 4) {
+                        //            return false;
+                        //        }
+                        //    }
+                        //    return true;
+                        //}).ToList();
+
+                        //Tile location = spawnPoints[R.Next(0, spawnPoints.Count)];
+                        //self.Owner.Occupies = location;
+                        //if (!location.IsTrulyGenuinelyFreeTo(self.Owner)) {
+                        //    location = location.GetShuntoffTile(self.Owner);
+                        //}
+                        //self.Owner.TranslateTo(location);
+
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
+                        Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
+
+                        // TODO: Set so that lurking ends after taking their bonus turn
+                        self.Owner.AddQEffect(new QEffect {
+                            Id = QEffectIds.Lurking,
+                            PreventTakingAction = action => action.ActionId != ActionId.Sneak ? "Stalking prey, cannot act." : null,
+                            BonusToSkillChecks = (skill, action, target) => {
+                                if (skill == Skill.Stealth && action.Name == "Sneak") {
+                                    return new Bonus(20, BonusType.Status, "Lurking");
+                                }
+                                return null;
+                            },
+                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
+                        });
 
                         foreach (Creature player in party) {
                             self.Owner.DetectionStatus.HiddenTo.Add(player);
                         }
                         self.Owner.DetectionStatus.Undetected = true;
-                        List<Tile> spawnPoints = self.Owner.Battle.Encounter.Map.AllTiles.Where(t =>
-                        {
-                            if (!t.IsFree) {
-                                return false;
-                            }
+                        target.AddQEffect(CommonQEffects.Stalked(self.Owner));
 
-                            foreach (Creature pc in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled)) {
-                                if (pc.DistanceTo(t) < 4) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }).ToList();
-
-                        Tile location = spawnPoints[R.Next(0, spawnPoints.Count)];
-                        self.Owner.Occupies = location;
-                        if (!location.IsTrulyGenuinelyFreeTo(self.Owner)) {
-                            location = location.GetShuntoffTile(self.Owner);
-                        }
-                        self.Owner.TranslateTo(location);
+                        self.Owner.AddQEffect(new QEffect() {
+                            Id = QEffectId.Slowed,
+                            Value = 1
+                        });
+                        await self.Owner.Battle.GameLoop.Turn(self.Owner, false);
+                        self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectId.Slowed);
                     }
                 })
                 .AddQEffect(new QEffect("Seek Vulnerability", "The Unseen Guardian's obliviating aura quickly falls apart as soon as a creatre's attention begins to settle on it, distrupting the magic. Successful seek attempts against a detected Unseen Guardian instead fully reveal it to all of the seeker's allies.") {
@@ -160,13 +194,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     Sfx = SfxName.AeroBlade
                 }.WithRangeIncrement(4)))
             );
-
             ModManager.RegisterNewCreature("Unseen Guardian", Creatures[ModEnums.CreatureId.UNSEEN_GUARDIAN]);
 
 
             // CREATURE - Drow Assassin
             Creatures.Add(ModEnums.CreatureId.DROW_ASSASSIN,
-                encounter => new Creature(Illustrations.DrowAssassin, "Drow Assassin", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 1, 7, 6, new Defenses(18, 4, 10, 7), 18, new Abilities(-1, 4, 1, 2, 2, 1), new Skills(stealth: 10, acrobatics: 7))
+                encounter => new Creature(Illustrations.DrowAssassin, "Drow Assassin", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 7, 6, new Defenses(18, 4, 10, 7), 18, new Abilities(-1, 4, 1, 2, 2, 1), new Skills(stealth: 10, acrobatics: 7))
                 .WithAIModification(ai => {
                     ai.OverrideDecision = (self, options) => {
 
@@ -203,7 +236,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     Innate = true,
                     StartOfCombat = async self => {
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
-                        Creature target = party.OrderBy(c => c.HP / 100 * (c.Defenses.GetBaseValue(Defense.AC) * 5)).ToList()[0];
+                        Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
 
                         // TODO: Set so that lurking ends after taking their bonus turn
                         self.Owner.AddQEffect(new QEffect {
@@ -273,15 +306,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 .WithProficiency(Trait.Dagger, Proficiency.Expert)
                 .AddHeldItem(Items.CreateNew(ItemName.Dagger))
                 .AddQEffect(CommonQEffects.SpiderVenomAttack(16, "dagger"))
-                );
-
+            );
             ModManager.RegisterNewCreature("Drow Assassin", Creatures[ModEnums.CreatureId.DROW_ASSASSIN]);
 
 
             // CREATURE - Drow Fighter
             int poisonDC = 17;
             Creatures.Add(ModEnums.CreatureId.DROW_FIGHTER,
-            encounter => new Creature(Illustrations.DrowFighter, "Drow Fighter", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 1, 5, 6, new Defenses(15, 4, 10, 7), 18,
+            encounter => new Creature(Illustrations.DrowFighter, "Drow Fighter", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 5, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(2, 4, 2, 0, 1, 0), new Skills(acrobatics: 7, athletics: 5, stealth: 7, intimidation: 5))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -296,7 +328,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     // Check if crossbow is loaded
                     if (handcrossbow.EphemeralItemProperties.NeedsReload) {
                         // foreach (Option option in options.Where(opt => opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name.StartsWith("Reload") || opt.Text == "Reload")) {
-                        foreach (Option option in options.Where(opt => opt.Text == "Reload" || (opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload"))) {
+                        foreach (Option option in options.Where(opt => opt.Text == "Reload" || opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload")) {
                             option.AiUsefulness.MainActionUsefulness = 1f;
                         }
                     }
@@ -377,7 +409,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
                     if (target != null && !target.HasEffect(QEffectIds.LethargyPoison) && !target.HasEffect(QEffectId.Slowed)) {
                         float start = 15f;
-                        float percentage = (float) dc - ((float)target.Defenses.GetBaseValue(Defense.Fortitude) + 10.5f);
+                        float percentage = dc - (target.Defenses.GetBaseValue(Defense.Fortitude) + 10.5f);
                         percentage *= 5f;
                         percentage += 50f;
                         start = start / 100 * percentage;
@@ -393,12 +425,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Shootist
             Creatures.Add(ModEnums.CreatureId.DROW_SHOOTIST,
-            encounter => new Creature(Illustrations.DrowShootist, "Drow Shootist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
+            encounter => new Creature(Illustrations.DrowShootist, "Drow Shootist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(-1, 4, 1, 1, 2, 2), new Skills(acrobatics: 7, stealth: 7, deception: 7, intimidation: 5))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
                     Creature creature = self.Self;
-                    foreach (Option option in options.Where(opt => opt.Text == "Reload" || (opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload"))) {
+                    foreach (Option option in options.Where(opt => opt.Text == "Reload" || opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload")) {
                         option.AiUsefulness.MainActionUsefulness = 0f;
                     }
                     return null;
@@ -425,7 +457,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             } else if (result == CheckResult.CriticalSuccess) {
                                 d.AddQEffect(QEffect.FlatFooted("Distracting Shot").WithExpirationAtEndOfSourcesNextTurn(a));
                             }
-                       
+
                         }
                     };
                     CombatAction action = self.Owner.CreateStrike(xbow, -1, strikeModifiers);
@@ -475,7 +507,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Sniper
             Creatures.Add(ModEnums.CreatureId.DROW_SNIPER,
-            encounter => new Creature(Illustrations.DrowSniper, "Drow Sniper", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
+            encounter => new Creature(Illustrations.DrowSniper, "Drow Sniper", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(-1, 4, 1, 1, 2, 2), new Skills(acrobatics: 7, stealth: 7, deception: 7, intimidation: 5))
             .AddQEffect(CommonQEffects.Drow())
             .WithBasicCharacteristics()
@@ -489,7 +521,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Priestess
             Creatures.Add(ModEnums.CreatureId.DROW_PRIESTESS,
-            encounter => new Creature(Illustrations.DrowPriestess, "Drow Priestess", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid, Trait.Female }, 3, 9, 6, new Defenses(20, 8, 7, 11), 39,
+            encounter => new Creature(Illustrations.DrowPriestess, "Drow Priestess", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female }, 3, 9, 6, new Defenses(20, 8, 7, 11), 39,
             new Abilities(1, 2, 1, 0, 4, 2), new Skills(deception: 9, stealth: 7, intimidation: 9))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -502,7 +534,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     Option? expandBane = options.FirstOrDefault(o => o.Text == "Increase Bane radius");
                     if (expandBane != null) {
                         QEffect bane = creature.QEffects.FirstOrDefault(qf => qf.Name == "Bane");
-                        (int, bool) temp = ((int, bool)) bane.Tag;
+                        (int, bool) temp = ((int, bool))bane.Tag;
                         int radius = temp.Item1;
 
                         expandBane.AiUsefulness.MainActionUsefulness = 0f;
@@ -512,7 +544,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     }
 
                     // Demoralize AI
-                    foreach (Option option in options.Where(o => o.Text == "Demoralize" || (o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Demoralize))) {
+                    foreach (Option option in options.Where(o => o.Text == "Demoralize" || o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Demoralize)) {
                         option.AiUsefulness.MainActionUsefulness = 0f;
                     }
 
@@ -556,7 +588,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Temple Guard
             Creatures.Add(ModEnums.CreatureId.DROW_TEMPLEGUARD,
-            encounter => new Creature(Illustrations.DrowTempleGuard, "Drow Temple Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 2, 8, 6, new Defenses(18, 11, 8, 9), 28,
+            encounter => new Creature(Illustrations.DrowTempleGuard, "Drow Temple Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 2, 8, 6, new Defenses(18, 11, 8, 9), 28,
             new Abilities(4, 2, 3, 0, 2, 0), new Skills(athletics: 8, intimidation: 6))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -582,7 +614,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Hunting spider
             Creatures.Add(ModEnums.CreatureId.HUNTING_SPIDER,
-            encounter => new Creature(Illustrations.HuntingSpider, "Hunting Spider", new List<Trait>() { Trait.Animal, Traits.Spider }, 1, 7, 5, new Defenses(17, 6, 9, 5), 16,
+            encounter => new Creature(Illustrations.HuntingSpider, "Hunting Spider", new List<Trait>() { Trait.Animal, ModTraits.Spider }, 1, 7, 5, new Defenses(17, 6, 9, 5), 16,
             new Abilities(2, 4, 1, -5, 2, -2), new Skills(acrobatics: 7, stealth: 7, athletics: 5))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -595,7 +627,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             .WithProficiency(Trait.Ranged, Proficiency.Trained)
             .WithCharacteristics(false, true)
             .WithUnarmedStrike(new Item(IllustrationName.Jaws, "fangs", new Trait[] { Trait.Melee, Trait.Finesse, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
-            .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") {Id = QEffectId.IgnoresWeb})
+            .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
             .AddQEffect(CommonQEffects.SpiderVenomAttack(16, "fangs"))
             .AddQEffect(CommonQEffects.WebAttack(16))
             );
@@ -604,7 +636,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drider
             Creatures.Add(ModEnums.CreatureId.DRIDER,
-            encounter => new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Aberration, Traits.Spider, Trait.Female }, 3, 6, 6, new Defenses(17, 12, 7, 6), 56,
+            encounter => new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Aberration, ModTraits.Spider, Trait.Female }, 3, 6, 6, new Defenses(17, 12, 7, 6), 56,
             new Abilities(5, 3, 3, 1, 3, 2), new Skills(athletics: 10, intimidation: 8))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Expert)
@@ -623,7 +655,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Arcanist
             Creatures.Add(ModEnums.CreatureId.DROW_ARCANIST,
-            encounter => new Creature(Illustrations.DrowArcanist, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
+            encounter => new Creature(Illustrations.DrowArcanist, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
             new Abilities(1, 3, 0, 4, 1, 1), new Skills(acrobatics: 10, intimidation: 6, arcana: 8, deception: 8))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -641,7 +673,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (!(action.HasTrait(Trait.Melee) || (action.Owner != null && action.Owner.IsAdjacentTo(self.Owner)))) {
+                    if (!(action.HasTrait(Trait.Melee) || action.Owner != null && action.Owner.IsAdjacentTo(self.Owner))) {
                         return;
                     }
 
@@ -656,7 +688,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 }
             })
             .AddQEffect(new QEffect("Dark Arts", "The drow arcanist excels at causing pain with their black practice. Their non-cantrip spells gain a +2 status bonus to damage.") {
-                BonusToDamage = (qfSelf, spell, target) => { 
+                BonusToDamage = (qfSelf, spell, target) => {
                     return spell.HasTrait(Trait.Spell) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus) && spell.CastFromScroll == null ? new Bonus(2, BonusType.Status, "Dark Arts") : null;
                 }
             })
@@ -667,7 +699,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Drow Shadowcaster
             Creatures.Add(ModEnums.CreatureId.DROW_SHADOWCASTER,
-            encounter => new Creature(Illustrations.DrowShadowcaster, "Drow Shadowcaster", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid }, 3, 9, 6, new Defenses(17, 6, 9, 12), 31,
+            encounter => new Creature(Illustrations.DrowShadowcaster, "Drow Shadowcaster", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 3, 9, 6, new Defenses(17, 6, 9, 12), 31,
             new Abilities(1, 3, 0, 4, 1, 2), new Skills(acrobatics: 10, intimidation: 11, arcana: 13, deception: 11))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -685,7 +717,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (!(action.HasTrait(Trait.Melee) || (action.Owner != null && action.Owner.IsAdjacentTo(self.Owner)))) {
+                    if (!(action.HasTrait(Trait.Melee) || action.Owner != null && action.Owner.IsAdjacentTo(self.Owner))) {
                         return;
                     }
 
@@ -714,7 +746,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             // CREATURE - Drow Inquisitrix
             string icDmg = "1d8";
             Creatures.Add(ModEnums.CreatureId.DROW_INQUISITRIX,
-            encounter => new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, Traits.Drow, Trait.Humanoid, Trait.Female }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
+            encounter => new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
             new Abilities(2, 4, 1, 2, 2, 4), new Skills(acrobatics: 8, intimidation: 11, religion: 7))
             .WithProficiency(Trait.Martial, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Trained)
@@ -821,7 +853,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             new Abilities(-1, 4, 0, 3, 1, -1), new Skills(acrobatics: 8, thievery: 10))
             .WithBasicCharacteristics()
             .AddQEffect(new QEffect("Treasure Hoarder",
-            "Treasure Demons hop between dimensions, often travelling through the safety of the darklands to endow the demon lord's mortal servants with funds for their foul schemes. Kill it before it escapes to steal it's delivery for yourselves.") {
+            $"Treasure Demons hop between dimensions, often travelling through the safety of the {Loader.UnderdarkName} to endow the demon lord's mortal servants with funds for their foul schemes. Kill it before it escapes to steal its delivery for yourselves.") {
                 Id = QEffectId.FleeingAllDanger
             })
             .AddQEffect(new QEffect("Emergency Planeshift", "When this condition expires, the treasure demon will teleport to safety along with its loot.", ExpirationCondition.CountsDownAtEndOfYourTurn, null, IllustrationName.DimensionDoor) {
@@ -858,9 +890,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             // CREATURE - Loot Imp
             Creatures.Add(ModEnums.CreatureId.DROW_RENEGADE,
             encounter => {
-                Creature creature = new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, Traits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25,
+                Creature creature = new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25,
                 new Abilities(4, 2, 3, 1, 1, 2), new Skills(deception: 7, athletics: 9)) {
-                    SpawnAsFriends= true
+                    SpawnAsFriends = true
                 }
                 .WithBasicCharacteristics()
                 .WithProficiency(Trait.Melee, Proficiency.Expert)
@@ -900,7 +932,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Witch Crone
             Creatures.Add(ModEnums.CreatureId.WITCH_CRONE,
-            encounter => new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
+            encounter => new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
             new Abilities(2, 2, 3, 4, 2, 0), new Skills(nature: 13, occultism: 9, intimidation: 10, religion: 9))
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.BattleformAttack, Proficiency.Expert)
@@ -1039,7 +1071,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     }
                 }
             })
-            .AddSpellcastingSource(SpellcastingKind.Prepared, Traits.Witch, Ability.Intelligence, Trait.Primal).WithSpells(
+            .AddSpellcastingSource(SpellcastingKind.Prepared, ModTraits.Witch, Ability.Intelligence, Trait.Primal).WithSpells(
                 level1: new SpellId[] { SpellId.Heal, SpellId.PummelingRubble, SpellId.PummelingRubble },
                 level2: new SpellId[] { SpellId.Barkskin }).Done()
             );
@@ -1048,13 +1080,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Witch Mother
             Creatures.Add(ModEnums.CreatureId.WITCH_MOTHER,
-            encounter => new Creature(IllustrationName.WaterElemental256, "Mother Cassandra", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 2, 4, 5, new Defenses(16, 8, 5, 11), 40,
+            encounter => new Creature(IllustrationName.WaterElemental256, "Mother Cassandra", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female }, 2, 4, 5, new Defenses(16, 8, 5, 11), 40,
             new Abilities(0, 2, 3, 4, 2, 0), new Skills(nature: 9, occultism: 13, intimidation: 8))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;
 
-                    AiFuncs.PositionalGoodness(monster, options, (tile, _, _, cr) => cr.HasTrait(Traits.Witch) && cr.DistanceTo(tile) <= 3, 1.5f, false);
+                    AiFuncs.PositionalGoodness(monster, options, (tile, _, _, cr) => cr.HasTrait(ModTraits.Witch) && cr.DistanceTo(tile) <= 3, 1.5f, false);
                     return null;
                 };
             })
@@ -1082,7 +1114,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     });
                 },
             })
-            .AddSpellcastingSource(SpellcastingKind.Prepared, Traits.Witch, Ability.Intelligence, Trait.Divine).WithSpells(
+            .AddSpellcastingSource(SpellcastingKind.Prepared, ModTraits.Witch, Ability.Intelligence, Trait.Divine).WithSpells(
                 level1: new SpellId[] { SpellId.GrimTendrils, SpellId.Heal, SpellId.Heal }).Done()
             );
             ModManager.RegisterNewCreature("Witch Mother", Creatures[ModEnums.CreatureId.WITCH_MOTHER]);
@@ -1090,7 +1122,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             // CREATURE - Witch Maiden
             Creatures.Add(ModEnums.CreatureId.WITCH_MAIDEN,
-            encounter => new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, Traits.Witch, Trait.Female }, 2, 6, 5, new Defenses(15, 5, 8, 11), 30,
+            encounter => new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female }, 2, 6, 5, new Defenses(15, 5, 8, 11), 30,
             new Abilities(0, 4, 3, 4, 2, 0), new Skills(nature: 9, occultism: 9, intimidation: 8, arcana: 13))
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.Crossbow, Proficiency.Expert)
@@ -1134,7 +1166,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     });
                 }
             })
-            .AddSpellcastingSource(SpellcastingKind.Prepared, Traits.Witch, Ability.Intelligence, Trait.Arcane).WithSpells(
+            .AddSpellcastingSource(SpellcastingKind.Prepared, ModTraits.Witch, Ability.Intelligence, Trait.Arcane).WithSpells(
                 level1: new SpellId[] { SpellId.ChillTouch, SpellId.TrueStrike, SpellId.FlourishingFlora, SpellId.FlourishingFlora },
                 level2: new SpellId[] { SpellId.TrueStrike, SpellId.TrueStrike }).Done()
             );
@@ -1159,7 +1191,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         internal static void LoadObjects() {
             // HAZARD - Deep Mushroom
-            Objects.Add(ModEnums.ObjectId.CHOKING_MUSHROOM,
+            Objects.Add(ObjectId.CHOKING_MUSHROOM,
                 encounter => {
                     QEffect qfCurrentDC = new QEffect() { Value = 15 };
 
@@ -1188,7 +1220,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
                                 hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                                     ProvideContextualAction = qfContextActions => {
-                                        return (Possibility)new SubmenuPossibility(Illustrations.ChokingMushroom, "Interactions") {
+                                        return new SubmenuPossibility(Illustrations.ChokingMushroom, "Interactions") {
                                             Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
@@ -1320,7 +1352,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                             if (victim.IsImmuneTo(Trait.Poison) || victim.WeaknessAndResistance.Immunities.Contains(DamageKind.Poison) || victim.FindQEffect(QEffectIds.MushroomInoculation) != null) {
                                                 return;
                                             }
-                                                CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 17);
+                                            CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 17);
                                             await CommonSpellEffects.DealBasicDamage(CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison), hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d4", "Choking Spores"), DamageKind.Poison));
                                             if (result == CheckResult.CriticalFailure) {
                                                 victim.AddQEffect(QEffect.Sickened(1, 17));
@@ -1346,11 +1378,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     return hazard;
                 }
             );
-            ModManager.RegisterNewCreature("Choking Mushroom", Objects[ModEnums.ObjectId.CHOKING_MUSHROOM]);
+            ModManager.RegisterNewCreature("Choking Mushroom", Objects[ObjectId.CHOKING_MUSHROOM]);
 
 
             // HAZARD - Explosive Mushroom
-            Objects.Add(ModEnums.ObjectId.BOOM_SHROOM,
+            Objects.Add(ObjectId.BOOM_SHROOM,
                 encounter => {
                     Creature hazard = new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
                     .WithTactics(Tactic.DoNothing)
@@ -1361,7 +1393,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         AfterYouTakeDamageOfKind = async (self, action, kind) => {
                             string name = self.Owner.Name;
 
-                            if (!self.UsedThisTurn && (kind == DamageKind.Fire || (action != null && action.HasTrait(Trait.Fire)))) {
+                            if (!self.UsedThisTurn && (kind == DamageKind.Fire || action != null && action.HasTrait(Trait.Fire))) {
                                 CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire }, "", Target.SelfExcludingEmanation(2))
                                 .WithSoundEffect(SfxName.Fireball)
                                 .WithSavingThrow(new SavingThrow(Defense.Reflex, 17))
@@ -1384,11 +1416,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     return hazard;
                 }
             );
-            ModManager.RegisterNewCreature("Explosive Mushroom", Objects[ModEnums.ObjectId.BOOM_SHROOM]);
+            ModManager.RegisterNewCreature("Explosive Mushroom", Objects[ObjectId.BOOM_SHROOM]);
 
 
             // HAZARD - Spider Queen Shrine
-            Objects.Add(ModEnums.ObjectId.SPIDER_QUEEN_SHRINE,
+            Objects.Add(ObjectId.SPIDER_QUEEN_SHRINE,
                 encounter => {
                     int radius = 2;
                     QEffect qfCurrentDC = new QEffect() { Value = 17 };
@@ -1404,7 +1436,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.KineticistAuraCircle, radius);
                     animation.Color = Color.Black;
 
-                    QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders and drow within {radius*5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
+                    QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders and drow within {radius * 5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
 
                     QEffect interactable = new QEffect("Interactable", "You can use Religion, Thievery and Crafting to interact with this shrine.") {
                         StateCheckWithVisibleChanges = async self => {
@@ -1412,7 +1444,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
                                 hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                                     ProvideContextualAction = qfContextActions => {
-                                        return (Possibility)new SubmenuPossibility(Illustrations.SpiderShrine, "Interactions") {
+                                        return new SubmenuPossibility(Illustrations.SpiderShrine, "Interactions") {
                                             Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
@@ -1449,7 +1481,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                                             }
                                                         }),
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.SpiderShrine, "Disrupt Armour", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                            "Make a Thievery check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce the shrine's hardness by 6.", "Reduce the shrine's hardness by 3.", (string) null, "You take 1d6 evil damage."),
+                                                            "Make a Thievery check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce the shrine's hardness by 6.", "Reduce the shrine's hardness by 3.",  null, "You take 1d6 evil damage."),
                                                             Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
                                                             )
                                                         .WithActionCost(1)
@@ -1476,7 +1508,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         }
                     };
 
-                    effect.AddGrantingOfTechnical(cr => (cr.HasTrait(Traits.Spider) || cr.HasTrait(Traits.Drow)) && cr.DistanceTo(effect.Owner) <= radius, qfTechnical => {
+                    effect.AddGrantingOfTechnical(cr => (cr.HasTrait(ModTraits.Spider) || cr.HasTrait(Drow)) && cr.DistanceTo(effect.Owner) <= radius, qfTechnical => {
                         qfTechnical.Name = "Blessings of the Spider Queen";
                         qfTechnical.Description = "+1 bonus to AC, saves and attacks rolls.";
                         qfTechnical.Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.SpiderShrine);
@@ -1491,7 +1523,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         };
                     });
 
-                    effect.AddGrantingOfTechnical(cr => cr.HasTrait(Traits.Spider) || cr.HasTrait(Traits.Drow), qfTechnical => {
+                    effect.AddGrantingOfTechnical(cr => cr.HasTrait(ModTraits.Spider) || cr.HasTrait(ModTraits.Drow), qfTechnical => {
                         qfTechnical.Key = "Blessings of the Spider Queen (Goodness)";
                         qfTechnical.AdditionalGoodness = (self, action, target) => {
                             if (self.Owner.DistanceTo(effect.Owner) <= radius) {
@@ -1507,7 +1539,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     return hazard;
                 }
             );
-            ModManager.RegisterNewCreature("Spider Queen Shrine", Objects[ModEnums.ObjectId.SPIDER_QUEEN_SHRINE]);
+            ModManager.RegisterNewCreature("Spider Queen Shrine", Objects[ObjectId.SPIDER_QUEEN_SHRINE]);
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -1515,21 +1547,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             public static CombatAction CreateHide(Creature self) {
                 return new CombatAction(self, (Illustration)IllustrationName.Hide, "Hide", new Trait[2] { Trait.Basic, Trait.AttackDoesNotTargetAC },
                     "Make one Stealth check against the Perception DCs of each enemy creature that can see you but that you have cover or concealment from. On a success, you become Hidden to that creature.",
-                    (Target)Target.Self(((cr, ai) => ai.HideSelf())).WithAdditionalRestriction((Func<Creature, string>)(innerSelf => {
+                    Target.Self((cr, ai) => ai.HideSelf()).WithAdditionalRestriction(innerSelf => {
                         if (HiddenRules.IsHiddenFromAllEnemies(innerSelf, innerSelf.Occupies))
                             return "You're already hidden from all enemies.";
-                        return !innerSelf.Battle.AllCreatures.Any<Creature>((Func<Creature, bool>)(cr => cr.EnemyOf(innerSelf) && HiddenRules.HasCoverOrConcealment(innerSelf, cr))) ? "You don't have cover or concealment from any enemy." : (string)null;
-                    })))
+                        return !innerSelf.Battle.AllCreatures.Any(cr => cr.EnemyOf(innerSelf) && HiddenRules.HasCoverOrConcealment(innerSelf, cr)) ? "You don't have cover or concealment from any enemy." : null;
+                    }))
                 .WithActionId(ActionId.Hide)
                 .WithSoundEffect(SfxName.Hide)
-                .WithEffectOnSelf((innerSelf => {
+                .WithEffectOnSelf(innerSelf => {
                     int roll = R.NextD20();
-                    foreach (Creature creature in innerSelf.Battle.AllCreatures.Where<Creature>((Func<Creature, bool>)(cr => cr.EnemyOf(innerSelf)))) {
+                    foreach (Creature creature in innerSelf.Battle.AllCreatures.Where(cr => cr.EnemyOf(innerSelf))) {
                         if (!innerSelf.DetectionStatus.HiddenTo.Contains(creature) && HiddenRules.HasCoverOrConcealment(innerSelf, creature)) {
                             CheckBreakdown breakdown = CombatActionExecution.BreakdownAttack(new CombatAction(innerSelf, (Illustration)IllustrationName.Hide, "Hide", new Trait[1]
                             {
                     Trait.Basic
-                            }, "[this condition has no description]", (Target)Target.Self()).WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Stealth), Checks.DefenseDC(Defense.Perception))), creature);
+                            }, "[this condition has no description]", Target.Self()).WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Stealth), Checks.DefenseDC(Defense.Perception))), creature);
                             CheckBreakdownResult breakdownResult = new CheckBreakdownResult(breakdown, roll);
                             string str8 = breakdown.DescribeWithFinalRollTotal(breakdownResult);
                             DefaultInterpolatedStringHandler interpolatedStringHandler;
@@ -1543,9 +1575,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                 interpolatedStringHandler.AppendLiteral(" (");
                                 interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll.ToString() + breakdown.TotalCheckBonus.WithPlus());
                                 interpolatedStringHandler.AppendLiteral("=");
-                                interpolatedStringHandler.AppendFormatted<int>(breakdownResult.D20Roll + breakdown.TotalCheckBonus);
+                                interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll + breakdown.TotalCheckBonus);
                                 interpolatedStringHandler.AppendLiteral(" vs. ");
-                                interpolatedStringHandler.AppendFormatted<int>(breakdown.TotalDC);
+                                interpolatedStringHandler.AppendFormatted(breakdown.TotalDC);
                                 interpolatedStringHandler.AppendLiteral(").");
                                 string stringAndClear = interpolatedStringHandler.ToStringAndClear();
                                 string log = str9 + " successfully hid from " + str10 + stringAndClear;
@@ -1560,9 +1592,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                 interpolatedStringHandler.AppendLiteral(" (");
                                 interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll.ToString() + breakdown.TotalCheckBonus.WithPlus());
                                 interpolatedStringHandler.AppendLiteral("=");
-                                interpolatedStringHandler.AppendFormatted<int>(breakdownResult.D20Roll + breakdown.TotalCheckBonus);
+                                interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll + breakdown.TotalCheckBonus);
                                 interpolatedStringHandler.AppendLiteral(" vs. ");
-                                interpolatedStringHandler.AppendFormatted<int>(breakdown.TotalDC);
+                                interpolatedStringHandler.AppendFormatted(breakdown.TotalDC);
                                 interpolatedStringHandler.AppendLiteral(").");
                                 string stringAndClear = interpolatedStringHandler.ToStringAndClear();
                                 string log = str11 + " failed to hide from " + str12 + stringAndClear;
@@ -1571,7 +1603,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             }
                         }
                     }
-                }));
+                });
             }
 
             // Insert new actions here

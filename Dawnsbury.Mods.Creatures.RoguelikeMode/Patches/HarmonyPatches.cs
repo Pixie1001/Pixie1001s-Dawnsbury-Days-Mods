@@ -23,8 +23,19 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using static Dawnsbury.Core.Mechanics.Rules.RunestoneRules;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Phases.Ingame;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework;
+using Dawnsbury.Display;
+using Dawnsbury.Audio;
+using Dawnsbury.Phases.Popups;
+using System.Reflection;
+using Dawnsbury.Display.Text;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
+{
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     [HarmonyLib.HarmonyPatch]
     public class HarmonyPatches {
@@ -57,6 +68,162 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
 
         //}
 
+        // TODO: Detect deaths and restarts
+        // If 
+
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(BattlePhase), "Draw")]
+        //private static void BattlePhaseDrawPatch(BattlePhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+        //    if (__instance.Battle.CampaignState == null || __instance.Battle.CampaignState.AdventurePath.Id != "RoguelikeMode") {
+        //        return;
+        //    }
+
+        //    if (__instance.Battle.Victory.HasValue && __instance.Battle.Victory.Value == false) {
+        //        if (Int32.TryParse(__instance.Battle.CampaignState.Tags["deaths"], out int deaths)) {
+        //            deaths++;
+        //            __instance.Battle.CampaignState.Tags["deaths"] = $"{deaths}";
+        //        }
+        //    }
+        //}
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(TBattle), "EndTheGame")]
+        private static void BattlePhaseDrawPatch(TBattle __instance, bool victory, string reason) {
+            if (__instance.CampaignState == null || __instance.CampaignState.AdventurePath.Id != "RoguelikeMode") {
+                return;
+            }
+
+            if (!victory) {
+                if (Int32.TryParse(__instance.CampaignState.Tags["deaths"], out int deaths)) {
+                    deaths++;
+                    __instance.CampaignState.Tags["deaths"] = $"{deaths}";
+                }
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(IngameMenuPhase), "Draw")]
+        private static void IngameMenuPhaseDrawPatch(IngameMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            TBattle? battle = (TBattle?)__instance.GetType().GetField("battleInProgress", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).GetValue(__instance);
+            bool fromCampaignScreen = (bool)__instance.GetType().GetField("fromCampaignScreen", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).GetValue(__instance);
+
+            if (battle == null) {
+                return;
+            }
+
+            if (battle.CampaignState == null || battle.CampaignState.AdventurePath.Id != "RoguelikeMode") {
+                return;
+            }
+
+            int num1 = 90;
+            int num2 = 20;
+            int height = 80;
+
+            if (!fromCampaignScreen && battle != null) {
+                //Assembly a = Assembly.Load("Dawnsbury Days");
+                //var test1 = Type.GetType("Dawnsbury.Display.UI, Assembly.Dawnsbury Days");
+                //var test2 = Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days");
+                //var test3 = Type.GetType("Display.UI");
+                //var test4 = Type.GetType("Dawnsbury.Display+UI");
+
+                // Draw over restart button
+                Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
+                    .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
+                        typeof(Rectangle),
+                        typeof(string),
+                        typeof(Action),
+                        typeof(Writer.TextAlignment),
+                        typeof(BitmapFontGroup),
+                        typeof(string),
+                        typeof(Color),
+                    })
+                    .Invoke(null, new object[] { new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 + num1 * 2, __instance.Window.Width - 20, height), "Restart encounter (Recorded))", () => {
+                        Sfxs.Play(SfxName.Button);
+                        Root.PushPhase((GamePhase)new ConfirmationDialogPhase("Restart encounter? The number of times you restarted will be recorded at the end of the run.", "Restart", "No", (Action)(() => {
+                            ImprovedStack<GamePhase> phaseStack3 = Root.PhaseStack;
+                            phaseStack3[phaseStack3.Count - 3].Destruct((Game)Root.Game);
+                            ImprovedStack<GamePhase> phaseStack4 = Root.PhaseStack;
+                            phaseStack4[phaseStack4.Count - 2].Destruct((Game)Root.Game);
+                            Root.PopFromPhase();
+                            Sfxs.Silence();
+                            Root.PushPhase((GamePhase)new BattlePhase(new TBattle(battle.RestartedEncounterGenerator, battle.CampaignState, battle.Heroes)));
+                            if (Int32.TryParse(battle.CampaignState.Tags["restarts"], out int restarts)) {
+                                restarts++;
+                                battle.CampaignState.Tags["restarts"] = $"{restarts}";
+                            }
+                        })));
+                    },
+                    Type.Missing, Type.Missing, Type.Missing, Type.Missing });
+                //Writer.TextAlignment.Middle, null, null, Color.DarkSlateGray });
+
+
+                // Draw over return to menu button
+                Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
+                    .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
+                        typeof(Rectangle),
+                        typeof(string),
+                        typeof(Action),
+                        typeof(Writer.TextAlignment),
+                        typeof(BitmapFontGroup),
+                        typeof(string),
+                        typeof(Color),
+                    }).Invoke(null, new object[] {
+                        new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 * 3 + num1 * 5, __instance.Window.Width - 20, height), "Exit to menu (Recorded)", () => {
+                        Sfxs.Play(SfxName.Button);
+                        if (fromCampaignScreen) {
+                            Sfxs.StopVoice();
+                            Root.PopFromPhase();
+                            ImprovedStack<GamePhase> phaseStack = Root.PhaseStack;
+                            phaseStack[phaseStack.Count - 2].Destruct((Game)Root.Game);
+                        } else
+                            Root.PushPhase(new ConfirmationDialogPhase("Abandon encounter, and return to " + (Root.PhaseStack.Any<GamePhase>(ph => ph is RandomEncounterModePhase) ? "encounter selection" : "campaign") + " screen?", "Yes", "No", () => {
+                                Sfxs.Silence();
+                                if (Int32.TryParse(battle.CampaignState.Tags["restarts"], out int restarts)) {
+                                    restarts++;
+                                    battle.CampaignState.Tags["restarts"] = $"{restarts}";
+                                }
+                                ImprovedStack<GamePhase> phaseStack8 = Root.PhaseStack;
+                                int song;
+                                switch (phaseStack8[phaseStack8.Count - 4]) {
+                                    case CampaignMenuPhase campaignMenuPhase2:
+                                        campaignMenuPhase2.RefreshAfterBattle();
+                                        Sfxs.BeginSong(campaignMenuPhase2.Songname);
+                                        goto label_5;
+                                    case RandomEncounterModePhase _:
+                                        song = 2;
+                                        break;
+                                    default:
+                                        song = 1;
+                                        break;
+                                }
+                                Sfxs.BeginSong((Songname)song);
+                            label_5:
+                                ImprovedStack<GamePhase> phaseStack9 = Root.PhaseStack;
+                                phaseStack9[phaseStack9.Count - 2].Destruct((Game)Root.Game);
+                                ImprovedStack<GamePhase> phaseStack10 = Root.PhaseStack;
+                                phaseStack10[phaseStack10.Count - 3].Destruct((Game)Root.Game);
+                            }));
+                        },
+                        Type.Missing, Type.Missing, Type.Missing, Type.Missing });
+            }
+        }
+
+        //      if (!this.fromCampaignScreen && this.battleInProgress != null)
+        //UI.DrawUIButton(new Rectangle(this.Window.X + 10, this.Window.Y + 10 + num2 + num1* 2, this.Window.Width - 20, height), "Restart encounter", (Action) (() =>
+        //{
+        //  Sfxs.Play(SfxName.Button);
+        //  Root.PushPhase((GamePhase) new ConfirmationDialogPhase("Restart encounter?", "Restart", "No", (Action) (() =>
+        //  {
+        //    ImprovedStack<GamePhase> phaseStack3 = Root.PhaseStack;
+        //    phaseStack3[phaseStack3.Count - 3].Destruct((Game)Root.Game);
+        //    ImprovedStack<GamePhase> phaseStack4 = Root.PhaseStack;
+        //    phaseStack4[phaseStack4.Count - 2].Destruct((Game)Root.Game);
+        //    Root.PopFromPhase();
+        //    Sfxs.Silence();
+        //    Root.PushPhase((GamePhase)new BattlePhase(new TBattle(this.battleInProgress.RestartedEncounterGenerator, this.battleInProgress.CampaignState, this.battleInProgress.Heroes)));
+        //})));
+        //}));
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CampaignState), MethodType.Constructor, new Type[] { typeof(List<CharacterSheet>), typeof(AdventurePath) })]
         private static void CampaignStatePatch(CampaignState __instance, List<CharacterSheet> heroes, AdventurePath adventurePath) {
@@ -80,11 +247,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
                 return true;
             }
 
-            if (equipment != null && equipment.HasTrait(Traits.CannotHavePropertyRune) && runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
+            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be inscribed with property runes.");
                 return false;
             }
-            if (equipment != null && equipment.HasTrait(Traits.LegendaryItem)) {
+            if (equipment != null && equipment.HasTrait(ModTraits.LegendaryItem)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Legendary magic items cannot be inscribed with runes."); ;
                 return false;
             }
@@ -94,7 +261,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CharacterSheet), "CanUse")]
         private static void CanUsePatch(CharacterSheet __instance, ref bool __result, Item? item) {
-            if (item != null && item.HasTrait(Traits.Wand)) {
+            if (item != null && item.HasTrait(ModTraits.Wand)) {
                 __result = false;
                 foreach (Trait trait in __instance.Calculated.SpellTraditionsKnown) {
                     if (item.HasTrait(trait)) {
@@ -133,6 +300,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             if (!campaign.Tags.ContainsKey("seed") || campaign.Tags.ContainsKey("new run")) {
                 campaign.Tags.Clear();
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
+                campaign.Tags.Add("restarts", "0");
+                campaign.Tags.Add("deaths", "0");
             }
 
             if (!Int32.TryParse(campaign.Tags["seed"], out int result)) {
@@ -199,7 +368,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             var t2 = (int)typeof(DawnsburyStop).GetField("dawnsburyStopIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
             var t3 = (int)typeof(DawnsburyStop).GetField("<ShopLevel>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
 
-            path[path.Count - 1] = new CustomLastStop(path[path.Count - 1] as DawnsburyStop, path[path.Count - 1].Index);
+            path[path.Count - 1] = new CustomLastStop(path[path.Count - 1] as DawnsburyStop, path[path.Count - 1].Index, campaign);
 
 
             //path.Remove(path.Last());

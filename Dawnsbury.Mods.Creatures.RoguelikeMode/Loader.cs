@@ -64,8 +64,8 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Tutorial;
 using HarmonyLib;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
@@ -74,6 +74,8 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
 using System.IO.Enumeration;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 {
@@ -82,6 +84,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class Loader {
+        public static string UnderdarkName = "Below";
+
         internal static string Credits { get; } =
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
             "{b}Design, direction and programming: {/b} Pixie1001\n" +
@@ -103,7 +107,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             CreatureList.LoadObjects();
             LTEs.LoadLongTermEffects();
             //LTEs.LoadBoons();
-            ScriptHooks.LoadHooks();
+            //ScriptHooks.LoadHooks();
             SpellLoader.LoadSpells();
             LoadEncounters();
         }

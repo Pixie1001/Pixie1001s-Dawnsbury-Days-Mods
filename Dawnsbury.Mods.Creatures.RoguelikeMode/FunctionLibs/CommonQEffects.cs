@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -64,14 +63,16 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using System.IO;
 using System.Text.Json.Nodes;
 using System.Reflection.Metadata;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class CommonQEffects {
@@ -102,9 +103,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 StateCheck = self => {
                     if (self.Owner.HasEffect(QEffectId.Dying)) {
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
-                        Creature newTarget = party.OrderBy(c => c.HP / 100 * (c.Defenses.GetBaseValue(Defense.AC) * 5)).ToList().FirstOrDefault(c => !c.HasEffect(QEffectId.Dying) && !c.HasEffect(QEffectId.Unconscious));
+                        Creature newTarget = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList().FirstOrDefault(c => !c.HasEffect(QEffectId.Dying) && !c.HasEffect(QEffectId.Unconscious));
                         if (newTarget != null) {
-                            newTarget.AddQEffect(CommonQEffects.Stalked(self.Source));
+                            newTarget.AddQEffect(Stalked(self.Source));
                         }
                         self.ExpiresAt = ExpirationCondition.Immediately;
                     }
@@ -153,7 +154,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
                         Affliction poison = Affliction.CreateGiantSpiderVenom(baseDC + attacker.Level);
                         poison.DC = baseDC + attacker.Level;
-                        
+
                         await Affliction.ExposeToInjury(poison, attacker, target);
                     }
                 },
@@ -180,7 +181,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         //            if (effect.Owner.DistanceTo(d) > 3) {
         //                return null;
         //            }
-                    
+
         //            if (effect.UseReaction()) {
         //                return new ReduceDamageModification(3 + effect.Owner.Level, "Amulet of Abeyance");
         //            }
@@ -237,13 +238,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                             QEffect webbed = new QEffect($"Webbed (DC {baseDC + caster.Level})", "You cannot use any action with the move trait, until you break free of the webs.") {
                                 Id = QEffectId.Immobilized,
                                 Source = caster,
-                                PreventTakingAction = (CombatAction ca) => (!ca.HasTrait(Trait.Move)) ? null : "You're immobilized.",
+                                PreventTakingAction = (ca) => !ca.HasTrait(Trait.Move) ? null : "You're immobilized.",
                                 Illustration = IllustrationName.Web,
                                 Tag = 14 + caster.Level,
                                 ProvideContextualAction = self => {
                                     CombatAction combatAction = new CombatAction(self.Owner, (Illustration)IllustrationName.Escape, "Escape from " + caster?.ToString() + "'s webs.", new Trait[] {
                                         Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({baseDC + caster.Level}) of the webs.",
-                                        (Target)Target.Self((Func<Creature, AI, float>)((_, ai) => ai.EscapeFrom(caster)))) {
+                                        Target.Self((_, ai) => ai.EscapeFrom(caster))) {
                                         ActionId = ActionId.Escape
                                     };
 
@@ -256,11 +257,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                     return (ActionPossibility)combatAction
                                     .WithActiveRollSpecification(activeRollSpecification)
                                     .WithSoundEffect(combatAction.Owner.HasTrait(Trait.Female) ? SfxName.TripFemale : combatAction.Owner.HasTrait(Trait.Male) ? SfxName.TripMale : SfxName.BeastRoar)
-                                    .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, a, d, cr) => {
+                                    .WithEffectOnEachTarget(async (spell, a, d, cr) => {
                                         switch (cr) {
                                             case CheckResult.CriticalFailure:
                                                 a.AddQEffect(new QEffect("Cannot escape", "You can't Escape until your next turn.", ExpirationCondition.ExpiresAtStartOfYourTurn, a) {
-                                                    PreventTakingAction = (Func<CombatAction, string>)(ca => !ca.Name.StartsWith("Escape") ? (string)null : "You already tried to escape and rolled a critical failure.")
+                                                    PreventTakingAction = ca => !ca.Name.StartsWith("Escape") ? null : "You already tried to escape and rolled a critical failure."
                                                 });
                                                 break;
                                             case CheckResult.Success:
@@ -271,7 +272,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                                 int num = await self.Owner.StrideAsync("You escape and you may Stride 5 feet.", maximumFiveFeet: true, allowPass: true) ? 1 : 0;
                                                 break;
                                         }
-                                    }));
+                                    });
                                 }
                             };
                             target.AddQEffect(webbed);
@@ -292,7 +293,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     if (breakdown.CheckResult > CheckResult.Failure) {
                         return false;
                     }
-                    
+
                     if (effect.Owner.Alive == false) {
                         return false;
                     }
@@ -339,8 +340,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                 $"{action.Owner.Name} rerolls their attack and takes the new result: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}.\n\nThey have taken the new higher value.");
-                            breakdown.GetType().GetField("<D20Roll>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).SetValue(breakdown, newValue);
-                            breakdown.GetType().GetField("<FirstD20Roll>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance).SetValue(breakdown, newValue);
+                            breakdown.GetType().GetField("<D20Roll>k__BackingField", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).SetValue(breakdown, newValue);
+                            breakdown.GetType().GetField("<FirstD20Roll>k__BackingField", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).SetValue(breakdown, newValue);
                         } else {
                             action.Owner.Occupies.Overhead("", Color.Black,
                                 $"{action.Owner.Name} rerolls their attack and takes the origional result: {breakdown.D20Roll} > {newValue}",
@@ -405,11 +406,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                                     int num5 = await meleeStrike.AllExecute() ? 1 : 0;
                                 }
                             }
-                            meleeStrike = (CombatAction)null;
-                            meleeStrikeTarget = (CreatureTarget)null;
+                            meleeStrike = null;
+                            meleeStrikeTarget = null;
                         }
                     });
-                    return (DamageModification)new ReduceDamageModification(reduction, "Retributive Strike");
+                    return new ReduceDamageModification(reduction, "Retributive Strike");
                 };
             });
             return effect;
@@ -441,7 +442,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         await caster.HealAsync(DiceFormula.FromText(healAmount.ToString(), "Activate Blood Bond"), spell);
                     })
                     .WithGoodness((targeting, a, d) => {
-                        return 15f + (d.HP / d.MaxHP * 4);
+                        return 15f + d.HP / d.MaxHP * 4;
                     })
                     ;
                 }

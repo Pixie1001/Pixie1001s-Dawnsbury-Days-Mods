@@ -9,15 +9,19 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Tiles;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class CommonEncounterFuncs {
@@ -180,11 +184,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
                 bool addTD = false;
                 // TODO: Why does this cause a crash?
                 foreach (string index in treasureDemonEncounters) {
-                    
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
                         Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).ToList().GetRandom();
-                        battle.SpawnCreature(CreatureList.Creatures[ModEnums.CreatureId.TREASURE_DEMON](battle.Encounter), enemyFaction, freeTile);
+                        Creature td = CreatureList.Creatures[ModEnums.CreatureId.TREASURE_DEMON](battle.Encounter);
+                        if (battle.Encounter.CharacterLevel == 1) td.ApplyWeakAdjustments(false);
+                        else if (battle.Encounter.CharacterLevel == 3) td.ApplyEliteAdjustments();
+                        battle.SpawnCreature(td, enemyFaction, freeTile);
                     }
                 }
             }

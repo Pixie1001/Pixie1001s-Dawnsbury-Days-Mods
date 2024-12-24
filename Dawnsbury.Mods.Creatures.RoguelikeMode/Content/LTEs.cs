@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -29,9 +28,12 @@ using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.ModEnums;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using FMOD;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class LTEs {
@@ -90,73 +92,81 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             //    return new QEffect("test long term effect", text);
             //});
 
-            LongTermEffects.EasyRegister("Test Boon", LongTermEffectDuration.Forever, (string _, int _) => {
+            LongTermEffects.EasyRegister("Test Boon", LongTermEffectDuration.UntilLongRest, (_, _) => {
                 return new QEffect("Test Boon", "Test to see if this shows up on chaacter sheets outside of combat.") {
-                    
+
                 };
             });
 
-            LongTermEffects.EasyRegister("Drow Renegade Companion", LongTermEffectDuration.UntilDowntime, (string _, int _) => {
+            LongTermEffects.EasyRegister("Drow Renegade Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
+                    ExpiresAt = ExpirationCondition.Never,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")),
                     StartOfCombat = async self => {
                         Creature companion = CreatureList.Creatures[CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
                         companion.AddQEffect(new QEffect() {
                             Source = self.Owner,
-                            WhenMonsterDies = qfDeathCheck => self.ExpiresAt = ExpirationCondition.Immediately
+                            WhenMonsterDies = qfDeathCheck => {
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
                         });
-                        //self.Tag = companion;
                     },
-
                 };
             });
 
-            LongTermEffects.EasyRegister("Injured", LongTermEffectDuration.UntilLongRest, (string _, int val) => {
+            LongTermEffects.EasyRegister("Injured", LongTermEffectDuration.UntilLongRest, (_, val) => {
                 return new QEffect("Injured", $"You've sustained an injury that won't quite fully heal until you've had a full night's rest reducing your max HP by {val}0%.") {
                     Value = val,
                     StateCheck = self => {
                         self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.TrueMaximumHP);
-                    }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, val))
                 };
             });
 
-            LongTermEffects.EasyRegister("Guilt", LongTermEffectDuration.UntilLongRest, (string _, int val) => {
+            LongTermEffects.EasyRegister("Guilt", LongTermEffectDuration.UntilLongRest, (_, val) => {
                 return new QEffect("Guilt", $"Your failures weigh heavy on your conscience. You gain a -{val} status penalty to Will saves.") {
                     Value = val,
-                    BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(-val, BonusType.Status, "Guilt") : null
+                    BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(-val, BonusType.Status, "Guilt") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, val))
                 };
             });
 
-            LongTermEffects.EasyRegister("Hope", LongTermEffectDuration.UntilLongRest, (string name, int val) => {
-                return new QEffect("Guilt", $"You're spurred onwards by the changes your good deeds have wrought. You gain a +{val} status penalty to Will saves and attack rolls.") {
+            LongTermEffects.EasyRegister("Hope", LongTermEffectDuration.UntilLongRest, (name, val) => {
+                return new QEffect("Hope", $"You're spurred onwards by the changes your good deeds have wrought. You gain a +{val} status penalty to Will saves and attack rolls.") {
                     Value = val,
                     BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(val, BonusType.Status, "Hope") : null,
-                    BonusToAttackRolls = (self, action, target) => new Bonus(val, BonusType.Status, "Hope")
+                    BonusToAttackRolls = (self, action, target) => new Bonus(val, BonusType.Status, "Hope"),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", name, val))
                 };
             });
 
-            LongTermEffects.EasyRegister("Information Sharing", LongTermEffectDuration.UntilDowntime, (string _, int _) => {
+            LongTermEffects.EasyRegister("Information Sharing", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Information Sharing", "The information about hazards, enemy movements and strongholds shared by the Drow Renegades grants you a +1 bonus to inititive.") {
-                    BonusToInitiative = self => new Bonus(1, BonusType.Untyped, "Information Sharing")
+                    BonusToInitiative = self => new Bonus(1, BonusType.Untyped, "Information Sharing"),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing"))
                 };
             });
 
-            LongTermEffects.EasyRegister("Compromised Route", LongTermEffectDuration.UntilDowntime, (string _, int _) => {
+            LongTermEffects.EasyRegister("Compromised Route", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Compromised Route", "The party's route was leaked by a spy. You suffer a -1 penalty to inititive.") {
-                    BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Compromised Route")
+                    BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Compromised Route"),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route"))
                 };
             });
 
-            LongTermEffects.EasyRegister("Mushroom Symbiote", LongTermEffectDuration.UntilLongRest, (string _, int _) => {
+            LongTermEffects.EasyRegister("Mushroom Symbiote", LongTermEffectDuration.UntilLongRest, (_, _) => {
                 return new QEffect("Mushroom Symbiote", "Your mushroom symbiote renders you immune to poison.") {
                     ImmuneToTrait = Trait.Poison,
                     StateCheck = self => {
                         self.Owner.WeaknessAndResistance.AddImmunity(DamageKind.Poison);
-                    }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote"))
                 };
             });
 
-            LongTermEffects.EasyRegister("Lingering Curse", LongTermEffectDuration.UntilLongRest, (string _, int _) => {
+            LongTermEffects.EasyRegister("Lingering Curse", LongTermEffectDuration.UntilLongRest, (_, _) => {
                 return new QEffect("Lingering Curse", "This creature is afflicted by a lingering curse, imposing Clumsy, Enfeebled and Stupidied 1 upon them.") {
                     Innate = false,
                     Illustration = IllustrationName.BestowCurse,
@@ -164,24 +174,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                         self.Owner.AddQEffect(QEffect.Clumsy(1).WithExpirationEphemeral());
                         self.Owner.AddQEffect(QEffect.Enfeebled(1).WithExpirationEphemeral());
                         self.Owner.AddQEffect(QEffect.Stupefied(1).WithExpirationEphemeral());
-                    }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse"))
                 };
             });
 
-            LongTermEffects.EasyRegister("Mushroom Sickness", LongTermEffectDuration.UntilLongRest, (string _, int value) => {
+            LongTermEffects.EasyRegister("Mushroom Sickness", LongTermEffectDuration.UntilLongRest, (_, value) => {
                 QEffect effect = new QEffect("Mushroom Sickness", $"This creature is afflicted by sickness {value} for the duration of the encounter. Retching cannot be used to remove this sickness.") {
                     Innate = false,
                     Value = value,
                     Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.ChokingMushroom),
-                    BonusToAllChecksAndDCs = (QEffect qf) => new Bonus(-qf.Value, BonusType.Status, "sickened"),
-                    PreventTakingAction = (CombatAction ca) => (ca.ActionId != ActionId.Drink) ? null : "You're sickened.",
-                    EndOfCombat = async (self, victory) => {
-                        if (victory) {
-                            self.ExpiresAt = ExpirationCondition.Immediately;
-                        }
-                    }
+                    BonusToAllChecksAndDCs = (qf) => new Bonus(-qf.Value, BonusType.Status, "sickened"),
+                    PreventTakingAction = (ca) => ca.ActionId != ActionId.Drink ? null : "You're sickened.",
                 };
-                effect.PreventTargetingBy = ca => ca.ActionId != ActionId.Administer || effect.Owner.HasEffect(QEffectId.Unconscious) ? (string)null : "sickened";
+                effect.PreventTargetingBy = ca => ca.ActionId != ActionId.Administer || effect.Owner.HasEffect(QEffectId.Unconscious) ? null : "sickened";
 
                 return effect;
             });

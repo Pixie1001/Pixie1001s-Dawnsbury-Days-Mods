@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -68,8 +67,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dawnsbury.Campaign.Path;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class LootTables {
 
@@ -81,7 +82,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 Party.Add(hero.CharacterSheet.ToCreature(1));
             }
         }
-        
+
         private static List<Item> CreateSpecialItems() {
 
             List<Item> items = new List<Item>();
@@ -111,6 +112,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             List<Item> itemList = Items.ShopItems.Where(item => levelRange(item.Level)).ToList();
 
             List<Item> general = itemList.Where(item => (item.HasTrait(Trait.Potion) || item.HasTrait(Trait.Elixir) || item.HasTrait(Trait.Elixir)) && levelRange(item.Level)).ToList();
+            general = general.Concat(itemList.Where(item => item.HasTrait(Trait.Potion) && item.HasTrait(Trait.Healing) && levelRange(item.Level))).ToList();
 
             if (character.Spellcasting != null) {
                 SpellcastingKind kind = character.Spellcasting.PrimarySpellcastingSource.Kind;
@@ -138,9 +140,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 className = classFeat.Name.ToLower();
             }
 
-            List<Item> itemList = Items.ShopItems.Concat(CreateSpecialItems()).ToList().Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(Traits.Wand)).ToList();
+            List<Item> itemList = Items.ShopItems.Concat(CreateSpecialItems()).ToList().Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
 
-            List<Item> weaponTable = itemList.Where(item => ((item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration)) || item.Name.Contains("handwraps of mighty blows")) && levelRange(item.Level)).ToList();
+            List<Item> weaponTable = itemList.Where(item => (item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || item.Name.Contains("handwraps of mighty blows")) && levelRange(item.Level)).ToList();
             // Add extra basic scaling runes
             if (weaponTable.FirstOrDefault(item => item.ItemName == ItemName.WeaponPotencyRunestone) != null) {
                 weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
@@ -156,7 +158,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                     item.HasTrait(Trait.SpecificMagicWeapon) && !item.Name.Contains("Staff Of") && (item.HasTrait(Trait.Finesse) || item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else if (character.Abilities.Strength > character.Abilities.Dexterity) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    item.HasTrait(Trait.SpecificMagicWeapon) && !item.Name.Contains("Staff Of") && (!item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    item.HasTrait(Trait.SpecificMagicWeapon) && !item.Name.Contains("Staff Of") && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
                     item.HasTrait(Trait.SpecificMagicWeapon) && !item.Name.Contains("Staff Of") && (item.HasTrait(Trait.Simple) || item.HasTrait(Trait.Martial)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
@@ -168,17 +170,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 // Full melee
                 if (character.Abilities.Dexterity > character.Abilities.Strength) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    item.HasTrait(Trait.SpecificMagicWeapon) && !item.HasTrait(Trait.Simple) && (item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    item.HasTrait(Trait.SpecificMagicWeapon) && !item.HasTrait(Trait.Simple) && item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else if (character.Abilities.Strength > character.Abilities.Dexterity) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    item.HasTrait(Trait.SpecificMagicWeapon) && !item.HasTrait(Trait.Simple) && (!item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    item.HasTrait(Trait.SpecificMagicWeapon) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else {
                     weaponTable = weaponTable.Concat(itemList.Where(item => item.HasTrait(Trait.SpecificMagicWeapon) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
             } else if (new string[] { "psychic", "witch", "bard", "sorcerer", "wizard", "cleric", "druid", "oracle" }.Contains(className)) {
                 // Full caster
-                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(Traits.CasterWeapon)).ToList();
-                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(Traits.Wand) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
+                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon)).ToList();
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
             } else if (new string[] { "monk", "shifter", }.Contains(className)) {
                 // unarmed
                 weaponTable = itemList.Where(item => item.Name.Contains("handwraps of mighty blows")).ToList();
@@ -187,16 +189,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
                 if (character.Abilities.Dexterity > character.Abilities.Strength) {
                     weaponTable = weaponTable.Concat(itemList.Where(item => item.HasTrait(Trait.SpecificMagicWeapon) && (item.HasTrait(Trait.Finesse) || item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else if (character.Abilities.Strength > character.Abilities.Dexterity) {
-                    weaponTable = weaponTable.Concat(itemList.Where(item => item.HasTrait(Trait.SpecificMagicWeapon) && (!item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    weaponTable = weaponTable.Concat(itemList.Where(item => item.HasTrait(Trait.SpecificMagicWeapon) && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else {
                     weaponTable = weaponTable.Concat(itemList.Where(item => item.HasTrait(Trait.SpecificMagicWeapon) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
-                weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(Traits.CasterWeapon))).ToList();
-                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(Traits.Wand) && levelRange(item.Level))).ToList();
+                weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon))).ToList();
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && levelRange(item.Level))).ToList();
             } else if (new string[] { "kineticist", }.Contains(className)) {
                 if (character.CarriedItems.Where(i => i.ItemName == ItemName.GateAttenuator).Count() == 0) {
                     weaponTable = itemList.Where(item => item.HasTrait(Trait.Kineticist)).ToList();
-                } else { 
+                } else {
                     weaponTable = new List<Item>() { RollWearable(character, levelRange) };
                 }
                 if (weaponTable.Count == 0) {
@@ -209,8 +211,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         public static Item RollWearable(Creature character, Func<int, bool> levelRange) {
             List<Item> itemList = Items.ShopItems.Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && item.Price >= 10).ToList();
-            List<Item> wearableTable = itemList.Where(item => (item.HasTrait(Trait.Runestone) && item.HasTrait(Trait.Abjuration)) || item.HasTrait(Trait.Worn) && !item.Name.Contains("handwraps of mighty blows") || item.HasTrait(Trait.Armor)).ToList();
-            
+            List<Item> wearableTable = itemList.Where(item => item.HasTrait(Trait.Runestone) && item.HasTrait(Trait.Abjuration) || item.HasTrait(Trait.Worn) && !item.Name.Contains("handwraps of mighty blows") || item.HasTrait(Trait.Armor)).ToList();
+
             return wearableTable[R.Next(0, wearableTable.Count)];
         }
 
