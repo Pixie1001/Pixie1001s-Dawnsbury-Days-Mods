@@ -119,7 +119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Injured", $"You've sustained an injury that won't quite fully heal until you've had a full night's rest reducing your max HP by {val}0%.") {
                     Value = val,
                     StateCheck = self => {
-                        self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.TrueMaximumHP);
+                        self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.MaxHP);
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, val))
                 };

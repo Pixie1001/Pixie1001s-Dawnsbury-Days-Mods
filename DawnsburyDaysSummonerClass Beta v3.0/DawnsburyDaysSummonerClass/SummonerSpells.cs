@@ -252,7 +252,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Source = caster,
                             Illustration = Enums.illLifeLink,
                             StartOfYourTurn = (async (qf, self) => {
-                                self.Heal("4", null);
+                                await self.HealAsync("4", spell);
                             }),
                             ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
                         });

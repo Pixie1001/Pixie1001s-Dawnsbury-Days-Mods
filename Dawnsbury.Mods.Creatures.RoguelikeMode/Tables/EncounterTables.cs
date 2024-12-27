@@ -58,24 +58,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());
-            eliteEncounters[0].Add(new TypedEncounterCampaignStop<WitchCovenLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<AqueductsLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<AntiPartyLv1>());
 
             // level1EliteEncounters
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<HallOfSmokeLv2>());
-            eliteEncounters[1].Add(new TypedEncounterCampaignStop<WitchCovenLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<AqueductsLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<AntiPartyLv2>());
 
             // level1EliteEncounters
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<HallOfSmokeLv3>());
-            eliteEncounters[2].Add(new TypedEncounterCampaignStop<WitchCovenLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<AqueductsLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<AntiPartyLv3>());
 
             // Boss Fights
             bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());
+            bossFights.Add(new TypedEncounterCampaignStop<Boss_WitchCoven>());
         }
     }
 }

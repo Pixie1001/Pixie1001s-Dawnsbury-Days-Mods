@@ -11,14 +11,6 @@ using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
@@ -62,53 +54,18 @@ using Microsoft.Xna.Framework.Audio;
 using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Path;
+using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
-
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
+{
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class ModEnums {
-        internal enum CreatureId {
-            UNSEEN_GUARDIAN,
-            HUNTING_SPIDER,
-            DROW_ASSASSIN,
-            DROW_FIGHTER,
-            DROW_PRIESTESS,
-            DROW_ARCANIST,
-            DROW_SHADOWCASTER,
-            DROW_INQUISITRIX,
-            DROW_TEMPLEGUARD,
-            DROW_SHOOTIST,
-            DROW_SNIPER,
-            DRIDER,
-            WITCH_CRONE,
-            WITCH_MOTHER,
-            WITCH_MAIDEN,
-            RAVENOUS_RAT,
-            TREASURE_DEMON,
-            DROW_RENEGADE,
-            WITCH_CULTIST
-        }
-
-        internal enum ObjectId {
-            CHOKING_MUSHROOM,
-            BOOM_SHROOM,
-            DEEP_HORNETS,
-            SPIDER_QUEEN_SHRINE,
-            RESTLESS_SPIRIT,
-            TEST_PILE,
-        }
-
-        internal enum BoonId {
-            POISON_IMMUNITY,
-        }
-
-        internal enum EncounterType {
-            NORMAL,
-            ELITE,
-            BOSS,
-            EVENT
-        }
+    internal class Boss_WitchCoven : Encounter
+    {
+        public Boss_WitchCoven(string filename) : base("Witch Coven", filename, new List<Item>() { }, 0) { }
     }
 }

@@ -1175,26 +1175,29 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             await eidolon.QEffects[i].StartOfCombat(eidolon.QEffects[i]);
                     }
                 }),
-                StartOfYourTurn = (Func<QEffect, Creature, Task>)(async (qfStartOfTurn, summoner) => {
+                StartOfYourPrimaryTurn = async (qfStartOfTurn, summoner) => {
                     Creature eidolon = GetEidolon(summoner);
 
                     if (eidolon.Destroyed || eidolon.HP <= 0) {
                         return;
                     }
-
-                    await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+                    await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step1_Upkeep", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+                    eidolon.Battle.GameLoop.GetType().GetMethod("Step2_Refresh", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+                    await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step3_StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
 
                     await eidolon.Battle.GameLoop.StateCheck();
 
-                    QEffect? slowed = eidolon.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Slowed);
+                    // Handle slowed
+                    QEffect? eSlowed = eidolon.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Slowed);
+                    QEffect? sSlowed = summoner.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Slowed);
 
-                    if (slowed != null) {
-                        summoner.Actions.ActionsLeft -= slowed.Value;
-                        for (int i = 0; i < slowed.Value; i++) {
+                    if (eSlowed != null && (sSlowed == null || sSlowed.Value < eSlowed.Value)) {
+                        summoner.Actions.ActionsLeft -= eSlowed.Value;
+                        for (int i = 0; i < eSlowed.Value; i++) {
                             eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { i, ActionDisplayStyle.Slowed });
                         }
                     }
-                }),
+                },
                 StateCheckWithVisibleChanges = (async qf => {
                     Creature eidolon = GetEidolon(qf.Owner);
                     if (eidolon == null) {
@@ -1253,12 +1256,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     } else if (qf.Owner.TemporaryHP > eidolon.TemporaryHP) {
                         eidolon.GainTemporaryHP(qf.Owner.TemporaryHP);
                     }
-
-                    // Handle healing
-                    HealthShareSafetyCheck(qf.Owner, eidolon);
                 }),
-                EndOfYourTurn = (Func<QEffect, Creature, Task>)(async (qfEndOfTurn, summoner) => {
+                EndOfYourTurnBeneficialEffect = (Func<QEffect, Creature, Task>)(async (qfEndOfTurn, summoner) => {
                     Creature eidolon = GetEidolon(summoner);
+
+                    // Handle stunned
+                    QEffect? eStunned = eidolon.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Stunned);
+                    QEffect? sStunned = summoner.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Stunned);
+
+                    if (eStunned != null && (sStunned == null || sStunned.Value < eStunned.Value)) {
+                        summoner.AddQEffect(QEffect.Stunned(eStunned.Value));
+                    }
+
                     eidolon.Actions.ForgetAllTurnCounters();
                     summoner.Battle.ActiveCreature = eidolon;
                     List<QEffect> sustainEffects = new List<QEffect>();
@@ -1319,12 +1328,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.TARGET, action.Name);
                 }),
-                EndOfAnyTurn = (Action<QEffect>)(qfHealOrHarm => {
-                    HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                EndOfAnyTurn = self => {
+                    HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
                     if (shareHP != null) {
                         shareHP.Reset();
                     }
-                }),
+                    // Handle healing
+                    if (GetEidolon(self.Owner) != null && GetEidolon(self.Owner).Destroyed == false)
+                        HealthShareSafetyCheck(self.Owner, GetEidolon(self.Owner));
+                },
                 YouAreDealtDamage = async (qfPreHazardDamage, attacker, damageStuff, defender) => {
                     if (GetEidolon(qfPreHazardDamage.Owner) == null || GetEidolon(qfPreHazardDamage.Owner).Destroyed) {
                         return null;
@@ -1667,7 +1679,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             int perception = wisdom + (int)summoner.Proficiencies.Get(Trait.Perception) + level;
             int speed1 = 5;
             Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + (level >= 11 ? expert : trained), constitution + (level >= 11 ? master : expert), dexterity + (level >= 9 ? expert : trained), wisdom + (level >= 15 ? master : expert));
-            int hp = summoner.TrueMaximumHP;
+            int hp = summoner.MaxHP;
             //summoner.Skills.IsTrained
             Trait[] skillTraits = new Trait[] { Trait.Acrobatics, Trait.Arcana, Trait.Athletics, Trait.Crafting, Trait.Deception, Trait.Diplomacy, Trait.Intimidation,
                 Trait.Medicine, Trait.Nature, Trait.Occultism, Trait.Performance, Trait.Religion, Trait.Society, Trait.Stealth, Trait.Survival, Trait.Thievery };
@@ -1779,7 +1791,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         //qf.Owner.Occupies.Overhead("", Color.White, "{b}Log: {/b}" + $"EIDOLON HP: {qf.Owner.HP}");
 
                         // Handle emergency HP correction
-                        HealthShareSafetyCheck(qf.Owner, summoner);
+                        //HealthShareSafetyCheck(qf.Owner, summoner);
                     }),
                     YouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfHealOrHarm, action) => {
                         HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
@@ -1991,7 +2003,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
             } else {
                 // Run regular turn
-                await (Task)partner.Battle.GameLoop.GetType().GetMethod("SubActionPhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+                await (Task)partner.Battle.GameLoop.GetType().GetMethod("Step4_MainPhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
                     .Invoke(partner.Battle.GameLoop, new object[] { partner });
             }
             // Reset partner's actions
@@ -2023,10 +2035,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {
-            if (self.TrueMaximumHP - self.Damage < partner.TrueMaximumHP - partner.Damage) {
-                self.Heal(DiceFormula.FromText($"{(partner.TrueMaximumHP - partner.Damage) - (self.TrueMaximumHP - self.Damage)}", "Eidolon Health Share (failsafe)"), null);
-            } else if (self.TrueMaximumHP - self.Damage > partner.TrueMaximumHP - partner.Damage) {
-                partner.Heal(DiceFormula.FromText($"{(self.TrueMaximumHP - self.Damage) - (partner.TrueMaximumHP - partner.Damage)}", "Eidolon Health Share (failsafe))"), null);
+            if (self.MaxHP - self.Damage < partner.MaxHP - partner.Damage) {
+                self.Heal(DiceFormula.FromText($"{(partner.MaxHP - partner.Damage) - (self.MaxHP - self.Damage)}", "Eidolon Health Share (failsafe)"), null);
+            } else if (self.MaxHP - self.Damage > partner.MaxHP - partner.Damage) {
+                partner.Heal(DiceFormula.FromText($"{(self.MaxHP - self.Damage) - (partner.MaxHP - partner.Damage)}", "Eidolon Health Share (failsafe))"), null);
             }
         }
 

@@ -49,6 +49,8 @@
 	<li>DrowRenegade.png</li>
 	<li>TreasureDemon.png</li>
 	<li>AbyssalHandmaiden.png</li>
+	<li>Restless_Souls.png</li>
+	<li>Devoted_Cultist.png</li>
 </ul>
 
 ## Volunteer Contributions

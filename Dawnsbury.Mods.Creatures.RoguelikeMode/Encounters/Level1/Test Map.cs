@@ -76,28 +76,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
                 // TODO: Check why effect isn't removed
 
                 Creature pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
-                pm.AddQEffect(new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
-                    StartOfCombat = async self => {
-                        Creature companion = CreatureList.Creatures[ModEnums.CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
-                        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
-                        companion.AddQEffect(new QEffect() {
-                            Source = self.Owner,
-                            WhenMonsterDies = qfDeathCheck => {
-                                self.ExpiresAt = ExpirationCondition.Immediately;
-                            }
-                        });
-                        //self.Tag = companion;
-                    },
+                //pm.AddQEffect(new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
+                //    StartOfCombat = async self => {
+                //        Creature companion = CreatureList.Creatures[ModEnums.CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
+                //        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
+                //        companion.AddQEffect(new QEffect() {
+                //            Source = self.Owner,
+                //            WhenMonsterDies = qfDeathCheck => {
+                //                self.ExpiresAt = ExpirationCondition.Immediately;
+                //            }
+                //        });
+                //        //self.Tag = companion;
+                //    },
 
-                });
+                //});
 
-                pm.AddQEffect(QEffect.Drained(2));
-                pm.AddQEffect(new QEffect("Injured", "You've sustained an injury that won't quite fully heal until you've had a full night's rest reducing your max HP by 10% per value.") {
-                    Value = 3,
-                    StateCheck = self => {
-                        self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.TrueMaximumHP);
-                    }
-                });
+                //pm.AddQEffect(QEffect.Drained(2));
+                //pm.AddQEffect(new QEffect("Injured", "You've sustained an injury that won't quite fully heal until you've had a full night's rest reducing your max HP by 10% per value.") {
+                //    Value = 3,
+                //    StateCheck = self => {
+                //        self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.TrueMaximumHP);
+                //    }
+                //});
 
                 //battle.AllCreatures.FirstOrDefault(cr => cr.BaseName == "test summoner").AddQEffect(new QEffect() { BonusToDefenses = (self, action, defence) => defence == Defense.Fortitude ? new Bonus(-5, BonusType.Untyped, "Testing") : null });
                 // Debug

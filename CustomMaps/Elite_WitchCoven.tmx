@@ -3,7 +3,7 @@
  <properties>
   <property name="EncounterDescription" value="Elite mini-boss fight"/>
   <property name="EncounterGroup" value="Roguelike"/>
-  <property name="EncounterLevel" type="int" value="2"/>
+  <property name="EncounterLevel" type="int" value="4"/>
   <property name="EncounterName" value="Witch Coven"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
@@ -56,9 +56,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,108,0,0,0,108,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,108,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

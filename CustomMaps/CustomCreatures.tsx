@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="20" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="22" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -119,6 +119,18 @@
   <properties>
    <property name="Id" value="Treasure Demon"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/DemonPest256.png" width="256" height="256"/>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/TreasureDemon.png" width="256" height="256"/>
+ </tile>
+ <tile id="20">
+  <properties>
+   <property name="Id" value="Devoted Cultist"/>
+  </properties>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Devoted_Cultist.png" width="256" height="256"/>
+ </tile>
+ <tile id="21">
+  <properties>
+   <property name="Id" value="TestPile"/>
+  </properties>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Restless_Souls.png" width="256" height="256"/>
  </tile>
 </tileset>

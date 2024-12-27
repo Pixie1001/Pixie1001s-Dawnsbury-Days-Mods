@@ -426,7 +426,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return new QEffect() {
                 Id = QEffectIds.DrowClergy,
                 ProvideContextualAction = self => {
-                    if (self.Owner.HP > self.Owner.TrueMaximumHP * 0.33) {
+                    if (self.Owner.HP > self.Owner.MaxHP * 0.33) {
                         return null;
                     }
 

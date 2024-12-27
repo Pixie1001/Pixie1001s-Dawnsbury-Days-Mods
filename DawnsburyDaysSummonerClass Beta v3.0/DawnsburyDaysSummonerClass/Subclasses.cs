@@ -932,7 +932,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Possibility output = new ActionPossibility(new CombatAction(effect.Owner, illFrenziedAssault, "Frenzied Assault", new Trait[4] {
                                 tSummoner, Trait.Basic, Trait.AlwaysHits, Trait.IsHostile },
                       "Make two Strikes against the same target, one with each of your melee natural weapon attacks, each using your current multiple attack penalty." +
-                      "\n\nCombine the damage for the purposes of weakness and resistance. This counts as two attacks when calculating your multiple attack penalty.", (Target)Target.Melee())
+                      "\n\nCombine the damage for the purposes of weakness and resistance. This counts as two attacks when calculating your multiple attack penalty.", (Target)Target.Reach(effect.Owner.UnarmedStrike))
                         .WithActionCost(2)
                         .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
                             int map = self.Actions.AttackedThisManyTimesThisTurn;
@@ -1035,7 +1035,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             creature.AddQEffect(new QEffect() {
                                 Id = qfWhimsicalAura,
                                 Tag = false,
-                                StartOfYourTurn = async (effect, self) => {
+                                StartOfYourPrimaryTurn = async (effect, self) => {
                                     effect.Tag = false;
                                     List<Creature> auraHavers = self.Battle.AllCreatures.Where(c => c.OwningFaction == self.OwningFaction && c.QEffects.FirstOrDefault(qf => qf.Name == "Whimsical Aura") != null && c.DistanceTo(self) <= 3).ToList();
                                     if (auraHavers.Count > 0) {
@@ -1047,7 +1047,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             });
                         }
                     },
-                    EndOfYourTurn = async (qf, self) => {
+                    EndOfYourTurnBeneficialEffect = async (qf, self) => {
                         foreach (Creature ally in qf.Owner.Battle.AllCreatures.Where(creature => creature.OwningFaction == eidolon.OwningFaction)) {
                             if (ally.DistanceTo(self) > 3) {
                                 continue;
@@ -1071,7 +1071,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, (eidolon.Level / 2))));
             eidolon.AddQEffect(new QEffect("Hellfire Scourge", "Your eidolon deals +1d4 fire damage to the first frightened creature it strikes each round.") {
                 Tag = false,
-                StartOfYourTurn = async (effect, self) => {
+                StartOfYourPrimaryTurn = async (effect, self) => {
                     effect.Tag = false;
                 },
                 AddExtraKindedDamageOnStrike = (action, target) => {

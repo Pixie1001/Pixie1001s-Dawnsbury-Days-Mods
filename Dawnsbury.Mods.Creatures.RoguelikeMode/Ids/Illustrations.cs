@@ -42,6 +42,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static ModdedIllustration DrowRenegade = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowRenegade.png");
         internal static ModdedIllustration TreasureDemon = new ModdedIllustration("RoguelikeModeAssets/Enemies/TreasureDemon.png");
         internal static ModdedIllustration AbyssalHandmaiden = new ModdedIllustration("RoguelikeModeAssets/Enemies/AbyssalHandmaiden.png");
+        internal static ModdedIllustration UnseenGuardian = new ModdedIllustration("RoguelikeModeAssets/Enemies/UnseenGuardian.png");
+        internal static ModdedIllustration DevotedCultist = new ModdedIllustration("RoguelikeModeAssets/Enemies/DevotedCultist.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");
@@ -62,6 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");
         internal static ModdedIllustration BoomShroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/BoomShroom.png");
         internal static ModdedIllustration SpiderShrine = new ModdedIllustration("RoguelikeModeAssets/Terrain/SpiderShrine.png");
+        internal static ModdedIllustration RestlessSpirit = new ModdedIllustration("RoguelikeModeAssets/Terrain/RestlessSouls.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");
