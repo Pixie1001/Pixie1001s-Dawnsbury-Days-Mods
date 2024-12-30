@@ -4,7 +4,7 @@
   <property name="EncounterDescription" value="Placeholder encounter"/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
-  <property name="EncounterName" value="InquisitrixTrap"/>
+  <property name="EncounterName" value="Inquisitrix Trap"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>

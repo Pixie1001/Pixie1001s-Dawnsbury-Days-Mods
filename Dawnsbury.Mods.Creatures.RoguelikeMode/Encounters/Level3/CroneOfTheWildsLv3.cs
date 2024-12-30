@@ -11,20 +11,9 @@ using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
@@ -46,17 +35,13 @@ using Dawnsbury.Modding;
 using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
 using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
 using System.Runtime.Intrinsics.Arm;
 using System.Xml;
 using Dawnsbury.Core.Mechanics.Damage;
 using System.Runtime.CompilerServices;
 using System.ComponentModel.Design;
 using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics.Metrics;
 using Microsoft.Xna.Framework.Audio;
 using static System.Reflection.Metadata.BlobBuilder;
@@ -69,15 +54,14 @@ using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2 {
-
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
+{
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class HallOfSmokeLv2 : Level2EliteEncounter {
-
-        public HallOfSmokeLv2(string filename) : base("Hall of Smoke", filename, eliteRewards: new List<(Item, string)> {
-            (Items.CreateNew(CustomItems.CloakOfAir), "A gently billowing cloak that might be used to bend and direct the air itself against one's enemies."),
-            (Items.CreateNew(CustomItems.DolmanOfVanishing), "A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it, allowing the wear to hide in even plain sight.")
+    internal class MotherOfThePoolLv3 : Level3EliteEncounter
+    {
+        public MotherOfThePoolLv3(string filename) : base("Mother of the Pool", filename, eliteRewards: new List<(Item, string)> {
+            (Items.CreateNew(CustomItems.ShifterFurs), "A mangy fur cloak, still touched by a linger of Agatha's shapeshifting power."),
+            (Items.CreateNew(CustomItems.HornOfTheHunt), "An bone hunting horn, worn around the neck, hewn in the shape of a snarling wolf, that might be blown to summon forth a pack of hunting wolves.")
         }) { }
-
     }
 }

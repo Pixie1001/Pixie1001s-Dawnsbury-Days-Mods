@@ -770,7 +770,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         };
 
                         Tile startingTile = self.Occupies;
-                        Tile? destTile = await GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Beast's Charge.", illBeastsCharge);
+                        Tile? destTile = await GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Beast's Charge or right-click to cancel", illBeastsCharge);
 
                         if (destTile == null) {
                             action.RevertRequested = true;

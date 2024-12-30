@@ -103,7 +103,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 StateCheck = self => {
                     if (self.Owner.HasEffect(QEffectId.Dying)) {
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
-                        Creature newTarget = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList().FirstOrDefault(c => !c.HasEffect(QEffectId.Dying) && !c.HasEffect(QEffectId.Unconscious));
+                        Creature newTarget = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList().FirstOrDefault(c => c.Alive);
                         if (newTarget != null) {
                             newTarget.AddQEffect(Stalked(self.Source));
                         }

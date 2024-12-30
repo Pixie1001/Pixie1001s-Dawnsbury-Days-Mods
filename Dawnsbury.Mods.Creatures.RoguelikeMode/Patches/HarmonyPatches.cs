@@ -95,7 +95,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
             if (!victory) {
                 if (Int32.TryParse(__instance.CampaignState.Tags["deaths"], out int deaths)) {
-                    deaths++;
+                    ++deaths;
                     __instance.CampaignState.Tags["deaths"] = $"{deaths}";
                 }
             }
@@ -390,10 +390,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 EncounterTables.encounters[level - 1].Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.ELITE) {
                 // TODO: Rework removed to be a seperate count for elite and regular encounters if I add optional mid-run elite fights.
-                stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]))];
-                EncounterTables.eliteEncounters[level - 1].Remove(stop);
+                stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]) - (level - 1))];
+                //EncounterTables.eliteEncounters[level - 1].Remove(stop);
+                if (level == 1) {
+                    EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
+                    EncounterTables.eliteEncounters[level + 1].RemoveAll(en => en.Name == stop.Name);
+                } else if (level == 2) {
+                    EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
+                }
             } else if (encounterType == ModEnums.EncounterType.BOSS) {
-                stop = EncounterTables.bossFights[rng.Next(0, Int32.Parse(campaign.Tags["Bosses"]) - removed)];
+                stop = EncounterTables.bossFights[rng.Next(0, Int32.Parse(campaign.Tags["Bosses"]))];
                 EncounterTables.bossFights.Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.EVENT) {
                 if (level == 1) stop = new TypedEncounterCampaignStop<Level1SkillChallenge>();

@@ -11,14 +11,6 @@ using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
@@ -62,26 +54,21 @@ using Microsoft.Xna.Framework.Audio;
 using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Path;
+using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
+{
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class QEffectIds {
-
-        internal static QEffectId LethargyPoison { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Drow Lethargy Poison");
-        internal static QEffectId Lurking { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Lurking");
-        internal static QEffectId Stalked { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Stalked");
-        internal static QEffectId ExtraTurn { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ExtraTurnMiniBoss");
-        internal static QEffectId DrowClergy { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_DrowClergy");
-        internal static QEffectId BloodBond { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_BloodBond");
-        internal static QEffectId Harvested { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Harvested");
-        internal static QEffectId Hazard { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Hazard");
-        internal static QEffectId MushroomInoculation { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MushroomInoculation");
-        internal static QEffectId ShifterFurs { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ShifterFurs");
-
-        // Tile Effects IDs
-        internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");
+    internal class MotherOfThePoolLv1 : Level1EliteEncounter
+    {
+        public MotherOfThePoolLv1(string filename) : base("Mother of the Pool", filename, eliteRewards: new List<(Item, string)> {
+            (Items.CreateNew(CustomItems.ShifterFurs), "A mangy fur cloak, still touched by a linger of Agatha's shapeshifting power."),
+            (Items.CreateNew(CustomItems.HornOfTheHunt), "An bone hunting horn, worn around the neck, hewn in the shape of a snarling wolf, that might be blown to summon forth a pack of hunting wolves.")
+        }) { }
     }
 }

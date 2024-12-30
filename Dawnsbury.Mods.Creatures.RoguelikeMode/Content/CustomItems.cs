@@ -70,7 +70,8 @@ using System.Buffers.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class CustomItems {
@@ -79,13 +80,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
-                new Trait[] { Trait.Magical, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop })
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop })
             .WithMainTrait(Trait.Whip)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
                 ItemBonus = 1,
             }
             .WithAdditionalDamage("1d6", DamageKind.Mental))
-            .WithDescription("A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence. " +
+            .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
             "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -103,9 +104,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return item;
         });
 
+
+
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
             Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 4, 90, new Trait[] { Trait.Magical, Trait.DoNotAddToShop })
-            .WithDescription("An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.\n\n" +
+            .WithDescription("{i}An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.{/i}\n\n" +
             "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to your level.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -166,7 +169,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune })
             .WithMainTrait(ModTraits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
-            .WithDescription("This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.\n\n" +
+            .WithDescription("{i}This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.{/i}\n\n" +
             "After the wielder expends a spell slot, the Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -218,7 +221,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             })
             .WithMainTrait(Trait.Longsword)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
-            .WithDescription("Smoke constantly belches from this longsword. Any hit with this sword deals 1 extra fire damage." +
+            .WithDescription("{i}Smoke constantly belches from this longsword.{/i}\n\nAny hit with this sword deals 1 extra fire damage.\n\n" +
             "You can use a special action while holding the sword to command the blade's edges to light on fire.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the sword deals 1d6 extra fire damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
             item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Fire));
@@ -230,7 +233,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 new Trait[] { Trait.Magical, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon })
             .WithMainTrait(Trait.Warhammer)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Bludgeoning))
-            .WithDescription("Sparks of crackling electricity arc from this warhammer, and the head thrums with distant thunder. Any hit with this hammer deals 1 extra electricity damage." +
+            .WithDescription("{i}Sparks of crackling electricity arc from this warhammer, and the head thrums with distant thunder.{/i}\n\nAny hit with this hammer deals 1 extra electricity damage.\n\n" +
             "You can use a special action while holding the hammer to transform the sparks into lightning bolts.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the hammer deals 1d6 extra electricity damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
             item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Electricity));
@@ -243,7 +246,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithMainTrait(Trait.Shortbow)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
             .WithRangeIncrement(12))
-            .WithDescription("The yew of this bow is cold to the touch, and its arrows pool with fog as they're nocked. Any hit with this bow deals 1 extra cold damage." +
+            .WithDescription("{i}The yew of this bow is cold to the touch, and its arrows pool with fog as they're nocked.{/i}\n\nAny hit with this bow deals 1 extra cold damage.\n\n" +
             "You can use a special action while holding the bow to coat the bow in fridgid icy scales.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the bow deals 1d6 extra cold damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
             item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Cold));
@@ -256,7 +259,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithMainTrait(Trait.HeavyCrossbow)
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
             .WithRangeIncrement(24))
-            .WithDescription("Sparks of crackling electricity arc from this crossbow. Any hit with this crossbow deals 1 extra electricity damage." +
+            .WithDescription("{i}Sparks of crackling electricity arc from this crossbow.{/i}\n\nAny hit with this crossbow deals 1 extra electricity damage.\n\n" +
             "You can use a special action while holding the crossbow to fire a crackling bolt of lightning in a great arc.\n\n{b}Activate {icon:Action}.{/b} concentrate, manipulate; {b}Effect.{/b} Each creature in a 30-foot line " +
             "suffers 2d6 electricity damage, mitigated by a basic Reflex save. After you use this action, you can't use it again until the end of the encounter.");
             item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Electricity));
@@ -313,7 +316,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune })
             .WithMainTrait(Trait.BattleAxe)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
-            .WithDescription("An obsidian cleaver, erodated down to a brutal jagged edge by acidic spittle. The weapon seems to shifting and throb when in the presence of spiders.\n\n" +
+            .WithDescription("{i}An obsidian cleaver, erodated down to a brutal jagged edge by acidic spittle. The weapon seems to shifting and throb when in the presence of spiders.{/i}\n\n" +
             "The Spider Chopper deals +1d6 damage slashing damage to spiders.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -339,7 +342,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                new Trait[] { Trait.Magical, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune })
             .WithMainTrait(Trait.Dagger)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing))
-            .WithDescription("A wicked looking dagger, with a small hollow at the tip of the blade, from which a steady supply of deadly poison drips.\n\nAttacks made against flat footed creatures using this dagger expose them to spider venom.");
+            .WithDescription("{i}A wicked looking dagger, with a small hollow at the tip of the blade, from which a steady supply of deadly poison drips.{/i}\n\nAttacks made against flat footed creatures using this dagger expose them to spider venom.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 QEffect poison = CommonQEffects.SpiderVenomAttack(weapon.Level + 14, weapon.Name).WithExpirationEphemeral();
@@ -365,7 +368,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                new Trait[] { Trait.Magical, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune })
             .WithMainTrait(Trait.Rapier)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing))
-            .WithDescription("A brilliant sparkling rapier, that causes the light to bend around its blade in strange prismatic patterns." +
+            .WithDescription("{/i}A brilliant sparkling rapier, that causes the light to bend around its blade in strange prismatic patterns.{/i}" +
             "\n\nThe flashing rapier dazzles enemies on a crit, and can be activated {icon:Action} once per day to flash forward in a swirl of light, appearing in a new location 40ft away.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -413,7 +416,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune })
             .WithMainTrait(Trait.Greatsword)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
-            .WithDescription("A sinister greatsword made from cruel black steel and an inhospitable grip dotted by jagged spines. No matter how many times the blade is cleaned, it continues to ooze forth a constant trickle of blood.\n\n" +
+            .WithDescription("{i}A sinister greatsword made from cruel black steel and an inhospitable grip dotted by jagged spines. No matter how many times the blade is cleaned, it continues to ooze forth a constant trickle of blood.{/i}\n\n" +
             "The hungering blade causes its wielder to suffer 1d8 persistent bleed damage at the start of each turn, but deals an additional 1d4 negative damage on a hit. In addition, after felling an enemy with the blade, the wielder gains 5 temporary hit points.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -449,28 +452,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return new Item(itemName, Illustrations.WebWalkerArmour, "webwalker armour", 2, 35,
                 new Trait[] { Trait.Magical, Trait.LightArmor, Trait.Leather, Trait.DoNotAddToShop })
             .WithArmorProperties(new ArmorProperties(2, 3, -1, 0, 12))
-            .WithDescription("Flexible jetblack armour of elven make, sewn from some exotic underdark silk.\n\nThe wearer of this armour may pass through webs unhindered.");
+            .WithDescription("{i}Flexible jetblack armour of elven make, sewn from some exotic underdark silk.{/i}\n\nThe wearer of this armour may pass through webs unhindered.");
         });
 
         public static ItemName DreadPlate { get; } = ModManager.RegisterNewItemIntoTheShop("Dread Plate", itemName => {
             return new Item(itemName, Illustrations.DreadPlate, "dread plate", 3, 80,
                 new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToShop })
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
-            .WithDescription("This cold, black steel suit of plate armour radiates a spiteful presence, feeding off its wearer's own lifeforce to strike at any who would dare mar it.\n\nWhile wearing this cursed armour, you take an additional 1d4 negative damage when damaged by an adjacent creature, but deal 1d6 negative damage in return.");
+            .WithDescription("{i}This cold, black steel suit of plate armour radiates a spiteful presence, feeding off its wearer's own lifeforce to strike at any who would dare mar it.{/i}\n\nWhile wearing this cursed armour, you take an additional 1d4 negative damage when damaged by an adjacent creature, but deal 1d6 negative damage in return.");
         });
 
         public static ItemName DolmanOfVanishing { get; } = ModManager.RegisterNewItemIntoTheShop("Dolman of Vanishing", itemName => {
-            return new Item(itemName, Illustrations.DolmanOfVanishing, "dolman of vanishing", 2, 35,
+            return new Item(itemName, Illustrations.DolmanOfVanishing, "dolman of vanishing", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Armor, Trait.UnarmoredDefense, Trait.Cloth, Trait.DoNotAddToShop })
             .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
-            .WithDescription("A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it.\n\nThe wearer of this cloak gains a +2 item bonus to stealth and can hide in plain sight..");
+            .WithDescription("{i}A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it.{/i}\n\nThe wearer of this cloak gains a +2 item bonus to stealth and can hide in plain sight.");
         });
 
         public static ItemName MaskOfConsumption { get; } = ModManager.RegisterNewItemIntoTheShop("Mask of Consumption", itemName => {
-            return new Item(itemName, Illustrations.MaskOfConsumption, "mask of consumption", 2, 50,
+            return new Item(itemName, Illustrations.MaskOfConsumption, "mask of consumption", 2, 30,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
             .WithWornAt(Trait.Mask)
-            .WithDescription("This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.\n\n" +
+            .WithDescription("{i}This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.{/i}\n\n" +
             "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
             "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wear may consume it to heal for an amount of hit points " +
             "equal to damage dealt.")
@@ -508,11 +511,363 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             });
         });
 
+        public static ItemName SpiritBeaconAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Spirit Beacon Amulet", itemName => {
+            return new Item(itemName, Illustrations.SpiritBeaconAmulet, "spirit beacon amulet", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
+            .WithWornAt(Trait.Necklace)
+            .WithDescription("{i}This skull shaped necklace is cold to the touch.{/i}\n\n" +
+            "You have a +1 item bonus to Occultism.\n\n" +
+            "Once per day, as an {icon:Action}action, you can use the amulet to guide a restless spirit towards an unoccupied space within 30 feet. Restless spirits unnerve adjacent creatures and may be interacted with for additional benefits.")
+            .WithItemAction((item, user) => {
+                return new CombatAction(user, Illustrations.SpiritBeaconAmulet, "Attract Spirits", new Trait[] { Trait.Necromancy, Trait.Magical, Trait.Manipulate },
+                    "{b}Range{/b} 30 feet\n\nCreate a Restless Spirit hazard in the target space. Restless spirits unnerve adjacent creatures and may be interacted with for additional benefits.",
+                    Target.RangedEmptyTileForSummoning(6))
+                .WithActionCost(1)
+                .WithSoundEffect(SfxName.DeepNecromancy)
+                .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
+                .WithEffectOnEachTile(async (action, caster, tiles) => {
+                    caster.Battle.SpawnCreature(CreatureList.Objects[ObjectId.RESTLESS_SPIRIT](caster.Battle.Encounter), caster.Battle.Gaia, tiles[0]);
+                    item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                })
+                ;
+            }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
+            .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Occultism ? new Bonus(1, BonusType.Item, "Spirit Beacon Amulet") : null;
+            });
+        });
+
+        public static ItemName DemonBoundRing { get; } = ModManager.RegisterNewItemIntoTheShop("DemonBoundRing", itemName => {
+            return new Item(itemName, Illustrations.DemonBoundRing, "demon bound ring", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
+            .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
+            "While wearing this ring, the wear gains a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
+            .WithItemAction((item, user) => {
+                return new CombatAction(user, Illustrations.DemonBoundRing, "Unleash Demon", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate },
+                    "{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own.\n\n" +
+                    "At the start of your turn, there's a 25% chance that the demon will go slip from your control, turning against the party." +
+                    "\n\nImmediately when you cast this spell and then once each turn when you Sustain this spell, you can take two actions as " +
+                    "the summoner creature. If you don't Sustain this spell during a turn, the summoner creature will go away." +
+                    "\n\nOnce rogue however, the demon can no longer be banished in this way and will persist even after you fall unconscious.",
+                    Target.RangedEmptyTileForSummoning(6))
+                .WithActionCost(3)
+                .WithSoundEffect(SfxName.DeepNecromancy)
+                .WithEffectOnEachTile(async (action, caster, tiles) => {
+                    Creature demon = MonsterStatBlocks.CreateAbrikandilu();
+                    if (caster.Level <= 2) {
+                        demon.ApplyWeakAdjustments(false, true);
+                    } else if (caster.Level == 3) {
+                        demon.ApplyWeakAdjustments(false);
+                    }
+                    demon.AddQEffect(new QEffect("Bound Demon", $"This demon is bound to {caster.Name}'s will. At the start of its master's turn, there's a 25% chance that it will break free of their control and turn against the party.") {
+                        Id = QEffectId.SummonedBy,
+                        Source = caster
+                    });
+                    demon.EntersInitiativeOrder = false;
+                    demon.Traits.Add(Trait.Minion);
+                    QEffect sustainedeffect = new QEffect {
+                        Id = QEffectId.SummonMonster,
+                        CannotExpireThisTurn = true,
+                        Source = caster,
+                        ExpiresAt = ExpirationCondition.ExpiresAtEndOfSourcesTurn,
+                        CountsAsBeneficialToSource = true,
+                        StartOfYourPrimaryTurn = async (self, creature) => {
+                            int roll = R.NextD20();
+                            if (roll <= 5) {
+                                demon.Traits.Remove(Trait.Minion);
+                                self.WhenExpires = null;
+                                demon.OwningFaction = demon.Battle.Enemy;
+                                demon.EntersInitiativeOrder = true;
+                                demon.RecalculateLandSpeedAndInitiative();
+                                demon.Initiative = DiceFormula.FromText("1d20+" + demon.InitiativeBonus).Roll().Item1;
+                                int index = demon.Battle.InitiativeOrder.FindLastIndex((Creature cr) => cr.Initiative > demon.Initiative) + 1;
+                                if (demon.Battle.GameLoop.InitialInitiativeOrderIsSet) {
+                                    demon.Battle.Log(demon?.ToString() + " rolls for initiative: " + demon.Initiative);
+                                }
+
+                                demon.Battle.InitiativeOrder.Insert(index, demon);
+                                demon.Occupies.Overhead("*breaks free*", Color.DarkRed, $"{caster.Name}'s summoned {demon.Name} breaks free from their control!");
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        },
+                        WhenExpires = delegate {
+                            if (!demon.DeathScheduledForNextStateCheck) {
+                                demon.Occupies.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
+                                demon.DeathScheduledForNextStateCheck = true;
+                            }
+                        },
+                        WhenMonsterDies = delegate (QEffect casterQf) {
+                            if (!demon.DeathScheduledForNextStateCheck) {
+                                demon.Occupies.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
+                                demon.DeathScheduledForNextStateCheck = true;
+                            }
+                            casterQf.Owner.Battle.GameLoop.NewStateCheckRequired = true;
+                        }
+                    };
+                    caster.AddQEffect(sustainedeffect);
+                    caster.AddQEffect(new QEffect("Sustaining " + action.Name, "You're sustaining an effect and it will expire if you don't sustain it every turn.", ExpirationCondition.Never, caster, demon.Illustration) {
+                        Id = QEffectId.Sustaining,
+                        Tag = sustainedeffect,
+                        DoNotShowUpOverhead = true,
+                        ProvideContextualAction = (QEffect qf) => (!sustainedeffect.CannotExpireThisTurn) ? new ActionPossibility(new CombatAction(qf.Owner, action.Illustration, "Sustain " + action.Name, new Trait[3]
+                        {
+                            Trait.Concentrate,
+                            Trait.SustainASpell,
+                            Trait.Basic
+                        }, "The duration of " + action.Name + " continues until the end of your next turn.\n\nThe summoned creature takes its turn when you sustain the spell. You choose what actions it takes.",
+                        Target.Self())
+                        .WithEffectOnSelf(async self => {
+                            sustainedeffect.CannotExpireThisTurn = true;
+                            // await CommonSpellEffects.YourMinionActs(demon);
+                            demon.Actions.ResetToFull();
+                            await CommonSpellEffects.YourMinionActs(demon);
+                            //TBattle battle = demon.Battle;
+                            //Creature oldActiveCreature = battle.ActiveCreature;
+                            //battle.ActiveCreature = demon;
+                            //battle.SmartCenterIfNotVisible?.Invoke(demon.Occupies);
+                            //await demon.Battle.GameLoop.MinionMainPhase(demon);
+                            //battle.ActiveCreature = oldActiveCreature;
+
+                        })).WithPossibilityGroup("Maintain an activity") : null,
+                        StateCheck = delegate (QEffect qf) {
+                            if (sustainedeffect.Owner.Destroyed || !sustainedeffect.Owner.HasEffect(sustainedeffect) || demon.DeathScheduledForNextStateCheck) {
+                                qf.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        }
+                    });
+
+                    caster.Battle.SpawnCreature(demon, caster.OwningFaction, tiles[0]);
+                    item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                    demon.Actions.ResetToFull();
+                    await CommonSpellEffects.YourMinionActs(demon);
+                })
+                ;
+            }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
+            .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Arcana ? new Bonus(1, BonusType.Item, "Demon Bound Ring") : null;
+            });
+        });
+
+        public static ItemName HornOfTheHunt { get; } = ModManager.RegisterNewItemIntoTheShop("Horn of the Hunt", itemName => {
+            return new Item(itemName, Illustrations.HornOfTheHunt, "horn of the hunt", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Conjuration, Trait.DoNotAddToShop })
+            .WithWornAt(Trait.Necklace)
+            .WithDescription("{i}This ancient bone hunting horn is carved into the likeness of a snarling wolf, and seems possessed of some strange primal magic.{/i}\n\n" +
+            "You have a +1 item bonus to Nature.\n\n" +
+            "Once per day, you may blow the horn {icon:ThreeActions} to summon forth a pack of three wolves to attack an enemy of your choice. The wolves ignore all other creatures and return to the horn once their task is complete.")
+            .WithItemAction((item, user) => {
+                return new CombatAction(user, Illustrations.HornOfTheHunt, "Blow Horn", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate, Trait.Primal },
+                    "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy creature\n\n" +
+                    "Summon 3 wolves in any unnocupied spaces within 15 feet of your target. The wolves' level is equal to that of the blower's - 3, and they will persist until their prey has been slain, carrying out their task to the best of their ability and ignoring all other creatures.",
+                    Target.Ranged(6))
+                .WithActionCost(3)
+                .WithSoundEffect(SfxName.BeastRoar)
+                .WithProjectileCone(Illustrations.HornOfTheHunt, 3, ProjectileKind.Cone)
+                .WithEffectOnEachTarget(async (spell, caster, d, r) => {
+                    QEffect mark = new QEffect("Mark of the Hunt", "This creature is being hunted by wolves.", ExpirationCondition.Never, caster, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.HornOfTheHunt));
+                    d.AddQEffect(mark);
+
+                    List<Creature> wolves = new List<Creature>();
+
+                    for (int i = 0; i < 3; ++i) {
+                        await caster.Battle.GameLoop.StateCheck();
+                        List<Option> options = new List<Option>();
+                        CombatAction summon = new CombatAction(caster, Illustrations.HornOfTheHunt, "Summon Hunting Hound", new Trait[] { }, "", Target.RangedEmptyTileForSummoning(100))
+                        .WithEffectOnEachTile(async (_, _, subtiles) => {
+                            Creature wolf = MonsterStatBlocks.CreateWolf();
+                            wolf.AddQEffect(new QEffect("Call of the Hunt", $"This creature is compelled to attack {d.Name} and will vanish after its task is complete.", ExpirationCondition.Never, d, Illustrations.HornOfTheHunt) {
+                                StateCheck = self => {
+                                    if (!self.Source.AliveOrUnconscious || !self.Owner.Alive) {
+                                        self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
+                                    }
+                                },
+                                AdditionalGoodness = (self, action, target) => {
+                                    return target != self.Source ? -1000f : 10f;
+                                }
+                            });
+                            // Scale wolf level
+                            if (caster.Level <= 2) {
+                                wolf.ApplyWeakAdjustments(false, true);
+                            } else if (caster.Level == 3) {
+                                wolf.ApplyWeakAdjustments(false, true);
+                            } else if (caster.Level >= 5) {
+                                wolf.ApplyEliteAdjustments();
+                            }
+                            caster.Battle.SpawnCreature(wolf, caster.Battle.GaiaFriends, subtiles[0]);
+                            wolves.Add(wolf);
+                        });
+
+                        foreach (Tile tile in caster.Battle.Map.AllTiles) {
+                            if (!(tile.IsTrulyGenuinelyFreeToEveryCreature && tile.DistanceTo(d.Occupies) <= 3)) {
+                                continue;
+                            }
+
+                            Option option = Option.ChooseTile(summon.Name, tile, async delegate {
+                                ChosenTargets target = new ChosenTargets();
+                                target.ChosenTile = tile;
+                                target.ChosenTiles.Add(tile);
+                                await caster.Battle.GameLoop.FullCast(summon, target);
+                            }, int.MinValue, true).WithIllustration(summon.Illustration);
+
+                            options.Add(option);
+                        }
+
+                        if (options.Count > 0) {
+                            Option chosenOption;
+                            if (options.Count >= 2) {
+                                options.Add(new CancelOption(true));
+                                chosenOption = (await caster.Battle.SendRequest(new AdvancedRequest(caster, "Choose space to summon a wolf.", options) {
+                                    TopBarText = $"Choose an empty space to Summon a Wolf or right-click to cancel. ({i + 1}/3)",
+                                    TopBarIcon = Illustrations.HornOfTheHunt
+                                })).ChosenOption;
+                            } else
+                                chosenOption = options[0];
+
+                            if (chosenOption is CancelOption) {
+                                d.RemoveAllQEffects(qf => qf == mark);
+                                spell.RevertRequested = true;
+                                return;
+                            }
+                            int num = await chosenOption.Action() ? 1 : 0;
+                        }
+                    }
+
+                    mark.Tag = wolves;
+                    mark.StateCheck = self => {
+                        if (!(self.Tag as List<Creature>).Any(cr => cr.Alive)) {
+                            self.ExpiresAt = ExpirationCondition.Immediately;
+                        }
+                    };
+
+                    item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                })
+                ;
+            }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
+            .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Nature ? new Bonus(1, BonusType.Item, "horn of the hunt") : null;
+            });
+        });
+
+        public static ItemName ShifterFurs { get; } = ModManager.RegisterNewItemIntoTheShop("Shifter Furs", itemName => {
+            return new Item(itemName, Illustrations.ShifterFurs, "shifter furs", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Transmutation, Trait.DoNotAddToShop })
+            .WithWornAt(Trait.Cloak)
+            .WithDescription("{i}This haggard fur cloak is has a musky, feral smell to it and seems to pulsate warmly... as if it were not simply a cloak, but the flesh of a living, breathing thing.{/i}\n\n" +
+            "You have a +2 item bonus to Demoralize check made against animals, and gain the benefits of the Intimidating Glare feat.\n\n" +
+            "Once per day, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn.")
+            .WithItemAction((item, user) => {
+                if (user.FindQEffect(QEffectIds.ShifterFurs) != null) {
+                    return null;
+                }
+
+                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Target{/b} Self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
+                .WithActionCost(0)
+                .WithSoundEffect(SfxName.BeastRoar)
+                .WithEffectOnSelf(caster => {
+                    List<Item> previouslyHeldItems = new List<Item>();
+                    foreach (Item obj in caster.HeldItems.ToList<Item>()) {
+                        if (obj.Grapplee == null) {
+                            previouslyHeldItems.Add(obj);
+                            caster.CarriedItems.Add(obj);
+                            caster.HeldItems.Remove(obj);
+                        }
+                    }
+
+                    QEffect transform = new QEffect() {
+                        ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn,
+                        PreventTakingAction = action => action.HasTrait(Trait.Spell) ? "Cannot cast spells whilst transformed." : null,
+                        BonusToAttackRolls = (self, action, target) => action.HasTrait(Trait.BattleformAttack) ? new Bonus(2, BonusType.Status, "Shifter Furs"): null,
+                        WhenExpires = self => {
+                            foreach (Item obj in caster.HeldItems.ToList<Item>())
+                                caster.DropItem(obj);
+                            foreach (Item obj in previouslyHeldItems) {
+                                if (caster.CarriedItems.Contains(obj)) {
+                                    caster.CarriedItems.Remove(obj);
+                                    caster.HeldItems.Add(obj);
+                                }
+                            }
+                        }
+                    };
+
+                    int roll = R.Next(1, 4);
+                    switch (roll) {
+                        case 1:
+                            transform.Illustration = IllustrationName.AnimalFormBear;
+                            transform.Name = "Bear Form";
+                            transform.Description = $"{user.Name} has assumed the form of a ferocious bear, capable of grappling its prey on a successful jaws attack and with a +2 item bonus to armour.";
+                            transform.StateCheck = self => {
+                                self.Owner.ReplacementIllustration = IllustrationName.AnimalFormBear;
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack).WithAdditionalWeaponProperties(properties => {
+                                    properties.WithOnTarget(async (strike, a, d, result) => {
+                                        if (result >= CheckResult.Success)
+                                            await Possibilities.Grapple(a, d, result);
+                                    });
+                                });
+                            };
+                            transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack);
+                            transform.BonusToDefenses = (self, action, defence) => {
+                                if (defence == Defense.AC) {
+                                    return new Bonus(2, BonusType.Item, "Natural Armour");
+                                }
+                                return null;
+                            };
+                            goto case 10;
+                        case 2:
+                            transform.Illustration = IllustrationName.AnimalFormSnake;
+                            transform.Name = "Serpent Form";
+                            transform.Description = $"{user.Name} has assumed the form of a venomous serpent, capable of poisoning its prey on a successful jaws attack.";
+                            transform.StateCheck = self => {
+                                self.Owner.ReplacementIllustration = IllustrationName.AnimalFormSnake;
+                                self.Owner.AddQEffect(Affliction.CreateInjuryQEffect(Affliction.CreateSnakeVenom("Snake Venom")).WithExpirationEphemeral());
+                                self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
+                                self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, 2 + self.Owner.Level);
+                                self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 2 + self.Owner.Level);
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison).WithAdditionalWeaponProperties(properties => {
+                                    properties.AdditionalDamage.Add(("1d4", DamageKind.Poison));
+                                });
+                                self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
+                            };
+                            transform.SetBaseSpeedTo = 8;
+                            goto case 10;
+                        case 3:
+                            transform.Illustration = IllustrationName.AnimalFormWolf;
+                            transform.Name = "Wolf Form";
+                            transform.StateCheck = self => {
+                                self.Owner.ReplacementIllustration = IllustrationName.AnimalFormWolf;
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed);
+                                if (self.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Sneak Attack") != null) {
+                                    self.Owner.AddQEffect(QEffect.PackAttack(self.Owner.Name, "1d8").WithExpirationEphemeral());
+                                    transform.Description = $"{user.Name} has assumed the form of a cunning wolf, granting them 1d8 pack attack damage.";
+                                } else {
+                                    self.Owner.AddQEffect(QEffect.SneakAttack("1d8").WithExpirationEphemeral());
+                                    transform.Description = $"{user.Name} has assumed the form of a cunning wolf, granting them 1d8 sneak attack damage.";
+                                }
+                            };
+                            goto case 10;
+                        case 10:
+                            transform.Description += " Whilst transformed, they cannot cast spells.";
+                            user.AddQEffect(transform);
+                            break;
+                        default:
+                            break;
+                    }
+
+                    user.AddQEffect(new QEffect() {
+                        Id = QEffectIds.ShifterFurs,
+                    });
+                })
+                ;
+            }, (_, _) => true)
+            .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.BonusToSkillChecks = (skill, action, d) => action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "shifter furs") : null;
+                qfCoA.Id = QEffectId.IntimidatingGlare;
+            });
+        });
+
         public static ItemName CloakOfAir { get; } = ModManager.RegisterNewItemIntoTheShop("Cloak of Air", itemName => {
-            return new Item(itemName, Illustrations.CloakOfAir, "cloak of air", 2, 50,
+            return new Item(itemName, Illustrations.CloakOfAir, "cloak of air", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Evocation, Trait.Elemental, Trait.Air, Trait.DoNotAddToShop })
             .WithWornAt(Trait.Cloak)
-            .WithDescription("This swooshing cloak seem to be perpetually billowing in the wind.\n\nThe wear of this cloak may dramatically swoosh it about, to send a blade of air at their enemies for 1d8 damage, 20ft range. In addition, Kineticists wearing this cloak deal +2 damage with their air impulses.")
+            .WithDescription("This swooshing cloak seems to be perpetually billowing in the wind. While donned, it grants the wear several benefits.\n• The wearer of this cloak may dramatically swoosh it about, to send a blade of air at their enemies for 1d8 damage, 20ft range.\n• When you Leap while wearing this cloak, you increase the distance you can jump horizontally by 5 feet. {i}(This stacks with the Powerful Leap feat, but not other items){/i}\n• Kineticists wearing this cloak deal +2 damage with their air impulses.")
             .WithItemAction((item, user) => {
                 Item weapon = new Item(IllustrationName.AerialBoomerang256, "Slicing Wind", new Trait[] { Trait.Ranged, Trait.Air, Trait.Magical, Trait.Unarmed }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing) {
                     VfxStyle = new VfxStyle(5, ProjectileKind.Cone, IllustrationName.AerialBoomerang256),
@@ -522,12 +877,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 //return (ActionPossibility)new CombatAction(user, IllustrationName.AerialBoomerang256, "Cutting Wind", new Trait[] { Trait.Air, Trait.Evocation, Trait.Ranged, Trait.Magical }, Target.RangedCreature(5));
             }, (_, _) => true)
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.Id = QEffectId.PowerfulLeap2;
                 qfCoA.Innate = true;
                 qfCoA.Name = "Cloak of Air";
                 qfCoA.Description = "+2 damage to Air impulses.";
                 qfCoA.BonusToDamage = (self, action, target) => {
                     if (action != null && action.HasTrait(Trait.Impulse) && action.HasTrait(Trait.Air)) {
-                        return new Bonus(2, BonusType.Item, "Coak of Air");
+                        return new Bonus(2, BonusType.Item, "Cloak of Air");
                     }
                     return null;
                 };
@@ -570,7 +926,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -737,6 +1093,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         spellPossibility.PossibilitySize = PossibilitySize.Full;
                                         if (used != null && used.Tag != (object)true) {
                                             spellPossibility.Illustration = new ScrollIllustration(IllustrationName.Broken, spellPossibility.Illustration);
+                                            spellPossibility.Caption += " (Overcharge)";
                                         }
                                         if ((spellPossibility as SubmenuPossibility) == null) {
                                             CombatAction action = (spellPossibility as ActionPossibility).CombatAction;
@@ -751,6 +1108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                             }
                                         } else {
                                             SubmenuPossibility spellVars = spellPossibility as SubmenuPossibility;
+                                            bool firstLoop = true;
                                             foreach (var varient in spellVars.Subsections[0].Possibilities) {
                                                 CombatAction action;
                                                 if (varient is ChooseActionCostThenActionPossibility) {
@@ -763,10 +1121,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                 action.SpellcastingSource = wandHolder.Spellcasting.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
 
                                                 if (used != null && used.Tag != (object)true) {
-                                                    action.Illustration = new ScrollIllustration(IllustrationName.Broken, action.Illustration);
-                                                    action.Name += " (Overcharge)";
-                                                    action.Description += "\n\n{b}Overcharged.{/b} Overcharging your wand to cast this spell has a 50% chance of permanantly destroying it.";
+                                                    if (firstLoop) {
+                                                        action.Illustration = new ScrollIllustration(IllustrationName.Broken, action.Illustration);
+                                                        action.Name += " (Overcharge)";
+                                                        action.Description += "\n\n{b}Overcharged.{/b} Overcharging your wand to cast this spell has a 50% chance of permanantly destroying it.";
+                                                    }
                                                 }
+                                                firstLoop = false;
                                             }
                                         }
                                         return spellPossibility;

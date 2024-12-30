@@ -141,7 +141,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "\n\n{b}At higher levels:{/b}" +
             "\n{b}Level 2:{/b} Summoner feat" +
             "\n{b}Level 3:{/b} General feat, skill increase, expert perception, level 2 spells {i}(one spell slot){/i}" +
-            "\n{b}Level 4:{/b} Summoner feat, level 2 spells (1 slot, one spell konwn)" +
+            "\n{b}Level 4:{/b} Summoner feat, level 2 spells (1 slot, one spell known)" +
             "\n{b}Level 5:{/b} Ability boosts {i}(for you and your eidolon){/i}, ancestry feat, skill increase, level 3 spells (Two spell slots, but you lose all level 1 spell slots), repick all spells known" +
             "\n{b}Level 6:{/b} Summoner Feat" +
             "\n{b}Level 7:{/b} General feat, skill increase, eidolon weapon specialization {i}(your eidolon deals 2 extra additional damage with unarmed attacks){/i}, level 4 spells (Two spell slots, but you lose all level 2 spell slots), repick all spells known" +
@@ -1181,9 +1181,27 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (eidolon.Destroyed || eidolon.HP <= 0) {
                         return;
                     }
+
                     await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step1_Upkeep", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
                     eidolon.Battle.GameLoop.GetType().GetMethod("Step2_Refresh", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
                     await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step3_StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+
+                    // Share eidolon quickened with summoner
+                    if (eidolon.Actions.QuickenedForActions != null) {
+                        foreach (var rule in (List<Func<CombatAction, bool>>)eidolon.Actions.QuickenedForActions.GetType().GetField("delegates", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).GetValue(eidolon.Actions.QuickenedForActions)) {
+                            if (summoner.Actions.QuickenedForActions == null) {
+                                summoner.Actions.QuickenedForActions = new DisjunctionDelegate<CombatAction>(rule);
+                            } else {
+                                summoner.Actions.QuickenedForActions.Add(rule);
+                            }
+                        }
+                        summoner.Actions.UsedQuickenedAction = eidolon.Actions.UsedQuickenedAction;
+                        summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { 3, eidolon.Actions.FourthActionStyle });
+                    }
+
+                    bool quickened = summoner.Actions.QuickenedForActions != null && !summoner.Actions.UsedQuickenedAction;
+
+                    // delegates
 
                     await eidolon.Battle.GameLoop.StateCheck();
 
@@ -1193,9 +1211,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     if (eSlowed != null && (sSlowed == null || sSlowed.Value < eSlowed.Value)) {
                         summoner.Actions.ActionsLeft -= eSlowed.Value;
-                        for (int i = 0; i < eSlowed.Value; i++) {
-                            eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { i, ActionDisplayStyle.Slowed });
+                        for (int i = 0; i < eSlowed.Value - (quickened ? 1 : 0); i++) {
+                            summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { i, ActionDisplayStyle.Slowed });
                         }
+                        if (quickened) {
+                            summoner.Actions.UsedQuickenedAction = true;
+                            summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { 3, ActionDisplayStyle.Slowed });
+                        }
+                    } else if (quickened && sSlowed != null && (eSlowed == null || eSlowed.Value < sSlowed.Value)) {
+                        summoner.Actions.ActionsLeft += 1;
+                        summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { sSlowed.Value-1, ActionDisplayStyle.Available });
+                        summoner.Actions.UsedQuickenedAction = true;
+                        summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { 3, ActionDisplayStyle.Slowed });
                     }
                 },
                 StateCheckWithVisibleChanges = (async qf => {
@@ -1703,13 +1730,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 .AddQEffect(InvestedWeaponLogic.EidolonInvestedWeaponQEffect())
                 .AddQEffect(new QEffect("Eidolon Bond", "You and your eidolon share your actions and multiple attack penalty. Each round, you can use any of your actions (including reactions and free actions) for yourself or your eidolon. " +
                 "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities.") {
-                    //YouAcquireQEffect = (Func<QEffect, QEffect, QEffect?>)((qfVanishOnDeath, qfNew) => {
-                    //    if (qfNew.Id == QEffectId.Dying || qfNew.Id == QEffectId.Unconscious) {
-                    //        qfVanishOnDeath.Owner.Battle.RemoveCreatureFromGame(qfVanishOnDeath.Owner);
+                    //YouAcquireQEffect = (self, qfNew) => {
+                    //    if (qfNew.Id == QEffectId.Quickened) {
+                    //        summoner.AddQEffect(qfNew);
                     //        return null;
                     //    }
                     //    return qfNew;
-                    //}),
+                    //},
                     PreventTakingAction = action => {
                         if (action.ActionId == ActionId.Delay) {
                             return "Your eidolon cannot take this action.";
@@ -1942,7 +1969,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 2, ActionDisplayStyle.Available });
                 partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 3, ActionDisplayStyle.Invisible });
             } else {
-                partner.Actions.UseUpActions(partner.Actions.ActionsLeft - self.Actions.ActionsLeft, ActionDisplayStyle.UsedUp);
+                partner.Actions.ActionsLeft = self.Actions.ActionsLeft;
+                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 0, self.Actions.FirstActionStyle });
+                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 1, self.Actions.SecondActionStyle });
+                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 2, self.Actions.ThirdActionStyle });
+
+                //partner.Actions.UseUpActions(partner.Actions.ActionsLeft - self.Actions.ActionsLeft, ActionDisplayStyle.UsedUp);
+                partner.Actions.QuickenedForActions = self.Actions.QuickenedForActions;
+                partner.Actions.UsedQuickenedAction = self.Actions.UsedQuickenedAction;
+                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 3, self.Actions.FourthActionStyle });
             }
             if (partner.OwningFaction.IsHumanControlled)
                 Sfxs.Play(SfxName.StartOfTurn, 0.2f);
@@ -2023,6 +2058,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
                 // Update own actions
                 self.Actions.UseUpActions(self.Actions.ActionsLeft - partner.Actions.ActionsLeft, ActionDisplayStyle.UsedUp);
+                self.Actions.UsedQuickenedAction = partner.Actions.UsedQuickenedAction;
+                self.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(self.Actions, new object[] { 3, partner.Actions.FourthActionStyle });
             }
             await partner.Battle.GameLoop.StateCheck();
             partner.Actions.WishesToEndTurn = false;
@@ -2389,7 +2426,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             // Compile destination tiles
             foreach (Tile tile in tiles) {
                 // Check if valid tile
-                if (!tile.IsFree) {
+                if (!tile.LooksFreeTo(self)) {
                     continue;
                 }
 

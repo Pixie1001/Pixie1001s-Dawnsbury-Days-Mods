@@ -73,7 +73,8 @@ using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class CreatureList {
@@ -85,7 +86,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             // CREATURE - Unseen Guardian
             Creatures.Add(ModEnums.CreatureId.UNSEEN_GUARDIAN,
-                encounter => new Creature(Illustrations.UnseenGuardian, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 3, 3, 1, 3, 1), new Skills(stealth: 2))
+                encounter => new Creature(Illustrations.UnseenGuardian, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 4, 3, 1, 3, 1), new Skills(stealth: 2))
                 .WithAIModification(ai => {
                     ai.IsDemonHorizonwalker = true;
                     ai.OverrideDecision = (self, options) => {
@@ -165,7 +166,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(QEffect.SneakAttack("1d8"))
                 .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Fist, "Fists", "2d4", DamageKind.Bludgeoning, new Trait[] { Trait.Unarmed, Trait.Magical, Trait.Finesse, Trait.Melee, Trait.Agile }))
-                .WithAdditionalUnarmedStrike(new Item(IllustrationName.FourWinds, "Slicing Wind", new Trait[] { Trait.Ranged, Trait.Air, Trait.Magical }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing) {
+                .WithAdditionalUnarmedStrike(new Item(IllustrationName.FourWinds, "Slicing Wind", new Trait[] { Trait.Ranged, Trait.Air, Trait.Magical }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing) {
                     VfxStyle = new VfxStyle(5, ProjectileKind.Cone, IllustrationName.FourWinds),
                     Sfx = SfxName.AeroBlade
                 }.WithRangeIncrement(4)))
@@ -183,17 +184,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                         if (creature.HasEffect(QEffectIds.Lurking)) {
                             Creature stalkTarget = creature.Battle.AllCreatures.FirstOrDefault(c => c.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == creature) != null);
-                            foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Sneak)) {
-                                TileOption? option2 = option as TileOption;
-                                if (option2 != null && option2.Tile.DistanceTo(stalkTarget.Occupies) <= 5 && option2.Tile.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
-                                    option2.AiUsefulness.MainActionUsefulness += 10;
-                                }
+                            if (stalkTarget != null) {
+                                AiFuncs.PositionalGoodness(creature, options, (pos, thisCreature, step, otherCreature) => otherCreature == stalkTarget && pos.DistanceTo(stalkTarget.Occupies) <= 5 && pos.DistanceTo(stalkTarget.Occupies) >= 3 && pos.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard, 10);
                             }
-                            foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere)) {
-                                if (creature.Occupies.DistanceTo(stalkTarget.Occupies) <= 5 && creature.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
-                                    option.AiUsefulness.MainActionUsefulness += 15;
-                                }
-                            }
+                            //foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Sneak)) {
+                            //    TileOption? option2 = option as TileOption;
+                            //    if (option2 != null && option2.Tile.DistanceTo(stalkTarget.Occupies) <= 5 && option2.Tile.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
+                            //        option2.AiUsefulness.MainActionUsefulness += 10;
+                            //    }
+                            //}
+                            //foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere)) {
+                            //    if (creature.Occupies.DistanceTo(stalkTarget.Occupies) <= 5 && creature.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
+                            //        option.AiUsefulness.MainActionUsefulness += 15;
+                            //    }
+                            //}
                         }
 
                         return null;
@@ -208,25 +212,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     Id = QEffectId.HideInPlainSight,
                     Innate = true,
                     StartOfCombat = async self => {
-                        List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
-                        Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
+                        List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.PersistentCharacterSheet != null).ToList();
+                        Creature target = party.GetRandom();
+                        //Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
 
-                        // TODO: Set so that lurking ends after taking their bonus turn
                         self.Owner.AddQEffect(new QEffect {
                             Id = QEffectIds.Lurking,
                             PreventTakingAction = action => action.ActionId != ActionId.Sneak ? "Stalking prey, cannot act." : null,
-                            //StateCheck = self => {
-                            //    if (!self.Owner.DetectionStatus.Undetected) {
-                            //        QEffect startled = QEffect.Stunned(2);
-                            //        startled.Illustration = IllustrationName.DazzlingFlash;
-                            //        startled.Name = "Startled";
-                            //        startled.Description = "The assassin is startled by their premature discovery.\nAt the beginning of their next turn, they will lose 2 actions.\n\nThey can't take reactions.";
-                            //        self.Owner.Occupies.Overhead("*startled!*", Color.Black);
-                            //        self.Owner.AddQEffect(startled);
-                            //        Sfxs.Play(SfxName.DazzlingFlash);
-                            //        self.ExpiresAt = ExpirationCondition.Immediately;
-                            //    }
-                            //},
                             BonusToSkillChecks = (skill, action, target) => {
                                 if (skill == Skill.Stealth && action.Name == "Sneak") {
                                     return new Bonus(7, BonusType.Status, "Lurking");
@@ -265,12 +257,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         return false;
                     }
                 })
+                .AddQEffect(new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against the drow assassin.") {
+                    StateCheck = self => {
+                        foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends)) {
+                            int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(enemy) <= 2).Count();
+                            if (closeAllies == 0) {
+                                enemy.AddQEffect(new QEffect() {
+                                    Source = self.Owner,
+                                    ExpiresAt = ExpirationCondition.Ephemeral,
+                                    IsFlatFootedTo = (qfFlatFooted, attacker, action) => attacker == qfFlatFooted.Source ? "prey upon" : null
+                                });
+                            }
+                        }
+                    }
+                })
                 .AddQEffect(new QEffect() {
                     AdditionalGoodness = (self, action, target) => {
                         if (target.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == self.Owner) != null) {
-                            return 10f;
+                            return 20f;
                         }
-                        return 0f;
+                        return -10f;
                     }
                 })
                 .AddQEffect(CommonQEffects.Drow())
@@ -818,7 +824,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     action.WithGoodnessAgainstEnemy((target, attacker, defender) => {
                         //float additionalDamage1 = action.Item?.WeaponProperties?.AdditionalDamageFormula != null ? DiceFormula.FromText(action.Item.WeaponProperties.AdditionalDamageFormula).ExpectedValue : 0;
                         //float additionalDamage2 = action.Item?.WeaponProperties?.AdditionalDamageFormula2 != null ? DiceFormula.FromText(action.Item.WeaponProperties.AdditionalDamageFormula2).ExpectedValue : 0;
-                        return defender.HasTrait(Trait.Undead) ? -100f : 4.5f + action.TrueDamageFormula.ExpectedValue;
+                        float bonusDmg = 0f;
+                        if (action.Item?.WeaponProperties != null) {
+                            foreach (var dmgSource in action.Item.WeaponProperties.AdditionalDamage) {
+                                bonusDmg += DiceFormula.FromText(dmgSource.Item1).ExpectedValue;
+                            }
+                        }
+                        return defender.HasTrait(Trait.Undead) ? -100f : 4.5f + action.TrueDamageFormula.ExpectedValue + bonusDmg;
                     });
 
                     return (ActionPossibility)action;
@@ -1046,7 +1058,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             transform.Description = $"{self.Owner.Name} has assumed the form of a cunning wolf, making her cunningly adept at exploiting her foe's weaknesses.";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = Illustrations.AnimalFormWolf;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack);
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed);
                                 self.Owner.AddQEffect(QEffect.SneakAttack("1d8").WithExpirationEphemeral());
                             };
                             goto case 10;
@@ -1176,7 +1188,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             // CREATURE - Devoted Cultist
             Creatures.Add(ModEnums.CreatureId.WITCH_CULTIST,
-            encounter => new Creature(IllustrationName.Goblin1, "Devoted Cultist", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Humanoid }, 1, 6, 5, new Defenses(15, 7, 4, 10), 26,
+            encounter => new Creature(Illustrations.DevotedCultist, "Devoted Cultist", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Humanoid }, 1, 6, 5, new Defenses(15, 7, 4, 10), 26,
             new Abilities(1, 2, 4, -1, 1, 0), new Skills(acrobatics: 7, athletics: 6))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
@@ -1184,19 +1196,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .AddHeldItem(Items.CreateNew(ItemName.Dagger))
             .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
-                    return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Guidance, "Ritual of Ascension", new Trait[] { Trait.Flourish, Trait.Divine, Trait.Magical }, "", Target.Self())
-                    .WithSoundEffect(SfxName.DeepNecromancy)
+                    return (ActionPossibility)new CombatAction(self.Owner, Illustrations.RitualOfAscension, "Ritual of Ascension", new Trait[] { Trait.Flourish, Trait.Divine, Trait.Magical }, "", Target.Self())
+                    .WithSoundEffect(SfxName.AuraExpansion)
                     .WithActionCost(1)
                     .WithGoodness((t, a, d) => 100f)
-                    .WithProjectileCone(IllustrationName.Guidance, 7, ProjectileKind.Cone)
+                    .WithProjectileCone(Illustrations.RitualOfAscension, 7, ProjectileKind.Cone)
                     .WithEffectOnSelf(async caster => {
                         if (!caster.QEffects.Any(qf => qf.Name == "Ritual of Ascension")) {
-                            caster.AddQEffect(new QEffect("Ritual of Ascension", $"When this condition reaches 3, the {caster.BaseName} will transform, fulfilling their life's purpose.", ExpirationCondition.Never, caster, IllustrationName.Guidance) {
+                            caster.AddQEffect(new QEffect("Ritual of Ascension", $"When this condition reaches 3, the {caster.BaseName} will transform, fulfilling their life's purpose.", ExpirationCondition.Never, caster, Illustrations.RitualOfAscension) {
                                 Value = 1,
                             });
                         } else {
                             int stacks = caster.QEffects.First(qf => qf.Name == "Ritual of Ascension").Value++;
-                            if (stacks >= 3) {
+                            if (stacks >= 2) {
                                 Tile pos = caster.Occupies;
                                 caster.Battle.RemoveCreatureFromGame(caster);
                                 int rand = R.Next(0, 4);
@@ -1224,6 +1236,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 } else if (newForm.Level - caster.Level == 0) {
                                     newForm.ApplyEliteAdjustments(true);
                                 }
+                                Sfxs.Play(SfxName.DeepNecromancy);
                                 caster.Battle.SpawnCreature(newForm, caster.OwningFaction, pos);
                             }
                         }
@@ -1246,7 +1259,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             // HAZARD - Deep Mushroom
             Objects.Add(ObjectId.CHOKING_MUSHROOM,
                 encounter => {
-                    QEffect qfCurrentDC = new QEffect() { Value = 15 };
+                    QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
                     Creature hazard = new Creature(Illustrations.ChokingMushroom, "Choking Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
                     .WithTactics(Tactic.DoNothing)
@@ -1327,7 +1340,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                             await hazard.Battle.GameLoop.StateCheck();
                                                         }),
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Recall Knowledge", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                        "Make a Nature check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this font by 3.", "Reduce all DCs on this font by 2.", null, "You take 1d6 poison damage and increase all DCs on this font by 1."),
+                                                        "Make a Nature check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.", "Reduce all DCs on this hazard by 2.", null, "You take 1d6 poison damage and increase all DCs on this hazard by 1."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Nature), Checks.FlatDC(qfCurrentDC.Value - 2)))
@@ -1480,11 +1493,38 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             ModManager.RegisterNewCreature("Explosive Mushroom", Objects[ObjectId.BOOM_SHROOM]);
 
 
+            // HAZARD - Scaling Ice Elemental Font
+            Objects.Add(ObjectId.ICE_FONT,
+                encounter => {
+                    Creature hazard = MonsterStatBlocks.CreateElementalFont("Ice", IllustrationName.FontOfIce, "Ice Mephit");
+                    hazard.RemoveAllQEffects(qf => qf.Name == "Summoning Font");
+                    hazard.AddQEffect(new QEffect("Summoning Font", "At the beginning of your turn, summon " + ("Ice Mephit").WithIndefiniteArticle() + ". Then you can't summon mephits for 1d4 rounds.") {
+                        StartOfYourPrimaryTurn = async (QEffect qfSelf, Creature self) => {
+                            if (!self.QEffects.Any((QEffect qf) => qf.Id == QEffectId.Recharging)) {
+                                Creature creature = MonsterStatBlocks.CreateIceMephit();
+                                if (self.Level <= 0) {
+                                    creature.ApplyWeakAdjustments(false);
+                                } else if (self.Level >= 3) {
+                                    creature.ApplyEliteAdjustments();
+                                }
+                                self.Battle.SpawnCreature(creature, self.OwningFaction, self.Occupies);
+                                self.AddQEffect(QEffect.Recharging("Summon"));
+                            }
+                        }
+                    });
+                    ;
+
+                    return hazard;
+                }
+            );
+            ModManager.RegisterNewCreature("Scaling Font of Ice", Objects[ObjectId.ICE_FONT]);
+
+
             // HAZARD - Spider Queen Shrine
             Objects.Add(ObjectId.SPIDER_QUEEN_SHRINE,
                 encounter => {
                     int radius = 2;
-                    QEffect qfCurrentDC = new QEffect() { Value = 17 };
+                    QEffect qfCurrentDC = new QEffect() { Value = 15 };
 
                     Creature hazard = new Creature(Illustrations.SpiderShrine, "Spider Queen Shrine", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
                     .WithTactics(Tactic.DoNothing)
@@ -1522,16 +1562,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                             }
                                                         }),
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.SpiderShrine, "Recall Knowledge", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                        "Make a Religion or Crafting check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this font by 3.",
-                                                        "Reduce all DCs on this font by 2.", null, "You take 1d6 evil damage and increase all DCs on this font by 1."),
+                                                        "Make a Religion or Crafting check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.",
+                                                        "Reduce all DCs on this hazard by 2.", null, "You take 1d6 evil damage and increase all DCs on this hazard by 1."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion, Skill.Crafting), Checks.FlatDC(qfCurrentDC.Value - 2)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
-                                                                if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {
-                                                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
-                                                                }
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
                                                                 qfCurrentDC.Value += 1;
                                                             }
                                                             if (result == CheckResult.Success) {
@@ -1601,6 +1639,235 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
             );
             ModManager.RegisterNewCreature("Spider Queen Shrine", Objects[ObjectId.SPIDER_QUEEN_SHRINE]);
+
+
+            // HAZARD - Restless Spirit
+            Objects.Add(ObjectId.RESTLESS_SPIRIT,
+                encounter => {
+                    int radius = 1;
+                    QEffect qfCurrentDC = new QEffect() { Value = 14 };
+
+                    Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()) {
+                        SpawnAsGaia = true
+                    }
+                    .WithTactics(Tactic.DoNothing)
+                    .WithEntersInitiativeOrder(false)
+                    .AddQEffect(qfCurrentDC)
+                    .AddQEffect(QEffect.ObjectImmunities())
+                    //.AddQEffect(CommonQEffects.Hazard())
+                    .WithHardness(1000)
+                    ;
+
+                    var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.BaneCircle, radius);
+                    animation.Color = Color.GhostWhite;
+
+                    QEffect interactable = new QEffect("Interactable", "You can use Diplomacy, Occultism and Religion to interact with this spirit.") {
+                        StateCheckWithVisibleChanges = async self => {
+                            // Add contextual actions
+                            foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer && cr.IsAdjacentTo(self.Owner))) {
+                                hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                    ProvideContextualAction = qfContextActions => {
+                                        return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions") {
+                                            Subsections = {
+                                                new PossibilitySection(hazard.Name) {
+                                                    Possibilities = {
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.Consecrate, "Release Spirits", new Trait[] { Trait.Manipulate, Trait.Basic },
+                                                        "Make a Religion check against DC " + qfCurrentDC.Value + 2 + "." + S.FourDegreesOfSuccess(null, "Release the spirit, destroying the hazard and gaining a +1 status bonus to attack, saving throws and strike damage for the rest of the encounter.",
+                                                        null, "You take 1d6 negative damage."),
+                                                        Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                        .WithActionCost(1)
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value + 2)))
+                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                            if (result == CheckResult.CriticalFailure) {
+                                                                Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
+                                                            }
+                                                            if (result >= CheckResult.Success) {
+                                                                Sfxs.Play(SfxName.HolyWard);
+                                                                caster.AddQEffect(new QEffect("Spirit Boon", "The spirits of the dead aid in gratitude for helping them find peace. You gain a +1 status bonus to all attack, save and strike damage rolls until the end of the encounter.", ExpirationCondition.Never, null, IllustrationName.Consecrate) {
+                                                                    BonusToDefenses = (qf, action, defence) => defence != Defense.AC ? new Bonus(1, BonusType.Status, "Inspired") : null,
+                                                                    BonusToAttackRolls = (_, _, _) => new Bonus(1, BonusType.Status, "Inspired"),
+                                                                    BonusToDamage = (qf, action, target) => action.HasTrait(Trait.Strike) ? new Bonus(1, BonusType.Status, "Inspired") : null,
+                                                                });
+                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                            }
+                                                        }),
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
+                                                        "{b}Range{/b} 20 feet\n{b}Target{/b} 1 living creature\n{b}Saving throw{/b} Will\n\nYou direct the spirit to haunt an enemy, using your Occultism DC." + S.FourDegreesOfSuccess(
+                                                        "You take 1d6 negative damage and become frightened 2.",
+                                                        "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
+                                                        "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),
+                                                        Target.Ranged(4).WithAdditionalConditionOnTargetCreature(new LivingCreatureTargetingRequirement()))
+                                                        .WithSpellInformation((qfContextActions.Owner.Level + 1) / 2, null, null)
+                                                        .WithActionCost(2)
+                                                        .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster.Skills.Get(Skill.Occultism) + 10))
+                                                        .WithSoundEffect(SfxName.MajorNegative)
+                                                        .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
+                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                            if (result == CheckResult.CriticalSuccess) {
+                                                                Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
+                                                                caster.AddQEffect(QEffect.Frightened(2));
+                                                            } else if (result == CheckResult.Success) {
+                                                                target.AddQEffect(QEffect.Frightened(1));
+                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                            } else if (result == CheckResult.Failure) {
+                                                                target.AddQEffect(QEffect.Frightened(2));
+                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                            } else if (result == CheckResult.CriticalFailure) {
+                                                                Faction originalFaction = target.OwningFaction;
+                                                                target.OwningFaction = caster.OwningFaction;
+                                                                target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
+                                                                    CountsAsADebuff = true,
+                                                                    Value = 1,
+                                                                    Id = QEffectId.Slowed,
+                                                                    WhenExpires = qf => {
+                                                                        qf.Owner.OwningFaction = originalFaction;
+                                                                    },
+                                                                    StateCheck = qf => {
+                                                                        if (caster.Alive)
+                                                                            return;
+                                                                        qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                                                                        if (qf.Owner.OwningFaction != caster.OwningFaction)
+                                                                            return;
+                                                                        qf.Owner.OwningFaction = originalFaction;
+                                                                        qf.ExpiresAt = ExpirationCondition.Immediately;
+                                                                    }
+                                                                });
+                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                            }
+                                                        }),
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Soothe Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic },
+                                                        "Make a Diplomacy check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.",
+                                                        "Reduce all DCs on this hazard by 2.", null, "You take 1d6 negative damage and increase all DCs on this hazard by 1."),
+                                                        Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                        .WithActionCost(1)
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(qfCurrentDC.Value - 2)))
+                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                            if (result == CheckResult.CriticalFailure) {
+                                                                Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
+                                                                qfCurrentDC.Value += 1;
+                                                            }
+                                                            if (result == CheckResult.Success) {
+                                                                qfCurrentDC.Value -= 2;
+                                                            }
+                                                            if (result == CheckResult.CriticalSuccess) {
+                                                                qfCurrentDC.Value -= 3;
+                                                            }
+                                                        }),
+                                                    }
+                                                }
+                                            }
+                                        };
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    QEffect aura = new QEffect("Unnerving Presence",
+                        "This spirit died a horrible and tragic death, inflicting unnerving flashbacks of its untimely demise on neary creatures. Creatures within the aura suffer -1 status penalty to all checks and DCs.") {
+                        StartOfCombat = async self => {
+                            foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && cr.EntersInitiativeOrder)) {
+                                Func<AI, List<Option>, Option?> newBehaviour = (ai, options) => {
+                                    Creature monster = ai.Self;
+
+                                    AiFuncs.PositionalGoodness(monster, options, (pos, thisMonster, step, otherCreature) => otherCreature == self.Owner && pos.IsAdjacentTo(otherCreature.Occupies), -2);
+
+                                    //if (monster.Skills.Get(Skill.Occultism) > 6 && options.Max(o => o.AiUsefulness.MainActionUsefulness) < 15 && monster.Actions.ActionsLeft == 3) {
+                                    //    AiFuncs.PositionalGoodness(monster, options, (pos, thisMonster, step, otherCreature) => otherCreature == self.Owner && pos.IsAdjacentTo(otherCreature.Occupies), 3);
+                                    //} else {
+                                        
+                                    //}
+
+                                    return null;
+                                };
+                                if (enemy.AI.OverrideDecision != null) {
+                                    enemy.AI.OverrideDecision = newBehaviour + enemy.AI.OverrideDecision;
+                                } else {
+                                    enemy.AI.OverrideDecision = newBehaviour;
+                                }
+                            }
+                        }
+                    };
+                    interactable.AddGrantingOfTechnical(cr => (cr.OwningFaction.IsEnemy || cr.OwningFaction.IsGaiaFriends) && !cr.HasTrait(Trait.Mindless) && cr.Abilities.Intelligence > -3, qfTechnical => {
+                        qfTechnical.ProvideContextualAction = self => {
+                            if (self.Owner.Skills.Get(Skill.Occultism) <= 6) {
+                                return null;
+                            }
+                            ActionPossibility ap = (ActionPossibility)new CombatAction(self.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
+                            "{b}Range{/b} 20 feet\n{b}Target{/b} 1 living creature\n{b}Saving throw{/b} Will\n\nYou direct the spirit to haunt an enemy, using your Occultism DC." + S.FourDegreesOfSuccess("You take 1d6 negative damage and become frightened 2.",
+                            "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
+                            "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),
+                            Target.Ranged(4).WithAdditionalConditionOnTargetCreature(new LivingCreatureTargetingRequirement()).WithAdditionalConditionOnTargetCreature((a, d) => a.IsAdjacentTo(hazard) ? Usability.Usable : Usability.NotUsable("Must be adjacent to the restless soul to command it.")))
+                            .WithSpellInformation((self.Owner.Level + 1) / 2, null, null)
+                            .WithActionCost(2)
+                            .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster.Skills.Get(Skill.Occultism) + 10))
+                            .WithSoundEffect(SfxName.MajorNegative)
+                            .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
+                            .WithGoodnessAgainstEnemy((t, a, d) => {
+                                return (a.Skills.Get(Skill.Occultism) > 6 && (a.Level + 1) / 2 >= (d.Level + 1) / 2 ? a.Level * 7 : int.MinValue);
+                            })
+                            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                if (result == CheckResult.CriticalSuccess) {
+                                    Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
+                                    caster.AddQEffect(QEffect.Frightened(2));
+                                } else if (result == CheckResult.Success) {
+                                    target.AddQEffect(QEffect.Frightened(1));
+                                    caster.Battle.RemoveCreatureFromGame(interactable.Owner);
+                                } else if (result == CheckResult.Failure) {
+                                    target.AddQEffect(QEffect.Frightened(2));
+                                    caster.Battle.RemoveCreatureFromGame(interactable.Owner);
+                                } else if (result == CheckResult.CriticalFailure) {
+                                    Faction originalFaction = target.OwningFaction;
+                                    target.OwningFaction = caster.OwningFaction;
+                                    target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
+                                        CountsAsADebuff = true,
+                                        Value = 1,
+                                        Id = QEffectId.Slowed,
+                                        WhenExpires = qf => {
+                                            qf.Owner.OwningFaction = originalFaction;
+                                        },
+                                        StateCheck = qf => {
+                                            if (caster.Alive)
+                                                return;
+                                            qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                                            if (qf.Owner.OwningFaction != caster.OwningFaction)
+                                                return;
+                                            qf.Owner.OwningFaction = originalFaction;
+                                            qf.ExpiresAt = ExpirationCondition.Immediately;
+                                        }
+                                    });
+                                    caster.Battle.RemoveCreatureFromGame(interactable.Owner);
+                                }
+                            });
+                            ap.PossibilityGroup = "Global Contextual Actions";
+                            return ap;
+                        };
+                    });
+
+                    aura.AddGrantingOfTechnical(cr => cr.IsLivingCreature && !cr.HasTrait(Trait.Mindless), qfTechnical => {
+                        qfTechnical.StateCheck = self => {
+                            if (self.Owner.DistanceTo(aura.Owner) <= radius) {
+                                self.Owner.AddQEffect(new QEffect("Unnerved", $"You suffer a -1 status penalty to all checks and DCs while within {aura.Owner.Name}'s aura.",
+                                    ExpirationCondition.Ephemeral, aura.Owner, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.RestlessSpirit)) {
+                                    Key = "Ghost Zone Debuff",
+                                    BonusToAllChecksAndDCs = qf => new Bonus(-1, BonusType.Status, "unnerving presence"),
+                                    CountsAsADebuff = true
+                                });
+                            }
+                        };
+                    });
+
+                    hazard.AddQEffect(interactable);
+                    hazard.AddQEffect(aura);
+
+                    return hazard;
+                }
+            );
+            ModManager.RegisterNewCreature("Restless Spirit", Objects[ObjectId.RESTLESS_SPIRIT]);
+
 
             // HAZARD - Test Pile
             Objects.Add(ObjectId.TEST_PILE,

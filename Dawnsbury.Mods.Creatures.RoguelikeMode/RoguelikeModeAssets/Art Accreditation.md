@@ -13,8 +13,22 @@
 	<li>WebWalkerArmour.png (Modified)</li>
 	<li>MaskOfConsumption.png</li>
 	<li>Widowmaker.png</li>
-	<li>DolmanOfVanishing (modified).png</li>
-	<li>BloodBondAmulet (modified).png</li>
+	<li>DolmanOfVanishing.png (modified)</li>
+	<li>BloodBondAmulet.png (modified)</li>
+	<li>DemonBoundRing.png</li>
+</ul>
+
+### YusufArtun
+*Please support YusufArtun [here (Gamedev Market)](https://www.gamedevmarket.net/member/yusufartun).*
+<ul>
+	<li>SpiritBeaconAmulet.png</li>
+	<li>ShifterFurs.png</li>
+</ul>
+
+### Rexard
+*Please support Rexard [here (Gamedev Market)](https://www.gamedevmarket.net/member/rexard).*
+<ul>
+	<li>...</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -51,6 +65,7 @@
 	<li>AbyssalHandmaiden.png</li>
 	<li>Restless_Souls.png</li>
 	<li>Devoted_Cultist.png</li>
+	<li>HornOfTheHunt.png</li>
 </ul>
 
 ## Volunteer Contributions

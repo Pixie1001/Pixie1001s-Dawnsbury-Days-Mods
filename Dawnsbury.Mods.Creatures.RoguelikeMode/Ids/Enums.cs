@@ -97,6 +97,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             DEEP_HORNETS,
             SPIDER_QUEEN_SHRINE,
             RESTLESS_SPIRIT,
+            ICE_FONT,
             TEST_PILE,
         }
 

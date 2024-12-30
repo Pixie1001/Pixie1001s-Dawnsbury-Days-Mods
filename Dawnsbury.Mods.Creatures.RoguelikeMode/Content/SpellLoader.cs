@@ -87,7 +87,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 if (spell.SpellId == SpellId.TrueStrike) {
                     // Gain goodness based on strike possiblities and their goodness?
                     spell.Target = Target.Self((cr, ai) => {
-                        if (cr.Actions.AttackedThisManyTimesThisTurn > 0) {
+                        if (cr.Actions.AttackedThisManyTimesThisTurn > 0 || cr.FindQEffect(QEffectId.TrueStrike) != null) {
                             return int.MinValue;
                         } else if (cr.Actions.ActionsLeft <= 1) {
                             return int.MinValue;

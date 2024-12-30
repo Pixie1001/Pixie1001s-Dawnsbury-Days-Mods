@@ -20,10 +20,12 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class Illustrations {
+    internal static class Illustrations
+    {
         // Enemies
         internal static ModdedIllustration DrowPriestess = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowPriestess.png");
         internal static ModdedIllustration DrowInquisitrix = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowInquisitrix.png");
@@ -59,12 +61,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static ModdedIllustration DolmanOfVanishing = new ModdedIllustration("RoguelikeModeAssets/Items/DolmanOfVanishing.png");
         internal static ModdedIllustration CloakOfAir = new ModdedIllustration("RoguelikeModeAssets/Items/CloakOfAir.png");
         internal static ModdedIllustration BloodBondAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/BloodBondAmulet.png");
+        internal static ModdedIllustration HornOfTheHunt = new ModdedIllustration("RoguelikeModeAssets/Items/HornOfTheHunt.png");
+        internal static ModdedIllustration DemonBoundRing = new ModdedIllustration("RoguelikeModeAssets/Items/DemonBoundRing.png");
+        internal static ModdedIllustration ShifterFurs = new ModdedIllustration("RoguelikeModeAssets/Items/ShifterFurs.png");
+        internal static ModdedIllustration SpiritBeaconAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/SpiritBeaconAmulet.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");
         internal static ModdedIllustration BoomShroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/BoomShroom.png");
         internal static ModdedIllustration SpiderShrine = new ModdedIllustration("RoguelikeModeAssets/Terrain/SpiderShrine.png");
         internal static ModdedIllustration RestlessSpirit = new ModdedIllustration("RoguelikeModeAssets/Terrain/RestlessSouls.png");
+
+        // Icons
+        internal static ModdedIllustration RitualOfAscension = new ModdedIllustration("RoguelikeModeAssets/Icons/RitualOfAscension.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

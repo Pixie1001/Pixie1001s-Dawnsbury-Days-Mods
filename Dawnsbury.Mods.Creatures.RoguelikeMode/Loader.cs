@@ -88,11 +88,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
         internal static string Credits { get; } =
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
-            "{b}Design, direction and programming: {/b} Pixie1001\n" +
+            "{b}Lead design, writing, direction and programming: {/b} Pixie1001\n" +
             "{b}Artists: {/b} Pixie1001\n" +
             "{b}Additional design: {/b} ...\n" +
+            "{b}Additional writers: {/b} ...\n" +
             "{b}Additional programming: {/b} ...\n" +
-            "{b}Playtesting: {/b} ...";
+            "{b}Playtesting: {/b} Petr, Beets";
 
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
 
@@ -126,9 +127,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<SpiderNestLv1>("SpiderNest.tmx", "SpiderNestLv1");
             RegisterEncounter<SpiderNestLv2>("SpiderNest.tmx", "SpiderNestLv2");
             RegisterEncounter<SpiderNestLv3>("SpiderNest.tmx", "SpiderNestLv3");
-            RegisterEncounter<AqueductsLv1>("Aqueducts.tmx", "AqueductsLv1");
-            RegisterEncounter<AqueductsLv2>("Aqueducts.tmx", "AqueductsLv2");
-            RegisterEncounter<AqueductsLv3>("Aqueducts.tmx", "AqueductsLv3");
             RegisterEncounter<TempleOfTheSpiderQueenLv1>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv1");
             RegisterEncounter<TempleOfTheSpiderQueenLv2>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv2");
             RegisterEncounter<TempleOfTheSpiderQueenLv3>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv3");
@@ -138,17 +136,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<FungalForestlv1>("FungalForest.tmx", "FungalForestLv1");
             RegisterEncounter<FungalForestlv2>("FungalForest.tmx", "FungalForestLv2");
             RegisterEncounter<FungalForestlv3>("FungalForest.tmx", "FungalForestLv3");
+            RegisterEncounter<HideAndSeekLv1>("HideAndSeek.tmx", "HideAndSeekLv1");
+            RegisterEncounter<HideAndSeekLv2>("HideAndSeek.tmx", "HideAndSeekLv2");
+            RegisterEncounter<HideAndSeekLv3>("HideAndSeek.tmx", "HideAndSeekLv3");
+            RegisterEncounter<ShadowCasterSanctumLv1>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv1");
+            RegisterEncounter<ShadowCasterSanctumLv2>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv2");
+            RegisterEncounter<ShadowCasterSanctumLv3>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
             RegisterEncounter<HallOfSmokeLv2>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv2");
             RegisterEncounter<HallOfSmokeLv3>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv3");
-            RegisterEncounter<WitchCovenLv1>("Elite_WitchCoven.tmx", "Elite_WitchCovenLv1");
-            RegisterEncounter<WitchCovenLv2>("Elite_WitchCoven.tmx", "Elite_WitchCovenLv2");
-            RegisterEncounter<WitchCovenLv3>("Elite_WitchCoven.tmx", "Elite_WitchCovenLv3");
             RegisterEncounter<AntiPartyLv1>("Antiparty.tmx", "AntipartyLv1");
             RegisterEncounter<AntiPartyLv2>("Antiparty.tmx", "AntipartyLv2");
             RegisterEncounter<AntiPartyLv3>("Antiparty.tmx", "AntipartyLv3");
+            RegisterEncounter<AqueductsLv1>("Aqueducts.tmx", "AqueductsLv1");
+            RegisterEncounter<AqueductsLv2>("Aqueducts.tmx", "AqueductsLv2");
+            RegisterEncounter<AqueductsLv3>("Aqueducts.tmx", "AqueductsLv3");
+            RegisterEncounter<MaidenOfTheLostLv1>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv1");
+            RegisterEncounter<MaidenOfTheLostLv2>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv2");
+            RegisterEncounter<MaidenOfTheLostLv3>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv3");
+            RegisterEncounter<MotherOfThePoolLv1>("Elite_WitchMother.tmx", "MotherOfThePoolLv1");
+            RegisterEncounter<MotherOfThePoolLv2>("Elite_WitchMother.tmx", "MotherOfThePoolLv2");
+            RegisterEncounter<MotherOfThePoolLv3>("Elite_WitchMother.tmx", "MotherOfThePoolLv3");
+            RegisterEncounter<CroneOfTheWildsLv1>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv1");
+            RegisterEncounter<CroneOfTheWildsLv2>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv2");
+            RegisterEncounter<CroneOfTheWildsLv3>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv3");
 
             // Boss fights
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");

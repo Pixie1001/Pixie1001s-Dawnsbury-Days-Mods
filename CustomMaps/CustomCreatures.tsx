@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="22" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="24" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -131,6 +131,18 @@
   <properties>
    <property name="Id" value="TestPile"/>
   </properties>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Grape_Bowl.png" width="256" height="256"/>
+ </tile>
+ <tile id="22">
+  <properties>
+   <property name="Id" value="Restless Spirit"/>
+  </properties>
   <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Restless_Souls.png" width="256" height="256"/>
+ </tile>
+ <tile id="23">
+  <properties>
+   <property name="Id" value="Scaling Font of Ice"/>
+  </properties>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/FontOfIce.png" width="256" height="256"/>
  </tile>
 </tileset>

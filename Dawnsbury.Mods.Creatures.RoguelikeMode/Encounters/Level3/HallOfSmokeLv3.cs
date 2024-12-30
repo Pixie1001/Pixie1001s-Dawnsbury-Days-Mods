@@ -67,6 +67,7 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
 {
@@ -74,7 +75,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class HallOfSmokeLv3 : Level3EliteEncounter
     {
-        public HallOfSmokeLv3(string filename) : base("Hall of Smoke", filename) { }
+        public HallOfSmokeLv3(string filename) : base("Hall of Smoke", filename, eliteRewards: new List<(Item, string)> {
+            (Items.CreateNew(CustomItems.CloakOfAir), "A gently billowing cloak that might be used to bend and direct the air itself against one's enemies."),
+            (Items.CreateNew(CustomItems.DolmanOfVanishing), "A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it, allowing the wear to hide in even plain sight.")
+        }) { }
 
         //public HallOfSmokeLv3(string filename) : base("Hall of Smoke", filename, new List<Item>() { }, 0)
         //{

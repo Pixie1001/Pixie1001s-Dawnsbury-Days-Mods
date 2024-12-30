@@ -67,87 +67,16 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class HallOfSmokeLv1 : Level1EliteEncounter
-    {
+    internal class HallOfSmokeLv1 : Level1EliteEncounter {
 
-        public HallOfSmokeLv1(string filename) : base("Hall of Smoke", filename) { }
-
-        //public HallOfSmokeLv1(string filename) : base("Hall of Smoke", filename)
-        //{
-
-        //    this.CharacterLevel = 1;
-        //    this.RewardGold = CommonEncounterFuncs.GetGoldReward(this.CharacterLevel, ModEnums.EncounterType.ELITE);
-
-        //    // Run setup
-        //    ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle =>
-        //    {
-        //        await CommonEncounterFuncs.StandardEncounterSetup(battle, EncounterType.ELITE);
-
-        //        Faction faction = Faction.CreateEnemy(battle);
-        //        List<Tile> spawnPoints = battle.Encounter.Map.AllTiles.Where(t =>
-        //        {
-        //            if (!t.IsFree)
-        //            {
-        //                return false;
-        //            }
-
-        //            foreach (Creature pc in battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled))
-        //            {
-        //                if (pc.DistanceTo(t) < 4)
-        //                {
-        //                    return false;
-        //                }
-        //            }
-        //            return true;
-        //        }).ToList();
-        //        List<Creature> enemyList = new List<Creature>() {
-        //            CreatureList.Creatures[ModEnums.CreatureId.UNSEEN_GUARDIAN](battle.Encounter),
-        //            CreatureList.Creatures[ModEnums.CreatureId.UNSEEN_GUARDIAN](battle.Encounter),
-        //            CreatureList.Creatures[ModEnums.CreatureId.UNSEEN_GUARDIAN](battle.Encounter)
-        //        };
-        //        foreach (Creature enemy in enemyList)
-        //        {
-        //            Tile spawn = spawnPoints[R.Next(0, spawnPoints.Count)];
-        //            spawnPoints.Remove(spawn);
-        //            battle.SpawnCreature(enemy, faction, spawn.X, spawn.Y);
-        //        }
-
-        //        foreach (Creature enemy in enemyList)
-        //        {
-        //            enemy.DetectionStatus.Undetected = true;
-        //            foreach (Creature opponent in enemy.Battle.AllCreatures.Where(cr => cr.OwningFaction != enemy.OwningFaction)) {
-        //                enemy.DetectionStatus.HiddenTo.Add(opponent);
-        //            }
-
-        //            //CombatAction hide = CreatureList.CommonMonsterActions.CreateHide(enemy);
-        //            //hide.ChosenTargets = new ChosenTargets() { ChosenCreature = enemy };
-        //            //await hide.AllExecute();
-
-        //            //enemy.AddQEffect(new QEffect()
-        //            //{
-        //            //    Id = QEffectId.Slowed,
-        //            //    Value = 2,
-        //            //    PreventTakingAction = action => action.HasTrait(Trait.Move) ? null : "Can only move.",
-        //            //});
-        //            //await enemy.Battle.GameLoop.Turn(enemy, false);
-        //            //enemy.RemoveAllQEffects(qf => qf.Id == QEffectId.Slowed);
-        //        }
-
-        //        // CommonEncounterFuncs.ApplyWeakAdjustments(battle);
-        //    });
-
-        //    // Run cleanup
-        //    this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-        //        await CommonEncounterFuncs.StandardEncounterResolve(battle);
-        //        await CommonEncounterFuncs.PresentEliteRewardChoice(battle);
-        //        await battle.EndTheGame(true, "You defeated all enemies!");
-        //    });
-        //}
-
+        public HallOfSmokeLv1(string filename) : base("Hall of Smoke", filename, eliteRewards: new List<(Item, string)> {
+            (Items.CreateNew(CustomItems.CloakOfAir), "A gently billowing cloak that might be used to bend and direct the air itself against one's enemies."),
+            (Items.CreateNew(CustomItems.DolmanOfVanishing), "A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it, allowing the wear to hide in even plain sight.")
+        }) { }
     }
 }

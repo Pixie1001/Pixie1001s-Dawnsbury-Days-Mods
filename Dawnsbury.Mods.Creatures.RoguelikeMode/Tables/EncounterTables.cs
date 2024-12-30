@@ -37,6 +37,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[0].Add(new TypedEncounterCampaignStop<TempleOfTheSpiderQueenLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<AbandonedTempleLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<FungalForestlv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<HideAndSeekLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<ShadowCasterSanctumLv1>());
 
             // level2Encounters
             encounters[1].Add(new TypedEncounterCampaignStop<DrowAmbushLv2>());
@@ -46,6 +48,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[1].Add(new TypedEncounterCampaignStop<TempleOfTheSpiderQueenLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<AbandonedTempleLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<FungalForestlv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<HideAndSeekLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<ShadowCasterSanctumLv2>());
 
             // level1Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
@@ -55,21 +59,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<TempleOfTheSpiderQueenLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<AbandonedTempleLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<FungalForestlv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<HideAndSeekLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<ShadowCasterSanctumLv3>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<AqueductsLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<AntiPartyLv1>());
+            eliteEncounters[0].Add(new TypedEncounterCampaignStop<MaidenOfTheLostLv1>());
+            eliteEncounters[0].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv1>());
+            eliteEncounters[0].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv1>());
 
-            // level1EliteEncounters
+            // level2EliteEncounters
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<HallOfSmokeLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<AqueductsLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<AntiPartyLv2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<MaidenOfTheLostLv2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv2>());
 
-            // level1EliteEncounters
+            // level3EliteEncounters
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<HallOfSmokeLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<AqueductsLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<AntiPartyLv3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<MaidenOfTheLostLv3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv3>());
 
             // Boss Fights
             bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());

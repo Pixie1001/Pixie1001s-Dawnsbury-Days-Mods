@@ -29,11 +29,11 @@ using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class LTEs {
