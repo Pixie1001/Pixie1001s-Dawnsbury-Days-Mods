@@ -4,7 +4,6 @@ using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
@@ -102,27 +101,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         }
         
         public static void ApplyEliteAdjustments(TBattle battle) {
-            //for (int i = 0; i < battle.AllCreatures.Count; i++) {
-            //    if (!battle.AllCreatures[i].OwningFaction.IsEnemy) {
-            //        continue;
-            //    }
-            //    QEffectId adj = GetAdjustmentRank(battle.AllCreatures[i]);
-            //    if (adj == QEffectId.Weak) {
-            //        RemoveDifficultyAdjustment(battle.AllCreatures[i]);
-            //    } else if (adj == QEffectId.Unspecified) {
-            //        battle.AllCreatures[i].ApplyEliteAdjustments(false);
-            //    } else if (adj == QEffectId.Elite) {
-            //        RemoveDifficultyAdjustment(battle.AllCreatures[i]);
-            //        if (battle.AllCreatures[i].BaseName == "Drow Arcanist") {
-            //            battle.AllCreatures[i] = CreatureList.Creatures[ModEnums.CreatureId.DROW_SHADOWCASTER](battle.Encounter);
-            //        }
-            //        battle.AllCreatures[i].ApplyEliteAdjustments(true);
-            //    }
-
-            //}
-
-            // TODO: Figure out how to dynamically replace high level arcanists with shadowcasters.
-
             foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard))) {
                 QEffectId adj = GetAdjustmentRank(enemy);
                 if (adj == QEffectId.Weak) {
@@ -130,10 +108,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 } else if (adj == QEffectId.Unspecified) {
                     enemy.ApplyEliteAdjustments(false);
                 } else if (adj == QEffectId.Elite) {
+                    if (enemy.BaseName == "Drow Arcanist") {
+                        continue;
+                    }
                     RemoveDifficultyAdjustment(enemy);
                     enemy.ApplyEliteAdjustments(true);
                 }
             }
+            AdjustEvolvableEnemies(battle, false);
         }
 
         public static void ApplyWeakAdjustments(TBattle battle) {
@@ -144,8 +126,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 } else if (adj == QEffectId.Unspecified) {
                     enemy.ApplyWeakAdjustments(false);
                 } else if (adj == QEffectId.Weak) {
+                    if (enemy.BaseName == "Drow Shadowcaster") {
+                        continue;
+                    }
                     RemoveDifficultyAdjustment(enemy);
                     enemy.ApplyWeakAdjustments(false, true);
+                }
+            }
+            AdjustEvolvableEnemies(battle, true);
+        }
+
+        private static void AdjustEvolvableEnemies(TBattle battle, bool levelDrain) {
+            List<Creature> creatures = battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList();
+            for (int i = 0; i < creatures.Count(); i++) {
+                QEffectId adj = GetAdjustmentRank(creatures[i]);
+                if (levelDrain && adj == QEffectId.Weak) {
+                    if (creatures[i].BaseName == "Drow Shadowcaster") {
+                        Tile pos = creatures[i].Occupies;
+                        Faction faction = creatures[i].OwningFaction;
+                        battle.RemoveCreatureFromGame(creatures[i]);
+                        battle.SpawnCreature(CreatureList.Creatures[CreatureId.DROW_ARCANIST](battle.Encounter), faction, pos);
+                    }
+                } else if (!levelDrain && adj == QEffectId.Elite) {
+                    if (creatures[i].BaseName == "Drow Arcanist") {
+                        Tile pos = creatures[i].Occupies;
+                        Faction faction = creatures[i].OwningFaction;
+                        battle.RemoveCreatureFromGame(creatures[i]);
+                        battle.SpawnCreature(CreatureList.Creatures[CreatureId.DROW_SHADOWCASTER](battle.Encounter), faction, pos);
+                    }
                 }
             }
         }

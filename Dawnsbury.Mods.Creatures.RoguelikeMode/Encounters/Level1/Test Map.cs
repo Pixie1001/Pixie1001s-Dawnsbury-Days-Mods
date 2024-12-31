@@ -71,6 +71,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
         {
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
+                CommonEncounterFuncs.ApplyEliteAdjustments(battle);
+
                 Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
 
                 // TODO: Check why effect isn't removed

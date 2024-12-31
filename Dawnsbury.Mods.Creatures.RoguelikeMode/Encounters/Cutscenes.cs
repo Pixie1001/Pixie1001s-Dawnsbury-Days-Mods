@@ -35,7 +35,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             inquisitrix.MainName = "Princess Amethyst";
             inquisitrix.Subtitle = "Royal Torturer and Second Princess of House Vextra";
 
-            Creature mage = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Drow Shadowcaster");
+            Creature mage = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && (cr.BaseName == "Drow Shadowcaster" || cr.BaseName ==  "Drow Arcanist"));
             mage.MainName = "Prince Valdis";
             mage.Subtitle = "Court Mage and First Prince of House Vextra";
 

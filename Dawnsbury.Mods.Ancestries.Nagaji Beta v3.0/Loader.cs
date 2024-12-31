@@ -141,7 +141,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         }
                         return null;
                     },
-                    AdjustSavingThrowResult = (self, action, result) => {
+                    AdjustSavingThrowCheckResult = (self, _, action, result) => {
                         if (action == null) {
                             return result;
                         }

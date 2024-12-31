@@ -580,7 +580,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             self.Name += " (Expended)";
                             return;
                         }
-                        foreach (Creature ally in self.Owner.Battle.AllSpawnedCreatures.Where(cr => cr.OwningFaction.IsHumanControlled)) {
+                        foreach (Creature ally in self.Owner.Battle.AllSpawnedCreatures.Where(cr => cr.OwningFaction.IsPlayer)) {
                             int chance = R.NextD20();
                             if (chance < 13) {
                                 continue;
@@ -741,7 +741,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         }
 
                         Item potion = (Item)self.Tag;
-                        foreach (Creature ally in self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled)) {
+                        foreach (Creature ally in self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsPlayer)) {
                             ally.CarriedItems.Remove(potion);
                             ally.HeldItems.Remove(potion);
                         }
@@ -823,7 +823,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             string desc = "When an enemy within 30ft of you uses an ability with the Auditory trait, you may attempt to counteract it using a diplomacy or performance check.";
                             SpellcastingSource? spellcastingSource = action.SpellcastingSource;
                             int enemyDC = spellcastingSource != null ? spellcastingSource.GetSpellSaveDC() : self.Owner.ClassOrSpellDC();
-                            ActiveRollSpecification activeRollSpecification = new ActiveRollSpecification(Checks.SkillCheck(new Skill[] { Skill.Diplomacy, Skill.Performance }), (CalculatedNumber.CalculatedNumberProducer)((action, attacker, defender) => new CalculatedNumber(enemyDC, "Action DC", new List<Bonus>())));
+                            ActiveRollSpecification activeRollSpecification = new ActiveRollSpecification(Checks.SkillCheck(new Skill[] { Skill.Diplomacy, Skill.Performance }), (CalculatedNumber.CalculatedNumberProducer)((action, attacker, defender) => new CalculatedNumber(enemyDC, "Action DC", new List<Bonus?>())));
                             CheckBreakdown breakdown = CombatActionExecution.BreakdownAttack(new CombatAction(self.Source, (Illustration)IllustrationName.ArcaneCascade, "Counter Tune", new Trait[] { Trait.Abjuration, Trait.Attack }, desc, (Target)Target.Self())
                             .WithActiveRollSpecification(activeRollSpecification), self.Owner);
 
@@ -951,7 +951,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         }
 
                         Item potion = (Item)self.Tag;
-                        foreach (Creature ally in self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled)) {
+                        foreach (Creature ally in self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsPlayer)) {
                             ally.CarriedItems.Remove(potion);
                             ally.HeldItems.Remove(potion);
                         }
@@ -1077,7 +1077,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             int dw_dice = level < 3 ? 1 : level < 11 ? 2 : 3;
             Item dragonwhisky = new Item(iDragonWhisky, BoBAssets.imgs[BoBAssets.ImageId.DRAGON_WHISKY], "Dragon Whisky", level, 0, new Trait[] { Trait.Consumable, Trait.Potion, Trait.Alchemical }) {
                 Description = "A fiery spirit so strong it's said to turn the drinker's breath to flame.\n\n{b}Area{/b} 15-foot cone\n\n{b}Saving Throw{/b} basic Reflex\n\n You deal " + dw_dice + "d6 fire damage to creatures in the area, with a basic Reflex save.",
-                DrinkableEffect = (action, drinker) => {
+                WhenYouDrink = async (action, drinker) => {
                     drinker.AddQEffect(new QEffect("Dragon Whisky", $"Until the end of your turn, you may breath a gout of flame as a free action. The effects of the dragon whisky are then lost.") {
                         Illustration = BoBAssets.imgs[BoBAssets.ImageId.DRAGON_WHISKY],
                         Innate = false,
@@ -1104,7 +1104,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             int bonus = level < 3 ? 0 : level < 6 ? 3 : 6;
             Item rotgut = new Item(iRotgut, BoBAssets.imgs[BoBAssets.ImageId.ROTGUT], "Rotgut", level, 0, new Trait[] { Trait.Consumable, Trait.Potion, Trait.Alchemical, Trait.Drinkable }) {
                 Description = "A powerful dwarven liquor that quickly renders the drinker numbingly drunk.\n\nGain "+ dice + (bonus > 0 ? $"+{bonus}" : "") + " temporary hit points.",
-                DrinkableEffect = (action, drinker) => {
+                WhenYouDrink = async (action, drinker) => {
                     int roll = DiceFormula.FromText(dice).RollResult() + bonus;
                     drinker.GainTemporaryHP(roll);
                 }
@@ -1112,7 +1112,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
 
             int bonus2 = level < 3 ? 1 : level < 11 ? 2 : 3;
             Item berserkersBrew = new Item(iBerserkersBrew, BoBAssets.imgs[BoBAssets.ImageId.BERSERKERS_BREW], "Berserker's Brew", level, 0, new Trait[] { Trait.Consumable, Trait.Potion, Trait.Alchemical, Trait.Drinkable }) {
-                DrinkableEffect = (action, drinker) => {
+                WhenYouDrink = async (action, drinker) => {
                     drinker.AddQEffect(new QEffect("Berserker's Brew", $"Gain a +{bonus2} item bonus to attack rolls and saves against fear effects.") {
                         Innate = false,
                         Illustration = BoBAssets.imgs[BoBAssets.ImageId.BERSERKERS_BREW],

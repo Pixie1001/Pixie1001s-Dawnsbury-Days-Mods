@@ -57,9 +57,9 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class MotherOfThePoolLv2 : Level2EliteEncounter
+    internal class CroneOfTheWildsLv2 : Level2EliteEncounter
     {
-        public MotherOfThePoolLv2(string filename) : base("Mother of the Pool", filename, eliteRewards: new List<(Item, string)> {
+        public CroneOfTheWildsLv2(string filename) : base("Mother of the Pool", filename, eliteRewards: new List<(Item, string)> {
             (Items.CreateNew(CustomItems.ShifterFurs), "A mangy fur cloak, still touched by a linger of Agatha's shapeshifting power."),
             (Items.CreateNew(CustomItems.HornOfTheHunt), "An bone hunting horn, worn around the neck, hewn in the shape of a snarling wolf, that might be blown to summon forth a pack of hunting wolves.")
         }) { }

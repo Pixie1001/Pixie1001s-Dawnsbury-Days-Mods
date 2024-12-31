@@ -559,7 +559,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .AddHeldItem(Items.CreateNew(CustomItems.ScourgeOfFangs))
             .WithSpellProficiencyBasedOnSpellAttack(11, Ability.Wisdom)
             .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Cleric, Ability.Wisdom, Trait.Divine).WithSpells(
-                new SpellId[] { SpellId.Bane, SpellId.Fear, SpellId.Fear, SpellId.Fear, SpellId.ChillTouch },
+                new SpellId[] { SpellId.Bane, SpellId.Fear, SpellId.Fear, SpellId.Fear, SpellId.RayOfFrost },
                 new SpellId[] { SpellId.Harm, SpellId.Harm, SpellId.Harm }).Done()
             );
             ModManager.RegisterNewCreature("Drow Priestess", Creatures[ModEnums.CreatureId.DROW_PRIESTESS]);
@@ -672,7 +672,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 }
             })
             .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Wizard, Ability.Intelligence, Trait.Arcane).WithSpells(
-                new SpellId[] { SpellId.MagicMissile, SpellId.MagicMissile, SpellId.GrimTendrils, SpellId.ChillTouch, SpellId.ProduceFlame, SpellId.Shield }).Done()
+                new SpellId[] { SpellId.MagicMissile, SpellId.MagicMissile, SpellId.GrimTendrils, SpellId.RayOfFrost, SpellId.ProduceFlame, SpellId.Shield }).Done()
             );
             ModManager.RegisterNewCreature("Drow Arcanist", Creatures[ModEnums.CreatureId.DROW_ARCANIST]);
 
@@ -716,7 +716,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 }
             })
             .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Wizard, Ability.Intelligence, Trait.Arcane).WithSpells(
-            new SpellId[] { SpellId.MagicMissile, SpellId.MagicMissile, SpellId.GrimTendrils, SpellId.Fear, SpellId.ChillTouch, SpellId.ProduceFlame, SpellId.Shield },
+            new SpellId[] { SpellId.MagicMissile, SpellId.MagicMissile, SpellId.GrimTendrils, SpellId.Fear, SpellId.RayOfFrost, SpellId.ProduceFlame, SpellId.Shield },
             new SpellId[] { SpellId.AcidArrow, SpellId.AcidArrow, SpellId.HideousLaughter }).Done()
             );
             ModManager.RegisterNewCreature("Drow Shadowcaster", Creatures[ModEnums.CreatureId.DROW_SHADOWCASTER]);
