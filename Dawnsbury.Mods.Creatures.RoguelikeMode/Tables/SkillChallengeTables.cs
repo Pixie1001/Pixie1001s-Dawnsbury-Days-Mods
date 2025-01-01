@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             chosenEvents.Clear();
 
             events.Add(new SkillChallenge("Cursed Relic", async (level, battle) => {
-                Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom(), lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, lvl + 1)));
+                Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom(), lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
                 await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.");
                 await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.");
                 await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {cursedItem.Name.CapitalizeEachWord()}, bereft of dust and seemingly abandoned by those it was bequeathed upon...");

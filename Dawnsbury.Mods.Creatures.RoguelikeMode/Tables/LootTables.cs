@@ -93,13 +93,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             items.Add(Items.CreateNew(CustomItems.ChillwindBow).WithModificationPlusOne());
             items.Add(Items.CreateNew(CustomItems.SpiderChopper).WithModificationPlusOne());
             items.Add(Items.CreateNew(CustomItems.Sparkcaster).WithModificationPlusOne());
+            items.Add(Items.CreateNew(CustomItems.FlashingRapier).WithModificationPlusOne());
+            items.Add(Items.CreateNew(CustomItems.Widowmaker).WithModificationPlusOne());
+            items.Add(Items.CreateNew(CustomItems.HungeringBlade).WithModificationPlusOne());
             items.Add(Items.CreateNew(CustomItems.SmokingSword).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.StormHammer).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.HungeringBlade).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.ChillwindBow).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.SpiderChopper).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.Sparkcaster).WithModificationPlusOneStriking());
-            items.Add(Items.CreateNew(CustomItems.ScourgeOfFangs));
+            items.Add(Items.CreateNew(CustomItems.FlashingRapier).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.Widowmaker).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.HungeringBlade).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.MaskOfConsumption));
             items.Add(Items.CreateNew(CustomItems.WebwalkerArmour));
             items.Add(Items.CreateNew(CustomItems.DreadPlate));
 

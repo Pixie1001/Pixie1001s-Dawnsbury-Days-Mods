@@ -40,6 +40,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
     [HarmonyLib.HarmonyPatch]
     public class HarmonyPatches {
 
+        // TODO: Create a patch for Shop.cs -> CreateAdventurersDawnForTrueShopping that will check if the town is a custom type, and then replace the shop keeper portrait, and possibly add unique items to the store like wands and anti-drow rings
+
         // internal static void GenerateTemplatesAndFactoriesFor(ItemName[] itemNames)
 
         //[HarmonyPostfix]

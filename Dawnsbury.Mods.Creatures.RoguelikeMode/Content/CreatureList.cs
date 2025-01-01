@@ -133,7 +133,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             self.Owner.DetectionStatus.HiddenTo.Add(player);
                         }
                         self.Owner.DetectionStatus.Undetected = true;
-                        target.AddQEffect(CommonQEffects.Stalked(self.Owner));
 
                         self.Owner.AddQEffect(new QEffect() {
                             Id = QEffectId.Slowed,
@@ -157,6 +156,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         if (action.ActionId == ActionId.Seek && result >= CheckResult.Success && !self.Owner.DetectionStatus.EnemiesYouAreHiddenFrom.Contains(action.Owner)) {
                             self.Owner.DetectionStatus.HiddenTo.Clear();
                             self.Owner.DetectionStatus.RecalculateIsHiddenToAnEnemy();
+                        }
+                    }
+                })
+                .AddQEffect(new QEffect() {
+                    Innate = false,
+                    StateCheck = self => {
+                        if (self.Owner.Battle.RoundNumber == 4) {
+                            Creature creature = self.Owner;
+                            creature.RemoveAllQEffects(qf => qf.Name == "Obliviating Aura" || qf.Name == "Seek Vulnerability");
+                            creature.DetectionStatus.HiddenTo.Clear();
+                            creature.DetectionStatus.Undetected = false;
+                            creature.DetectionStatus.RecalculateIsHiddenToAnEnemy();
+                            Sfxs.Play(SfxName.BeastRoar);
+                            creature.AnimationData.ColorBlink(Color.Red);
+                            creature.AI.IsDemonHorizonwalker = false;
+                            creature.AI.OverrideDecision = null;
+
+                            creature.AddQEffect(new QEffect("Enraged",
+                                "The Unseen Guardian's powers of concealment have began to wane after prolonged scruniny, driving them to instead brutalise its enemies to maintain the secret of its existence.",
+                                ExpirationCondition.Never,
+                                creature, IllustrationName.Rage) {
+                                BonusToAttackRolls = (qfAtk, action, _) => action.HasTrait(Trait.Strike) ? new Bonus(2, BonusType.Status, "Enraged", true) : null,
+                                BonusToDefenses = (qfDef, action, defence) => defence == Defense.AC ? new Bonus(2, BonusType.Status, "Enraged", true) : null,
+                                BonusToDamage = (qfDmg, action, _) => action.HasTrait(Trait.Strike) ? new Bonus(2, BonusType.Status, "Enraged", true) : null
+                            });
+                            self.ExpiresAt = ExpirationCondition.Immediately;
                         }
                     }
                 })
@@ -187,18 +212,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             if (stalkTarget != null) {
                                 AiFuncs.PositionalGoodness(creature, options, (pos, thisCreature, step, otherCreature) => otherCreature == stalkTarget && pos.DistanceTo(stalkTarget.Occupies) <= 5 && pos.DistanceTo(stalkTarget.Occupies) >= 3 && pos.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard, 10);
                             }
-                            //foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Sneak)) {
-                            //    TileOption? option2 = option as TileOption;
-                            //    if (option2 != null && option2.Tile.DistanceTo(stalkTarget.Occupies) <= 5 && option2.Tile.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
-                            //        option2.AiUsefulness.MainActionUsefulness += 10;
-                            //    }
-                            //}
-                            //foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere)) {
-                            //    if (creature.Occupies.DistanceTo(stalkTarget.Occupies) <= 5 && creature.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
-                            //        option.AiUsefulness.MainActionUsefulness += 15;
-                            //    }
-                            //}
                         }
+
+                        //if (options.MaxBy(opt => opt.AiUsefulness.MainActionUsefulness).AiUsefulness.MainActionUsefulness <= 1) {
+                        //    Creature stalkTarget = creature.Battle.AllCreatures.FirstOrDefault(c => c.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == creature) != null);
+                        //    foreach (Option option in options.Where(opt => opt.OptionKind == OptionKind.MoveHere)) {
+                        //        TileOption option2 = (TileOption)option;
+                        //        option.AiUsefulness.MainActionUsefulness += 100;
+                        //        option.AiUsefulness.MainActionUsefulness -= option2.Tile.DistanceTo(stalkTarget.Occupies);
+                        //    }
+                        //}
 
                         return null;
                     };
@@ -216,7 +239,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         Creature target = party.GetRandom();
                         //Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
 
-                        self.Owner.AddQEffect(new QEffect {
+                        self.Owner.AddQEffect(new QEffect() {
                             Id = QEffectIds.Lurking,
                             PreventTakingAction = action => action.ActionId != ActionId.Sneak ? "Stalking prey, cannot act." : null,
                             BonusToSkillChecks = (skill, action, target) => {
@@ -239,7 +262,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             Value = 1
                         });
                         await self.Owner.Battle.GameLoop.Turn(self.Owner, false);
-                        self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectId.Slowed);
+                        self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectId.Slowed || qf.Id == QEffectIds.Lurking);
                     }
 
                 })
@@ -276,7 +299,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         if (target.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == self.Owner) != null) {
                             return 20f;
                         }
-                        return -10f;
+                        //return -10f;
+                        return 0f;
                     }
                 })
                 .AddQEffect(CommonQEffects.Drow())
@@ -723,128 +747,138 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
 
             // CREATURE - Drow Inquisitrix
-            string icDmg = "1d8";
             Creatures.Add(ModEnums.CreatureId.DROW_INQUISITRIX,
-            encounter => new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
-            new Abilities(2, 4, 1, 2, 2, 4), new Skills(acrobatics: 8, intimidation: 11, religion: 7))
-            .WithAIModification(ai => {
-                ai.OverrideDecision = (self, options) => {
-                    Creature creature = self.Self;
-                    foreach (Option opt in options.Where(o => o.OptionKind == OptionKind.NonSpecified && o.Text == "Harm")) {
-                        if (opt is ChooseNumberOfActionThenActionOption) {
-                            var opt2 = (ChooseNumberOfActionThenActionOption)opt;
-                            if (opt2.NumberOfActions == 3) {
-                                opt.AiUsefulness.MainActionUsefulness = int.MinValue;
+            encounter => {
+                Creature monster = new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
+                new Abilities(2, 4, 1, 2, 2, 4), new Skills(acrobatics: 8, intimidation: 11, religion: 7))
+                .WithAIModification(ai => {
+                    ai.OverrideDecision = (self, options) => {
+                        Creature creature = self.Self;
+                        foreach (Option opt in options.Where(o => o.OptionKind == OptionKind.NonSpecified && o.Text == "Harm")) {
+                            if (opt is ChooseNumberOfActionThenActionOption) {
+                                var opt2 = (ChooseNumberOfActionThenActionOption)opt;
+                                if (opt2.NumberOfActions == 3) {
+                                    opt.AiUsefulness.MainActionUsefulness = int.MinValue;
+                                }
                             }
                         }
-                    }
-                    return null;
-                };
-            })
-            .WithProficiency(Trait.Martial, Proficiency.Expert)
-            .WithProficiency(Trait.Spell, Proficiency.Trained)
-            .WithBasicCharacteristics()
-            .AddHeldItem(Items.CreateNew(CustomItems.ScourgeOfFangs))
-            .AddQEffect(CommonQEffects.Drow())
-            .AddQEffect(CommonQEffects.DrowClergy())
-            .AddQEffect(QEffect.SneakAttack("1d4"))
-            .AddQEffect(new QEffect("Iron Command {icon:Reaction}", "{b}Trigger{/b} An enemy within 15 feet damages you. {b}Effect{/b} Your attacker must choose either to fall prone or suffer " + icDmg + " mental damage. You then deal +1d6 evil or negative damage against them with your strikes, until a new enemy earns your ire.") {
-                AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (action == null || action.Owner == null || action.Owner == action.Owner.Battle.Pseudocreature) {
-                        return;
-                    }
-
-                    if (action.Owner.OwningFaction == self.Owner.OwningFaction) {
-                        return;
-                    }
-
-                    if (self.UseReaction()) {
-                        if (await action.Owner.Battle.AskForConfirmation(action.Owner, self.Owner.Illustration, $"{self.Owner.Name} uses Iron Command, urging you to kneel before your betters. Do you wish to drop prone in supplication, or refuse and suffer " + icDmg + " mental damage?", "Submit", "Defy")) {
-                            action.Owner.AddQEffect(QEffect.Prone());
-                        } else {
-                            // TODO: Make a dummy action for this damage
-                            CombatAction dummyAction = new CombatAction(self.Owner, self.Owner.Illustration, "Iron Command", new Trait[] { Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental }, "You deal " + icDmg + " mental damage to a creature that attacked you, and refuses to kneel.", Target.Uncastable());
-                            await CommonSpellEffects.DealDirectDamage(dummyAction, DiceFormula.FromText(icDmg, "Iron Command"), action.Owner, CheckResult.Success, DamageKind.Mental);
-                        }
-
-                        DamageKind type = DamageKind.Evil;
-                        if (!action.Owner.HasTrait(Trait.Good) && !action.Owner.HasTrait(Trait.Undead)) {
-                            type = DamageKind.Negative;
-                        }
-
-                        self.Owner.RemoveAllQEffects(qf => qf.Name == "Inquisitrix Mandate" && qf.Source == self.Owner);
-
-                        self.Owner.AddQEffect(new QEffect("Inquisitrix Mandate", $"You deal +1d6 {type.HumanizeTitleCase2()} damage against {action.Owner.Name} for daring to strike against you.") {
-                            Source = self.Owner,
-                            Illustration = IllustrationName.BestowCurse,
-                            AddExtraKindedDamageOnStrike = (strike, target) => {
-                                if (strike.HasTrait(Trait.Strike) && target == action.Owner) {
-                                    return new KindedDamage(DiceFormula.FromText("1d6", "Inquisitrix Mandate"), type);
-                                }
-                                return null;
-                            },
-                            AdditionalGoodness = (self, action, target) => {
-                                if (action.HasTrait(Trait.Strike) && target == action.Owner) {
-                                    return 3.5f;
-                                }
-                                return 0f;
-                            },
-                            ExpiresAt = ExpirationCondition.Never
-                        });
-                    }
-                }
-            })
-            .AddQEffect(new QEffect() {
-                ProvideMainAction = self => {
-                    if (self.Owner.Spellcasting.PrimarySpellcastingSource.Spells.FirstOrDefault(spell => spell.SpellId == SpellId.Harm) == null) {
                         return null;
-                    }
-
-                    Item weapon = self.Owner.PrimaryWeapon;
-
-                    StrikeModifiers strikeModifiers = new StrikeModifiers() {
-                        OnEachTarget = async (a, d, result) => {
-                            //if (result >= CheckResult.Success) {
-                            //    await CommonSpellEffects.DealDirectDamage(a.Spellcasting.PrimarySpellcastingSource.Spells.First(spell => spell.SpellId == SpellId.Harm), DiceFormula.FromText("1d8"), d, result, DamageKind.Negative);
-                            //}
-                            a.Spellcasting.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Harm);
-                        }
                     };
-
-                    if (weapon == null) {
-                        return null;
-                    }
-
-                    CombatAction action = self.Owner.CreateStrike(weapon, -1, strikeModifiers);
-                    action.ActionCost = 2;
-                    action.Name = $"Channel Smite ({weapon.Name})";
-                    action.Description = "You siphon the destructive energies of positive or negative energy through a melee attack and into your foe. Make a melee Strike and add the spell’s damage to the Strike’s damage. This is negative damage if you expended a harm spell or positive damage if you expended a heal spell. The spell is expended with no effect if your Strike fails or hits a creature that isn’t damaged by that energy type (such as if you hit a non-undead creature with a heal spell).";
-                    action.ShortDescription += " and expends a casting of harm to inflict 1d8 negative damage.";
-                    action.Illustration = new SideBySideIllustration(action.Illustration, IllustrationName.Harm);
-                    action.WithGoodnessAgainstEnemy((target, attacker, defender) => {
-                        //float additionalDamage1 = action.Item?.WeaponProperties?.AdditionalDamageFormula != null ? DiceFormula.FromText(action.Item.WeaponProperties.AdditionalDamageFormula).ExpectedValue : 0;
-                        //float additionalDamage2 = action.Item?.WeaponProperties?.AdditionalDamageFormula2 != null ? DiceFormula.FromText(action.Item.WeaponProperties.AdditionalDamageFormula2).ExpectedValue : 0;
-                        float bonusDmg = 0f;
-                        if (action.Item?.WeaponProperties != null) {
-                            foreach (var dmgSource in action.Item.WeaponProperties.AdditionalDamage) {
-                                bonusDmg += DiceFormula.FromText(dmgSource.Item1).ExpectedValue;
-                            }
+                })
+                .WithProficiency(Trait.Martial, Proficiency.Expert)
+                .WithProficiency(Trait.Spell, Proficiency.Trained)
+                .WithBasicCharacteristics()
+                .AddHeldItem(Items.CreateNew(CustomItems.ScourgeOfFangs))
+                .AddQEffect(CommonQEffects.Drow())
+                .AddQEffect(CommonQEffects.DrowClergy())
+                .AddQEffect(QEffect.SneakAttack("1d4"))
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        if (self.Owner.Spellcasting.PrimarySpellcastingSource.Spells.FirstOrDefault(spell => spell.SpellId == SpellId.Harm) == null) {
+                            return null;
                         }
-                        return defender.HasTrait(Trait.Undead) ? -100f : 4.5f + action.TrueDamageFormula.ExpectedValue + bonusDmg;
+
+                        Item weapon = self.Owner.PrimaryWeapon;
+
+                        StrikeModifiers strikeModifiers = new StrikeModifiers() {
+                            OnEachTarget = async (a, d, result) => {
+                                //if (result >= CheckResult.Success) {
+                                //    await CommonSpellEffects.DealDirectDamage(a.Spellcasting.PrimarySpellcastingSource.Spells.First(spell => spell.SpellId == SpellId.Harm), DiceFormula.FromText("1d8"), d, result, DamageKind.Negative);
+                                //}
+                                a.Spellcasting.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Harm);
+                            }
+                        };
+
+                        if (weapon == null) {
+                            return null;
+                        }
+
+                        CombatAction action = self.Owner.CreateStrike(weapon, -1, strikeModifiers);
+                        action.ActionCost = 2;
+                        action.Name = $"Channel Smite ({weapon.Name})";
+                        action.Description = "You siphon the destructive energies of positive or negative energy through a melee attack and into your foe. Make a melee Strike and add the spell’s damage to the Strike’s damage. This is negative damage if you expended a harm spell or positive damage if you expended a heal spell. The spell is expended with no effect if your Strike fails or hits a creature that isn’t damaged by that energy type (such as if you hit a non-undead creature with a heal spell).";
+                        action.ShortDescription += " and expends a casting of harm to inflict 1d8 negative damage.";
+                        action.Illustration = new SideBySideIllustration(action.Illustration, IllustrationName.Harm);
+                        action.WithGoodnessAgainstEnemy((target, attacker, defender) => {
+                            //float additionalDamage1 = action.Item?.WeaponProperties?.AdditionalDamageFormula != null ? DiceFormula.FromText(action.Item.WeaponProperties.AdditionalDamageFormula).ExpectedValue : 0;
+                            //float additionalDamage2 = action.Item?.WeaponProperties?.AdditionalDamageFormula2 != null ? DiceFormula.FromText(action.Item.WeaponProperties.AdditionalDamageFormula2).ExpectedValue : 0;
+                            float bonusDmg = 0f;
+                            if (action.Item?.WeaponProperties != null) {
+                                foreach (var dmgSource in action.Item.WeaponProperties.AdditionalDamage) {
+                                    bonusDmg += DiceFormula.FromText(dmgSource.Item1).ExpectedValue;
+                                }
+                            }
+                            return defender.HasTrait(Trait.Undead) ? -100f : 4.5f + action.TrueDamageFormula.ExpectedValue + bonusDmg;
+                        });
+
+                        return (ActionPossibility)action;
+                    },
+                    AddExtraKindedDamageOnStrike = (action, d) => {
+                        if (action == null || !action.Name.StartsWith("Channel Smite (")) {
+                            return null;
+                        }
+                        return new KindedDamage(DiceFormula.FromText("1d8", "Harm"), DamageKind.Negative);
+                    }
+                })
+                .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Cleric, Ability.Charisma, Trait.Divine).WithSpells(
+                    new SpellId[] { SpellId.Harm, SpellId.Harm, SpellId.Harm }).Done();
+
+                string icDmg = $"1d4+{monster.Level}";
+
+                monster.AddQEffect(new QEffect("Iron Command {icon:Reaction}",
+                    "{b}Trigger{/b} An enemy within 15 feet damages you. {b}Effect{/b} Your attacker must choose either to fall prone or suffer " + icDmg +
+                    " mental damage. You then deal +1d6 evil or negative damage against them with your strikes, until a new enemy earns your ire.") {
+                    AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
+                        if (action == null || action.Owner == null || action.Owner == action.Owner.Battle.Pseudocreature) {
+                            return;
+                        }
+
+                        if (action.Owner.OwningFaction == self.Owner.OwningFaction) {
+                            return;
+                        }
+
+                        if (self.UseReaction()) {
+                            if (await action.Owner.Battle.AskForConfirmation(action.Owner, self.Owner.Illustration,
+                            $"{self.Owner.Name} uses Iron Command, urging you to kneel before your betters. Do you wish to drop prone in supplication, or refuse and suffer " + icDmg +
+                            " mental damage?", "Submit", "Defy")) {
+                                action.Owner.AddQEffect(QEffect.Prone());
+                            } else {
+                                // TODO: Make a dummy action for this damage
+                                CombatAction dummyAction = new CombatAction(self.Owner, self.Owner.Illustration, "Iron Command", new Trait[] { Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental },
+                                "You deal " + icDmg + " mental damage to a creature that attacked you, and refuses to kneel.", Target.Uncastable());
+                                await CommonSpellEffects.DealDirectDamage(dummyAction, DiceFormula.FromText(icDmg, "Iron Command"), action.Owner, CheckResult.Success, DamageKind.Mental);
+                            }
+
+                            DamageKind type = DamageKind.Evil;
+                            if (!action.Owner.HasTrait(Trait.Good) && !action.Owner.HasTrait(Trait.Undead)) {
+                                type = DamageKind.Negative;
+                            }
+
+                            self.Owner.RemoveAllQEffects(qf => qf.Name == "Inquisitrix Mandate" && qf.Source == self.Owner);
+
+                            self.Owner.AddQEffect(new QEffect("Inquisitrix Mandate", $"You deal +1d6 {type.HumanizeTitleCase2()} damage against {action.Owner.Name} for daring to strike against you.") {
+                                Source = self.Owner,
+                                Illustration = IllustrationName.BestowCurse,
+                                AddExtraKindedDamageOnStrike = (strike, target) => {
+                                    if (strike.HasTrait(Trait.Strike) && target == action.Owner) {
+                                        return new KindedDamage(DiceFormula.FromText("1d6", "Inquisitrix Mandate"), type);
+                                    }
+                                    return null;
+                                },
+                                AdditionalGoodness = (self, action, target) => {
+                                    if (action.HasTrait(Trait.Strike) && target == action.Owner) {
+                                        return 3.5f;
+                                    }
+                                    return 0f;
+                                },
+                                ExpiresAt = ExpirationCondition.Never
+                            });
+                        }
+                    }
                     });
 
-                    return (ActionPossibility)action;
-                },
-                AddExtraKindedDamageOnStrike = (action, d) => {
-                    if (action == null || !action.Name.StartsWith("Channel Smite (")) {
-                        return null;
-                    }
-                    return new KindedDamage(DiceFormula.FromText("1d8", "Harm"), DamageKind.Negative);
-                }
-            })
-            .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Cleric, Ability.Charisma, Trait.Divine).WithSpells(
-                new SpellId[] { SpellId.Harm, SpellId.Harm, SpellId.Harm }).Done()
-            );
+                return monster;
+            });
             ModManager.RegisterNewCreature("Drow Inquisitrix", Creatures[ModEnums.CreatureId.DROW_INQUISITRIX]);
 
 
