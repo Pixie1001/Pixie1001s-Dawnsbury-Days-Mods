@@ -157,4 +157,10 @@
   </properties>
   <image width="256" height="256" source="Creatures/UnknownCreature.png"/>
  </tile>
+ <tile id="24">
+  <properties>
+   <property name="Id" value="Abyssal Handmaiden"/>
+  </properties>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
+ </tile>
 </tileset>

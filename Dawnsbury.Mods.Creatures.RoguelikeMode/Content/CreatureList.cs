@@ -83,6 +83,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
         internal static Dictionary<ObjectId, Func<Encounter?, Creature>> Objects = new Dictionary<ObjectId, Func<Encounter?, Creature>>();
 
+
         /// <summary>
         /// Gets the Creature object based off the id
         /// </summary>

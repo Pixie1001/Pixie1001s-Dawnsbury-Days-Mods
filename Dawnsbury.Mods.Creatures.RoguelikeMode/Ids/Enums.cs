@@ -92,6 +92,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             TREASURE_DEMON,
             DROW_RENEGADE,
             WITCH_CULTIST,
+            ABYSSAL_HANDMAIDEN,
             NUGLUB,
             HOMUNCULUS
         }
