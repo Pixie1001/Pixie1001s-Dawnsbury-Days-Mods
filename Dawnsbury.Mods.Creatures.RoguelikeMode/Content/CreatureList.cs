@@ -164,7 +164,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// </summary>
         internal static void RegisterAndAddCreatureToDictonary<TEnum>(Dictionary<TEnum, Func<Encounter?, Creature>> creatures, TEnum id, string? overridenCreatureName = null) where TEnum : Enum
         {
-            Creature creatureToAdd = GetCreature(id);
+            Creature creatureToAdd = (typeof(TEnum) == typeof(ModEnums.CreatureId)) ? GetCreature(id) : GetObject(id);
             Func<Encounter?, Creature> creatureFunction = encounter => creatureToAdd;
             ModManager.RegisterNewCreature(overridenCreatureName ?? creatureToAdd.BaseName, creatureFunction);
             creatures.Add(id, creatureFunction);
@@ -212,7 +212,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         internal static void LoadObjects()
         {
             // Level 1 Hazards
-            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.ICE_FONT);
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.ICE_FONT, "Scaling Font of Ice");
 
             // Level 2 Hazards
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.CHOKING_MUSHROOM);
