@@ -92,7 +92,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             TREASURE_DEMON,
             DROW_RENEGADE,
             WITCH_CULTIST,
-            NUGLUB
+            NUGLUB,
+            HOMUNCULUS
         }
 
         internal enum ObjectId
