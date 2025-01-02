@@ -88,7 +88,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             RAVENOUS_RAT,
             TREASURE_DEMON,
             DROW_RENEGADE,
-            WITCH_CULTIST
+            WITCH_CULTIST,
+            ABYSSAL_HANDMAIDEN
         }
 
         internal enum ObjectId {

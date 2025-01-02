@@ -1181,7 +1181,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (eidolon.Destroyed || eidolon.HP <= 0) {
                         return;
                     }
-
+                    eidolon.TurnInformation.ThisTurnIsPrimary = true;
                     await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step1_Upkeep", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
                     eidolon.Battle.GameLoop.GetType().GetMethod("Step2_Refresh", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
                     await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step3_StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });

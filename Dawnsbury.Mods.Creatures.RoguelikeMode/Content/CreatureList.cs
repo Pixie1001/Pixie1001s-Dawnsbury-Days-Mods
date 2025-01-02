@@ -102,6 +102,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     };
                 })
                 .WithProficiency(Trait.Weapon, Proficiency.Trained)
+                .AddQEffect(new QEffect() {
+                    BonusToInitiative = self => new Bonus(-30, BonusType.Untyped, "Patient Guardian")
+                })
                 .AddQEffect(new QEffect("Obliviating Aura", "The unseen guardian feels slippery and elusive in its victim's minds, making it easy for them to lose track of its postion. It gains a +20 bonus to checks made to sneak or hide and can hide in plain sight.") {
                     Id = QEffectId.HideInPlainSight,
                     Innate = true,
@@ -875,7 +878,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             });
                         }
                     }
-                    });
+                });
 
                 return monster;
             });
@@ -886,10 +889,37 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             Creatures.Add(ModEnums.CreatureId.TREASURE_DEMON,
             encounter => new Creature(Illustrations.TreasureDemon, "Treasure Demon", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Fiend, Trait.Demon, Trait.NoPhysicalUnarmedAttack }, 2, 8, 5, new Defenses(17, 5, 8, 11), 25,
             new Abilities(-1, 4, 0, 3, 1, -1), new Skills(acrobatics: 8, thievery: 10))
+            .WithAIModification(ai => {
+                ai.OverrideDecision = (self, options) => {
+                    // TODO: Remove QEffectId.FleeingAllDanger and relace with custom logic - probably jsut steal code
+
+                    Creature monster = self.Self;
+
+                    if (monster.HasEffect(QEffectId.Prone)) {
+                        return options.Where(opt => opt.AiUsefulness.ObjectiveAction?.Action.ActionId == ActionId.Stand).FirstOrDefault();
+                    }
+
+                    if (monster.HasEffect(QEffectId.Grabbed)) {
+                        return options.Where(opt => opt.AiUsefulness.ObjectiveAction?.Action.ActionId == ActionId.Escape).FirstOrDefault();
+                    }
+
+                    List<Creature> allEnemies = monster.Battle.AllCreatures.Where<Creature>((Func<Creature, bool>)(cr => cr.EnemyOf(monster))).ToList<Creature>();
+                    List<TileOption> list1 = options.Where<Option>((Func<Option, bool>)(opt => opt is TileOption tileOption5 && tileOption5.OptionKind == OptionKind.MoveHere)).Cast<TileOption>().ToList<TileOption>();
+                    if (list1.Count <= 0 || allEnemies.Count <= 0)
+                        return options.FirstOrDefault(opt => opt.AiUsefulness.ObjectiveAction?.Action.ActionId == ActionId.EndTurn);
+
+                    TileOption tileOption6 = list1.MaxBy<TileOption, int>((Func<TileOption, int>)(movementOption => allEnemies.Sum<Creature>((Func<Creature, int>)(enemy => movementOption.Tile.DistanceTo(enemy.Occupies)))));
+                    if (tileOption6 != null) {
+                        return tileOption6;
+                    }
+
+                    return null;
+                };
+            })
             .WithBasicCharacteristics()
             .AddQEffect(new QEffect("Treasure Hoarder",
             $"Treasure Demons hop between dimensions, often travelling through the safety of the {Loader.UnderdarkName} to endow the demon lord's mortal servants with funds for their foul schemes. Kill it before it escapes to steal its delivery for yourselves.") {
-                Id = QEffectId.FleeingAllDanger
+                //Id = QEffectId.FleeingAllDanger
             })
             .AddQEffect(new QEffect("Emergency Planeshift", "When this condition expires, the treasure demon will teleport to safety along with its loot.", ExpirationCondition.CountsDownAtEndOfYourTurn, null, IllustrationName.DimensionDoor) {
                 Value = 3,
@@ -922,7 +952,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             );
             ModManager.RegisterNewCreature("Treasure Demon", Creatures[ModEnums.CreatureId.TREASURE_DEMON]);
 
-            // CREATURE - Loot Imp
+
+            // CREATURE - Drow Renegade
             Creatures.Add(ModEnums.CreatureId.DROW_RENEGADE,
             encounter => {
                 Creature creature = new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25,
@@ -1220,6 +1251,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             );
             ModManager.RegisterNewCreature("Ravenous Rat", Creatures[ModEnums.CreatureId.RAVENOUS_RAT]);
 
+
             // CREATURE - Devoted Cultist
             Creatures.Add(ModEnums.CreatureId.WITCH_CULTIST,
             encounter => new Creature(Illustrations.DevotedCultist, "Devoted Cultist", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Humanoid }, 1, 6, 5, new Defenses(15, 7, 4, 10), 26,
@@ -1283,6 +1315,126 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 level1: new SpellId[] { SpellId.Guidance, SpellId.ChillTouch }).Done()
             );
             ModManager.RegisterNewCreature("Devoted Cultist", Creatures[ModEnums.CreatureId.WITCH_CULTIST]);
+
+
+            // TODO: Aura of madness not working
+            // TODO: Not using bite on single targets
+            // TODO: Bite short desc needs an update to explain grab and poison
+            // CREATURE - Abyssal Handmaiden
+            Creatures.Add(ModEnums.CreatureId.ABYSSAL_HANDMAIDEN,
+            encounter => {
+                Item legAtk = CommonItems.CreateNaturalWeapon(IllustrationName.Spear, "stabbing appendage", "2d6", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6, Trait.Reach);
+                Creature monster = new Creature(Illustrations.AbyssalHandmaiden, "Abyssal Handmaiden", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 6, 6, 5, new Defenses(23, 11, 17, 14), 180,
+                new Abilities(5, 5, 4, 2, 2, 4), new Skills(acrobatics: 15, athletics: 14, intimidation: 14, religion: 10, arcana: 10))
+                .WithAIModification(ai => {
+                    ai.OverrideDecision = (self, options) => {
+                        Creature creature = self.Self;
+                        
+                        return null;
+                    };
+                })
+                .WithProficiency(Trait.Melee, Proficiency.Expert)
+                .WithProficiency(Trait.Spell, Proficiency.Expert)
+                .WithBasicCharacteristics()
+                .WithUnarmedStrike(legAtk)
+                .AddQEffect(CommonQEffects.MiniBoss())
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
+                        return (ActionPossibility)new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.Spear, new SideBySideIllustration(IllustrationName.Spear, IllustrationName.Spear)),
+                            "Flurry of Limbs", Array.Empty<Trait>(),
+                            "The Abyssal Handmaiden makes up to three stabbing appendage Strikes against different targets. These attacks count toward the Abyssal Handmaiden's multiple attack penalty, but the penalty doesn't increase until after all the attacks have been made.",
+                            // Target.MultipleCreatureTargets(Target.AdjacentCreature(), Target.AdjacentCreature(), Target.AdjacentCreature())
+                            Target.MultipleCreatureTargets(Target.Reach(legAtk), Target.Reach(legAtk), Target.Reach(legAtk))
+                            .WithMustBeDistinct().WithMinimumTargets(1).WithSimultaneousAnimation()
+                            .WithOverriddenOverallGoodness((t, hm) => {
+                                //switch (hm.Occupies.DistanceTo.Creatures.Count(cr => cr.EnemyOf(hm) && cr.Alive)) {
+                                switch (hm.Battle.AllCreatures.Where(cr => cr.EnemyOf(hm) && hm.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Greater && hm.DistanceTo(cr) <= 2).Count()) {
+                                    case 0:
+                                        return int.MinValue;
+                                    case 1:
+                                        return 12f;
+                                    case 2:
+                                        return 24f;
+                                    case 3:
+                                        return 36f;
+                                    default:
+                                        return 36f;
+                                }
+                            })
+                        )
+                        .WithActionCost(2)
+                        //.WithGoodnessAgainstEnemy((t, a, d) => 12)
+                        .WithEffectOnEachTarget(async (action, attacker, defender, result) => {
+                            Item weapon = attacker.UnarmedStrike;
+                            if (weapon == null)
+                                return;
+                            int num4 = (int)await attacker.MakeStrike(defender, weapon, map);
+                        });
+                    },
+                })
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        //Func<CombatAction, Creature, Creature, CheckResult, Task?> effect = async (action, attacker, defender, result) => {
+
+                        //};
+
+                        Delegates.EffectOnEachTarget effect = async (action, attacker, defender, result) => {
+                            if (result < CheckResult.Success) {
+                                return;
+                            }
+
+                            await Possibilities.Grapple(attacker, defender, result);
+                            Affliction poison = Affliction.CreateDemonWebspinnerSpiderVenom();
+                            poison.DC = 24;
+                            await Affliction.ExposeToInjury(poison, attacker, defender);
+                        };
+
+                        CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d8", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse));
+                        bite.Description = "The Abyssal Handmaiden attemps to grab and sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
+                        bite.ActionCost = 2;
+                        bite.WithGoodnessAgainstEnemy((targeting, a, d) => 18f);
+                        //bite.WithEffectOnEachTarget + effect;
+                        bite.EffectOnOneTarget = (Delegates.EffectOnEachTarget)Delegate.Combine(bite.EffectOnOneTarget, effect);
+                        return (ActionPossibility)bite;
+                    },
+                });
+                //.AddSpellcastingSource(SpellcastingKind.Innate, Trait.Demon, Ability.Charisma, Trait.Divine).WithSpells(
+                //    level2: new SpellId[] { SpellId.Harm }).Done()
+
+                var animation = monster.AnimationData.AddAuraAnimation(IllustrationName.AngelicHaloCircle, 2);
+                animation.Color = Color.DarkRed;
+
+                QEffect aura = new QEffect("Aura of Madness", "...") {
+                    
+                };
+
+                aura.AddGrantingOfTechnical(cr => monster.EnemyOf(cr), qfAura => {
+                    qfAura.StartOfYourPrimaryTurn = async (self, you) => {
+                        if (you.DistanceTo(monster) <= 1) {
+                            QEffect? auraDebuff = you.QEffects.FirstOrDefault(qf => qf.Key == "Aura of Madness Debuff");
+                            if (auraDebuff != null) {
+                                auraDebuff.Value += 1;
+                            } else {
+                                you.AddQEffect(new QEffect("Demonic Exposure", "Increased each time you end your turn within the Abyssal Handmaiden's aura of madness, and removed when you start your turn outside her aura. Once this reaches 2 or higher, you are confused until you leave the aura.", ExpirationCondition.Never, monster, IllustrationName.Chaos) {
+                                    Value = 1,
+                                    Key = "Aura of Madness Debuff",
+                                    StartOfYourPrimaryTurn = async (self, you) => {
+                                        if (self.Value >= 2) {
+                                            you.AddQEffect(QEffect.Confused(false, null).WithExpirationAtStartOfOwnerTurn());
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            you.RemoveAllQEffects(qf => qf.Key == "Aura of Madness Debuff");
+                        }
+                    };
+                });
+
+                return monster;
+            });
+            ModManager.RegisterNewCreature("Abyssal Handmaiden", Creatures[ModEnums.CreatureId.ABYSSAL_HANDMAIDEN]);
 
             // Add new creature here
 
@@ -1967,6 +2119,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                                         .WithActionCost(0)
                                                         .WithEffectOnSelf(caster => {
                                                             caster.AddQEffect(QEffect.Stunned(2).WithExpirationNever());
+                                                        }),
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.Stunned, "Expires At Start of Turn", new Trait[] {},
+                                                        "",
+                                                        Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                        .WithActionCost(0)
+                                                        .WithEffectOnSelf(caster => {
+                                                            caster.AddQEffect(new QEffect("Start of turn check", "", ExpirationCondition.ExpiresAtStartOfYourTurn, null, IllustrationName.BestowCurse) {
+                                                                
+                                                            });
                                                         }),
                                                     }
 
