@@ -130,6 +130,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return DevotedCultist.Create();
                 case ModEnums.CreatureId.NUGLUB:
                     return Nuglub.Create();
+                case ModEnums.CreatureId.HOMUNCULUS:
+                    return Homunculus.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -164,9 +166,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// </summary>
         internal static void RegisterAndAddCreatureToDictonary<TEnum>(Dictionary<TEnum, Func<Encounter?, Creature>> creatures, TEnum id, string? overridenCreatureName = null) where TEnum : Enum
         {
-            Creature creatureToAdd = (typeof(TEnum) == typeof(ModEnums.CreatureId)) ? GetCreature(id) : GetObject(id);
-            Func<Encounter?, Creature> creatureFunction = encounter => creatureToAdd;
-            ModManager.RegisterNewCreature(overridenCreatureName ?? creatureToAdd.BaseName, creatureFunction);
+            Func<Encounter?, Creature> creatureFunction = encounter => (typeof(TEnum) == typeof(ModEnums.CreatureId)) ? GetCreature(id) : GetObject(id);
+            ModManager.RegisterNewCreature(overridenCreatureName ?? creatureFunction(null).Name, creatureFunction);
             creatures.Add(id, creatureFunction);
         }
 
@@ -176,6 +177,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level -1 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.RAVENOUS_RAT);
+
+            // Level 0 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HOMUNCULUS);
 
             // Level 1 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_ASSASSIN);
