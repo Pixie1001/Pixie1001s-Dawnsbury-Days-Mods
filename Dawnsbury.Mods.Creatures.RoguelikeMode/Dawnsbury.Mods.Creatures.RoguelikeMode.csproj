@@ -12,17 +12,26 @@
 			<HintPath>0Harmony.dll</HintPath>
 		</Reference>
 		<Reference Include="Common">
-			<HintPath>G:\SteamLibrary\steamapps\common\Dawnsbury Days\Data\Common.dll</HintPath>
+			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\Common.dll</HintPath>
 		</Reference>
 		<Reference Include="Dawnsbury Days">
-			<HintPath>G:\SteamLibrary\steamapps\common\Dawnsbury Days\Data\Dawnsbury Days.dll</HintPath>
+			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\Dawnsbury Days.dll</HintPath>
 		</Reference>
 		<Reference Include="FmodForFoxes">
-			<HintPath>G:\SteamLibrary\steamapps\common\Dawnsbury Days\Data\FmodForFoxes.dll</HintPath>
+			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\FmodForFoxes.dll</HintPath>
 		</Reference>
 		<Reference Include="MonoGame.Framework">
-			<HintPath>G:\SteamLibrary\steamapps\common\Dawnsbury Days\Data\\MonoGame.Framework.dll</HintPath>
+			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\MonoGame.Framework.dll</HintPath>
 		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Content\Creatures\L0\" />
+	  <Folder Include="Content\Creatures\L4\" />
+	  <Folder Include="Content\Objects\L-1\" />
+	  <Folder Include="Content\Objects\L0\" />
+	  <Folder Include="Content\Objects\L3\" />
+	  <Folder Include="Content\Objects\L4\" />
 	</ItemGroup>
 	<Target Name="CopyToGameModsFolder" AfterTargets="Build">
 		<Copy SourceFiles="$(TargetPath)" DestinationFolder="G:\SteamLibrary\steamapps\common\Dawnsbury Days\CustomMods" />
