@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="25" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="26" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -107,43 +107,55 @@
   <properties>
    <property name="Id" value="Drow Sniper"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/DrowSniper.png" width="256" height="256"/>
+  <image source="CustomCreatures/DrowSniper.png" width="256" height="256"/>
  </tile>
  <tile id="18">
   <properties>
    <property name="Id" value="Ravenous Rat"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/GiantRat256.png" width="256" height="256"/>
+  <image source="CustomCreatures/GiantRat256.png" width="256" height="256"/>
  </tile>
  <tile id="19">
   <properties>
    <property name="Id" value="Treasure Demon"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/TreasureDemon.png" width="256" height="256"/>
+  <image source="CustomCreatures/TreasureDemon.png" width="256" height="256"/>
  </tile>
  <tile id="20">
   <properties>
    <property name="Id" value="Devoted Cultist"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Devoted_Cultist.png" width="256" height="256"/>
+  <image source="CustomCreatures/Devoted_Cultist.png" width="256" height="256"/>
  </tile>
  <tile id="21">
   <properties>
    <property name="Id" value="TestPile"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Grape_Bowl.png" width="256" height="256"/>
+  <image source="CustomCreatures/Grape_Bowl.png" width="256" height="256"/>
  </tile>
  <tile id="22">
   <properties>
    <property name="Id" value="Restless Spirit"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/Restless_Souls.png" width="256" height="256"/>
+  <image source="CustomCreatures/Restless_Souls.png" width="256" height="256"/>
  </tile>
  <tile id="23">
   <properties>
    <property name="Id" value="Scaling Font of Ice"/>
   </properties>
-  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/FontOfIce.png" width="256" height="256"/>
+  <image source="CustomCreatures/FontOfIce.png" width="256" height="256"/>
+ </tile>
+ <tile id="24">
+  <properties>
+   <property name="Id" value="Nuglub"/>
+  </properties>
+  <image width="256" height="256" source="Creatures/UnknownCreature.png"/>
+ </tile>
+ <tile id="25">
+  <properties>
+   <property name="Id" value="Homunculus"/>
+  </properties>
+  <image width="256" height="256" source="Creatures/UnknownCreature.png"/>
  </tile>
  <tile id="24">
   <properties>

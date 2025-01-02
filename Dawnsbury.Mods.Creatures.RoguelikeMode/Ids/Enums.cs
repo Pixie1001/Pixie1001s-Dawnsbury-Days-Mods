@@ -65,11 +65,14 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
+{
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class ModEnums {
-        internal enum CreatureId {
+    internal static class ModEnums
+    {
+        internal enum CreatureId
+        {
             UNSEEN_GUARDIAN,
             HUNTING_SPIDER,
             DROW_ASSASSIN,
@@ -89,10 +92,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             TREASURE_DEMON,
             DROW_RENEGADE,
             WITCH_CULTIST,
-            ABYSSAL_HANDMAIDEN
+            ABYSSAL_HANDMAIDEN,
+            NUGLUB,
+            HOMUNCULUS
         }
 
-        internal enum ObjectId {
+        internal enum ObjectId
+        {
             CHOKING_MUSHROOM,
             BOOM_SHROOM,
             DEEP_HORNETS,
@@ -102,11 +108,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             TEST_PILE,
         }
 
-        internal enum BoonId {
+        internal enum BoonId
+        {
             POISON_IMMUNITY,
         }
 
-        internal enum EncounterType {
+        internal enum EncounterType
+        {
             NORMAL,
             ELITE,
             BOSS,
