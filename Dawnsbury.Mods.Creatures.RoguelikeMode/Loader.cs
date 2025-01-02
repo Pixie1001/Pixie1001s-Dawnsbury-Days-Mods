@@ -83,7 +83,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
     // TODO: Add modular AI functions to making adding new enemies easier and lcean up creature list
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public static class Loader {
+    public static class Loader
+    {
         public static string UnderdarkName = "Below";
 
         internal static string Credits { get; } =
@@ -98,7 +99,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
 
         [DawnsburyDaysModMainMethod]
-        public static void LoadMod() {
+        public static void LoadMod()
+        {
             var harmony = new Harmony("Dawnsbury.Mods.GameModes.RoguelikeMode");
             Harmony.DEBUG = true;
             harmony.PatchAll();
@@ -113,8 +115,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             LoadEncounters();
         }
 
-        private static void LoadEncounters() {
+        private static void LoadEncounters()
+        {
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
+            RegisterEncounter<SudoDebugL1>("SudoDebug.tmx", "SudoDebugLv1");
+            RegisterEncounter<SudoDebugL2>("SudoDebug.tmx", "SudoDebugLv2");
+            RegisterEncounter<SudoDebugL3>("SudoDebug.tmx", "SudoDebugLv3");
             RegisterEncounter<DrowAmbushLv1>("DrowAmbushLv2.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbushLv2.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbushLv2.tmx", "DrowAmbushLv3");
@@ -176,7 +182,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             ModManager.RegisterEncounter<TestMap>("TestHall.tmx");
         }
 
-        private static void RegisterEncounter<T>(string filename, string key) where T : Encounter {
+        private static void RegisterEncounter<T>(string filename, string key) where T : Encounter
+        {
             RegisteredEncounters.RegisteredEncounterInfo registeredEncounterInfo = new RegisteredEncounters.RegisteredEncounterInfo(() => (Encounter)Activator.CreateInstance(typeof(T), filename));
             RegisteredEncounters.RegisteredEncountersBySimpleFilename.Add(key, registeredEncounterInfo);
             RegisteredEncounters.RegisteredEncountersByType.Add(typeof(T), registeredEncounterInfo);
