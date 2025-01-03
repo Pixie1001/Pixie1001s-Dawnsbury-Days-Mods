@@ -43,6 +43,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
         {
             return new Creature(IllustrationName.UnknownCreature, "Homunculus", [Trait.Construct], 0, 3, 8, new Defenses(17, 2, 7, 3), 17, new Abilities(-1, 3, 0, 0, 1, -2), new Skills(acrobatics: 5, stealth: 5))
                 .WithCharacteristics(false, true)
+                .AddQEffect(QEffect.TraitImmunity(Trait.Disease))
+                .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Doomed))
+                .AddQEffect(QEffect.TraitImmunity(Trait.Healing))
+                .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious))
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(new QEffect("Master Link", "If this has a master then it is linked to its master, and adopts the same alignment. If the homunculus is destroyed, the master takes 2d10 mental damage.")
                 {
