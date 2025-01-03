@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="26" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="27" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -147,14 +147,20 @@
  </tile>
  <tile id="24">
   <properties>
-   <property name="Id" value="Nuglub"/>
+   <property name="Id" value="Abyssal Handmaiden"/>
   </properties>
-  <image width="256" height="256" source="Creatures/UnknownCreature.png"/>
+  <image source="C:/Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
  </tile>
  <tile id="25">
   <properties>
    <property name="Id" value="Homunculus"/>
   </properties>
-  <image width="256" height="256" source="Creatures/UnknownCreature.png"/>
+  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="26">
+  <properties>
+   <property name="Id" value="Nuglub"/>
+  </properties>
+  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
  </tile>
 </tileset>
