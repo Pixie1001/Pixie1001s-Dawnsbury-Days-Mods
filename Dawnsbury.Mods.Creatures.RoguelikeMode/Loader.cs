@@ -145,9 +145,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<ShadowCasterSanctumLv1>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv1");
             RegisterEncounter<ShadowCasterSanctumLv2>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv2");
             RegisterEncounter<ShadowCasterSanctumLv3>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv3");
-            RegisterEncounter<SudoDebugL1>("SudoDebug.tmx", "SudoDebugLv1");
-            RegisterEncounter<SudoDebugL2>("SudoDebug.tmx", "SudoDebugLv2");
-            RegisterEncounter<SudoDebugL3>("SudoDebug.tmx", "SudoDebugLv3");
             RegisterEncounter<MysteriousRoom_FeyL1>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL1");
             RegisterEncounter<MysteriousRoom_FeyL2>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL2");
             RegisterEncounter<MysteriousRoom_FeyL3>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL3");
