@@ -121,9 +121,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<SudoDebugL1>("SudoDebug.tmx", "SudoDebugLv1");
             RegisterEncounter<SudoDebugL2>("SudoDebug.tmx", "SudoDebugLv2");
             RegisterEncounter<SudoDebugL3>("SudoDebug.tmx", "SudoDebugLv3");
-            RegisterEncounter<DrowAmbushLv1>("DrowAmbushLv2.tmx", "DrowAmbushLv1");
-            RegisterEncounter<DrowAmbushLv2>("DrowAmbushLv2.tmx", "DrowAmbushLv2");
-            RegisterEncounter<DrowAmbushLv3>("DrowAmbushLv2.tmx", "DrowAmbushLv3");
+            RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
+            RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
+            RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");
             RegisterEncounter<InquisitrixTrapLv1>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv1");
             RegisterEncounter<InquisitrixTrapLv2>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv2");
             RegisterEncounter<InquisitrixTrapLv3>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv3");
