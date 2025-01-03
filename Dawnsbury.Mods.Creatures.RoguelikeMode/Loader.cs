@@ -118,9 +118,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         private static void LoadEncounters()
         {
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
-            RegisterEncounter<SudoDebugL1>("SudoDebug.tmx", "SudoDebugLv1");
-            RegisterEncounter<SudoDebugL2>("SudoDebug.tmx", "SudoDebugLv2");
-            RegisterEncounter<SudoDebugL3>("SudoDebug.tmx", "SudoDebugLv3");
             RegisterEncounter<DrowAmbushLv1>("DrowAmbushLv2.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbushLv2.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbushLv2.tmx", "DrowAmbushLv3");
@@ -148,6 +145,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<ShadowCasterSanctumLv1>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv1");
             RegisterEncounter<ShadowCasterSanctumLv2>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv2");
             RegisterEncounter<ShadowCasterSanctumLv3>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv3");
+            RegisterEncounter<SudoDebugL1>("SudoDebug.tmx", "SudoDebugLv1");
+            RegisterEncounter<SudoDebugL2>("SudoDebug.tmx", "SudoDebugLv2");
+            RegisterEncounter<SudoDebugL3>("SudoDebug.tmx", "SudoDebugLv3");
+            RegisterEncounter<MysteriousRoom_FeyL1>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL1");
+            RegisterEncounter<MysteriousRoom_FeyL2>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL2");
+            RegisterEncounter<MysteriousRoom_FeyL3>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
