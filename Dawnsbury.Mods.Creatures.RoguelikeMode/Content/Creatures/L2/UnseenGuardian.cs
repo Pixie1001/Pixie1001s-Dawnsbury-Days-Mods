@@ -69,7 +69,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                             {
                                 if (skill == Skill.Stealth && action.Name == "Sneak")
                                 {
-                                    return new Bonus(20, BonusType.Status, "Lurking");
+                                    return new Bonus(30, BonusType.Status, "Lurking");
                                 }
                                 return null;
                             },
