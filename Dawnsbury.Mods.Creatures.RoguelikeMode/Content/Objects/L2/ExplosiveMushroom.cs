@@ -18,25 +18,20 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class ExplosiveMushroom
-    {
-        public static Creature Create()
-        {
+    public class ExplosiveMushroom {
+        public static Creature Create() {
             Creature hazard = new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
                     .WithTactics(Tactic.DoNothing)
                     .WithEntersInitiativeOrder(false)
                     .AddQEffect(CommonQEffects.Hazard())
                     .AddQEffect(new QEffect("Combustible Spores",
-                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 17 Basic reflex save to each creature within a 2 tile radius.")
-                    {
+                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 17 Basic reflex save to each creature within a 2 tile radius.") {
                         AfterYouTakeDamageOfKind = async (self, action, kind) => {
                             string name = self.Owner.Name;
 
-                            if (!self.UsedThisTurn && (kind == DamageKind.Fire || kind == DamageKind.Electricity || (action != null && (action.HasTrait(Trait.Fire) || action.HasTrait(Trait.Electricity)))))
-                            {
+                            if (!self.UsedThisTurn && (kind == DamageKind.Fire || kind == DamageKind.Electricity || (action != null && (action.HasTrait(Trait.Fire) || action.HasTrait(Trait.Electricity))))) {
                                 CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire }, "", Target.SelfExcludingEmanation(2))
                                 .WithSoundEffect(SfxName.Fireball)
                                 .WithSavingThrow(new SavingThrow(Defense.Reflex, 17))

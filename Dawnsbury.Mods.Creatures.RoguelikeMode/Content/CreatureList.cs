@@ -155,7 +155,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 case ModEnums.ObjectId.ICE_FONT:
                     return IceFont.Create();
                 case ModEnums.ObjectId.SPIDER_QUEEN_SHRINE:
-                    return SpiderQueenShrin.Create();
+                    return SpiderQueenShrine.Create();
                 case ModEnums.ObjectId.RESTLESS_SPIRIT:
                     return RestlessSpirit.Create();
                 case ModEnums.ObjectId.TEST_PILE:

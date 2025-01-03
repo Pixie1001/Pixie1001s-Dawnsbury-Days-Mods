@@ -22,18 +22,14 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class RestlessSpirit
-    {
-        public static Creature Create()
-        {
+    public class RestlessSpirit {
+        public static Creature Create() {
             int radius = 1;
             QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
-            Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
-            {
+            Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()) {
                 SpawnAsGaia = true
             }
             .WithTactics(Tactic.DoNothing)
@@ -47,17 +43,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
             var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.BaneCircle, radius);
             animation.Color = Color.GhostWhite;
 
-            QEffect interactable = new QEffect("Interactable", "You can use Diplomacy, Occultism and Religion to interact with this spirit.")
-            {
+            QEffect interactable = new QEffect("Interactable", "You can use Diplomacy, Occultism and Religion to interact with this spirit.") {
                 StateCheckWithVisibleChanges = async self => {
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer && cr.IsAdjacentTo(self.Owner)))
-                    {
-                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
-                        {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => !cr.OwningFaction.IsGaiaPure && cr.IsAdjacentTo(self.Owner))) {
+                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
-                                return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions")
-                                {
+                                return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions") {
                                     Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
@@ -156,11 +148,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                 }
             };
             QEffect aura = new QEffect("Unnerving Presence",
-                "This spirit died a horrible and tragic death, inflicting unnerving flashbacks of its untimely demise on neary creatures. Creatures within the aura suffer -1 status penalty to all checks and DCs.")
-            {
+                "This spirit died a horrible and tragic death, inflicting unnerving flashbacks of its untimely demise on neary creatures. Creatures within the aura suffer -1 status penalty to all checks and DCs.") {
                 StartOfCombat = async self => {
-                    foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && cr.EntersInitiativeOrder))
-                    {
+                    foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && cr.EntersInitiativeOrder)) {
                         Func<AI, List<Option>, Option?> newBehaviour = (ai, options) => {
                             Creature monster = ai.Self;
 
@@ -174,21 +164,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
 
                             return null;
                         };
-                        if (enemy.AI.OverrideDecision != null)
-                        {
+                        if (enemy.AI.OverrideDecision != null) {
                             enemy.AI.OverrideDecision = newBehaviour + enemy.AI.OverrideDecision;
-                        }
-                        else
-                        {
+                        } else {
                             enemy.AI.OverrideDecision = newBehaviour;
                         }
                     }
                 }
             };
             interactable.AddGrantingOfTechnical(cr => (cr.OwningFaction.IsEnemy || cr.OwningFaction.IsGaiaFriends) && !cr.HasTrait(Trait.Mindless) && cr.Abilities.Intelligence > -3, qfTechnical => {
-                qfTechnical.ProvideContextualAction = self => {
-                    if (self.Owner.Skills.Get(Skill.Occultism) <= 6)
-                    {
+                qfTechnical.ProvideActionIntoPossibilitySection = (self, section) => {
+                    if (section.PossibilitySectionId != PossibilitySectionId.InvisibleActions || self.Owner.Skills.Get(Skill.Occultism) <= 6) {
                         return null;
                     }
                     ActionPossibility ap = (ActionPossibility)new CombatAction(self.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
@@ -205,28 +191,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                         return (a.Skills.Get(Skill.Occultism) > 6 && (a.Level + 1) / 2 >= (d.Level + 1) / 2 ? a.Level * 7 : int.MinValue);
                     })
                     .WithEffectOnEachTarget(async (spell, caster, target, result) => {
-                        if (result == CheckResult.CriticalSuccess)
-                        {
+                        if (result == CheckResult.CriticalSuccess) {
                             Sfxs.Play(SfxName.Necromancy, 0.7f);
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
                             caster.AddQEffect(QEffect.Frightened(2));
-                        }
-                        else if (result == CheckResult.Success)
-                        {
+                        } else if (result == CheckResult.Success) {
                             target.AddQEffect(QEffect.Frightened(1));
                             caster.Battle.RemoveCreatureFromGame(interactable.Owner);
-                        }
-                        else if (result == CheckResult.Failure)
-                        {
+                        } else if (result == CheckResult.Failure) {
                             target.AddQEffect(QEffect.Frightened(2));
                             caster.Battle.RemoveCreatureFromGame(interactable.Owner);
-                        }
-                        else if (result == CheckResult.CriticalFailure)
-                        {
+                        } else if (result == CheckResult.CriticalFailure) {
                             Faction originalFaction = target.OwningFaction;
                             target.OwningFaction = caster.OwningFaction;
-                            target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate)
-                            {
+                            target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
                                 CountsAsADebuff = true,
                                 Value = 1,
                                 Id = QEffectId.Slowed,
@@ -246,18 +224,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                             caster.Battle.RemoveCreatureFromGame(interactable.Owner);
                         }
                     });
-                    ap.PossibilityGroup = "Global Contextual Actions";
                     return ap;
                 };
             });
 
             aura.AddGrantingOfTechnical(cr => cr.IsLivingCreature && !cr.HasTrait(Trait.Mindless), qfTechnical => {
                 qfTechnical.StateCheck = self => {
-                    if (self.Owner.DistanceTo(aura.Owner) <= radius)
-                    {
+                    if (self.Owner.DistanceTo(aura.Owner) <= radius) {
                         self.Owner.AddQEffect(new QEffect("Unnerved", $"You suffer a -1 status penalty to all checks and DCs while within {aura.Owner.Name}'s aura.",
-                            ExpirationCondition.Ephemeral, aura.Owner, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.RestlessSpirit))
-                        {
+                            ExpirationCondition.Ephemeral, aura.Owner, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.RestlessSpirit)) {
                             Key = "Ghost Zone Debuff",
                             BonusToAllChecksAndDCs = qf => new Bonus(-1, BonusType.Status, "unnerving presence"),
                             CountsAsADebuff = true

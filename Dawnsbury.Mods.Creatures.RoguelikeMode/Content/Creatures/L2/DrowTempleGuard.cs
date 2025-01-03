@@ -15,19 +15,14 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class DrowTempleGuard
-    {
-        public static Creature Create()
-        {
+    public class DrowTempleGuard {
+        public static Creature Create() {
             return new Creature(Illustrations.DrowTempleGuard, "Drow Temple Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 2, 8, 6, new Defenses(18, 11, 8, 9), 28,
             new Abilities(4, 2, 3, 0, 2, 0), new Skills(athletics: 8, intimidation: 6))
-            .WithAIModification(ai =>
-            {
-                ai.OverrideDecision = (self, options) =>
-                {
+            .WithAIModification(ai => {
+                ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;
 
                     AiFuncs.PositionalGoodness(monster, options, (t, _, _, cr) => cr.HasEffect(QEffectIds.DrowClergy) && t.DistanceTo(cr.Occupies) <= 3, 2f);

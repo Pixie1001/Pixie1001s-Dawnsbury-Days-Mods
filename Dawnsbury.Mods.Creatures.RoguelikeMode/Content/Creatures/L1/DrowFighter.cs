@@ -19,39 +19,33 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class DrowFighter
-    {
-        public static Creature Create()
-        {
+    public class DrowFighter {
+        public static Creature Create() {
             int poisonDC = 17;
             return new Creature(Illustrations.DrowFighter, "Drow Fighter", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 5, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(2, 4, 2, 0, 1, 0), new Skills(acrobatics: 7, athletics: 5, stealth: 7, intimidation: 5))
             .WithAIModification(ai => {
-                 ai.OverrideDecision = (self, options) => {
-                     Creature creature = self.Self;
-                     // Check if has crossbow
-                     Item? handcrossbow = creature.HeldItems.FirstOrDefault(item => item.ItemName == ItemName.HandCrossbow);
+                ai.OverrideDecision = (self, options) => {
+                    Creature creature = self.Self;
+                    // Check if has crossbow
+                    Item? handcrossbow = creature.HeldItems.FirstOrDefault(item => item.ItemName == ItemName.HandCrossbow);
 
-                     if (handcrossbow == null)
-                     {
-                         return null;
-                     }
+                    if (handcrossbow == null) {
+                        return null;
+                    }
 
-                     // Check if crossbow is loaded
-                     if (handcrossbow.EphemeralItemProperties.NeedsReload)
-                     {
-                         // foreach (Option option in options.Where(opt => opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name.StartsWith("Reload") || opt.Text == "Reload")) {
-                         foreach (Option option in options.Where(opt => opt.Text == "Reload" || opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload"))
-                         {
-                             option.AiUsefulness.MainActionUsefulness = 1f;
-                         }
-                     }
-                     return null;
-                 };
-             })
+                    // Check if crossbow is loaded
+                    if (handcrossbow.EphemeralItemProperties.NeedsReload) {
+                        // foreach (Option option in options.Where(opt => opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name.StartsWith("Reload") || opt.Text == "Reload")) {
+                        foreach (Option option in options.Where(opt => opt.Text == "Reload" || opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload")) {
+                            option.AiUsefulness.MainActionUsefulness = 1f;
+                        }
+                    }
+                    return null;
+                };
+            })
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(QEffect.AttackOfOpportunity(false))
@@ -59,17 +53,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
             .WithProficiency(Trait.Weapon, Proficiency.Expert)
             .AddHeldItem(Items.CreateNew(ItemName.Rapier))
             .AddHeldItem(Items.CreateNew(ItemName.HandCrossbow))
-            .AddQEffect(new QEffect()
-            {
+            .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
                     Item? rapier = self.Owner.HeldItems.FirstOrDefault(item => item.ItemName == ItemName.Rapier);
-                    if (rapier == null)
-                    {
+                    if (rapier == null) {
                         return null;
                     }
 
-                    StrikeModifiers strikeModifiers = new StrikeModifiers()
-                    {
+                    StrikeModifiers strikeModifiers = new StrikeModifiers() {
                         AdditionalBonusesToAttackRoll = new List<Bonus>() { new Bonus(1, BonusType.Circumstance, "Skewer") },
                         OnEachTarget = async (a, d, result) => {
                             d.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Bleed));
@@ -88,22 +79,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                     return (ActionPossibility)action;
                 }
             })
-            .AddQEffect(new QEffect("Lethargy Poison", "Enemies damaged by the drow fighter's hand crossbow attack, are afflicted by lethargy poison. {b}Stage 1{/b} slowed 1; {b}Stage 2{/b} slowed 1 for rest of encounter")
-            {
+            .AddQEffect(new QEffect("Lethargy Poison", "Enemies damaged by the drow fighter's hand crossbow attack, are afflicted by lethargy poison. {b}Stage 1{/b} slowed 1; {b}Stage 2{/b} slowed 1 for rest of encounter") {
                 StartOfCombat = async self => {
                     self.Name += $" (DC {poisonDC + self.Owner.Level})";
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Item != null && action.Item.ItemName == ItemName.HandCrossbow)
-                    {
+                    if (action.Item != null && action.Item.ItemName == ItemName.HandCrossbow) {
                         Affliction poison = new Affliction(QEffectIds.LethargyPoison, "Lethargy Poison", attacker.Level + poisonDC, "{b}Stage 1{/b} slowed 1; {b}Stage 2{/b} slowed 1 for rest of encounter", 2, dmg => null, qf => {
-                            if (qf.Value == 1)
-                            {
+                            if (qf.Value == 1) {
                                 qf.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationEphemeral());
                             }
 
-                            if (qf.Value == 2)
-                            {
+                            if (qf.Value == 2) {
                                 QEffect nEffect = QEffect.Slowed(1).WithExpirationNever();
                                 nEffect.CounteractLevel = qf.CounteractLevel;
                                 qf.Owner.AddQEffect(nEffect);
@@ -119,23 +106,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                     Item? handcrossbow = self.Owner.HeldItems.FirstOrDefault(item => item.ItemName == ItemName.HandCrossbow);
                     int dc = poisonDC + self.Owner.Level;
 
-                    if (handcrossbow == null)
-                    {
+                    if (handcrossbow == null) {
                         return 0f;
                     }
 
-                    if (action == null || action.Item != handcrossbow)
-                    {
+                    if (action == null || action.Item != handcrossbow) {
                         return 0f;
                     }
 
-                    if (self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction) && cr.Threatens(self.Owner.Occupies)).ToArray().Length > 0)
-                    {
+                    if (self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction) && cr.Threatens(self.Owner.Occupies)).ToArray().Length > 0) {
                         return 0f;
                     }
 
-                    if (target != null && !target.HasEffect(QEffectIds.LethargyPoison) && !target.HasEffect(QEffectId.Slowed))
-                    {
+                    if (target != null && !target.HasEffect(QEffectIds.LethargyPoison) && !target.HasEffect(QEffectId.Slowed)) {
                         float start = 15f;
                         float percentage = dc - (target.Defenses.GetBaseValue(Defense.Fortitude) + 10.5f);
                         percentage *= 5f;

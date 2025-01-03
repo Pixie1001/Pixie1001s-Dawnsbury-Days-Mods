@@ -20,48 +20,36 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class DevotedCultist
-    {
-        public static Creature Create()
-        {
+    public class DevotedCultist {
+        public static Creature Create() {
             return new Creature(Illustrations.DevotedCultist, "Devoted Cultist", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Humanoid }, 1, 6, 5, new Defenses(15, 7, 4, 10), 26,
             new Abilities(1, 2, 4, -1, 1, 0), new Skills(acrobatics: 7, athletics: 6))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()
             .AddHeldItem(Items.CreateNew(ItemName.Dagger))
-            .AddQEffect(new QEffect()
-            {
-                ProvideMainAction = self =>
-                {
+            .AddQEffect(new QEffect() {
+                ProvideMainAction = self => {
                     return (ActionPossibility)new CombatAction(self.Owner, Illustrations.RitualOfAscension, "Ritual of Ascension", new Trait[] { Trait.Flourish, Trait.Divine, Trait.Magical }, "", Target.Self())
                     .WithSoundEffect(SfxName.AuraExpansion)
                     .WithActionCost(1)
                     .WithGoodness((t, a, d) => 100f)
                     .WithProjectileCone(Illustrations.RitualOfAscension, 7, ProjectileKind.Cone)
-                    .WithEffectOnSelf(async caster =>
-                    {
-                        if (!caster.QEffects.Any(qf => qf.Name == "Ritual of Ascension"))
-                        {
-                            caster.AddQEffect(new QEffect("Ritual of Ascension", $"When this condition reaches 3, the {caster.BaseName} will transform, fulfilling their life's purpose.", ExpirationCondition.Never, caster, Illustrations.RitualOfAscension)
-                            {
+                    .WithEffectOnSelf(async caster => {
+                        if (!caster.QEffects.Any(qf => qf.Name == "Ritual of Ascension")) {
+                            caster.AddQEffect(new QEffect("Ritual of Ascension", $"When this condition reaches 3, the {caster.BaseName} will transform, fulfilling their life's purpose.", ExpirationCondition.Never, caster, Illustrations.RitualOfAscension) {
                                 Value = 1,
                             });
-                        }
-                        else
-                        {
+                        } else {
                             int stacks = caster.QEffects.First(qf => qf.Name == "Ritual of Ascension").Value++;
-                            if (stacks >= 2)
-                            {
+                            if (stacks >= 2) {
                                 Tile pos = caster.Occupies;
                                 caster.Battle.RemoveCreatureFromGame(caster);
                                 int rand = R.Next(0, 4);
                                 Creature newForm = null;
-                                switch (rand)
-                                {
+                                switch (rand) {
                                     case 0:
                                         newForm = MonsterStatBlocks.CreateAbrikandilu();
                                         break;
@@ -75,20 +63,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                                         newForm = MonsterStatBlocks.CreateAbrikandilu();
                                         break;
                                 }
-                                if (newForm.Level - caster.Level >= 4)
-                                {
+                                if (newForm.Level - caster.Level >= 4) {
                                     newForm.ApplyWeakAdjustments(false, true);
-                                }
-                                else if (newForm.Level - caster.Level == 3)
-                                {
+                                } else if (newForm.Level - caster.Level == 3) {
                                     newForm.ApplyWeakAdjustments(false);
-                                }
-                                else if (newForm.Level - caster.Level == 1)
-                                {
+                                } else if (newForm.Level - caster.Level == 1) {
                                     newForm.ApplyEliteAdjustments();
-                                }
-                                else if (newForm.Level - caster.Level == 0)
-                                {
+                                } else if (newForm.Level - caster.Level == 0) {
                                     newForm.ApplyEliteAdjustments(true);
                                 }
                                 Sfxs.Play(SfxName.DeepNecromancy);
