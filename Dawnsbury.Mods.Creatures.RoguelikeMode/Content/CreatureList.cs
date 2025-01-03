@@ -73,6 +73,7 @@ using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -133,6 +134,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Nuglub.Create();
                 case ModEnums.CreatureId.HOMUNCULUS:
                     return Homunculus.Create();
+                case ModEnums.CreatureId.ABYSSAL_HANDMAIDEN:
+                    return AbyssalHandmaiden.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -212,6 +215,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_CRONE, "Witch Crone");
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MOTHER, "Witch Mother");
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MAIDEN, "Witch Maiden");
+
+            // Level 6 Creatures - Demons
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ABYSSAL_HANDMAIDEN);
         }
 
         internal static void LoadObjects()
@@ -224,7 +230,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.BOOM_SHROOM);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.SPIDER_QUEEN_SHRINE);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RESTLESS_SPIRIT);
-            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE);
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE, "TestPile");
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]

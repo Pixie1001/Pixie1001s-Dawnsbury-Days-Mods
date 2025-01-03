@@ -426,3 +426,4 @@ CustomMaps/adventurePath.xsd
 CustomMaps/BasicTileset.tsx
 *.pdn
 /CustomMaps/Unused
+*.targets

@@ -33,8 +33,5 @@
 	  <Folder Include="Content\Objects\L3\" />
 	  <Folder Include="Content\Objects\L4\" />
 	</ItemGroup>
-	<Target Name="CopyToGameModsFolder" AfterTargets="Build">
-		<Copy SourceFiles="$(TargetPath)" DestinationFolder="G:\SteamLibrary\steamapps\common\Dawnsbury Days\CustomMods" />
-	</Target>
 
 </Project>
