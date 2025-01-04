@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="27" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="29" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -160,6 +160,18 @@
  <tile id="26">
   <properties>
    <property name="Id" value="Nuglub"/>
+  </properties>
+  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="27">
+  <properties>
+   <property name="Id" value="Crawling Hand"/>
+  </properties>
+  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="28">
+  <properties>
+   <property name="Id" value="Animated Statue"/>
   </properties>
   <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
  </tile>

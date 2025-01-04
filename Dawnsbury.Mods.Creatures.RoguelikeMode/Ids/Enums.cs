@@ -94,7 +94,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             WITCH_CULTIST,
             ABYSSAL_HANDMAIDEN,
             NUGLUB,
-            HOMUNCULUS
+            HOMUNCULUS,
+            CRAWLING_HAND,
+            ANIMATED_STATUE
         }
 
         internal enum ObjectId

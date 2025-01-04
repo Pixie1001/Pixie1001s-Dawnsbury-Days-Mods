@@ -136,6 +136,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Homunculus.Create();
                 case ModEnums.CreatureId.ABYSSAL_HANDMAIDEN:
                     return AbyssalHandmaiden.Create();
+                case ModEnums.CreatureId.CRAWLING_HAND:
+                    return CrawlingHand.Create();
+                case ModEnums.CreatureId.ANIMATED_STATUE:
+                    return AnimatedStatue.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -181,6 +185,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level -1 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.RAVENOUS_RAT);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.CRAWLING_HAND);
 
             // Level 0 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HOMUNCULUS);
@@ -215,6 +220,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_CRONE, "Witch Crone");
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MOTHER, "Witch Mother");
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MAIDEN, "Witch Maiden");
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ANIMATED_STATUE);
 
             // Level 6 Creatures - Demons
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ABYSSAL_HANDMAIDEN);
