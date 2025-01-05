@@ -118,9 +118,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         private static void LoadEncounters()
         {
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
-            RegisterEncounter<SudoDebugL1>("SudoDebug.tmx", "SudoDebugLv1");
-            RegisterEncounter<SudoDebugL2>("SudoDebug.tmx", "SudoDebugLv2");
-            RegisterEncounter<SudoDebugL3>("SudoDebug.tmx", "SudoDebugLv3");
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");
@@ -148,6 +145,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<ShadowCasterSanctumLv1>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv1");
             RegisterEncounter<ShadowCasterSanctumLv2>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv2");
             RegisterEncounter<ShadowCasterSanctumLv3>("ShadowcasterSanctum.tmx", "ShadowCasterSanctumLv3");
+            RegisterEncounter<MysteriousRoom_FeyL1>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL1");
+            RegisterEncounter<MysteriousRoom_FeyL2>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL2");
+            RegisterEncounter<MysteriousRoom_FeyL3>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL3");
+            RegisterEncounter<MysteriousRoom_HomunculusL1>("MysteriousRoom_Homunculus.tmx", "MysteriousRoom_HomunculusL1");
+            RegisterEncounter<MysteriousRoom_HomunculusL2>("MysteriousRoom_Homunculus.tmx", "MysteriousRoom_HomunculusL2");
+            RegisterEncounter<MysteriousRoom_HomunculusL3>("MysteriousRoom_Homunculus.tmx", "MysteriousRoom_HomunculusL3");
+            RegisterEncounter<MysteriousRoom_ArtRoomL1>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL1");
+            RegisterEncounter<MysteriousRoom_ArtRoomL2>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL2");
+            RegisterEncounter<MysteriousRoom_ArtRoomL3>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

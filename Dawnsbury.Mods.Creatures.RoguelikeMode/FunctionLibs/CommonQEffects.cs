@@ -394,7 +394,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                                 meleeStrike.ChosenTargets = ChosenTargets.CreateSingleTarget(attacker);
                                 int num4 = await meleeStrike.AllExecute() ? 1 : 0;
                             } else if (step && effect.Owner.DistanceTo(attacker) > 2 && validStepTiles.Count > 0) {
-                                Tile bestTile = validStepTiles.OrderBy(t => t.HasLineOfEffectTo(attacker.Occupies)).ToArray()[0];
+                                Tile bestTile = validStepTiles.OrderBy(t => t.HasLineOfEffectToIgnoreLesser(attacker.Occupies)).ToArray()[0];
                                 await effect.Owner.SingleTileMove(bestTile, null);
                                 if (meleeStrikeTarget.IsLegalTarget(effect.Owner, attacker)) {
                                     meleeStrike.ChosenTargets = new ChosenTargets() {
