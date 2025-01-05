@@ -39,7 +39,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                         self.Owner.Battle.SmartCenter(self.Owner.Occupies.X, self.Owner.Occupies.Y);
                         self.Owner.Occupies.Overhead($"Hatched!", Color.DarkRed, $"{self.Owner.Name} hatches into a Bebilith Spawn!");
                         self.Owner.AnimationData.ColorBlink(Color.White);
-                        Sfxs.Play(SfxName.BoneSpray);
+                        Sfxs.Play(SoundEffects.EggHatch);
                         Tile pos = self.Owner.Occupies;
                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                         Creature spider = BebilithSpawn.Create();

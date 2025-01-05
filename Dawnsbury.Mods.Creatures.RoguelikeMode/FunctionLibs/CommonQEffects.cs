@@ -517,7 +517,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
             effect.AddGrantingOfTechnical(cr => effect.Owner.Battle.InitiativeOrder.Contains(cr), qf => {
                 qf.StartOfYourPrimaryTurn = async (tmp, owner) => {
-                    List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder;
+                    List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder.Where(cr => cr.AliveOrUnconscious).ToList();
 
                     // Skip if boss isn't going on your next turn
                     if (initOrder.IndexOf(effect.Owner) != initOrder.IndexOf(effect.Owner.Battle.ActiveCreature) - 1) {
@@ -561,6 +561,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         } else {
                             newOrder.Add(initOrder[i]);
                         }
+                    }
+
+                    if (!newOrder.Contains(effect.Owner)) {
+                        newOrder.Add(effect.Owner);
                     }
 
                     effect.Owner.Battle.InitiativeOrder = newOrder;

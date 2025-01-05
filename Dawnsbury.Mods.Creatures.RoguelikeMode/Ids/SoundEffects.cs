@@ -28,6 +28,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
     internal static class SoundEffects
     {
         // Music
-        public static SfxName AntipartTheme = ModManager.RegisterNewSoundEffect("RoguelikeModeAssets/Music/battle-theme-194713.mp3");
+        public static Songname AntipartyTheme = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/battle-theme-194713.mp3", 1.0f);
+
+        // SE
+        public static SfxName EggHatch = ModManager.RegisterNewSoundEffect("RoguelikeModeAssets/Sfx/SPLAT Squelch 02.ogg");
     }
 }
