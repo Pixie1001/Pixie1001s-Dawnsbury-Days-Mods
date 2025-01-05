@@ -27,8 +27,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
 
                         if (creature.HasEffect(QEffectIds.Lurking)) {
                             Creature stalkTarget = creature.Battle.AllCreatures.FirstOrDefault(c => c.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == creature) != null);
+
                             if (stalkTarget != null) {
-                                AiFuncs.PositionalGoodness(creature, options, (pos, thisCreature, step, otherCreature) => otherCreature == stalkTarget && pos.DistanceTo(stalkTarget.Occupies) <= 5 && pos.DistanceTo(stalkTarget.Occupies) >= 3 && pos.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard, 10);
+                                AiFuncs.PositionalGoodness(creature, options, (pos, thisCreature, step, otherCreature) => otherCreature == stalkTarget && pos.DistanceTo(stalkTarget.Occupies) <= 5 && pos.DistanceTo(stalkTarget.Occupies) >= 3 && pos.HasLineOfEffectToIgnoreLesser(stalkTarget.Occupies) <= CoverKind.Standard, 10);
                             }
                             //foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Sneak)) {
                             //    TileOption? option2 = option as TileOption;

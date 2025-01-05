@@ -61,7 +61,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                         }
                     })
                     // MISSING SPELLS: Level 2 - Shatter | Cantrip - Prestidigitation
-                    .AddMonsterInnateSpellcasting(8, Trait.Primal, level2Spells: [SpellId.Barkskin], level1Spells: [SpellId.Grease, SpellId.ShockingGrasp, SpellId.Shield])
+                    .AddMonsterInnateSpellcasting(8, Trait.Primal, level2Spells: [SpellId.BoneSpray], level1Spells: [SpellId.Grease, SpellId.ShockingGrasp, SpellId.Shield])
                     .AddQEffect(QEffect.MonsterGrab())
                     .Builder
                     .AddNaturalWeapon(NaturalWeaponKind.Jaws, 11, [Trait.Finesse, Trait.Grab], "1d8+1", DamageKind.Piercing)
