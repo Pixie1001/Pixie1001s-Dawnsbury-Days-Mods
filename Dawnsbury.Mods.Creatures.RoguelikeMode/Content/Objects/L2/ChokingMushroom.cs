@@ -25,13 +25,10 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Core.Mechanics.Damage;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class ChokingMushroom
-    {
-        public static Creature Create()
-        {
+    public class ChokingMushroom {
+        public static Creature Create() {
             QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
             Creature hazard = new Creature(Illustrations.ChokingMushroom, "Choking Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
@@ -42,39 +39,31 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
             .AddQEffect(new QEffect("Choking Spores", "This predatory mushroom exhudes a cloud of poisonous spores to suffocate its prey. Creatures walking through the spores suffer 1d4 poison damage vs. a DC 17 Basic fortitude save, and become sickened 1 on a critical failure."))
             ;
 
-            QEffect effect = new QEffect("Interactable", "You can use Medicine, Nature and Occultism to interact with this mushroom.")
-            {
+            QEffect effect = new QEffect("Interactable", "You can use Medicine, Nature and Occultism to interact with this mushroom.") {
                 WhenMonsterDies = self => {
-                    foreach (Tile tile in self.Tag as List<Tile>)
-                    {
-                        if (tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores))
-                        {
+                    foreach (Tile tile in self.Tag as List<Tile>) {
+                        if (tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
                             tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.ChokingSpores);
                         }
                     }
                 },
                 StateCheckWithVisibleChanges = async self => {
-                    if (!self.Owner.Alive)
-                    {
+                    if (!self.Owner.Alive) {
                         return;
                     }
 
                     self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Fire, 5);
                     self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 5);
 
-                    if (self.Tag == null)
-                    {
+                    if (self.Tag == null) {
                         self.Tag = self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2 && !new TileKind[] { TileKind.BlocksMovementAndLineOfEffect, TileKind.Tree, TileKind.Rock, TileKind.Wall }.Contains(t.Kind)).ToList();
                     }
 
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner)))
-                    {
-                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
-                        {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
-                                return new SubmenuPossibility(Illustrations.ChokingMushroom, "Interactions")
-                                {
+                                return new SubmenuPossibility(Illustrations.ChokingMushroom, "Interactions") {
                                     Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
@@ -189,18 +178,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                         });
                     }
 
-                    if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.Recharging) || !self.Owner.Alive || self.Owner.Destroyed)
-                    {
+                    if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.Recharging) || !self.Owner.Alive || self.Owner.Destroyed) {
                         return;
                     }
 
                     // Apply poison to tiles
-                    foreach (Tile tile in self.Tag as List<Tile>)
-                    {
-                        if (!tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores))
-                        {
-                            TileQEffect spores = new TileQEffect(tile)
-                            {
+                    foreach (Tile tile in self.Tag as List<Tile>) {
+                        if (!tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
+                            TileQEffect spores = new TileQEffect(tile) {
                                 Name = "Choking Spores",
                                 VisibleDescription = "Toxic spores used by Choking Mushrooms to hunt for nutrients. Suffer 1d4 poison damage vs. a Basic (DC 17) fort save after entering or starting your turn within the spores, that inflicts sickened 1 on a critical failure.",
                                 TileQEffectId = QEffectIds.ChokingSpores,
@@ -208,14 +193,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                                 Illustration = IllustrationName.Fog,
                                 TransformsTileIntoHazardousTerrain = true,
                                 AfterCreatureBeginsItsTurnHere = async victim => {
-                                    if (victim.IsImmuneTo(Trait.Poison) || victim.WeaknessAndResistance.Immunities.Contains(DamageKind.Poison) || victim.FindQEffect(QEffectIds.MushroomInoculation) != null)
-                                    {
+                                    if (victim.IsImmuneTo(Trait.Poison) || victim.WeaknessAndResistance.Immunities.Contains(DamageKind.Poison) || victim.FindQEffect(QEffectIds.MushroomInoculation) != null) {
                                         return;
                                     }
                                     CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 17);
                                     await CommonSpellEffects.DealBasicDamage(CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison), hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d4", "Choking Spores"), DamageKind.Poison));
-                                    if (result == CheckResult.CriticalFailure)
-                                    {
+                                    if (result == CheckResult.CriticalFailure) {
                                         victim.AddQEffect(QEffect.Sickened(1, 17));
                                     }
                                 },

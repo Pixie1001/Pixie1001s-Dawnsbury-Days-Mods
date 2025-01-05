@@ -71,6 +71,7 @@ using System.Reflection.Metadata;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
@@ -312,7 +313,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         return false;
                     }
 
-                    if (effect.UseReaction()) {
+                    if (await effect.Owner.AskToUseReaction($"Your ally {action.Owner.Name} has failed the spider queen with their incompetence. Would you like discipline them, dealing 1d6 slashing damage to allow them to reroll their attack with a +1 bonus?")) {
                         effect.Owner.Occupies.Overhead("*cruel taskmistress*", Color.Green,
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b} to punish " + action.Owner.Name + " for their failure.",
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b}",
@@ -461,15 +462,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
 
             effect.AddGrantingOfTechnical(cr => effect.Owner.Battle.InitiativeOrder.Contains(cr), qf => {
-                qf.StartOfYourTurn = async (tmp, owner) => {
+                qf.StartOfYourPrimaryTurn = async (tmp, owner) => {
                     List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder;
 
+                    // Skip if boss isn't going on your next turn
                     if (initOrder.IndexOf(effect.Owner) != initOrder.IndexOf(effect.Owner.Battle.ActiveCreature) - 1) {
-                        if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First())) {
+                        // Stop if you aren't last in the turn order AND the boss goes first (wrap around check)
+                        if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First()) || owner.Battle.RoundNumber == 1) {
                             return;
                         }
                     }
 
+                    // Skip if boss doesn't have the extra turn buff
                     if (!effect.Owner.HasEffect(QEffectIds.ExtraTurn)) {
                         effect.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in initiative order after this turn.") {
                             Illustration = IllustrationName.Haste,
@@ -482,9 +486,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     initOrder.Remove(effect.Owner);
 
                     int newPos = 0;
-                    if (pos == initOrder.Count - 1) {
+                    if (pos == initOrder.Count) {
                         newPos = 1;
-                    } else if (pos == initOrder.Count - 2) {
+                    } else if (pos == initOrder.Count - 1) {
                         newPos = 0;
                     } else {
                         newPos = pos + 2;

@@ -19,13 +19,10 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class TestPile
-    {
-        public static Creature Create()
-        {
+    public class TestPile {
+        public static Creature Create() {
             int radius = 2;
             QEffect qfCurrentDC = new QEffect() { Value = 17 };
 
@@ -36,17 +33,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
             .WithHardness(7)
             ;
 
-            QEffect interactable = new QEffect("Interactable", "This is a debug object that can be used to inflict status effects on yourself for testing purposes ^^")
-            {
+            QEffect interactable = new QEffect("Interactable", "This is a debug object that can be used to inflict status effects on yourself for testing purposes ^^") {
                 StateCheckWithVisibleChanges = async self => {
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner)))
-                    {
-                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
-                        {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
-                                return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions")
-                                {
+                                return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions") {
                                     Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {

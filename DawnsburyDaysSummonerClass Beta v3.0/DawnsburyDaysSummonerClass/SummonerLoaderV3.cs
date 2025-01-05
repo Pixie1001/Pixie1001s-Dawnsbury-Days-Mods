@@ -1316,6 +1316,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         ShortDescription = "Take control of your Eidolon, using your shared action pool."
                     }
                     .WithEffectOnSelf((Func<Creature, Task>)(async self => {
+                        if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will use all of your shared actions without input. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                            return;
+                        }
+
                         await PartnerActs(summoner, eidolon);
                     }))
                     .WithActionCost(0);
@@ -2196,6 +2200,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                                 if (action.HasTrait(Trait.Strike)) {
                                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+
+                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                        return;
+                                    }
+
                                     self.AddQEffect(new QEffect {
                                         PreventTakingAction = action => action.Name == "Enable Tandem Strike" ? "Tandem strike already used this round" : null,
                                         ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
@@ -2262,6 +2271,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                                 if (action.ActionId == ActionId.Stride) {
                                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+
+                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will move randomly. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                        return;
+                                    }
+
                                     self.AddQEffect(new QEffect {
                                         PreventTakingAction = action => action.Name == "Enable Tandem Movement" ? "Tandem movement already used this round" : null,
                                         ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
@@ -2321,6 +2335,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                             if (action.ActuallySpentActions > 0) {
                                 self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+
+                                if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner).Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                    return;
+                                }
+
                                 self.AddQEffect(new QEffect {
                                     PreventTakingAction = action => action.Name == "Enable Act Together" ? "Act together already used this round" : null,
                                     ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn

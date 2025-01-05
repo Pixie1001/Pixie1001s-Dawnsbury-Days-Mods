@@ -22,13 +22,10 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class SpiderQueenShrin
-    {
-        public static Creature Create()
-        {
+    public class SpiderQueenShrine {
+        public static Creature Create() {
             int radius = 2;
             QEffect qfCurrentDC = new QEffect() { Value = 15 };
 
@@ -45,17 +42,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
 
             QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders and drow within {radius * 5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
 
-            QEffect interactable = new QEffect("Interactable", "You can use Religion, Thievery and Crafting to interact with this shrine.")
-            {
+            QEffect interactable = new QEffect("Interactable", "You can use Religion, Thievery and Crafting to interact with this shrine.") {
                 StateCheckWithVisibleChanges = async self => {
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner)))
-                    {
-                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
-                        {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                        hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
-                                return new SubmenuPossibility(Illustrations.SpiderShrine, "Interactions")
-                                {
+                                return new SubmenuPossibility(Illustrations.SpiderShrine, "Interactions") {
                                     Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
@@ -135,8 +128,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
             effect.AddGrantingOfTechnical(cr => cr.HasTrait(ModTraits.Spider) || cr.HasTrait(ModTraits.Drow), qfTechnical => {
                 qfTechnical.Key = "Blessings of the Spider Queen (Goodness)";
                 qfTechnical.AdditionalGoodness = (self, action, target) => {
-                    if (self.Owner.DistanceTo(effect.Owner) <= radius)
-                    {
+                    if (self.Owner.DistanceTo(effect.Owner) <= radius) {
                         return 2;
                     }
                     return 0f;

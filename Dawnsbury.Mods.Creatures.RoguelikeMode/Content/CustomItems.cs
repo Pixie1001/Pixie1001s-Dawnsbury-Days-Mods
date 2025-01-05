@@ -110,7 +110,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
             Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical })
             .WithDescription("{i}An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.{/i}\n\n" +
-            "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 3 + your level.\n\n" +
+            "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.\n\n" +
             "After using the amulet in this way, it cannot be used again until you recharge its magic as an {icon:Action} action.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -123,7 +123,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 return null;
                             }
 
-                            if (effect.UseReaction()) {
+                            if (await effect.Owner.AskToUseReaction((damage.Power != null ? "{b}" + a.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" :
+                                "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 3}?")) {
                                 effect.Owner.Occupies.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
                                 qf.Owner.Occupies.Overhead($"*{3 + effect.Owner.Level} damage negated*", Color.Black);
                                 Sfxs.Play(SfxName.Abjuration, 1f);
@@ -134,7 +135,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     });
                     wielder.AddQEffect(effect);
                 } else {
-                    QEffect effect = new QEffect("Protective Amulet {icon:Reaction}", "{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack. {b}Effect{/b} Reduce the damage by an amount equal to 3 + your level.");
+                    QEffect effect = new QEffect("Protective Amulet {icon:Reaction}", "{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack. {b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.");
                     effect.ExpiresAt = ExpirationCondition.Ephemeral;
                     effect.Tag = weapon;
                     effect.EndOfCombat = async (self, won) => {
@@ -160,12 +161,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             }
 
                             if (await effect.Owner.AskToUseReaction((damage.Power != null ? "{b}" + a.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" :
-                                "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 3}?")) {
+                                "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 1}?")) {
                                 item.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
                                 effect.Owner.Occupies.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
-                                qf.Owner.Occupies.Overhead($"*{effect.Owner.Level + 3} damage negated*", Color.Black);
+                                qf.Owner.Occupies.Overhead($"*{effect.Owner.Level + 1} damage negated*", Color.Black);
                                 Sfxs.Play(SfxName.Abjuration, 1f);
-                                return new ReduceDamageModification(effect.Owner.Level + 3, "Protective Amulet");
+                                return new ReduceDamageModification(effect.Owner.Level + 1, "Protective Amulet");
                             }
                             return null;
                         };

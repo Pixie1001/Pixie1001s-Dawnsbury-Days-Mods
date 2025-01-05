@@ -18,15 +18,11 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class DrowRenegade
-    {
-        public static Creature Create()
-        {
-            return new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25, new Abilities(4, 2, 3, 1, 1, 2), new Skills(deception: 7, athletics: 9))
-            {
+    public class DrowRenegade {
+        public static Creature Create() {
+            return new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25, new Abilities(4, 2, 3, 1, 1, 2), new Skills(deception: 7, athletics: 9)) {
                 SpawnAsFriends = true
             }
                 .WithBasicCharacteristics()
@@ -34,11 +30,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                 .AddHeldItem(Items.CreateNew(ItemName.Greatsword))
                 .AddQEffect(QEffect.AttackOfOpportunity())
                 .AddQEffect(CommonQEffects.Drow())
-                .AddQEffect(new QEffect()
-                {
+                .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
-                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Moonbeam, "Crescent Moon Strike", new Trait[] { Trait.Magical, Trait.Divine }, "...", Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy))
-                        {
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Moonbeam, "Crescent Moon Strike", new Trait[] { Trait.Magical, Trait.Divine }, "...", Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy)) {
                             ShortDescription = "Deal 3d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. The Drow Renegade cannot use this attack again for 1d4 rounds."
                         }
                         .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr.Level + cr.Abilities.Charisma + 4 + 10))
@@ -47,8 +41,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                         .WithSoundEffect(SfxName.DivineLance)
                         .WithEffectOnEachTarget(async (spell, user, defender, result) => {
                             await CommonSpellEffects.DealBasicDamage(spell, user, defender, result, DiceFormula.FromText("3d6", "Crescent Moon Strike"), DamageKind.Fire);
-                            if (result == CheckResult.CriticalFailure)
-                            {
+                            if (result == CheckResult.CriticalFailure) {
                                 defender.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(user, 1));
                             }
                         })
