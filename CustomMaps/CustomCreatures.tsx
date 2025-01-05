@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="29" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="31" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -155,7 +155,7 @@
   <properties>
    <property name="Id" value="Homunculus"/>
   </properties>
-  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+  <image source="CustomCreatures/Homunculous.png" width="256" height="256"/>
  </tile>
  <tile id="26">
   <properties>
@@ -167,12 +167,24 @@
   <properties>
    <property name="Id" value="Crawling Hand"/>
   </properties>
-  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+  <image source="CustomCreatures/CrawlingHand.png" width="256" height="256"/>
  </tile>
  <tile id="28">
   <properties>
    <property name="Id" value="Animated Statue"/>
   </properties>
-  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+  <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
+ </tile>
+ <tile id="2023">
+  <properties>
+   <property name="Id" value="Demonic Pustule"/>
+  </properties>
+  <image source="CustomCreatures/Demon_Egg.png" width="256" height="256"/>
+ </tile>
+ <tile id="2024">
+  <properties>
+   <property name="Id" value="Bebilith Spawn"/>
+  </properties>
+  <image source="CustomCreatures/BebilithSpawn.png" width="256" height="256"/>
  </tile>
 </tileset>

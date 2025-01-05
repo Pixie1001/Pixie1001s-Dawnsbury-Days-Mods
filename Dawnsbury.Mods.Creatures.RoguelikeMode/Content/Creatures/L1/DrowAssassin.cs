@@ -118,7 +118,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                 .AddQEffect(new QEffect() {
                     AdditionalGoodness = (self, action, target) => {
                         if (target.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == self.Owner) != null) {
-                            return 20f;
+                            return 30f;
                         }
                         //return -10f;
                         return 0f;

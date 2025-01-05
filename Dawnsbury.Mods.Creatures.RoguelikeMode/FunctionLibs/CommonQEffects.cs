@@ -175,23 +175,77 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
-        //public static QEffect AmuletOfAbeyance() {
-        //    QEffect effect = new QEffect("Amulet of Abeyance {icon:Reaction}", "{b}Effect{/b} You or a member of your coven within 15-feet would be damaged by an attack.");
-        //    effect.AddGrantingOfTechnical(cr => cr.HasTrait(Traits.Witch), qf => {
-        //        qf.YouAreDealtDamage = async (self, a, damage, d) => {
-        //            if (effect.Owner.DistanceTo(d) > 3) {
-        //                return null;
-        //            }
+        public static QEffect AbyssalRotAttack(int baseDC, string dmg, string weapon) {
+            Affliction abyssalRot = new Affliction(QEffectIds.AbyssalRot, "Abyssal Rot", 0,
+                "The drained condition from Abyssal rot is cumulative, to a maximum of drained 4; {b}Stage 1{/b} " + dmg + " negative damage; {b}Stage 2{/b} " + dmg + " negative damage and drained 1 {b}Stage 3{/b} " + dmg + " negative damage and drained 2", 3, stage => null, null);
+            abyssalRot.EnterStage = async (self, action) => {
+                await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(dmg), self.Owner, CheckResult.Failure, DamageKind.Negative);
+                if (self.Value >= 2) {
+                    int stacks = self.Owner.GetQEffectValue(QEffectId.Drained) + 1;
+                    if (self.Value >= 3) {
+                        stacks += 1;
+                    }
+                    self.Owner.AddQEffect(QEffect.Drained(stacks));
+                }
+            };
 
-        //            if (effect.UseReaction()) {
-        //                return new ReduceDamageModification(3 + effect.Owner.Level, "Amulet of Abeyance");
-        //            }
-        //            return null;
-        //        };
-        //    });
+            return new QEffect("Abyssal Rot", "Set Later") {
+                StateCheck = async self => {
+                    if (self.Description == "Set Later") {
+                        self.Name += $" (DC {baseDC + self.Owner.Level})";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: {abyssalRot.StagesDescription}";
+                    }
+                },
+                AfterYouDealDamage = async (attacker, action, target) => {
+                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                        Affliction poison = abyssalRot;
+                        poison.DC = baseDC + attacker.Level;
 
-        //    return effect;
-        //}
+                        await Affliction.ExposeToInjury(poison, attacker, target);
+                    }
+                },
+                AdditionalGoodness = (self, action, target) => {
+                    int dc = baseDC + self.Owner.Level;
+
+                    if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
+                        return 0f;
+                    }
+
+                    if (target != null && !target.HasEffect(QEffectId.SpiderVenom)) {
+                        return 2f;
+                    }
+
+                    return 0f;
+                }
+            };
+        }
+
+        public static QEffect PreyUpon() {
+            return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you.") {
+                StateCheck = self => {
+                    foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends)) {
+                        int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(enemy) <= 2).Count();
+                        if (closeAllies == 0) {
+                            enemy.AddQEffect(new QEffect() {
+                                Source = self.Owner,
+                                ExpiresAt = ExpirationCondition.Ephemeral,
+                                IsFlatFootedTo = (qfFlatFooted, attacker, action) => attacker == qfFlatFooted.Source ? "prey upon" : null
+                            });
+                        }
+                    }
+                },
+                AdditionalGoodness = (self, action, defender) => {
+                    if (defender.IsFlatFootedTo(self.Owner, action)) {
+                        return 0;
+                    }
+                    int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != defender && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(defender) <= 2).Count();
+                    if (closeAllies == 0) {
+                        return 4;
+                    }
+                    return 0;
+                }
+            };
+        }
 
         public static QEffect WebAttack(int baseDC) {
             return new QEffect() {
@@ -486,7 +540,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     initOrder.Remove(effect.Owner);
 
                     int newPos = 0;
-                    if (pos == initOrder.Count) {
+                    if (pos == initOrder.Count + 1) {
+                        newPos = 2;
+                    } else if (pos == initOrder.Count) {
                         newPos = 1;
                     } else if (pos == initOrder.Count - 1) {
                         newPos = 0;

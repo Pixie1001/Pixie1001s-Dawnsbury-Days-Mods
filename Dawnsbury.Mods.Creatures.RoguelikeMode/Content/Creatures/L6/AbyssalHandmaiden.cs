@@ -14,12 +14,15 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display.Notifications;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.Xna.Framework;
+using System.Xml.Linq;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -30,25 +33,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6 {
             // TODO: Bite short desc needs an update to explain grab and poison
             // CREATURE - Abyssal Handmaiden
             int radius = 2;
-            Item legAtk = CommonItems.CreateNaturalWeapon(IllustrationName.Spear, "stabbing appendage", "2d6", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6, Trait.Reach);
+            Item legAtk = new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6, Trait.Reach }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing));
+
             Creature monster = new Creature(Illustrations.AbyssalHandmaiden, "Abyssal Handmaiden", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 6, 6, 5, new Defenses(23, 11, 17, 14), 90,
             new Abilities(5, 5, 4, 2, 2, 4), new Skills(acrobatics: 15, athletics: 14, intimidation: 14, religion: 10, arcana: 10))
-            .WithAIModification(ai => {
-                ai.OverrideDecision = (self, options) => {
-                    Creature creature = self.Self;
-
-                    return null;
-                };
-            })
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()
             .WithUnarmedStrike(legAtk)
             .AddQEffect(CommonQEffects.MiniBoss())
             .AddQEffect(new QEffect() {
+                StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
+            })
+            .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
+            .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
                     int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
-                    return (ActionPossibility)new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.Spear, new SideBySideIllustration(IllustrationName.Spear, IllustrationName.Spear)),
+                    return (ActionPossibility)new CombatAction(self.Owner, new SideBySideIllustration(Illustrations.StabbingAppendage, new SideBySideIllustration(Illustrations.StabbingAppendage, Illustrations.StabbingAppendage)),
                         "Flurry of Limbs", Array.Empty<Trait>(),
                         "The Abyssal Handmaiden makes up to three stabbing appendage Strikes against different targets. These attacks count toward the Abyssal Handmaiden's multiple attack penalty, but the penalty doesn't increase until after all the attacks have been made.",
                         // Target.MultipleCreatureTargets(Target.AdjacentCreature(), Target.AdjacentCreature(), Target.AdjacentCreature())
@@ -56,7 +57,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6 {
                         .WithMustBeDistinct().WithMinimumTargets(1)
                         .WithOverriddenOverallGoodness((t, hm) => {
                             //switch (hm.Occupies.DistanceTo.Creatures.Count(cr => cr.EnemyOf(hm) && cr.Alive)) {
-                            switch (hm.Battle.AllCreatures.Where(cr => cr.EnemyOf(hm) && hm.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Greater && hm.DistanceTo(cr) <= 2).Count()) {
+                            switch (hm.Battle.AllCreatures.Where(cr => cr.Alive && cr.EnemyOf(hm) && hm.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Greater && hm.DistanceTo(cr) <= 2).Count()) {
                                 case 0:
                                     return int.MinValue;
                                 case 1:
@@ -87,20 +88,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6 {
                             return;
                         }
                         await Possibilities.Grapple(attacker, defender, result);
-                        Affliction poison = Affliction.CreateDemonWebspinnerSpiderVenom();
-                        poison.DC = 24;
-                        await Affliction.ExposeToInjury(poison, attacker, defender);
                     };
                     CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d8", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse));
                     bite.Description = "The Abyssal Handmaiden attemps to grab and sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
-                    bite.ShortDescription += " and the target becomes grabbed and exposed to spider venom.";
+                    bite.ShortDescription += " and the target becomes grabbed and exposed to abyssal rot.";
                     bite.ActionCost = 2;
                     bite.WithGoodnessAgainstEnemy((targeting, a, d) => 18f);
-                    //bite.WithEffectOnEachTarget + effect;
                     bite.EffectOnOneTarget = (Delegates.EffectOnEachTarget)Delegate.Combine(bite.EffectOnOneTarget, effect);
                     return (ActionPossibility)bite;
                 },
-            });
+            })
+            .AddQEffect(CommonQEffects.AbyssalRotAttack(18, "1d10", "bite"));
             //.AddSpellcastingSource(SpellcastingKind.Innate, Trait.Demon, Ability.Charisma, Trait.Divine).WithSpells(
             //    level2: new SpellId[] { SpellId.Harm }).Done()
             var animation = monster.AnimationData.AddAuraAnimation(IllustrationName.AngelicHaloCircle, radius);

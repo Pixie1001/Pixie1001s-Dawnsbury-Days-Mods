@@ -46,6 +46,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration AbyssalHandmaiden = new ModdedIllustration("RoguelikeModeAssets/Enemies/AbyssalHandmaiden.png");
         internal static ModdedIllustration UnseenGuardian = new ModdedIllustration("RoguelikeModeAssets/Enemies/UnseenGuardian.png");
         internal static ModdedIllustration DevotedCultist = new ModdedIllustration("RoguelikeModeAssets/Enemies/DevotedCultist.png");
+        internal static ModdedIllustration Automoton = new ModdedIllustration("RoguelikeModeAssets/Enemies/Automoton.png"); // Unused
+        internal static ModdedIllustration AnimatedStatue = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimatedStatue.png");
+        internal static ModdedIllustration CrawlingHand = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimatedStatue.png");
+        internal static ModdedIllustration BebilithSpawn = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithSpawn.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");
@@ -71,9 +75,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration BoomShroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/BoomShroom.png");
         internal static ModdedIllustration SpiderShrine = new ModdedIllustration("RoguelikeModeAssets/Terrain/SpiderShrine.png");
         internal static ModdedIllustration RestlessSpirit = new ModdedIllustration("RoguelikeModeAssets/Terrain/RestlessSouls.png");
+        internal static ModdedIllustration DemonicPustule = new ModdedIllustration("RoguelikeModeAssets/Terrain/DemonicPustule.png");
 
         // Icons
         internal static ModdedIllustration RitualOfAscension = new ModdedIllustration("RoguelikeModeAssets/Icons/RitualOfAscension.png");
+        internal static ModdedIllustration StabbingAppendage = new ModdedIllustration("RoguelikeModeAssets/Icons/StabbingAppendage.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

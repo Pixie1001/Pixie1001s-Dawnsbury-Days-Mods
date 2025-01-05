@@ -28,7 +28,8 @@
 ### Rexard
 *Please support Rexard [here (Gamedev Market)](https://www.gamedevmarket.net/member/rexard).*
 <ul>
-	<li>...</li>
+	<li>Automoton.png (Modified)</li>
+	<li>CrawlingHand.png (Modified)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -66,6 +67,11 @@
 	<li>Restless_Souls.png</li>
 	<li>Devoted_Cultist.png</li>
 	<li>HornOfTheHunt.png</li>
+	<li>StabbingAppendage.png</li>
+	<li>DemonicPustule.png</li>
+	<li>BebilithSpawn.png</li>
+	<li>Homunculous.png</li>
+	<li>AnimatedStatue.png</li>
 </ul>
 
 ## Volunteer Contributions

@@ -71,6 +71,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
     internal static class QEffectIds {
 
         internal static QEffectId LethargyPoison { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Drow Lethargy Poison");
+        internal static QEffectId AbyssalRot { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Abyssal Rot");
         internal static QEffectId Lurking { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Lurking");
         internal static QEffectId Stalked { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Stalked");
         internal static QEffectId ExtraTurn { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ExtraTurnMiniBoss");

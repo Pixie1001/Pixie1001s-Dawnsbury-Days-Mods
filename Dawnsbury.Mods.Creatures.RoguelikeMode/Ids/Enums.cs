@@ -96,7 +96,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             NUGLUB,
             HOMUNCULUS,
             CRAWLING_HAND,
-            ANIMATED_STATUE
+            ANIMATED_STATUE,
+            BEBILITH_SPAWN
         }
 
         internal enum ObjectId
@@ -107,6 +108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             SPIDER_QUEEN_SHRINE,
             RESTLESS_SPIRIT,
             ICE_FONT,
+            DEMONIC_PUSTULE,
             TEST_PILE,
         }
 
