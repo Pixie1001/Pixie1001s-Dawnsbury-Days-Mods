@@ -148,7 +148,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 StateCheck = async self => {
                     if (self.Description == "Set Later") {
                         self.Name += $" (DC {baseDC + self.Owner.Level})";
-                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: {Affliction.CreateGiantSpiderVenom(baseDC + self.Owner.Level).StagesDescription}";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: " + "{i}" + $"{Affliction.CreateGiantSpiderVenom(baseDC + self.Owner.Level).StagesDescription}" + "{/i}";
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
@@ -193,7 +193,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 StateCheck = async self => {
                     if (self.Description == "Set Later") {
                         self.Name += $" (DC {baseDC + self.Owner.Level})";
-                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: {abyssalRot.StagesDescription}";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Abyssal Rot: " + "{i}" + $"{abyssalRot.StagesDescription}" + "{/i}";
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
@@ -205,14 +205,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AdditionalGoodness = (self, action, target) => {
-                    int dc = baseDC + self.Owner.Level;
-
                     if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
                         return 0f;
                     }
 
-                    if (target != null && !target.HasEffect(QEffectId.SpiderVenom)) {
-                        return 2f;
+                    if (target != null && !target.HasEffect(QEffectIds.AbyssalRot)) {
+                        return target.Level + DiceFormula.FromText(dmg).ExpectedValue;
                     }
 
                     return 0f;
@@ -505,12 +503,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         }
 
         public static QEffect MiniBoss() {
-            QEffect effect = new QEffect("Powerful Adversary", "The first time this creature acts each round, it only drops down two places in intitive order. In addition it has significantly increased HP for its level.") {
+            QEffect effect = new QEffect("Powerful Adversary", "The first time this creature acts each round while above half HP, it only drops down two places in the intitive order. In addition it has significantly increased HP for its level.") {
                 StartOfCombat = async self => {
                     self.Owner.MaxHP = self.Owner.MaxHP * 2;
                     self.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in inititve order after this turn.") {
+                        Innate = false,
                         Illustration = IllustrationName.Haste,
-                        Id = QEffectIds.ExtraTurn
+                        Id = QEffectIds.ExtraTurn,
+                        StateCheck = self => {
+                            if (self.Owner.Damage >= self.Owner.MaxHP * 0.5f) {
+                                self.Illustration = null;
+                                self.Name = null;
+                                self.Description = null;
+                            } else {
+                                self.Illustration = IllustrationName.Haste;
+                                self.Name = "Extra Turn";
+                                self.Description = "This creature will only move down two spaces in inititve order after this turn.";
+                            }
+                        }
                     });
                 },
             };
@@ -525,6 +535,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First()) || owner.Battle.RoundNumber == 1) {
                             return;
                         }
+                    }
+
+                    // Skip if under half HP
+                    if (effect.Owner.Damage >= effect.Owner.MaxHP * 0.5f) {
+                        return;
                     }
 
                     // Skip if boss doesn't have the extra turn buff

@@ -101,11 +101,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                 .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Cleric, Ability.Charisma, Trait.Divine).WithSpells(
                     new SpellId[] { SpellId.Harm, SpellId.Harm, SpellId.Harm }).Done();
 
-            string icDmg = $"1d4+{monster.Level}";
+            string icDmg = "1d4";
 
-            monster.AddQEffect(new QEffect("Iron Command {icon:Reaction}",
-                "{b}Trigger{/b} An enemy within 15 feet damages you. {b}Effect{/b} Your attacker must choose either to fall prone or suffer " + icDmg +
-                " mental damage. You then deal +1d6 evil or negative damage against them with your strikes, until a new enemy earns your ire.") {
+            monster.AddQEffect(new QEffect("Iron Command {icon:Reaction}", "ADDED LATER") {
+                StartOfCombat = async self => {
+                    icDmg = $"1d4+{self.Owner.Level}";
+                    self.Description = "{b}Trigger{/b} An enemy within 15 feet damages you. {b}Effect{/b} Your attacker must choose either to fall prone or suffer " + icDmg +
+                    " mental damage. You then deal +1d6 evil or negative damage against them with your strikes, until a new enemy earns your ire.";
+                },
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
                     if (action == null || action.Owner == null || action.Owner == action.Owner.Battle.Pseudocreature) {
                         return;

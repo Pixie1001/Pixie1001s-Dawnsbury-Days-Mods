@@ -48,6 +48,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration DevotedCultist = new ModdedIllustration("RoguelikeModeAssets/Enemies/DevotedCultist.png");
         internal static ModdedIllustration Automoton = new ModdedIllustration("RoguelikeModeAssets/Enemies/Automoton.png"); // Unused
         internal static ModdedIllustration AnimatedStatue = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimatedStatue.png");
+        internal static ModdedIllustration Homunculus = new ModdedIllustration("RoguelikeModeAssets/Enemies/Homunculus.png");
         internal static ModdedIllustration CrawlingHand = new ModdedIllustration("RoguelikeModeAssets/Enemies/AnimatedStatue.png");
         internal static ModdedIllustration BebilithSpawn = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithSpawn.png");
 

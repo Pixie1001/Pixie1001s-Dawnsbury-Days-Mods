@@ -98,6 +98,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             // Boss Fights
             bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());
             bossFights.Add(new TypedEncounterCampaignStop<Boss_WitchCoven>());
+            bossFights.Add(new TypedEncounterCampaignStop<Boss_Handmaiden>());
         }
     }
 }

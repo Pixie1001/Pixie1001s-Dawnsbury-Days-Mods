@@ -61,13 +61,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6 {
                                 case 0:
                                     return int.MinValue;
                                 case 1:
-                                    return 12f;
+                                    return int.MinValue;
                                 case 2:
-                                    return 24f;
+                                    return 20f;
                                 case 3:
-                                    return 36f;
+                                    return 30f;
                                 default:
-                                    return 36f;
+                                    return 30f;
                             }
                         })
                     )

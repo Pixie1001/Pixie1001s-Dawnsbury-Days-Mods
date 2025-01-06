@@ -178,6 +178,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             // Boss fights
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");
             RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx", "Boss_WitchCoven");
+            RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx", "Boss_Handmaiden");
 
             // Skill Challenges
             RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");
