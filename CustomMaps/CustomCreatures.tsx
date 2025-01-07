@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="32" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="33" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -172,6 +172,12 @@
  <tile id="28">
   <properties>
    <property name="Id" value="Animated Statue"/>
+  </properties>
+  <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
+ </tile>
+ <tile id="29">
+  <properties>
+   <property name="Id" value="Owl Bear"/>
   </properties>
   <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
  </tile>

@@ -141,6 +141,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return BebilithSpawn.Create();
                 case ModEnums.CreatureId.DROW_NECROMANCER:
                     return DrowNecromancer.Create();
+                case ModEnums.CreatureId.OWL_BEAR:
+                    return OwlBear.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -223,6 +225,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MOTHER, "Witch Mother");
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MAIDEN, "Witch Maiden");
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ANIMATED_STATUE);
+
+            // Level 4 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.OWL_BEAR);
 
             // Level 6 Creatures - Demons
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ABYSSAL_HANDMAIDEN);
