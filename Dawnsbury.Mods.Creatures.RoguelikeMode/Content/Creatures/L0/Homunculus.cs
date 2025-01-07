@@ -88,9 +88,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                     {
                         Creature self = qfAfterAction.Owner;
                         self.RemoveAllQEffects(qe => qe.Id == QEffectIds.HomunculusPoison);
-                        if (action.CheckResult >= CheckResult.Success)
+                        if (action.CheckResult >= CheckResult.Success && action.HasTrait(Trait.AddsInjuryPoison))
                         {
-                            self.AddQEffect(new QEffect("Empty Homunculus Reservior", "[technical effect]"));
+                            self.AddQEffect(new QEffect("Empty Homunculus Reservior", "You can not apply Homunculus Poison until you spend an action to refill your poison reservior."));
                         }
                     },
                     ProvideMainAction = (qfMainAction) =>
@@ -103,7 +103,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                                 .WithGoodness((t, a, d) => self.Battle.AllCreatures.Any(creature => !creature.FriendOf(self) && creature.IsAdjacentTo(self)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
                                 .WithEffectOnSelf((innerself) =>
                                 {
-                                    self.RemoveAllQEffects(qe => qe.Name == "Empty Homunculus Reservior");
+                                    innerself.RemoveAllQEffects(qe => qe.Name == "Empty Homunculus Reservior");
                                 }));
                         }
 
