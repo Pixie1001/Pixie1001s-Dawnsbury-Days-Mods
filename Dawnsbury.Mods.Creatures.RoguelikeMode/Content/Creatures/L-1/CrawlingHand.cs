@@ -66,14 +66,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                         attacker.AddQEffect(MarkQuarry());
                     }
                 })
-                .AddQEffect(new QEffect("Grip Troat", "A creature you grab or restrain must spend an extra action to cast spells or use actions with the verbal trait.")
+                .AddQEffect(new QEffect("Grip Throat ", "A creature you grab or restrain must spend an extra action to cast spells or use actions with the verbal trait.")
                 {
                     StateCheck = async (qfStateCheck) =>
                     {
                         Creature self = qfStateCheck.Owner;
                         foreach (Creature grabbed in self.Battle.AllCreatures.Where(creature => creature.QEffects.Any(qe => (qe.Id == QEffectId.Grappled || qe.Id == QEffectId.Grabbed || qe.Id == QEffectId.Restrained) && qe.Source != null && qe.Source == self)))
                         {
-                            grabbed.AddQEffect(new QEffect("Gripped Troat", "You must spend an extra action to cast spells or use actions with the verbal trait.")
+                            grabbed.AddQEffect(new QEffect("Gripped Throat ", "You must spend an extra action to cast spells or use actions with the verbal trait.")
                             {
                                 ExpiresAt = ExpirationCondition.Ephemeral,
                                 Illustration = IllustrationName.Grabbed,
