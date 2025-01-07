@@ -139,6 +139,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return AnimatedStatue.Create();
                 case ModEnums.CreatureId.BEBILITH_SPAWN:
                     return BebilithSpawn.Create();
+                case ModEnums.CreatureId.DROW_NECROMANCER:
+                    return DrowNecromancer.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -203,6 +205,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             // Level 2 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_TEMPLEGUARD);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_INQUISITRIX);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_NECROMANCER);
 
             // Level 2 Creatures - Other
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.UNSEEN_GUARDIAN);

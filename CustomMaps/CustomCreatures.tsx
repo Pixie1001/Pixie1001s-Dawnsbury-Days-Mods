@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="31" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="32" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -186,5 +186,11 @@
    <property name="Id" value="Bebilith Spawn"/>
   </properties>
   <image source="CustomCreatures/BebilithSpawn.png" width="256" height="256"/>
+ </tile>
+ <tile id="2025">
+  <properties>
+   <property name="Id" value="Drow Necromancer"/>
+  </properties>
+  <image source="CustomCreatures/DrowNecromancer.png" width="256" height="256"/>
  </tile>
 </tileset>

@@ -42,6 +42,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[0].Add(new TypedEncounterCampaignStop<MysteriousRoom_FeyL1>());
             encounters[0].Add(new TypedEncounterCampaignStop<MysteriousRoom_HomunculusL1>());
             encounters[0].Add(new TypedEncounterCampaignStop<MysteriousRoom_ArtRoomL1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<GraveEncounterLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<HatcheryLv1>());
 
             // level2Encounters
             encounters[1].Add(new TypedEncounterCampaignStop<DrowAmbushLv2>());
@@ -56,6 +58,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[1].Add(new TypedEncounterCampaignStop<MysteriousRoom_FeyL2>());
             encounters[1].Add(new TypedEncounterCampaignStop<MysteriousRoom_HomunculusL2>());
             encounters[1].Add(new TypedEncounterCampaignStop<MysteriousRoom_ArtRoomL2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<GraveEncounterLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<HatcheryLv2>());
 
             // level3Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
@@ -70,6 +74,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<MysteriousRoom_FeyL3>());
             encounters[2].Add(new TypedEncounterCampaignStop<MysteriousRoom_HomunculusL3>());
             encounters[2].Add(new TypedEncounterCampaignStop<MysteriousRoom_ArtRoomL3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<GraveEncounterLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<HatcheryLv3>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());

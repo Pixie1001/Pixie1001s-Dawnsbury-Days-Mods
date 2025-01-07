@@ -40,7 +40,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
             var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.KineticistAuraCircle, radius);
             animation.Color = Color.Black;
 
-            QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders and drow within {radius * 5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
+            QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders, demons and drow within {radius * 5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");
 
             QEffect interactable = new QEffect("Interactable", "You can use Religion, Thievery and Crafting to interact with this shrine.") {
                 StateCheckWithVisibleChanges = async self => {
@@ -110,7 +110,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                 }
             };
 
-            effect.AddGrantingOfTechnical(cr => (cr.HasTrait(ModTraits.Spider) || cr.HasTrait(ModTraits.Drow)) && cr.DistanceTo(effect.Owner) <= radius, qfTechnical => {
+            effect.AddGrantingOfTechnical(cr => (cr.HasTrait(ModTraits.Spider) || cr.HasTrait(ModTraits.Drow) || cr.HasTrait(Trait.Demon)) && cr.DistanceTo(effect.Owner) <= radius, qfTechnical => {
                 qfTechnical.Name = "Blessings of the Spider Queen";
                 qfTechnical.Description = "+1 bonus to AC, saves and attacks rolls.";
                 qfTechnical.Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.SpiderShrine);
@@ -125,7 +125,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                 };
             });
 
-            effect.AddGrantingOfTechnical(cr => cr.HasTrait(ModTraits.Spider) || cr.HasTrait(ModTraits.Drow), qfTechnical => {
+            effect.AddGrantingOfTechnical(cr => cr.HasTrait(ModTraits.Spider) || cr.HasTrait(ModTraits.Drow) || cr.HasTrait(Trait.Demon), qfTechnical => {
                 qfTechnical.Key = "Blessings of the Spider Queen (Goodness)";
                 qfTechnical.AdditionalGoodness = (self, action, target) => {
                     if (self.Owner.DistanceTo(effect.Owner) <= radius) {

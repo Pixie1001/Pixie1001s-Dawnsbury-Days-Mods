@@ -212,6 +212,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 }
             }
 
+            var sfGuns = Items.ShopItems.Where(item => item.Name.Contains("stellar canon") || item.Name.Contains("rotolaser") || item.Name.Contains("laser pistol") || item.Name.Contains("flame pistol") || item.Name.Contains("scattergun"));
+            if (!new string[] { "envoy", "soldier" }.Contains(className)) {
+                weaponTable.RemoveAll(item => sfGuns.Contains(item));
+            }
+
             return weaponTable[R.Next(0, weaponTable.Count)];
         }
 

@@ -37,9 +37,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                         return;
                     }
 
+                    string curseDmg = "1d8";
+                    if (self.Owner.Level == 2) {
+                        curseDmg = "1d4";
+                    } else if (self.Owner.Level == 3) {
+                        curseDmg = "1d8";
+                    } else if (self.Owner.Level == 4) {
+                        curseDmg = "1d10";
+                    }
+
                     List<Creature> party = self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction)).ToList();
                     party.ForEach(cr => {
-                        cr.AddQEffect(new QEffect("Curse of Agony", $"You suffer 1d8 mental damage at the start of each turn so long as {self.Owner.Name} lives.") {
+                        cr.AddQEffect(new QEffect("Curse of Agony", $"You suffer {curseDmg} mental damage at the start of each turn so long as {self.Owner.Name} lives.") {
                             ExpiresAt = ExpirationCondition.Ephemeral,
                             Innate = false,
                             Source = self.Owner,
@@ -51,7 +60,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                                         return target == victim || target == bond.Source;
                                     }))
                                     .WithEffectOnEachTarget(async (spell, user, d, result) => {
-                                        await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("1d8", "Curse of Agony"), d, CheckResult.Success, DamageKind.Mental);
+                                        await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText($"{curseDmg}", "Curse of Agony"), d, CheckResult.Success, DamageKind.Mental);
                                     });
                                     action.ChosenTargets.ChosenCreatures.Add(victim);
                                     action.ChosenTargets.ChosenCreatures.Add(bond.Source);
@@ -61,7 +70,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                                     return;
                                 }
                                 CombatAction action2 = new CombatAction(self.Owner, self.Illustration, "Curse of Agony", new Trait[] { Trait.Curse, Trait.Mental, Trait.Arcane }, "", Target.Uncastable());
-                                await CommonSpellEffects.DealDirectDamage(action2, DiceFormula.FromText("1d8", "Curse of Agony"), victim, CheckResult.Success, DamageKind.Mental);
+                                await CommonSpellEffects.DealDirectDamage(action2, DiceFormula.FromText($"{curseDmg}", "Curse of Agony"), victim, CheckResult.Success, DamageKind.Mental);
                             }
                         });
                     });
