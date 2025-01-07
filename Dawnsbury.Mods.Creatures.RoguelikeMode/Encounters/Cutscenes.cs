@@ -26,6 +26,46 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class Cutscenes {
 
+        public async static Task HatcheryCutscene(TBattle battle) {
+            Creature guard = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Drow Fighter");
+            guard.Subtitle = "Hatchery Guard";
+            battle.Cinematics.EnterCutscene();
+            await battle.Cinematics.LineAsync(guard, "Who goes there!? Ah... Adventurers.");
+            await battle.Cinematics.LineAsync(guard, "In the undercity, each and every drow child is taught that some secrets are best left uncovered...");
+            await battle.Cinematics.LineAsync(guard, "It's a pity you weren't taught the same. But now I'm afraid the secrets of this facility will die with you.");
+            await battle.Cinematics.LineAsync(guard, "Best let me grant you a quick death... Before they start to {i}hatch{/i}.");
+            battle.Cinematics.ExitCutscene();
+
+            List<Creature> eggs = battle.AllCreatures.Where(cr => cr.Illustration == Illustrations.DemonicPustule).ToList();
+            for (int i = 0; i < 6; i++) {
+                eggs.Remove(eggs.GetRandom());
+            }
+            foreach (Creature egg in eggs) {
+                battle.RemoveCreatureFromGame(egg);
+            }
+        }
+
+        public async static Task HatcheryCutscene2(TBattle battle) {
+            if (battle.RoundNumber > 1) {
+                if (battle.RoundNumber == 4) {
+                    var doors = battle.AllCreatures.Where(cr => cr.CreatureId == Core.Creatures.Parts.CreatureId.Door).ToList();
+                    while (doors.Count > 0) {
+                        Creature door = doors[0];
+                        doors.Remove(door);
+                        await door.DieFastAndWithoutAnimation();
+                    }
+                }
+                foreach (Creature egg in battle.AllCreatures.Where(cr => cr.Alive && cr.Illustration == Illustrations.DemonicPustule && cr.Occupies.FogOfWar == Core.Tiles.FogOfWar.Blackened)) {
+                    QEffect? effect = egg.QEffects.FirstOrDefault(qf => qf.Name == "Incubator");
+                    if (effect != null) {
+                        effect.Value -= 1;
+                        await battle.GameLoop.StateCheck();
+                    }
+                }
+            }
+
+        }
+
         public async static Task AntipartyCutscene(TBattle battle) {
             Creature priestess = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Drow Priestess");
             priestess.MainName = "Princess Melantha";

@@ -41,7 +41,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
 
         public static Creature Create()
         {
-            return new Creature(IllustrationName.UnknownCreature, "Homunculus", [Trait.Construct], 0, 3, 8, new Defenses(17, 2, 7, 3), 17, new Abilities(-1, 3, 0, 0, 1, -2), new Skills(acrobatics: 5, stealth: 5))
+            return new Creature(Illustrations.Homunculus, "Homunculus", [Trait.Construct], 0, 3, 8, new Defenses(17, 2, 7, 3), 17, new Abilities(-1, 3, 0, 0, 1, -2), new Skills(acrobatics: 5, stealth: 5))
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.TraitImmunity(Trait.Disease))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Doomed))

@@ -79,8 +79,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public static class CreatureList
-    {
+    public static class CreatureList {
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
         internal static Dictionary<ObjectId, Func<Encounter?, Creature>> Objects = new Dictionary<ObjectId, Func<Encounter?, Creature>>();
 
@@ -88,10 +87,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// <summary>
         /// Gets the Creature object based off the id
         /// </summary>
-        internal static Creature GetCreature<TEnum>(TEnum id) where TEnum : Enum
-        {
-            switch (id)
-            {
+        internal static Creature GetCreature<TEnum>(TEnum id) where TEnum : Enum {
+            switch (id) {
                 case ModEnums.CreatureId.UNSEEN_GUARDIAN:
                     return UnseenGuardian.Create();
                 case ModEnums.CreatureId.DROW_ASSASSIN:
@@ -140,6 +137,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return CrawlingHand.Create();
                 case ModEnums.CreatureId.ANIMATED_STATUE:
                     return AnimatedStatue.Create();
+                case ModEnums.CreatureId.BEBILITH_SPAWN:
+                    return BebilithSpawn.Create();
+                case ModEnums.CreatureId.DROW_NECROMANCER:
+                    return DrowNecromancer.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -148,8 +149,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// <summary>
         /// Gets the Object object based off the id
         /// </summary>
-        internal static Creature GetObject<TEnum>(TEnum id) where TEnum : Enum
-        {
+        internal static Creature GetObject<TEnum>(TEnum id) where TEnum : Enum {
             switch (id)
             {
                 case ModEnums.ObjectId.CHOKING_MUSHROOM:
@@ -159,9 +159,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 case ModEnums.ObjectId.ICE_FONT:
                     return IceFont.Create();
                 case ModEnums.ObjectId.SPIDER_QUEEN_SHRINE:
-                    return SpiderQueenShrin.Create();
+                    return SpiderQueenShrine.Create();
                 case ModEnums.ObjectId.RESTLESS_SPIRIT:
                     return RestlessSpirit.Create();
+                case ModEnums.ObjectId.DEMONIC_PUSTULE:
+                    return DemonicPustule.Create();
                 case ModEnums.ObjectId.TEST_PILE:
                     return TestPile.Create();
                 default:
@@ -172,15 +174,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// <summary>
         /// Registers the creatures through the ModManager then adds the creature to the running creature list
         /// </summary>
-        internal static void RegisterAndAddCreatureToDictonary<TEnum>(Dictionary<TEnum, Func<Encounter?, Creature>> creatures, TEnum id, string? overridenCreatureName = null) where TEnum : Enum
-        {
+        internal static void RegisterAndAddCreatureToDictonary<TEnum>(Dictionary<TEnum, Func<Encounter?, Creature>> creatures, TEnum id, string? overridenCreatureName = null) where TEnum : Enum {
             Func<Encounter?, Creature> creatureFunction = encounter => (typeof(TEnum) == typeof(ModEnums.CreatureId)) ? GetCreature(id) : GetObject(id);
             ModManager.RegisterNewCreature(overridenCreatureName ?? creatureFunction(null).Name, creatureFunction);
             creatures.Add(id, creatureFunction);
         }
 
-        internal static void LoadCreatures()
-        {
+        internal static void LoadCreatures() {
             // TODO: Setup to teleport to random spot and be hidden at start of combat, so logic can be removed from encounter.
 
             // Level -1 Creatures
@@ -205,11 +205,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             // Level 2 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_TEMPLEGUARD);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_INQUISITRIX);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_NECROMANCER);
 
             // Level 2 Creatures - Other
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.UNSEEN_GUARDIAN);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.TREASURE_DEMON);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.NUGLUB);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.BEBILITH_SPAWN);
 
             // Level 3 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_PRIESTESS);
@@ -226,8 +228,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ABYSSAL_HANDMAIDEN);
         }
 
-        internal static void LoadObjects()
-        {
+        internal static void LoadObjects() {
             // Level 1 Hazards
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.ICE_FONT, "Scaling Font of Ice");
 
@@ -236,81 +237,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.BOOM_SHROOM);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.SPIDER_QUEEN_SHRINE);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RESTLESS_SPIRIT);
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.DEMONIC_PUSTULE);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE, "TestPile");
-        }
-
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-        internal static class CommonMonsterActions
-        {
-            public static CombatAction CreateHide(Creature self)
-            {
-                return new CombatAction(self, (Illustration)IllustrationName.Hide, "Hide", new Trait[2] { Trait.Basic, Trait.AttackDoesNotTargetAC },
-                    "Make one Stealth check against the Perception DCs of each enemy creature that can see you but that you have cover or concealment from. On a success, you become Hidden to that creature.",
-                    Target.Self((cr, ai) => ai.HideSelf()).WithAdditionalRestriction(innerSelf => {
-                        if (HiddenRules.IsHiddenFromAllEnemies(innerSelf, innerSelf.Occupies))
-                            return "You're already hidden from all enemies.";
-                        return !innerSelf.Battle.AllCreatures.Any(cr => cr.EnemyOf(innerSelf) && HiddenRules.HasCoverOrConcealment(innerSelf, cr)) ? "You don't have cover or concealment from any enemy." : null;
-                    }))
-                .WithActionId(ActionId.Hide)
-                .WithSoundEffect(SfxName.Hide)
-                .WithEffectOnSelf(innerSelf => {
-                    int roll = R.NextD20();
-                    foreach (Creature creature in innerSelf.Battle.AllCreatures.Where(cr => cr.EnemyOf(innerSelf)))
-                    {
-                        if (!innerSelf.DetectionStatus.HiddenTo.Contains(creature) && HiddenRules.HasCoverOrConcealment(innerSelf, creature))
-                        {
-                            CheckBreakdown breakdown = CombatActionExecution.BreakdownAttack(new CombatAction(innerSelf, (Illustration)IllustrationName.Hide, "Hide", new Trait[1]
-                            {
-                    Trait.Basic
-                            }, "[this condition has no description]", Target.Self()).WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Stealth), Checks.DefenseDC(Defense.Perception))), creature);
-                            CheckBreakdownResult breakdownResult = new CheckBreakdownResult(breakdown, roll);
-                            string str8 = breakdown.DescribeWithFinalRollTotal(breakdownResult);
-                            DefaultInterpolatedStringHandler interpolatedStringHandler;
-                            if (breakdownResult.CheckResult >= CheckResult.Success)
-                            {
-                                innerSelf.DetectionStatus.HiddenTo.Add(creature);
-                                Tile occupies = creature.Occupies;
-                                Color lightBlue = Color.LightBlue;
-                                string str9 = innerSelf?.ToString();
-                                string str10 = creature?.ToString();
-                                interpolatedStringHandler = new DefaultInterpolatedStringHandler(10, 3);
-                                interpolatedStringHandler.AppendLiteral(" (");
-                                interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll.ToString() + breakdown.TotalCheckBonus.WithPlus());
-                                interpolatedStringHandler.AppendLiteral("=");
-                                interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll + breakdown.TotalCheckBonus);
-                                interpolatedStringHandler.AppendLiteral(" vs. ");
-                                interpolatedStringHandler.AppendFormatted(breakdown.TotalDC);
-                                interpolatedStringHandler.AppendLiteral(").");
-                                string stringAndClear = interpolatedStringHandler.ToStringAndClear();
-                                string log = str9 + " successfully hid from " + str10 + stringAndClear;
-                                string logDetails = str8;
-                                occupies.Overhead("hidden from", lightBlue, log, "Hide", logDetails);
-                            }
-                            else
-                            {
-                                Tile occupies = creature.Occupies;
-                                Color red = Color.Red;
-                                string str11 = innerSelf?.ToString();
-                                string str12 = creature?.ToString();
-                                interpolatedStringHandler = new DefaultInterpolatedStringHandler(10, 3);
-                                interpolatedStringHandler.AppendLiteral(" (");
-                                interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll.ToString() + breakdown.TotalCheckBonus.WithPlus());
-                                interpolatedStringHandler.AppendLiteral("=");
-                                interpolatedStringHandler.AppendFormatted(breakdownResult.D20Roll + breakdown.TotalCheckBonus);
-                                interpolatedStringHandler.AppendLiteral(" vs. ");
-                                interpolatedStringHandler.AppendFormatted(breakdown.TotalDC);
-                                interpolatedStringHandler.AppendLiteral(").");
-                                string stringAndClear = interpolatedStringHandler.ToStringAndClear();
-                                string log = str11 + " failed to hide from " + str12 + stringAndClear;
-                                string logDetails = str8;
-                                occupies.Overhead("hide failed", red, log, "Hide", logDetails);
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Insert new actions here
         }
     }
 }

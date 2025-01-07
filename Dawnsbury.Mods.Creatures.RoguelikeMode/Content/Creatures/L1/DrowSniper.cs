@@ -16,13 +16,10 @@ using Dawnsbury.Modding;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class DrowSniper
-    {
-        public static Creature Create()
-        {
+    public class DrowSniper {
+        public static Creature Create() {
             return new Creature(Illustrations.DrowSniper, "Drow Sniper", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(-1, 4, 1, 1, 2, 2), new Skills(acrobatics: 7, stealth: 7, deception: 7, intimidation: 5))
             .AddQEffect(CommonQEffects.Drow())

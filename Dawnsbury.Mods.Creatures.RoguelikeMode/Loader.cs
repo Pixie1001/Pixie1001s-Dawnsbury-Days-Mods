@@ -91,10 +91,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
             "{b}Lead design, writing, direction and programming: {/b} Pixie1001\n" +
             "{b}Artists: {/b} Pixie1001\n" +
-            "{b}Additional design: {/b} ...\n" +
+            "{b}Additional design: {/b} SudoProgramming, Dinglebob\n" +
             "{b}Additional writers: {/b} ...\n" +
-            "{b}Additional programming: {/b} ...\n" +
-            "{b}Playtesting: {/b} Petr, Beets";
+            "{b}Additional programming: {/b} SudoProgramming, Dinglebob\n" +
+            "{b}Playtesting: {/b} Petr, Beets, SudoProgramming";
 
         internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
 
@@ -154,6 +154,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<MysteriousRoom_ArtRoomL1>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL1");
             RegisterEncounter<MysteriousRoom_ArtRoomL2>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL2");
             RegisterEncounter<MysteriousRoom_ArtRoomL3>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL3");
+            RegisterEncounter<HatcheryLv1>("Hatchery.tmx", "HatcheryLv1");
+            RegisterEncounter<HatcheryLv2>("Hatchery.tmx", "HatcheryLv2");
+            RegisterEncounter<HatcheryLv3>("Hatchery.tmx", "HatcheryLv3");
+            RegisterEncounter<GraveEncounterLv1>("GraveEncounter.tmx", "GraveEncounterLv1");
+            RegisterEncounter<GraveEncounterLv2>("GraveEncounter.tmx", "GraveEncounterLv2");
+            RegisterEncounter<GraveEncounterLv3>("GraveEncounter.tmx", "GraveEncounterLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
@@ -178,6 +184,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             // Boss fights
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");
             RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx", "Boss_WitchCoven");
+            RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx", "Boss_Handmaiden");
 
             // Skill Challenges
             RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");

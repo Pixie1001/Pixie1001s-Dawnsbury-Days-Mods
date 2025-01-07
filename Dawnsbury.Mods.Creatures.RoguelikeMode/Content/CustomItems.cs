@@ -110,7 +110,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
             Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical })
             .WithDescription("{i}An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.{/i}\n\n" +
-            "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 3 + your level.\n\n" +
+            "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.\n\n" +
             "After using the amulet in this way, it cannot be used again until you recharge its magic as an {icon:Action} action.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -123,7 +123,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 return null;
                             }
 
-                            if (effect.UseReaction()) {
+                            if (await effect.Owner.AskToUseReaction((damage.Power != null ? "{b}" + a.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" :
+                                "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 3}?")) {
                                 effect.Owner.Occupies.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
                                 qf.Owner.Occupies.Overhead($"*{3 + effect.Owner.Level} damage negated*", Color.Black);
                                 Sfxs.Play(SfxName.Abjuration, 1f);
@@ -134,7 +135,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     });
                     wielder.AddQEffect(effect);
                 } else {
-                    QEffect effect = new QEffect("Protective Amulet {icon:Reaction}", "{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack. {b}Effect{/b} Reduce the damage by an amount equal to 3 + your level.");
+                    QEffect effect = new QEffect("Protective Amulet {icon:Reaction}", "{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack. {b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.");
                     effect.ExpiresAt = ExpirationCondition.Ephemeral;
                     effect.Tag = weapon;
                     effect.EndOfCombat = async (self, won) => {
@@ -160,12 +161,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             }
 
                             if (await effect.Owner.AskToUseReaction((damage.Power != null ? "{b}" + a.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" :
-                                "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 3}?")) {
+                                "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 1}?")) {
                                 item.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
                                 effect.Owner.Occupies.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
-                                qf.Owner.Occupies.Overhead($"*{effect.Owner.Level + 3} damage negated*", Color.Black);
+                                qf.Owner.Occupies.Overhead($"*{effect.Owner.Level + 1} damage negated*", Color.Black);
                                 Sfxs.Play(SfxName.Abjuration, 1f);
-                                return new ReduceDamageModification(effect.Owner.Level + 3, "Protective Amulet");
+                                return new ReduceDamageModification(effect.Owner.Level + 1, "Protective Amulet");
                             }
                             return null;
                         };
@@ -525,14 +526,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName SpiritBeaconAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Spirit Beacon Amulet", itemName => {
             return new Item(itemName, Illustrations.SpiritBeaconAmulet, "spirit beacon amulet", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop })
             .WithWornAt(Trait.Necklace)
             .WithDescription("{i}This skull shaped necklace is cold to the touch.{/i}\n\n" +
             "You have a +1 item bonus to Occultism.\n\n" +
             "Once per day, as an {icon:Action}action, you can use the amulet to guide a restless spirit towards an unoccupied space within 30 feet. Restless spirits unnerve adjacent creatures and may be interacted with for additional benefits.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, Illustrations.SpiritBeaconAmulet, "Attract Spirits", new Trait[] { Trait.Necromancy, Trait.Magical, Trait.Manipulate },
-                    "{b}Range{/b} 30 feet\n\nCreate a Restless Spirit hazard in the target space. Restless spirits unnerve adjacent creatures and may be interacted with for additional benefits.",
+                    "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nCreate a Restless Spirit hazard in the target space. Restless spirits unnerve adjacent creatures and may be interacted with for additional benefits." +
+                    "\n\nBut beware, learned adversaries with knowledge of the occult may be able to exploit these spirits to use against you.",
                     Target.RangedEmptyTileForSummoning(6))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.DeepNecromancy)
@@ -555,7 +557,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             "While wearing this ring, the wear gains a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, Illustrations.DemonBoundRing, "Unleash Demon", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate },
-                    "{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own.\n\n" +
+                    "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own.\n\n" +
                     "At the start of your turn, there's a 25% chance that the demon will go slip from your control, turning against the party." +
                     "\n\nImmediately when you cast this spell and then once each turn when you Sustain this spell, you can take two actions as " +
                     "the summoner creature. If you don't Sustain this spell during a turn, the summoner creature will go away." +
@@ -668,7 +670,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             "Once per day, you may blow the horn {icon:ThreeActions} to summon forth a pack of three wolves to attack an enemy of your choice. The wolves ignore all other creatures and return to the horn once their task is complete.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, Illustrations.HornOfTheHunt, "Blow Horn", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate, Trait.Primal },
-                    "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy creature\n\n" +
+                    "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy creature\n\n" +
                     "Summon 3 wolves in any unnocupied spaces within 15 feet of your target. The wolves' level is equal to that of the blower's - 3, and they will persist until their prey has been slain, carrying out their task to the best of their ability and ignoring all other creatures.",
                     Target.Ranged(6))
                 .WithActionCost(3)
@@ -771,7 +773,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return null;
                 }
 
-                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Target{/b} Self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
+                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Frequency{/b} once per day\n\n{b}Target{/b} Self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
                 .WithActionCost(0)
                 .WithSoundEffect(SfxName.BeastRoar)
                 .WithEffectOnSelf(caster => {
@@ -1022,7 +1024,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                         }
 
                                         CombatAction action = new CombatAction(wielder, weapon.Illustration, $"Activate {weapon.Name.CapitalizeEachWord()}", new Trait[] { Trait.Concentrate },
-                                            "Until the end of your turn, this weapon deals 1d6 extra elemental damage instead of just 1.\n\nAfter you use this action, you can't do so again for the rest of the encounter.", Target.Self())
+                                            "{b}Frequency{/b} once per encounter\n\nUntil the end of your turn, this weapon deals 1d6 extra elemental damage instead of just 1.\n\nAfter you use this action, you can't do so again for the rest of the encounter.", Target.Self())
                                         .WithActionCost(1)
                                         .WithSoundEffect(SfxName.Abjuration)
                                         .WithEffectOnSelf(user => {

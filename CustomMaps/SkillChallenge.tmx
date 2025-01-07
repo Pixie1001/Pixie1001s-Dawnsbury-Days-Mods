@@ -10,7 +10,7 @@
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <imagelayer id="5" name="Image Layer 1" visible="0">
-  <image source="SkillChallengeBG.png" width="5376" height="5376"/>
+  <image source="SkillChallengeBG.jpg" width="5376" height="5376"/>
  </imagelayer>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="27" height="21" opacity="0.1">
   <data encoding="csv">

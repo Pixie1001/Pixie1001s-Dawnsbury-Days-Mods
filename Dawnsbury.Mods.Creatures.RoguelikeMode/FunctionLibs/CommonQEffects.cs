@@ -71,6 +71,7 @@ using System.Reflection.Metadata;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
@@ -147,7 +148,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 StateCheck = async self => {
                     if (self.Description == "Set Later") {
                         self.Name += $" (DC {baseDC + self.Owner.Level})";
-                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: {Affliction.CreateGiantSpiderVenom(baseDC + self.Owner.Level).StagesDescription}";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Spider Venom: " + "{i}" + $"{Affliction.CreateGiantSpiderVenom(baseDC + self.Owner.Level).StagesDescription}" + "{/i}";
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
@@ -174,23 +175,75 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
-        //public static QEffect AmuletOfAbeyance() {
-        //    QEffect effect = new QEffect("Amulet of Abeyance {icon:Reaction}", "{b}Effect{/b} You or a member of your coven within 15-feet would be damaged by an attack.");
-        //    effect.AddGrantingOfTechnical(cr => cr.HasTrait(Traits.Witch), qf => {
-        //        qf.YouAreDealtDamage = async (self, a, damage, d) => {
-        //            if (effect.Owner.DistanceTo(d) > 3) {
-        //                return null;
-        //            }
+        public static QEffect AbyssalRotAttack(int baseDC, string dmg, string weapon) {
+            Affliction abyssalRot = new Affliction(QEffectIds.AbyssalRot, "Abyssal Rot", 0,
+                "The drained condition from Abyssal rot is cumulative, to a maximum of drained 4; {b}Stage 1{/b} " + dmg + " negative damage; {b}Stage 2{/b} " + dmg + " negative damage and drained 1 {b}Stage 3{/b} " + dmg + " negative damage and drained 2", 3, stage => null, null);
+            abyssalRot.EnterStage = async (self, action) => {
+                await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(dmg), self.Owner, CheckResult.Failure, DamageKind.Negative);
+                if (self.Value >= 2) {
+                    int stacks = self.Owner.GetQEffectValue(QEffectId.Drained) + 1;
+                    if (self.Value >= 3) {
+                        stacks += 1;
+                    }
+                    self.Owner.AddQEffect(QEffect.Drained(stacks));
+                }
+            };
 
-        //            if (effect.UseReaction()) {
-        //                return new ReduceDamageModification(3 + effect.Owner.Level, "Amulet of Abeyance");
-        //            }
-        //            return null;
-        //        };
-        //    });
+            return new QEffect("Abyssal Rot", "Set Later") {
+                StateCheck = async self => {
+                    if (self.Description == "Set Later") {
+                        self.Name += $" (DC {baseDC + self.Owner.Level})";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Abyssal Rot: " + "{i}" + $"{abyssalRot.StagesDescription}" + "{/i}";
+                    }
+                },
+                AfterYouDealDamage = async (attacker, action, target) => {
+                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                        Affliction poison = abyssalRot;
+                        poison.DC = baseDC + attacker.Level;
 
-        //    return effect;
-        //}
+                        await Affliction.ExposeToInjury(poison, attacker, target);
+                    }
+                },
+                AdditionalGoodness = (self, action, target) => {
+                    if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
+                        return 0f;
+                    }
+
+                    if (target != null && !target.HasEffect(QEffectIds.AbyssalRot)) {
+                        return target.Level + DiceFormula.FromText(dmg).ExpectedValue;
+                    }
+
+                    return 0f;
+                }
+            };
+        }
+
+        public static QEffect PreyUpon() {
+            return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you.") {
+                StateCheck = self => {
+                    foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends)) {
+                        int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(enemy) <= 2).Count();
+                        if (closeAllies == 0) {
+                            enemy.AddQEffect(new QEffect() {
+                                Source = self.Owner,
+                                ExpiresAt = ExpirationCondition.Ephemeral,
+                                IsFlatFootedTo = (qfFlatFooted, attacker, action) => attacker == qfFlatFooted.Source ? "prey upon" : null
+                            });
+                        }
+                    }
+                },
+                AdditionalGoodness = (self, action, defender) => {
+                    if (defender.IsFlatFootedTo(self.Owner, action)) {
+                        return 0;
+                    }
+                    int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != defender && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(defender) <= 2).Count();
+                    if (closeAllies == 0) {
+                        return 4;
+                    }
+                    return 0;
+                }
+            };
+        }
 
         public static QEffect WebAttack(int baseDC) {
             return new QEffect() {
@@ -312,7 +365,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         return false;
                     }
 
-                    if (effect.UseReaction()) {
+                    if (await effect.Owner.AskToUseReaction($"Your ally {action.Owner.Name} has failed the spider queen with their incompetence. Would you like discipline them, dealing 1d6 slashing damage to allow them to reroll their attack with a +1 bonus?")) {
                         effect.Owner.Occupies.Overhead("*cruel taskmistress*", Color.Green,
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b} to punish " + action.Owner.Name + " for their failure.",
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b}",
@@ -450,26 +503,46 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         }
 
         public static QEffect MiniBoss() {
-            QEffect effect = new QEffect("Powerful Adversary", "The first time this creature acts each round, it only drops down two places in intitive order. In addition it has significantly increased HP for its level.") {
+            QEffect effect = new QEffect("Powerful Adversary", "The first time this creature acts each round while above half HP, it only drops down two places in the intitive order. In addition it has significantly increased HP for its level.") {
                 StartOfCombat = async self => {
                     self.Owner.MaxHP = self.Owner.MaxHP * 2;
                     self.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in inititve order after this turn.") {
+                        Innate = false,
                         Illustration = IllustrationName.Haste,
-                        Id = QEffectIds.ExtraTurn
+                        Id = QEffectIds.ExtraTurn,
+                        StateCheck = self => {
+                            if (self.Owner.Damage >= self.Owner.MaxHP * 0.5f) {
+                                self.Illustration = null;
+                                self.Name = null;
+                                self.Description = null;
+                            } else {
+                                self.Illustration = IllustrationName.Haste;
+                                self.Name = "Extra Turn";
+                                self.Description = "This creature will only move down two spaces in inititve order after this turn.";
+                            }
+                        }
                     });
                 },
             };
 
             effect.AddGrantingOfTechnical(cr => effect.Owner.Battle.InitiativeOrder.Contains(cr), qf => {
-                qf.StartOfYourTurn = async (tmp, owner) => {
-                    List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder;
+                qf.StartOfYourPrimaryTurn = async (tmp, owner) => {
+                    List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder.Where(cr => cr.AliveOrUnconscious).ToList();
 
+                    // Skip if boss isn't going on your next turn
                     if (initOrder.IndexOf(effect.Owner) != initOrder.IndexOf(effect.Owner.Battle.ActiveCreature) - 1) {
-                        if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First())) {
+                        // Stop if you aren't last in the turn order AND the boss goes first (wrap around check)
+                        if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First()) || owner.Battle.RoundNumber == 1) {
                             return;
                         }
                     }
 
+                    // Skip if under half HP
+                    if (effect.Owner.Damage >= effect.Owner.MaxHP * 0.5f) {
+                        return;
+                    }
+
+                    // Skip if boss doesn't have the extra turn buff
                     if (!effect.Owner.HasEffect(QEffectIds.ExtraTurn)) {
                         effect.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in initiative order after this turn.") {
                             Illustration = IllustrationName.Haste,
@@ -482,9 +555,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     initOrder.Remove(effect.Owner);
 
                     int newPos = 0;
-                    if (pos == initOrder.Count - 1) {
+                    if (pos == initOrder.Count + 1) {
+                        newPos = 2;
+                    } else if (pos == initOrder.Count) {
                         newPos = 1;
-                    } else if (pos == initOrder.Count - 2) {
+                    } else if (pos == initOrder.Count - 1) {
                         newPos = 0;
                     } else {
                         newPos = pos + 2;
@@ -501,6 +576,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         } else {
                             newOrder.Add(initOrder[i]);
                         }
+                    }
+
+                    if (!newOrder.Contains(effect.Owner)) {
+                        newOrder.Add(effect.Owner);
                     }
 
                     effect.Owner.Battle.InitiativeOrder = newOrder;

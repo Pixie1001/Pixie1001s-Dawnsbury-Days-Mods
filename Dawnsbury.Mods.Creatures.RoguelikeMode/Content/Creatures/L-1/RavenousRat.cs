@@ -17,13 +17,10 @@ using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class RavenousRat
-    {
-        public static Creature Create()
-        {
+    public class RavenousRat {
+        public static Creature Create() {
             Creature monster = MonsterStatBlocks.CreateGiantRat();
             monster.MainName = "Ravenous Rat";
             monster.AddQEffect(QEffect.PackAttack("ravenous rat", "1d4"));

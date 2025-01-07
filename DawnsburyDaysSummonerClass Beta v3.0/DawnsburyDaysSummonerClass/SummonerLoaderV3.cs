@@ -463,14 +463,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             .WithIllustration(IllustrationName.DivineWrath);
 
             // Generate spell selection feats
-            List<Spell> allSpells = AllSpells.All.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 2) && !sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon)).ToList();
+            List<Spell> allSpells = AllSpells.All.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 2) && !sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon) && new Trait[] { Trait.Arcane, Trait.Occult, Trait.Primal, Trait.Divine }.ContainsOneOf(sp.Traits)).ToList();
 
             List<SpellId> moddedSpells = (List<SpellId>)typeof(ModManager).GetProperty("NewSpells", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).GetValue(null);
             List<Spell> moddedSpells2 = new List<Spell>();
             foreach (SpellId spell in (List<SpellId>)moddedSpells) {
                 moddedSpells2.Add(AllSpells.CreateModernSpellTemplate(spell, tSummoner));
             }
-            moddedSpells2 = moddedSpells2.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 2) && (!sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon))).ToList();
+            moddedSpells2 = moddedSpells2.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 2) && (!sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon) && new Trait[] { Trait.Arcane, Trait.Occult, Trait.Primal, Trait.Divine }.ContainsOneOf(sp.Traits))).ToList();
             allSpells = allSpells.Concat(moddedSpells2).ToList();
 
             foreach (Spell spell in allSpells) {
@@ -1316,6 +1316,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         ShortDescription = "Take control of your Eidolon, using your shared action pool."
                     }
                     .WithEffectOnSelf((Func<Creature, Task>)(async self => {
+                        if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will use all of your shared actions without input. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                            return;
+                        }
+
                         await PartnerActs(summoner, eidolon);
                     }))
                     .WithActionCost(0);
@@ -1721,6 +1725,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             return new Creature(illustration1, name1, (IList<Trait>)traits, level, perception, speed1, defenses, hp, abilities, skills)
                 .WithProficiency(Trait.Unarmed, (level >= 5 ? (level >= 13 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
+                .WithProficiency(Trait.Spell, level < 9 ? Proficiency.Trained : level < 17 ? Proficiency.Master : Proficiency.Master )
                 .WithProficiency(Trait.UnarmoredDefense, (level >= 11 ? (level >= 19 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
                 .WithEntersInitiativeOrder(false)
                 //.WithSpellProficiencyBasedOnSpellAttack(summoner.ClassOrSpellDC() - 10, abilities1.Strength >= abilities1.Dexterity ? Ability.Strength : Ability.Dexterity)
@@ -1833,13 +1838,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     BonusToSpellSaveDCs = qf => {
                         int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
                         int eDC = qf.Owner.ClassOrSpellDC();
-                        return new Bonus(eDC >= sDC ? sDC - eDC : eDC - sDC, BonusType.Untyped, "Summoner Spellcasting DC");
+                        return new Bonus(eDC >= sDC ? eDC - sDC : sDC - eDC, BonusType.Untyped, "Summoner Spellcasting DC");
                     },
                     BonusToAttackRolls = (qf, action, target) => {
                         if (action.HasTrait(Trait.Spell)) {
                             int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
                             int eDC = qf.Owner.ClassOrSpellDC();
-                            return new Bonus(eDC >= sDC ? sDC - eDC : eDC - sDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
+                            return new Bonus(eDC >= sDC ? eDC - sDC : sDC - eDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
                         }
                         return null;
                     },
@@ -2196,6 +2201,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                                 if (action.HasTrait(Trait.Strike)) {
                                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+
+                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                        return;
+                                    }
+
                                     self.AddQEffect(new QEffect {
                                         PreventTakingAction = action => action.Name == "Enable Tandem Strike" ? "Tandem strike already used this round" : null,
                                         ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
@@ -2262,6 +2272,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                                 if (action.ActionId == ActionId.Stride) {
                                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+
+                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will move randomly. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                        return;
+                                    }
+
                                     self.AddQEffect(new QEffect {
                                         PreventTakingAction = action => action.Name == "Enable Tandem Movement" ? "Tandem movement already used this round" : null,
                                         ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
@@ -2321,6 +2336,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
                             if (action.ActuallySpentActions > 0) {
                                 self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+
+                                if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner).Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                    return;
+                                }
+
                                 self.AddQEffect(new QEffect {
                                     PreventTakingAction = action => action.Name == "Enable Act Together" ? "Act together already used this round" : null,
                                     ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
