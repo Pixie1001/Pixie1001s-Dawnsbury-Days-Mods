@@ -82,17 +82,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-
-                // TODO: Use this code to add long term effects to skill challenges
-                //var hero = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
-                //string heroName = hero.Name;
-
-                //hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("test effect", "this is a test thingo for debugging."));
-                Creature test = battle.AllCreatures.First(cr => cr.PersistentCharacterSheet != null);
-                //LTEs.GrantBoon(test, BoonId.POISON_IMMUNITY);
-                test.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Test Boon"));
                 await CommonEncounterFuncs.StandardEncounterResolve(battle);
-                // TODO: Remove debug code
             });
         }
 

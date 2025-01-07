@@ -43,6 +43,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                         Tile pos = self.Owner.Occupies;
                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                         Creature spider = BebilithSpawn.Create();
+                        if (self.Owner.Level <= 0) {
+                            spider.ApplyWeakAdjustments(false, true);
+                        } else if (self.Owner.Level == 1) {
+                            spider.ApplyWeakAdjustments(false);
+                        } else if (self.Owner.Level == 3) {
+                            spider.ApplyEliteAdjustments();
+                        } else if (self.Owner.Level >= 4) {
+                            spider.ApplyEliteAdjustments(true);
+                        }
                         self.Owner.Battle.SpawnCreature(spider, self.Owner.OwningFaction, pos);
                     }
                 }

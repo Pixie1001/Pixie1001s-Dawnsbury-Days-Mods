@@ -85,7 +85,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             }
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After severa labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {cursedItem.Name.CapitalizeEachWord()} abruptly explodes into " +
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {cursedItem.Name.CapitalizeEachWord()} abruptly explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!");
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.");
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.");

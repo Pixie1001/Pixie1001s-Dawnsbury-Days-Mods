@@ -36,6 +36,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                     };
                 })
                 .WithProficiency(Trait.Weapon, Proficiency.Trained)
+                .AddQEffect(new QEffect() {
+                    BonusToInitiative = self => new Bonus(-30, BonusType.Untyped, "Patient Guardian")
+                })
                 .AddQEffect(new QEffect("Obliviating Aura", "The unseen guardian feels slippery and elusive in its victim's minds, making it easy for them to lose track of its postion. It gains a +20 bonus to checks made to sneak or hide and can hide in plain sight.") {
                     Id = QEffectId.HideInPlainSight,
                     Innate = true,

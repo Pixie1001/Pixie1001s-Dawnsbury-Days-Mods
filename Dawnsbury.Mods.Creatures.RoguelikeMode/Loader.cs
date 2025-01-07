@@ -154,6 +154,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<MysteriousRoom_ArtRoomL1>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL1");
             RegisterEncounter<MysteriousRoom_ArtRoomL2>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL2");
             RegisterEncounter<MysteriousRoom_ArtRoomL3>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL3");
+            RegisterEncounter<HatcheryLv1>("Hatchery.tmx", "HatcheryLv1");
+            RegisterEncounter<HatcheryLv2>("Hatchery.tmx", "HatcheryLv2");
+            RegisterEncounter<HatcheryLv3>("Hatchery.tmx", "HatcheryLv3");
+            RegisterEncounter<GraveEncounterLv1>("GraveEncounter.tmx", "GraveEncounterLv1");
+            RegisterEncounter<GraveEncounterLv2>("GraveEncounter.tmx", "GraveEncounterLv2");
+            RegisterEncounter<GraveEncounterLv3>("GraveEncounter.tmx", "GraveEncounterLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
