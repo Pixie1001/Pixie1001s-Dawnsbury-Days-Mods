@@ -99,7 +99,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             ANIMATED_STATUE,
             BEBILITH_SPAWN,
             DROW_NECROMANCER,
-            OWL_BEAR
+            OWL_BEAR,
+            YOUNG_WHITE_DRAGON
         }
 
         internal enum ObjectId
