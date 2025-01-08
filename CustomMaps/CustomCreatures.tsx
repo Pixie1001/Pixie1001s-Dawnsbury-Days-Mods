@@ -181,6 +181,12 @@
   </properties>
   <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
  </tile>
+ <tile id="30">
+  <properties>
+   <property name="Id" value="Young White Dragon"/>
+  </properties>
+  <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
+ </tile>
  <tile id="2023">
   <properties>
    <property name="Id" value="Demonic Pustule"/>
