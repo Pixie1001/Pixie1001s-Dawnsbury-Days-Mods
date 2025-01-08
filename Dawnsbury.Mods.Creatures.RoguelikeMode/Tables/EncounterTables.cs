@@ -84,6 +84,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<MaidenOfTheLostLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv1>());
+            eliteEncounters[0].Add(new TypedEncounterCampaignStop<GrandStaircaseL1>());
 
             // level2EliteEncounters
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<HallOfSmokeLv2>());
@@ -92,6 +93,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<MaidenOfTheLostLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<GrandStaircaseL2>());
 
             // level3EliteEncounters
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<HallOfSmokeLv3>());
@@ -100,6 +102,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<MaidenOfTheLostLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<GrandStaircaseL3>());
 
             // Boss Fights
             bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());
