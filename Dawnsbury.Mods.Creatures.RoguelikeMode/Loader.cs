@@ -180,6 +180,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<CroneOfTheWildsLv1>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv1");
             RegisterEncounter<CroneOfTheWildsLv2>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv2");
             RegisterEncounter<CroneOfTheWildsLv3>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv3");
+            RegisterEncounter<GrandStaircaseL1>("GrandStaircase.tmx", "GrandStaircaseL1");
+            RegisterEncounter<GrandStaircaseL2>("GrandStaircase.tmx", "GrandStaircaseL2");
+            RegisterEncounter<GrandStaircaseL3>("GrandStaircase.tmx", "GrandStaircaseL3");
 
             // Boss fights
             RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");

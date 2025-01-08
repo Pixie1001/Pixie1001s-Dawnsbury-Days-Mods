@@ -98,7 +98,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             CRAWLING_HAND,
             ANIMATED_STATUE,
             BEBILITH_SPAWN,
-            DROW_NECROMANCER
+            DROW_NECROMANCER,
+            OWL_BEAR
         }
 
         internal enum ObjectId
