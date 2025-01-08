@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
   <property name="EncounterDescription" value="..."/>
   <property name="EncounterGroup" value="Roguelike"/>
@@ -8,11 +8,14 @@
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15">
+ <imagelayer id="4" name="Image Layer 1">
+  <image source="RoguelikeMapBGs/ShadowcastersSanctum.jpg" width="3840" height="3840"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15" opacity="0.2">
   <data encoding="csv">
 22,22,22,22,22,22,21,21,21,22,22,22,22,22,22,
 22,22,22,22,21,21,21,21,21,21,21,22,22,22,22,
-22,22,22,21,21,21,21,21,21,21,21,21,22,22,22,
+22,22,21,21,21,21,21,21,21,21,21,21,21,22,22,
 22,22,49,21,21,21,21,21,21,21,21,21,21,22,22,
 22,49,21,21,21,21,21,21,21,21,21,21,21,21,22,
 22,49,21,21,21,21,21,49,21,21,21,21,21,21,22,
@@ -20,10 +23,10 @@
 49,49,21,21,21,49,49,49,49,49,21,21,21,49,49,
 22,49,21,21,21,21,49,49,49,21,21,21,21,49,22,
 22,49,21,21,21,21,21,49,21,21,21,21,21,49,22,
-22,22,49,21,21,21,21,21,21,21,21,21,21,49,22,
+22,49,49,21,21,21,21,21,21,21,21,21,21,49,22,
 22,22,49,21,21,21,21,21,21,21,21,21,49,22,22,
-22,22,22,49,49,21,21,21,21,21,49,49,22,22,22,
-22,22,22,22,49,49,49,49,49,49,49,22,22,22,22,
+22,22,49,49,49,21,21,21,21,21,49,49,49,22,22,
+22,22,22,49,49,49,49,49,49,49,49,22,22,22,22,
 22,22,22,22,22,22,22,49,22,22,22,22,22,22,22
 </data>
  </layer>

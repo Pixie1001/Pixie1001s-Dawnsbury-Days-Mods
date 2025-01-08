@@ -23,6 +23,7 @@ using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using FMOD;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -72,6 +73,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                 return null;
             };
             return new Creature(IllustrationName.UnknownCreature, "Owl Bear", [Trait.Animal], 4, 14, 5, new Defenses(21, 13, 7, 11), 70, new Abilities(6, 1, 5, -4, 3, 0), new Skills(acrobatics: 7, athletics: 14, intimidation: 10))
+                .WithAIModification(ai =>
+                {
+                    ai.OverrideDecision = (self, options) =>
+                    {
+                        Creature monster = self.Self;
+
+                        if (self.Self.QEffects.Any(qf => qf.Key == "temporaryBloodCurdling"))
+                        {
+                            //AiFuncs.PositionalGoodness(monster, options, (pos, you, step, them) => pos.DistanceTo(them.Occupies) <= 2 && pos.HasLineOfEffectToIgnoreLesser(them.Occupies) <= CoverKind.Standard, 4, false);
+                            return options.MinBy(opt => opt.AiUsefulness.DistanceFromClosestEnemy);
+                        }
+
+                        return null;
+                    };
+                })
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.MonsterGrab())
                 .AddQEffect(GnawEffect)
@@ -92,6 +108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                         innerSelf.PersistentUsedUpResources.UsedUpActions.Add("Screeching Advance");
                         QEffect temporaryBloodCurdling = new QEffect()
                         {
+                            Key = "temporaryBloodCurdling",
                             StateCheck = async (qfStateCheck) =>
                             {
                                 Creature owlBear = qfStateCheck.Owner;
@@ -131,7 +148,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                     Source = self,
                     ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
                     Id = QEffectIds.BloodcurdlingScreechImmunity,
-                    Illustration = IllustrationName.Demoralize,
+                    Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, IllustrationName.Demoralize),
                     Value = 10
                 });
 

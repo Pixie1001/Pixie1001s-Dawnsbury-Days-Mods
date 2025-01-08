@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="20" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="20" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
   <property name="EncounterDescription" value="Elite mini-boss fight"/>
   <property name="EncounterGroup" value="Roguelike"/>
@@ -8,17 +8,20 @@
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="20">
+ <imagelayer id="5" name="Image Layer 1">
+  <image source="RoguelikeMapBGs/MaidenOfTheLost.jpg" width="3840" height="5120"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="20" opacity="0.5">
   <data encoding="csv">
 21,21,21,21,21,22,21,21,21,22,21,21,21,21,21,
 21,21,21,21,21,22,21,21,21,22,21,21,21,21,21,
 21,21,21,21,21,22,21,21,21,22,21,21,21,21,21,
-21,21,21,21,21,22,18,19,20,22,21,21,21,21,21,
+21,21,21,21,21,21,18,19,20,21,21,21,21,21,21,
 44,21,21,21,21,21,2,2,2,21,21,21,21,21,21,
-44,44,44,21,21,21,2,2,2,21,21,21,21,21,44,
+44,44,44,21,21,21,2,2,2,21,21,21,21,106,44,
 44,44,44,44,44,44,106,106,106,44,44,44,44,44,44,
 21,21,44,44,44,44,106,106,106,44,44,44,44,44,21,
-21,21,21,21,21,21,2,2,2,44,44,44,44,21,21,
+21,21,21,21,21,21,2,2,2,106,44,44,44,21,21,
 21,21,21,21,21,21,2,2,2,21,21,21,21,21,21,
 21,21,21,21,21,21,2,2,21,21,21,21,21,21,21,
 21,21,21,21,21,21,21,2,21,21,21,21,21,21,21,
@@ -40,11 +43,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,139,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,14,0,0,0,14,0,8,0,0,0,
-0,0,8,0,0,0,27,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,27,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,
-0,0,139,0,0,0,0,88,0,8,0,0,0,0,0,
-0,0,0,0,27,0,0,0,147,0,0,0,147,0,0,
+0,0,139,0,0,0,0,88,0,8,0,0,0,0,8,
+8,0,0,0,27,0,0,0,147,0,0,0,147,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,
 0,0,147,0,0,0,8,0,0,0,27,0,0,91,91,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,
