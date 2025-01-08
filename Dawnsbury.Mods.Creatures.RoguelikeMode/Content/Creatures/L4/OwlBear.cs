@@ -86,9 +86,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
                 {
                     return new CombatAction(self, IllustrationName.Demoralize, "Screeching Advance", [Trait.Auditory, Trait.Emotion, Trait.Fear, Trait.Mental], "Stride twice while using Bloodcurdling Screech. (Any creature in the range during the movement will be affected)", Target.Self())
                     .WithActionCost(2)
-                    .WithGoodness((t, a, d) => a.Actions.ActedThisEncounter ? AIConstants.NEVER : AIConstants.ALWAYS)
+                    .WithGoodness((t, a, d) => a.PersistentUsedUpResources.UsedUpActions.Contains("Screeching Advance") ? AIConstants.NEVER : AIConstants.ALWAYS)
                     .WithEffectOnSelf(async (action, innerSelf) =>
                     {
+                        innerSelf.PersistentUsedUpResources.UsedUpActions.Add("Screeching Advance");
                         QEffect temporaryBloodCurdling = new QEffect()
                         {
                             StateCheck = async (qfStateCheck) =>
