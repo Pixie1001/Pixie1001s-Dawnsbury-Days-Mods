@@ -166,7 +166,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6
                 {
                     return new CombatAction(self, IllustrationName.Unknown, "Ground Slam", [], "All creatures without flying in a 10 foot emanation must succeed a DC 24 Reflex save or fall prone and take 2d6 bludgeoning damage. You can then Step.", Target.SelfExcludingEmanation(2))
                         .WithActionCost(1)
-                        .WithGoodness((t, a, d) => 6 * (a.Battle.AllCreatures.Count(creature => a.DistanceTo(creature) <= 2 && !creature.HasEffect(QEffectId.Flying) && !creature.HasEffect(QEffectId.Prone))))
+                        .WithSoundEffect(SfxName.DropProne)
+                        .WithGoodness((t, a, d) => 2 * (a.Battle.AllCreatures.Count(creature => a.DistanceTo(creature) <= 2 && !creature.HasEffect(QEffectId.Flying) && !creature.HasEffect(QEffectId.Prone))))
                         .WithSavingThrow(new SavingThrow(Defense.Reflex, 24))
                         .WithEffectOnEachTarget(async (slam, innerSelf, target, result) =>
                         {
