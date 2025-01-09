@@ -83,6 +83,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
                     dragon.AddQEffect(QEffect.TraitImmunity(Trait.Poison));
                     dragon.AddQEffect(QEffect.TraitImmunity(Trait.Mental));
                     dragon.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious));
+                    QEffect reanimatedRecharge = QEffect.Recharging("Breath Weapon");
+                    reanimatedRecharge.Value = 1;
+                    dragon.AddQEffect(reanimatedRecharge);
                 }
             });
         }
