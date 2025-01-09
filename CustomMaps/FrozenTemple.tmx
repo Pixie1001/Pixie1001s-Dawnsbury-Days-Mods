@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="14" height="14" tilewidth="256" tileheight="256" infinite="0" nextlayerid="12" nextobjectid="1">
+ <properties>
+  <property name="EncounterDescription" value="An ice filled fallen temple"/>
+  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterLevel" type="int" value="4"/>
+  <property name="EncounterName" value="Frozen Temple"/>
+ </properties>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
+ <tileset firstgid="125" source="DlcTileset.tsx"/>
+ <tileset firstgid="200" source="CustomCreatures.tsx"/>
+ <imagelayer id="11" name="Image Layer 1">
+  <image source="BG_FrozenTemple.jpg" width="2048" height="2048"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="14" height="14">
+  <data encoding="csv">
+49,49,49,49,14,49,49,49,49,14,49,49,49,49
+49,49,49,49,49,49,49,49,49,49,49,49,49,49
+49,49,49,49,49,49,49,49,49,49,49,49,49,49
+49,49,49,49,49,49,49,49,49,49,49,49,49,49
+49,49,49,49,49,49,49,49,49,49,49,49,49,49
+49,49,49,49,14,49,49,49,49,14,49,49,49,49
+49,49,49,49,49,49,49,49,49,49,49,49,49,49
+22,49,49,49,49,49,49,49,49,49,49,49,49,22
+22,49,49,14,49,49,49,49,49,49,14,49,49,22
+22,21,21,49,49,49,49,49,49,49,21,21,21,22
+22,21,21,14,21,21,16,16,21,21,14,21,21,22
+22,21,21,21,16,16,21,21,16,16,21,21,21,22
+22,21,21,14,16,16,21,21,16,16,14,21,21,22
+22,22,22,22,16,16,21,21,16,16,22,22,22,22
+</data>
+ </layer>
+ <layer id="7" name="Top layer: stones, trees, creatures..." width="14" height="14">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,2225,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,2225,0,0,0,230,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,36,37,0,0,0,0,0,0
+0,0,0,0,0,0,38,39,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="10" name="Topmost layer: Metadata" width="14" height="14">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

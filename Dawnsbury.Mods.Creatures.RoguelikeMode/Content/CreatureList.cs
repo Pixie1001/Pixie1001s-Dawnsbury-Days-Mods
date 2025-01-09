@@ -143,6 +143,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return DrowNecromancer.Create();
                 case ModEnums.CreatureId.OWL_BEAR:
                     return OwlBear.Create();
+                case ModEnums.CreatureId.YOUNG_WHITE_DRAGON:
+                    return YoungWhiteDragon.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -231,6 +233,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 6 Creatures - Demons
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ABYSSAL_HANDMAIDEN);
+
+            // Level 7 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.YOUNG_WHITE_DRAGON);
         }
 
         internal static void LoadObjects() {

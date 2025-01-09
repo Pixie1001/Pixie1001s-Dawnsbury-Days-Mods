@@ -105,9 +105,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<GrandStaircaseL3>());
 
             // Boss Fights
-            bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());
-            bossFights.Add(new TypedEncounterCampaignStop<Boss_WitchCoven>());
-            bossFights.Add(new TypedEncounterCampaignStop<Boss_Handmaiden>());
+            bossFights.Add(new TypedEncounterCampaignStop<Boss_FrozenTemple>());
+            bossFights.Add(new TypedEncounterCampaignStop<Boss_FrozenTemple>());
+            bossFights.Add(new TypedEncounterCampaignStop<Boss_FrozenTemple>());
+
+            //bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());
+            //bossFights.Add(new TypedEncounterCampaignStop<Boss_WitchCoven>());
+            //bossFights.Add(new TypedEncounterCampaignStop<Boss_Handmaiden>());
+            //bossFights.Add(new TypedEncounterCampaignStop<Boss_FrozenTemple>());
         }
     }
 }
