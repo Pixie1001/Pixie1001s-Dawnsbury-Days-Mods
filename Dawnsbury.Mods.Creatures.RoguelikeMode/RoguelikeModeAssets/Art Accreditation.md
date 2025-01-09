@@ -44,6 +44,7 @@
 	<li>AnimalFormSnake.png (Modified)</li>
 	<li>AnimalFormWolf.png (Modified)</li>
 	<li>CloakOfAir.png (Modified)</li>
+	<li>BaneCircleWhite.png (Modified)</li>
 </ul>
 
 ## Self Produced Assets

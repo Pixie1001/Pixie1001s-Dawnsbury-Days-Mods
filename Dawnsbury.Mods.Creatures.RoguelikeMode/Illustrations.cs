@@ -52,6 +52,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration Homunculus = new ModdedIllustration("RoguelikeModeAssets/Enemies/Homunculus.png");
         internal static ModdedIllustration CrawlingHand = new ModdedIllustration("RoguelikeModeAssets/Enemies/CrawlingHand.png");
         internal static ModdedIllustration BebilithSpawn = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithSpawn.png");
+        internal static ModdedIllustration Nuglub = new ModdedIllustration("RoguelikeModeAssets/Enemies/Nuglub.png");
+        internal static ModdedIllustration Owlbear = new ModdedIllustration("RoguelikeModeAssets/Enemies/Owlbear.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");
@@ -85,5 +87,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");
+        internal static ModdedIllustration BaneCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/BaneCircleWhite.png");
     }
 }

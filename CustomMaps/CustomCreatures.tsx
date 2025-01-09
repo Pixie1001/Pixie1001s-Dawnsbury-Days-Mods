@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="33" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="34" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -161,7 +161,7 @@
   <properties>
    <property name="Id" value="Nuglub"/>
   </properties>
-  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+  <image source="CustomCreatures/Nuglub.png" width="256" height="256"/>
  </tile>
  <tile id="27">
   <properties>
@@ -179,7 +179,7 @@
   <properties>
    <property name="Id" value="Owl Bear"/>
   </properties>
-  <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
+  <image source="CustomCreatures/Owlbear.png" width="256" height="256"/>
  </tile>
  <tile id="30">
   <properties>
