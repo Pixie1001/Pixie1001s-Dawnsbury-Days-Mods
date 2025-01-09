@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
             .WithHardness(7)
             ;
 
-            var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.KineticistAuraCircle, radius);
+            var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.BaneCircle, radius);
             animation.Color = Color.Black;
 
             QEffect effect = new QEffect("Blessings of the Spider Queen", $"All spiders, demons and drow within {radius * 5}-feet of this shrine gain a +1 bonus to AC, saves and attacks rolls.");

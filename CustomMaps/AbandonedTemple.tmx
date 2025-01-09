@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
   <property name="EncounterDescription" value="Test drow encounter"/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Abandoned Temple"/>
+  <property name="IsDark" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="25" height="25">
+ <imagelayer id="4" name="Image Layer 1">
+  <image source="SpiderTemple.jpg" width="6400" height="6400"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="25" height="25" visible="0">
   <data encoding="csv">
 75,75,22,22,22,22,22,22,22,22,18,19,19,19,20,22,22,22,22,22,22,22,22,75,75,
 75,75,22,21,21,21,21,21,19,21,18,19,19,19,20,21,19,21,21,21,21,21,22,75,75,
@@ -50,7 +54,7 @@
 0,0,0,0,0,0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,14,0,0,0,0,0,14,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,140,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,14,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,140,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,0,0,
 0,91,0,0,0,0,0,0,0,0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

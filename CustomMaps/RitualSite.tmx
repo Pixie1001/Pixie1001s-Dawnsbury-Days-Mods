@@ -4,7 +4,7 @@
   <property name="EncounterDescription" value="..."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
-  <property name="EncounterName" value="Shadowcaster's Sanctum"/>
+  <property name="EncounterName" value="Ritual Site"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
@@ -55,7 +55,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,108,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

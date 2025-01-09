@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
     {
         public static Creature Create()
         {
-            return new Creature(IllustrationName.UnknownCreature, "Nuglub", [Trait.Chaotic, Trait.Evil, Trait.Fey, Trait.Gremlin], 2, 5, 6, new Defenses(18, 9, 10, 5), 34, new Abilities(1, 4, 3, -1, -1, 1), new Skills(acrobatics: 8, crafting: 5, intimidation: 7, stealth: 8))
+            return new Creature(Illustrations.Nuglub, "Nuglub", [Trait.Chaotic, Trait.Evil, Trait.Fey, Trait.Gremlin], 2, 5, 6, new Defenses(18, 9, 10, 5), 34, new Abilities(1, 4, 3, -1, -1, 1), new Skills(acrobatics: 8, crafting: 5, intimidation: 7, stealth: 8))
                     .WithCharacteristics(false, true)
                     .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 2))
                     .AddQEffect(new QEffect("Kneecapper {icon:Reaction}", "When an adjacent creature uses a move action, you can make an Acrobatics check against the creature's Reflex DC. On a success, disrupt the action and the target falls and lands prone.")

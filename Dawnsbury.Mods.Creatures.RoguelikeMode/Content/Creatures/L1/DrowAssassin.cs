@@ -2,16 +2,21 @@
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
@@ -29,19 +34,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                             Creature stalkTarget = creature.Battle.AllCreatures.FirstOrDefault(c => c.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == creature) != null);
 
                             if (stalkTarget != null) {
-                                AiFuncs.PositionalGoodness(creature, options, (pos, thisCreature, step, otherCreature) => otherCreature == stalkTarget && pos.DistanceTo(stalkTarget.Occupies) <= 5 && pos.DistanceTo(stalkTarget.Occupies) >= 3 && pos.HasLineOfEffectToIgnoreLesser(stalkTarget.Occupies) <= CoverKind.Standard, 10);
+                                var path = Pathfinding.GetPath(creature, stalkTarget.Occupies, creature.Battle, new PathfindingDescription() {
+                                    Squares = 100,
+                                    Style = new MovementStyle() {
+                                        ForcedMovement = false,
+                                        MaximumSquares = 100,
+                                        IgnoresUnevenTerrain = false,
+                                        PermitsStep = true,
+                                        Shifting = false
+                                    }
+                                });
+
+                                if (path != null && path.Count > 0 && creature.Speed > 0) {
+                                    return options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll<TileOption>(opt => (TileOption)opt).MinBy(opt => opt.Tile.DistanceTo(path[Math.Min(creature.Speed - 1, path.Count - 1)]));
+
+                                }
                             }
-                            //foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o.AiUsefulness.ObjectiveAction != null && o.AiUsefulness.ObjectiveAction.Action.ActionId == ActionId.Sneak)) {
-                            //    TileOption? option2 = option as TileOption;
-                            //    if (option2 != null && option2.Tile.DistanceTo(stalkTarget.Occupies) <= 5 && option2.Tile.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
-                            //        option2.AiUsefulness.MainActionUsefulness += 10;
-                            //    }
-                            //}
-                            //foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere)) {
-                            //    if (creature.Occupies.DistanceTo(stalkTarget.Occupies) <= 5 && creature.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Standard) {
-                            //        option.AiUsefulness.MainActionUsefulness += 15;
-                            //    }
-                            //}
                         }
 
                         return null;
@@ -120,8 +128,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                         if (target.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == self.Owner) != null) {
                             return 30f;
                         }
-                        //return -10f;
-                        return 0f;
+                        return -10f;
+                        //return 0f;
                     }
                 })
                 .AddQEffect(CommonQEffects.Drow())

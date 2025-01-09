@@ -161,7 +161,7 @@
   <properties>
    <property name="Id" value="Nuglub"/>
   </properties>
-  <image source="Creatures/UnknownCreature.png" width="256" height="256"/>
+  <image source="CustomCreatures/Nuglub.png" width="256" height="256"/>
  </tile>
  <tile id="27">
   <properties>

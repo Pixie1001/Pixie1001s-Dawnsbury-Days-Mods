@@ -502,6 +502,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        /// <summary>
+        /// Creature with this qeffect should be counted as two creatures for the purpose of encounter balancing. You can use it to create a boss monster with appropriate stats, without also giving them a frustrating amount of AC.
+        /// </summary>
         public static QEffect MiniBoss() {
             QEffect effect = new QEffect("Powerful Adversary", "The first time this creature acts each round while above half HP, it only drops down two places in the intitive order. In addition it has significantly increased HP for its level.") {
                 StartOfCombat = async self => {
