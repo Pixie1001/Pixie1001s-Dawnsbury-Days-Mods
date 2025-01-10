@@ -22,7 +22,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Microsoft.Xna.Framework;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DemonicPustule {
         public static Creature Create() {

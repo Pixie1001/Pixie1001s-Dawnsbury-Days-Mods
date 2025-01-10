@@ -54,6 +54,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration BebilithSpawn = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithSpawn.png");
         internal static ModdedIllustration Nuglub = new ModdedIllustration("RoguelikeModeAssets/Enemies/Nuglub.png");
         internal static ModdedIllustration Owlbear = new ModdedIllustration("RoguelikeModeAssets/Enemies/Owlbear.png");
+        internal static ModdedIllustration WhiteDragon = new ModdedIllustration("RoguelikeModeAssets/Enemies/WhiteDragon.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");
@@ -73,6 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration DemonBoundRing = new ModdedIllustration("RoguelikeModeAssets/Items/DemonBoundRing.png");
         internal static ModdedIllustration ShifterFurs = new ModdedIllustration("RoguelikeModeAssets/Items/ShifterFurs.png");
         internal static ModdedIllustration SpiritBeaconAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/SpiritBeaconAmulet.png");
+        internal static ModdedIllustration DuelingSpear = new ModdedIllustration("RoguelikeModeAssets/Items/DuelingSpear.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");

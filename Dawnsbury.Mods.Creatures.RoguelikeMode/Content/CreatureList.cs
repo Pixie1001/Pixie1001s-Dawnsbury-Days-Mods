@@ -72,8 +72,7 @@ using Microsoft.Xna.Framework.Input;
 using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -145,6 +144,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return OwlBear.Create();
                 case ModEnums.CreatureId.YOUNG_WHITE_DRAGON:
                     return YoungWhiteDragon.Create();
+                case ModEnums.CreatureId.MERFOLK_HARRIER:
+                    return MerfolkHarrier.Create();
+                case ModEnums.CreatureId.HUNTING_SHARK:
+                    return HuntingShark.Create();
+                case ModEnums.CreatureId.MERFOLK_BRINEBLADE:
+                    return MerfolkBrineblade.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -205,6 +210,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 1 Creatures - Other
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HUNTING_SPIDER);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MERFOLK_HARRIER);
 
             // Level 2 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_TEMPLEGUARD);
@@ -216,6 +222,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.TREASURE_DEMON);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.NUGLUB);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.BEBILITH_SPAWN);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HUNTING_SHARK);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MERFOLK_BRINEBLADE);
 
             // Level 3 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_PRIESTESS);

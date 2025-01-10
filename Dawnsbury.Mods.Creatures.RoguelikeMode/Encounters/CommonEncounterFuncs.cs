@@ -1,4 +1,5 @@
 ﻿using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;

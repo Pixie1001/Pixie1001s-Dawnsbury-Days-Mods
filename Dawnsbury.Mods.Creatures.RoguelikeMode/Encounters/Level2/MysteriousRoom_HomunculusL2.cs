@@ -1,6 +1,6 @@
 ﻿using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 {

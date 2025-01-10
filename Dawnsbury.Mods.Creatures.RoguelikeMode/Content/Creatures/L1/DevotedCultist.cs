@@ -20,7 +20,7 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DevotedCultist {
         public static Creature Create() {
@@ -47,7 +47,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                             if (stacks >= 2) {
                                 Tile pos = caster.Occupies;
                                 caster.Battle.RemoveCreatureFromGame(caster);
-                                int rand = R.Next(0, 4);
+                                int rand = R.Next(0, 5);
                                 Creature newForm = null;
                                 switch (rand) {
                                     case 0:
@@ -58,6 +58,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                                         break;
                                     case 2:
                                         newForm = MonsterStatBlocks.CreateDretch();
+                                        break;
+                                    case 3:
+                                        newForm = BebilithSpawn.Create();
                                         break;
                                     default:
                                         newForm = MonsterStatBlocks.CreateAbrikandilu();

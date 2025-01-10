@@ -19,7 +19,7 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class TestPile {
         public static Creature Create() {

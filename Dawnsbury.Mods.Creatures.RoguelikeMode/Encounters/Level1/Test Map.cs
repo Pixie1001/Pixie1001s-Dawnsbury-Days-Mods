@@ -59,21 +59,19 @@ using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Campaign.Encounters.Evil_from_the_Stars;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class TestMap : Encounter
-    {
+    internal class TestMap : Encounter {
 
-        public TestMap(string filename) : base("Test Map", filename, null, 0)
-        {
+        public TestMap(string filename) : base("Test Map", filename, null, 0) {
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 Sfxs.SlideIntoSong(SoundEffects.BossMusic);
 
-                CommonEncounterFuncs.ApplyEliteAdjustments(battle);
+                //CommonEncounterFuncs.ApplyEliteAdjustments(battle);
 
                 Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
 
@@ -129,6 +127,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
             //    battle.AllCreatures.FirstOrDefault(cr => cr.BaseName.ToLower() == "test summoner's eidolon").AddQEffect(new QEffect() { BonusToDefenses = (self, action, defence) => defence == Defense.Fortitude ? new Bonus(-5, BonusType.Status, "Testing") : null });
             //    //await Affliction.ExposeToInjury(Affliction.CreateSpiderVenom(), td, battle.AllCreatures.FirstOrDefault(cr => cr.BaseName.ToLower() == "test summoner's eidolon"));
             //});
+        }
+
+        public override void ModifyCreatureSpawningIntoTheEncounter(Creature creature) {
+            S4E2OnTheSeabed.AquaticCombatModify(creature);
         }
 
     }

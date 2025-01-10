@@ -16,7 +16,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class TreasureDemon {
         public static Creature Create() {
@@ -24,7 +24,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
             new Abilities(-1, 4, 0, 3, 1, -1), new Skills(acrobatics: 8, thievery: 10))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
-                    // TODO: Remove QEffectId.FleeingAllDanger and relace with custom logic - probably jsut steal code
                     Creature monster = self.Self;
                     if (monster.HasEffect(QEffectId.Prone)) {
                         return options.Where(opt => opt.AiUsefulness.ObjectiveAction?.Action.ActionId == ActionId.Stand).FirstOrDefault();

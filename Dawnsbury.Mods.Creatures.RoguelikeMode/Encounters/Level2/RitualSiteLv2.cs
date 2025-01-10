@@ -59,35 +59,14 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 {
+
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class Boss_FrozenTemple : Encounter
+    internal class RitualSiteLv2 : Level2Encounter
     {
-        public Boss_FrozenTemple(string filename) : base("Fozen Temple", filename, new List<Item>() { }, 0)
-        {
-            // Run setup
-            this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
-                Creature? dragon = battle.AllCreatures.FirstOrDefault(creature => creature.BaseName == "Young White Dragon");
-                if (dragon != null)
-                {
-                    // Dragon Undead changes
-                    dragon.MainName = "Undead " + dragon.MainName;
-                    dragon.Traits.Add(Trait.Undead);
-                    dragon.Traits.Add(Trait.Mindless);
-                    dragon.AddQEffect(QEffect.TraitImmunity(Trait.Death));
-                    dragon.AddQEffect(QEffect.TraitImmunity(Trait.Disease));
-                    dragon.AddQEffect(QEffect.TraitImmunity(Trait.Poison));
-                    dragon.AddQEffect(QEffect.TraitImmunity(Trait.Mental));
-                    dragon.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious));
-                    QEffect reanimatedRecharge = QEffect.Recharging("Breath Weapon");
-                    reanimatedRecharge.Value = 1;
-                    dragon.AddQEffect(reanimatedRecharge);
-                }
-            });
-        }
+        public RitualSiteLv2(string filename) : base("Ritual Site", filename) {}
+
     }
 }

@@ -219,9 +219,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         }
 
         public static QEffect PreyUpon() {
-            return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you.") {
+            return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you, unless they're also flanking you.") {
                 StateCheck = self => {
                     foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends)) {
+                        if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && enemy.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, enemy, enemy.CreateStrike(enemy.PrimaryWeapon)) == "flanked")) {
+                            continue;
+                        }
+
                         int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(enemy) <= 2).Count();
                         if (closeAllies == 0) {
                             enemy.AddQEffect(new QEffect() {
@@ -233,6 +237,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AdditionalGoodness = (self, action, defender) => {
+                    if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && defender.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, defender, defender.CreateStrike(defender.PrimaryWeapon)) == "flanked")) {
+                        return 0;
+                    }
+
                     if (defender.IsFlatFootedTo(self.Owner, action)) {
                         return 0;
                     }

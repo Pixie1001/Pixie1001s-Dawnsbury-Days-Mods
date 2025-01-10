@@ -100,7 +100,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             BEBILITH_SPAWN,
             DROW_NECROMANCER,
             OWL_BEAR,
-            YOUNG_WHITE_DRAGON
+            YOUNG_WHITE_DRAGON,
+            MERFOLK_HARRIER,
+            MERFOLK_BRINEBLADE,
+            MERFOLK_SEA_WITCH,
+            HUNTING_SHARK
         }
 
         internal enum ObjectId

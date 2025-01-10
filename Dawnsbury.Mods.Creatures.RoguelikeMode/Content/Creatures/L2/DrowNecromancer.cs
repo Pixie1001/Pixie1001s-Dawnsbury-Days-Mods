@@ -19,7 +19,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowNecromancer {
         public static Creature Create() {
@@ -71,12 +71,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
                             //}
                         }
 
+                        float levelBonus = defender.Level / 2;
+
                         if (defender.HeldItems.Count > 0 && defender.HeldItems.MaxBy(item => item.WeaponProperties?.RangeIncrement).WeaponProperties?.RangeIncrement <= bestScore) {
-                            return 7;
+                            return 7 + levelBonus;
                         } else if (bestScore > defender.Speed) {
                             return 3;
                         } else {
-                            return 7;
+                            return 7 + levelBonus;
                         }
 
                         //if (attacker.Battle.AllCreatures.Where(cr => cr.))

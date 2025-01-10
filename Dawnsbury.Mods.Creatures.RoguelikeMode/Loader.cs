@@ -118,6 +118,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         private static void LoadEncounters()
         {
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
+
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");
@@ -160,6 +161,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<GraveEncounterLv1>("GraveEncounter.tmx", "GraveEncounterLv1");
             RegisterEncounter<GraveEncounterLv2>("GraveEncounter.tmx", "GraveEncounterLv2");
             RegisterEncounter<GraveEncounterLv3>("GraveEncounter.tmx", "GraveEncounterLv3");
+            RegisterEncounter<RitualSiteLv1>("RitualSite.tmx", "RitualSiteLv1");
+            RegisterEncounter<RitualSiteLv2>("RitualSite.tmx", "RitualSiteLv2");
+            RegisterEncounter<RitualSiteLv3>("RitualSite.tmx", "RitualSiteLv3");
+            RegisterEncounter<DrowPatrolLv1>("DrowPatrol.tmx", "DrowPatrolLv1");
+            RegisterEncounter<DrowPatrolLv2>("DrowPatrol.tmx", "DrowPatrolLv2");
+            RegisterEncounter<DrowPatrolLv3>("DrowPatrol.tmx", "DrowPatrolLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
@@ -185,10 +192,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<GrandStaircaseL3>("GrandStaircase.tmx", "GrandStaircaseL3");
 
             // Boss fights
-            RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx", "Boss_DriderFight");
-            RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx", "Boss_WitchCoven");
-            RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx", "Boss_Handmaiden");
-            RegisterEncounter<Boss_FrozenTemple>("FrozenTemple.tmx", "Boss_FrozenTemple");
+            ModManager.RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx");
+            ModManager.RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx");
+            ModManager.RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx");
+            ModManager.RegisterEncounter<Boss_FrozenTemple>("FrozenTemple.tmx");
 
             // Skill Challenges
             RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");

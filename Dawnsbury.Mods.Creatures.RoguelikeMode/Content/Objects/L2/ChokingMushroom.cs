@@ -25,7 +25,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Core.Mechanics.Damage;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class ChokingMushroom {
         public static Creature Create() {

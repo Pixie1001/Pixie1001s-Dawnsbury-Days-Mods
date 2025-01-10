@@ -27,7 +27,7 @@ using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class OwlBear

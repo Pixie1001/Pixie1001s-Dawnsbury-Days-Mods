@@ -24,7 +24,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.Xna.Framework;
 using System.Xml.Linq;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L6 {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class AbyssalHandmaiden {
         public static Creature Create() {

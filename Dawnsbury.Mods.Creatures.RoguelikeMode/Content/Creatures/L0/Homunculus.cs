@@ -25,7 +25,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using System;
 using System.Linq;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L2
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class Homunculus

@@ -23,6 +23,7 @@
 <ul>
 	<li>SpiritBeaconAmulet.png</li>
 	<li>ShifterFurs.png</li>
+	<li>DuelingSpear.png</li>
 </ul>
 
 ### Rexard
@@ -35,6 +36,7 @@
 ## Creative Commons Artwork
 <ul>
 	<li>SkillChallengeBG.png By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=22488172</li>
+	<li>WhiteDragon.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:Scale-adult-preview.png</li>
 </ul>
 
 ## Modified Base Game Assets
@@ -73,6 +75,8 @@
 	<li>BebilithSpawn.png</li>
 	<li>Homunculous.png</li>
 	<li>AnimatedStatue.png</li>
+	<li>Nuglub.png</li>
+	<li>Owlbear.png</li>
 </ul>
 
 ## Volunteer Contributions

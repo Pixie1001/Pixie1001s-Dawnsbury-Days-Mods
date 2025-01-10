@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="34" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="37" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -185,7 +185,7 @@
   <properties>
    <property name="Id" value="Young White Dragon"/>
   </properties>
-  <image source="CustomCreatures/AnimatedStatue.png" width="256" height="256"/>
+  <image source="CustomCreatures/WhiteDragon.png" width="256" height="256"/>
  </tile>
  <tile id="2023">
   <properties>
@@ -204,5 +204,23 @@
    <property name="Id" value="Drow Necromancer"/>
   </properties>
   <image source="CustomCreatures/DrowNecromancer.png" width="256" height="256"/>
+ </tile>
+ <tile id="2026">
+  <properties>
+   <property name="Id" value="Merfolk Harrier"/>
+  </properties>
+  <image source="CustomCreatures/Shortlist/DarkMerfolk256.png" width="256" height="256"/>
+ </tile>
+ <tile id="2027">
+  <properties>
+   <property name="Id" value="Hunting Shark"/>
+  </properties>
+  <image source="Creatures/AnimalFormShark.png" width="256" height="256"/>
+ </tile>
+ <tile id="2028">
+  <properties>
+   <property name="Id" value="Merfolk Brineblade"/>
+  </properties>
+  <image source="Creatures/DarkPoet256.png" width="256" height="256"/>
  </tile>
 </tileset>
