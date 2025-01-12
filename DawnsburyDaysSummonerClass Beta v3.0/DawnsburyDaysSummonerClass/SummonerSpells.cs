@@ -209,7 +209,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 return new Bonus(1, BonusType.Status, "Reinforce Eidolon");
                             },
                             StateCheck = qfResistance => {
-                                qfResistance.Owner.WeaknessAndResistance.AddResistanceAllExcept(Math.Max(1, spellLevel / 2), new DamageKind[] { });
+                                qfResistance.Owner.WeaknessAndResistance.AddResistanceAllExcept(Math.Max(1, spellLevel / 2), false, new DamageKind[] { });
                             },
                             ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
                         };

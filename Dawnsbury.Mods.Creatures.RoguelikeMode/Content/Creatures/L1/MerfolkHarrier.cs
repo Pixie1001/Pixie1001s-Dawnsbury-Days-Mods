@@ -38,6 +38,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;
 
+                    // Continue fighting if second action in melee
+                    if (monster.Actions.ActionsLeft == 2 && monster.Actions.AttackedThisManyTimesThisTurn <= 1 && monster.Battle.AllCreatures.Any(cr => cr.Alive && cr.EnemyOf(monster) && cr.DistanceTo(monster) >= 1)) {
+                        return options.Where(opt => opt.OptionKind != OptionKind.MoveHere && opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.HasTrait(Trait.Strike)).MaxBy(opt => opt.AiUsefulness.MainActionUsefulness);
+                    }
+
                     // Use last action to escape melee
                     if (monster.Actions.UsedQuickenedAction && monster.Actions.ActionsLeft == 1 && !monster.QEffects.Any(qf => rootEffects.Contains(qf.Id)) && monster.Actions.AttackedThisManyTimesThisTurn > 0) {
                         List<Creature> allEnemies = monster.Battle.AllCreatures.Where<Creature>((Func<Creature, bool>)(cr => cr.EnemyOf(monster))).ToList<Creature>();
@@ -69,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.Weapon, Proficiency.Expert)
             .AddHeldItem(Items.CreateNew(CustomItems.DuelingSpear))
-            .WithAdditionalUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Tail, "1d4", DamageKind.Bludgeoning, Trait.Agile, Trait.Finesse))
+            .WithAdditionalUnarmedStrike(new Item(Illustrations.MermaidTail, "tail", Trait.Unarmed, Trait.Brawling, Trait.Finesse, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning)))
             .AddQEffect(new QEffect() {
                 Id = QEffectId.Swimming
             })

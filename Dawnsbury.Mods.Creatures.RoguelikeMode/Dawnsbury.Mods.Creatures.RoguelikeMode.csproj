@@ -1,15 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="RoguelikeModeAssets\**" />
+	  <EmbeddedResource Remove="RoguelikeModeAssets\**" />
+	  <None Remove="RoguelikeModeAssets\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="0Harmony">
-			<HintPath>0Harmony.dll</HintPath>
+		  <HintPath>..\..\Dawnsbury.Mods.Creatures.RoguelikeMode\0Harmony.dll</HintPath>
 		</Reference>
 		<Reference Include="Common">
 			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\Common.dll</HintPath>

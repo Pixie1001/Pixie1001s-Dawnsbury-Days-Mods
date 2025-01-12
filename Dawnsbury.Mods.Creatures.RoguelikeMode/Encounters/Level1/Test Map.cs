@@ -129,9 +129,5 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
             //});
         }
 
-        public override void ModifyCreatureSpawningIntoTheEncounter(Creature creature) {
-            S4E2OnTheSeabed.AquaticCombatModify(creature);
-        }
-
     }
 }

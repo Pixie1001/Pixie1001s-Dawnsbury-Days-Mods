@@ -39,8 +39,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             //    });
             //});
 
-            return new Creature(IllustrationName.AnimalFormShark, "Hunting Shark", new List<Trait>() { Trait.Neutral, Trait.Animal, Trait.Aquatic }, 2, 5, 7, new Defenses(17, 11, 8, 5), 40,
-            new Abilities(5, 3, 3, 0, 2, 2), new Skills(acrobatics: 6, athletics: 8))
+            return new Creature(Illustrations.HuntingShark, "Hunting Shark", new List<Trait>() { Trait.Neutral, Trait.Animal, Trait.Aquatic }, 2, 5, 7, new Defenses(16, 11, 8, 5), 35,
+            new Abilities(4, 3, 3, 0, 2, 2), new Skills(acrobatics: 6, athletics: 8))
             .WithCharacteristics(false, true)
             .WithProficiency(Trait.Unarmed, Proficiency.Expert)
             .WithUnarmedStrike(jaws)

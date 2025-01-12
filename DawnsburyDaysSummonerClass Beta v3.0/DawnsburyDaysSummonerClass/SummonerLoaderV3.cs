@@ -939,7 +939,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             yield return new Feat(ftPFist, "Your eidolon tears or pummels its enemies apart with its bare hands.", "Your eidolon's primary attack deals bludgeoning damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Fist);
             yield return new Feat(ftPTendril, "Your eidolon possesses crushing tendrils.", "Your eidolon's primary attack deals bludgeoning damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Tentacle);
             yield return new Feat(ftPHorn, "Your eidolon possesses vicious horns to gore its enemies.", "Your eidolon's primary attack deals piercing damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Horn);
-            yield return new Feat(ftPTail, "Your eidolon possesses deadly stinging tail.", "Your eidolon's primary attack deals piercing damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Tail);
+            yield return new Feat(ftPTail, "Your eidolon possesses a deadly stinging tail.", "Your eidolon's primary attack deals piercing damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Tail);
+            yield return new Feat(ftPMermaidTail, "Your eidolon possesses a powerful tail.", "Your eidolon's primary attack deals bludgeoning damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illMermaidTail);
+            yield return new Feat(ftPSpiderLeg, "Your eidolon possesses lethal spidery appendages.", "Your eidolon's primary attack deals piercing damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illStabbingAppendage);
 
             yield return new Feat(ftSWing, "Your eidolon knocks its enemies aside with a pair of powerful wings.", "Your eidolon's secondary attack deals 1d6 bludgeoning damage with the agile and finesse traits." +
                 "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
@@ -973,6 +975,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
                 "\n{b}" + Trait.Finesse.GetTraitProperties().HumanizedName + "{/b} " + Trait.Finesse.GetTraitProperties().RulesText,
                 new List<Trait> { tSecondaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Tail);
+            yield return new Feat(ftSMermaidTail, "Your eidolon possesses a powerful tail.", "Your eidolon's secondary attack deals 1d6 bludgeoning damage with the agile and finesse traits." +
+                "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
+                "\n{b}" + Trait.Finesse.GetTraitProperties().HumanizedName + "{/b} " + Trait.Finesse.GetTraitProperties().RulesText,
+                new List<Trait> { tSecondaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illMermaidTail);
+            yield return new Feat(ftSSpiderLeg, "Your eidolon possesses lethal spidery appendages.", "Your eidolon's secondary attack deals 1d6 piercing damage with the agile and finesse traits." +
+                "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
+                "\n{b}" + Trait.Finesse.GetTraitProperties().HumanizedName + "{/b} " + Trait.Finesse.GetTraitProperties().RulesText,
+                new List<Trait> { tSecondaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illStabbingAppendage);
 
             // Init Primary Weapon Properties
             yield return new Feat(ftPSPowerful, "Your eidolon possesses great strength, allowing it to easily bully and subdue its enemies.", "Your eidolon's primary deals 1d8 damage and has the disarm, nonlethal, shove and trip traits.\n\nAthletics checks made using a weapon with a maneouvre trait benefit your eidolon's item bonus." +
@@ -1571,9 +1581,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)).Name == "Primary Unarmed Attack") {
                 primaryDamageType = TraitToDamage(summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage)).Traits[0]);
                 pStats.Add(DamageToTrait(primaryDamageType));
-            }  else if (new FeatName[] { ftPMace, ftPWing, ftPKick, ftPFist, ftPTendril }.Contains(pAttack.FeatName)) {
+            }  else if (new FeatName[] { ftPMace, ftPWing, ftPKick, ftPFist, ftPTendril, ftPMermaidTail }.Contains(pAttack.FeatName)) {
                 primaryDamageType = DamageKind.Bludgeoning;
-            } else if (new FeatName[] { ftPPolearm, ftPHorn, ftPTail }.Contains(pAttack.FeatName)) {
+            } else if (new FeatName[] { ftPPolearm, ftPHorn, ftPTail, ftPSpiderLeg }.Contains(pAttack.FeatName)) {
                 primaryDamageType = DamageKind.Piercing;
             } else {
                 primaryDamageType = DamageKind.Slashing;
@@ -1584,9 +1594,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)).Name == "Secondary Unarmed Attack") {
                 secondaryDamageType = TraitToDamage(summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage)).Traits[0]);
                 sStats.Add(DamageToTrait(secondaryDamageType));
-            } else if (new FeatName[] { ftSWing, ftSKick, ftSFist, ftSTendril }.Contains(sAttack.FeatName)) {
+            } else if (new FeatName[] { ftSWing, ftSKick, ftSFist, ftSTendril, ftPMermaidTail }.Contains(sAttack.FeatName)) {
                 secondaryDamageType = DamageKind.Bludgeoning;
-            } else if (new FeatName[] { ftSHorn, ftSTail }.Contains(sAttack.FeatName)) {
+            } else if (new FeatName[] { ftSHorn, ftSTail, ftPSpiderLeg }.Contains(sAttack.FeatName)) {
                 secondaryDamageType = DamageKind.Piercing;
             } else {
                 secondaryDamageType = DamageKind.Slashing;
@@ -1685,11 +1695,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         private static Creature CreateEidolonBase(string name, Creature summoner, int[] abilityScores, int ac, int dexCap) {
             int strength = abilityScores[0] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftStrengthBoost) && abilityScores[0] < 4 ? 1 : 0);
-            int dexterity = abilityScores[1] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftDexterityBoost) && abilityScores[1] < 4 ? 1 : 0); ;
-            int constitution = abilityScores[2] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftConstitutionBoost) ? 1 : 0); ;
-            int intelligence = abilityScores[3] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftIntelligenceBoost) ? 1 : 0); ;
-            int wisdom = abilityScores[4] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftWisdomBoost) ? 1 : 0); ;
-            int charisma = abilityScores[5] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftCharismaBoost) ? 1 : 0); ;
+            int dexterity = abilityScores[1] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftDexterityBoost) && abilityScores[1] < 4 ? 1 : 0);
+            int constitution = abilityScores[2] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftConstitutionBoost) ? 1 : 0);
+            int intelligence = abilityScores[3] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftIntelligenceBoost) ? 1 : 0);
+            int wisdom = abilityScores[4] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftWisdomBoost) ? 1 : 0);
+            int charisma = abilityScores[5] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftCharismaBoost) ? 1 : 0);
             int level = summoner.Level;
             int trained = 2 + level;
             int expert = trained + 2;
@@ -1984,7 +1994,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 partner.Actions.UsedQuickenedAction = self.Actions.UsedQuickenedAction;
                 partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 3, self.Actions.FourthActionStyle });
             }
-            if (partner.OwningFaction.IsHumanControlled)
+            if (partner.OwningFaction.IsPlayer)
                 Sfxs.Play(SfxName.StartOfTurn, 0.2f);
             await partner.Battle.GameLoop.StateCheck();
             // Process partner's turn

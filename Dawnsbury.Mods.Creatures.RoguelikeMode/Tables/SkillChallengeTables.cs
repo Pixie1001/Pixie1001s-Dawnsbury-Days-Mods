@@ -38,11 +38,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             events.Add(new SkillChallenge("Cursed Relic", async (level, battle) => {
                 Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom(), lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
-                await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.");
-                await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.");
-                await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {cursedItem.Name.CapitalizeEachWord()}, bereft of dust and seemingly abandoned by those it was bequeathed upon...");
-                await battle.Cinematics.NarratorLineAsync($"Perhaps the ritualists responsible for this terrible act where slain by whatever foul creatured they hoped to contact... Or left their loathsome reward behind as a cunning trap.");
-                await battle.Cinematics.NarratorLineAsync($"Regardless the {cursedItem.Name.CapitalizeEachWord()} emanates a dark and terrible aura, no doubt possessed of a great demonic taint. And yet, the party can hardly afford to be picky in times such as these...");
+                await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.", null);
+                await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.", null);
+                await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {cursedItem.Name.CapitalizeEachWord()}, bereft of dust and seemingly abandoned by those it was bequeathed upon...", null);
+                await battle.Cinematics.NarratorLineAsync($"Perhaps the ritualists responsible for this terrible act where slain by whatever foul creatured they hoped to contact... Or left their loathsome reward behind as a cunning trap.", null);
+                await battle.Cinematics.NarratorLineAsync($"Regardless the {cursedItem.Name.CapitalizeEachWord()} emanates a dark and terrible aura, no doubt possessed of a great demonic taint. And yet, the party can hardly afford to be picky in times such as these...", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 0, Skill.Religion);
                 SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Occultism);
@@ -60,25 +60,25 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()}.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()}.", null);
                         result = opt1.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {cursedItem.Name.CapitalizeEachWord()}, banishing the evil energy lurking within!");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {cursedItem.Name.CapitalizeEachWord()}, banishing the evil energy lurking within!", null);
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name}'s attempts to cleanse the item do not go unnoticed. Barely a moment passes before the {cursedItem.Name.CapitalizeEachWord()} explodes into " +
-                                $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!");
-                            await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.");
-                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.");
+                                $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
+                            await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
                             opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse"));
                         }
                         break;
                     case 1:
-                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {cursedItem.Name.CapitalizeEachWord()}.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {cursedItem.Name.CapitalizeEachWord()}.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of their through how to safely operate it without activating the curse.");
-                            await battle.Cinematics.NarratorLineAsync($"The {cursedItem.Name.CapitalizeEachWord()} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of their through how to safely operate it without activating the curse.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The {cursedItem.Name.CapitalizeEachWord()} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.", null);
                             cursedItem.Price = 0;
                             foreach (Item rune in cursedItem.Runes) {
                                 rune.Price = 0;
@@ -86,34 +86,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {cursedItem.Name.CapitalizeEachWord()} abruptly explodes into " +
-                                $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!");
-                            await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.");
-                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.");
+                                $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
+                            await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
                             opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse"));
                         }
                         break;
                     case 2:
-                        await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} quickly sets about recruiting the rest of the party to help shore up the abandoned ritual circle, before attempting to make contact with the demon.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} quickly sets about recruiting the rest of the party to help shore up the abandoned ritual circle, before attempting to make contact with the demon.", null);
                         result = opt3.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {cursedItem.Name.CapitalizeEachWord()}.");
-                            await battle.Cinematics.NarratorLineAsync("And then, all at once before the party even fully realises what they've agreed to, a deal is struck. Each party members gains {b}Drained 2{/b}.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {cursedItem.Name.CapitalizeEachWord()}.", null);
+                            await battle.Cinematics.NarratorLineAsync("And then, all at once before the party even fully realises what they've agreed to, a deal is struck. Each party members gains {b}Drained 2{/b}.", null);
                             foreach (Creature pm in GetParty(battle)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drained", null, 2));
                             }
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"And yet, {opt3.Nominee.Name}'s attempts to treat with the demon remain unanswered until the party reluctantly gives up and moves on, disappointed but quietly relieved.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"And yet, {opt3.Nominee.Name}'s attempts to treat with the demon remain unanswered until the party reluctantly gives up and moves on, disappointed but quietly relieved.", null);
                         }
                         break;
                     case 3:
-                        await battle.Cinematics.NarratorLineAsync($"With one last look at the ominous smoke curling off the {cursedItem.Name.CapitalizeEachWord()} the party wisely moves on ahead, leaving the accursed item untouched.");
+                        await battle.Cinematics.NarratorLineAsync($"With one last look at the ominous smoke curling off the {cursedItem.Name.CapitalizeEachWord()} the party wisely moves on ahead, leaving the accursed item untouched.", null);
                         break;
                 }
             }));
 
             events.Add(new SkillChallenge("Strange Mushrooms", async (level, battle) => {
-                await battle.Cinematics.NarratorLineAsync("The party finds some weird mushrooms.");
+                await battle.Cinematics.NarratorLineAsync("The party finds some weird mushrooms.", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Nature);
                 SCOption opt2 = GetBestPartyMember(battle, level, 2, Skill.Occultism);
@@ -130,52 +130,52 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} dilligently begins harvesting the strange mushrooms.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} dilligently begins harvesting the strange mushrooms.", null);
                         result = opt1.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} returns with several tonics of healing concocted from the strange mushroom's sap.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} returns with several tonics of healing concocted from the strange mushroom's sap.", null);
                             if (level == 1) {
-                                await battle.Cinematics.NarratorLineAsync("The party gained a {b}lesser healing potion.{/b}");
+                                await battle.Cinematics.NarratorLineAsync("The party gained a {b}lesser healing potion.{/b}", null);
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             } else if (level == 2) {
-                                await battle.Cinematics.NarratorLineAsync("The party gained {b}lesser healing potion x2{/b}");
+                                await battle.Cinematics.NarratorLineAsync("The party gained {b}lesser healing potion x2{/b}", null);
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             } else if (level == 3) {
-                                await battle.Cinematics.NarratorLineAsync("The party gained a {b}moderate healing potion{/b} and a {b}lesser healing potion{/b}");
+                                await battle.Cinematics.NarratorLineAsync("The party gained a {b}moderate healing potion{/b} and a {b}lesser healing potion{/b}", null);
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             }
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} was poised by a puff of spores!");
-                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} was poised by a puff of spores!", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.", null);
                             opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1));
                         }
                         break;
                     case 1:
                         // TODO: Fill this out for poison immunity
-                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} recreates the ritual to the best of their ability, before sitting down and pressing their head up against the mushroom.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} recreates the ritual to the best of their ability, before sitting down and pressing their head up against the mushroom.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushroom's trill happily, illuminating the cavern in eerie bioluminescent light as a thin cobweb of Mycelium roots emerge from the ground to form a cocoon around {opt2.Nominee.Name} as they kneel.");
-                            await battle.Cinematics.NarratorLineAsync($"In exchange for spreading their spores to distant caverns, the mushrooms will cleans {opt2.Nominee.Name}'s body of harmful organisms. They gains the Mushroom Symbiote ability, protecting them from poisons for the rest of the adventure.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushroom's trill happily, illuminating the cavern in eerie bioluminescent light as a thin cobweb of Mycelium roots emerge from the ground to form a cocoon around {opt2.Nominee.Name} as they kneel.", null);
+                            await battle.Cinematics.NarratorLineAsync($"In exchange for spreading their spores to distant caverns, the mushrooms will cleans {opt2.Nominee.Name}'s body of harmful organisms. They gains the Mushroom Symbiote ability, protecting them from poisons for the rest of the adventure.", null);
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote"));
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushrooms are angered by {opt2.Nominee.Name}'s meager offering, expelling a large cloud of poisonous spores!");
-                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushrooms are angered by {opt2.Nominee.Name}'s meager offering, expelling a large cloud of poisonous spores!", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.", null);
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 2));
                         }
                         break;
                     case 2:
-                        await battle.Cinematics.NarratorLineAsync($"The party decides to move on, letting the strange mushrooms be.");
+                        await battle.Cinematics.NarratorLineAsync($"The party decides to move on, letting the strange mushrooms be.", null);
                         break;
                 }
             }));
 
             events.Add(new SkillChallenge("Drow Renegades", async (level, battle) => {
-                await battle.Cinematics.NarratorLineAsync("You stumble upon a drow hunting party, adorned in strange luna iconography. After some initial tension, they reveal that they're renegade disciples of the Cerulean Sky, on a mission to liberate their people from the starborn.");
-                await battle.Cinematics.NarratorLineAsync($"Yet suspicions still linger. Drow are known for their deceit, and many evil adventurer parties often delve into the {Loader.UnderdarkName} to barter for slaves or bargain for demonic boons.");
-                await battle.Cinematics.NarratorLineAsync("To earn their trust and cooperate towards the two groups' mutual goals...");
+                await battle.Cinematics.NarratorLineAsync("You stumble upon a drow hunting party, adorned in strange luna iconography. After some initial tension, they reveal that they're renegade disciples of the Cerulean Sky, on a mission to liberate their people from the starborn.", null);
+                await battle.Cinematics.NarratorLineAsync($"Yet suspicions still linger. Drow are known for their deceit, and many evil adventurer parties often delve into the {Loader.UnderdarkName} to barter for slaves or bargain for demonic boons.", null);
+                await battle.Cinematics.NarratorLineAsync("To earn their trust and cooperate towards the two groups' mutual goals...", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy);
                 SCOption opt2 = GetBestPartyMember(battle, level, 2, (cr, skill) => cr.HasFeat(FeatName.TheCeruleanSky) ? 2 : 0, Skill.Religion);
@@ -190,58 +190,58 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} suggests that whilst they could hardly ask the reneges to divert resources from their own righteous cause, the two groups could at least share information about enemy movements and hazards they've encountered on their journey so far.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} suggests that whilst they could hardly ask the reneges to divert resources from their own righteous cause, the two groups could at least share information about enemy movements and hazards they've encountered on their journey so far.", null);
                         result = opt1.Roll();
                         if (result == CheckResult.CriticalFailure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.");
-                            await battle.Cinematics.NarratorLineAsync($"The party is ready to give up, until one young paladin approaches them in private, seemingly disillusioned by her companion's paranoia and needless caution.");
-                            await battle.Cinematics.NarratorLineAsync($"They talk for many hours, but it isn't until the two groups have long parted ways and the party begin to feel watchful eyes raising the hair on their necks, that they begin to realise her information is subtly but all too insidiously wrong...");
-                            await battle.Cinematics.NarratorLineAsync("The enemy knows you're coming. Each member of the party gains {b}Compromised Route{/b}, reducing their inititive by 1.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The party is ready to give up, until one young paladin approaches them in private, seemingly disillusioned by her companion's paranoia and needless caution.", null);
+                            await battle.Cinematics.NarratorLineAsync($"They talk for many hours, but it isn't until the two groups have long parted ways and the party begin to feel watchful eyes raising the hair on their necks, that they begin to realise her information is subtly but all too insidiously wrong...", null);
+                            await battle.Cinematics.NarratorLineAsync("The enemy knows you're coming. Each member of the party gains {b}Compromised Route{/b}, reducing their inititive by 1.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route", null, null));
                             }
                         } else if (result == CheckResult.Failure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.");
-                            await battle.Cinematics.NarratorLineAsync($"It seems even between friends, trust in the {Loader.UnderdarkName} is difficult to find.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.", null);
+                            await battle.Cinematics.NarratorLineAsync($"It seems even between friends, trust in the {Loader.UnderdarkName} is difficult to find.", null);
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Though initially cautious, the renegades eventually warm up to {opt1.Nominee.Name} and before long the party finds themselves engrossed in conversation with the group, swapping war stories and critical intel alike.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Though initially cautious, the renegades eventually warm up to {opt1.Nominee.Name} and before long the party finds themselves engrossed in conversation with the group, swapping war stories and critical intel alike.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing", null, null));
                             }
                         }
                         break;
                     case 1:
-                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} speaks to the group of the surface world, and the beauty of the Cerulean Sky at night, insisting that their mission to foil the Demon Lord's plot is of utmost urgency to their goddess.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} speaks to the group of the surface world, and the beauty of the Cerulean Sky at night, insisting that their mission to foil the Demon Lord's plot is of utmost urgency to their goddess.", null);
                         result = opt2.Roll();
                         if (result == CheckResult.CriticalFailure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + "The group initially seems uncertain. Whilst they owe a great deal to their goddess, the weight of those still enthralled by the spider queen weighs heavy on their shoulders.");
-                            await battle.Cinematics.NarratorLineAsync($"Yet at the last moment a young woman steps up from among their ranks, inspired by {opt2.Nominee.Name}'s words, offering to act as a guide for their journey.");
-                            await battle.Cinematics.NarratorLineAsync($"It isn't until the group hears the clicking of mandibles, their earnest guide nowhere to be seen, that they realise too late that they've been led into a trap.");
-                            await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + "The group initially seems uncertain. Whilst they owe a great deal to their goddess, the weight of those still enthralled by the spider queen weighs heavy on their shoulders.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Yet at the last moment a young woman steps up from among their ranks, inspired by {opt2.Nominee.Name}'s words, offering to act as a guide for their journey.", null);
+                            await battle.Cinematics.NarratorLineAsync($"It isn't until the group hears the clicking of mandibles, their earnest guide nowhere to be seen, that they realise too late that they've been led into a trap.", null);
+                            await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
                             }
                         } else if (result == CheckResult.Failure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The renegades thank {opt2.Nominee.Name} for their kind and illuminating words, but reluctantly insist they cannot spare any among their group to aid them in their quest.");
-                            await battle.Cinematics.NarratorLineAsync($"Whether through doubt or concern for their own difficult struggles, it's clear the party will find no succor here after all.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The renegades thank {opt2.Nominee.Name} for their kind and illuminating words, but reluctantly insist they cannot spare any among their group to aid them in their quest.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Whether through doubt or concern for their own difficult struggles, it's clear the party will find no succor here after all.", null);
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The renegades seem inspired by {opt2.Nominee.Name}'s words, one amongst their number steadfastly plunging her gleaming blade into the gloomy obsidian rocks as she pledges to hasten them on their journey.");
-                            await battle.Cinematics.NarratorLineAsync($"A Drow Renegade will aid {opt2.Nominee.Name} in battle until she perishes, or the party returns to town.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The renegades seem inspired by {opt2.Nominee.Name}'s words, one amongst their number steadfastly plunging her gleaming blade into the gloomy obsidian rocks as she pledges to hasten them on their journey.", null);
+                            await battle.Cinematics.NarratorLineAsync($"A Drow Renegade will aid {opt2.Nominee.Name} in battle until she perishes, or the party returns to town.", null);
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion", null, null));
                         }
                         break;
                     case 2:
-                        await battle.Cinematics.NarratorLineAsync($"The renegades nod in grim agreement, seemingly no strangers to betrayal themselves.");
-                        await battle.Cinematics.NarratorLineAsync($"Nevertheless, they volunteer a small amount of supplies to hasten the party on their journey, for it is a rare thing indeed to meet a group in the {Loader.UnderdarkName} willing to exchange pleasantries without an ulterior motive.");
-                        await battle.Cinematics.NarratorLineAsync("The party obtained {b}" + level * 7 + " gold{/b} worth of supplies.");
+                        await battle.Cinematics.NarratorLineAsync($"The renegades nod in grim agreement, seemingly no strangers to betrayal themselves.", null);
+                        await battle.Cinematics.NarratorLineAsync($"Nevertheless, they volunteer a small amount of supplies to hasten the party on their journey, for it is a rare thing indeed to meet a group in the {Loader.UnderdarkName} willing to exchange pleasantries without an ulterior motive.", null);
+                        await battle.Cinematics.NarratorLineAsync("The party obtained {b}" + level * 7 + " gold{/b} worth of supplies.", null);
                         break;
                 }
             }));
 
             events.Add(new SkillChallenge("Escaped Slaves", async (level, battle) => {
-                await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.");
-                await battle.Cinematics.NarratorLineAsync($"Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.");
-                await battle.Cinematics.NarratorLineAsync("What does the party do?");
+                await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.", null);
+                await battle.Cinematics.NarratorLineAsync($"Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.", null);
+                await battle.Cinematics.NarratorLineAsync("What does the party do?", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Intimidation);
                 SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy);
@@ -265,41 +265,41 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} steps confidently towards the encroaching mob, motioning for the party to draw steel and spell alike, daring them to come closer.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} steps confidently towards the encroaching mob, motioning for the party to draw steel and spell alike, daring them to come closer.", null);
                         result = opt1.Roll();
                         if (result <= CheckResult.Failure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The slaves eyes widen in panic, mistaking the attempt to scare them away as an attack... desperately converging on the party.");
-                            await battle.Cinematics.NarratorLineAsync($"The escaped slaves are no match for a group of trained adventurers, and before long the rest are send fearfully scuyrrying away into the cavern... The cooling bodies of their friend's a grim reminder of the party's failure.");
-                            await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Guilt 2{/b}, reducing their Will saves by 2 until they rest.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The slaves eyes widen in panic, mistaking the attempt to scare them away as an attack... desperately converging on the party.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The escaped slaves are no match for a group of trained adventurers, and before long the rest are send fearfully scuyrrying away into the cavern... The cooling bodies of their friend's a grim reminder of the party's failure.", null);
+                            await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Guilt 2{/b}, reducing their Will saves by 2 until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, 2));
                             }
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mob fearfully skitters away from {opt1.Nominee.Name}, their hungry eyes lingering on the party's supply packs and then their weapons...");
-                            await battle.Cinematics.NarratorLineAsync("The tense silence weighs heavy on the two groups for several moments, before they reluctantly shamble away.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mob fearfully skitters away from {opt1.Nominee.Name}, their hungry eyes lingering on the party's supply packs and then their weapons...", null);
+                            await battle.Cinematics.NarratorLineAsync("The tense silence weighs heavy on the two groups for several moments, before they reluctantly shamble away.", null);
                         }
                         break;
                     case 1:
-                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} meets the escapee's ravenous gazes with compassion, speaking of their common enemy and offering a map of the path they've cleared so far.");
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} meets the escapee's ravenous gazes with compassion, speaking of their common enemy and offering a map of the path they've cleared so far.", null);
                         result = opt2.Roll();
                         result = opt1.Roll();
                         if (result <= CheckResult.Failure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.");
-                            await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.", null);
+                            await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The group are scared, hungry and desperate… Yet {opt2.Nominee.Name}'s words remind them of who they used to be.");
-                            await battle.Cinematics.NarratorLineAsync($"Thanking {opt2.Nominee.Name} for their kindness and directions they shuffle on, seeking refuge in Dawnsbury.");
-                            await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.");
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The group are scared, hungry and desperate… Yet {opt2.Nominee.Name}'s words remind them of who they used to be.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Thanking {opt2.Nominee.Name} for their kindness and directions they shuffle on, seeking refuge in Dawnsbury.", null);
+                            await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1));
                             }
                         }
                         break;
                     case 2:
-                        await battle.Cinematics.NarratorLineAsync($"Despite the slave's aggression, the party offers what little they can all the same.");
-                        await battle.Cinematics.NarratorLineAsync($"The slaves accept the party's offer of aid with wary eyes, before departing, unwilling to push their luck any further against an armed group.");
-                        await battle.Cinematics.NarratorLineAsync("The party lost {b}" + level * 5 + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.");
+                        await battle.Cinematics.NarratorLineAsync($"Despite the slave's aggression, the party offers what little they can all the same.", null);
+                        await battle.Cinematics.NarratorLineAsync($"The slaves accept the party's offer of aid with wary eyes, before departing, unwilling to push their luck any further against an armed group.", null);
+                        await battle.Cinematics.NarratorLineAsync("The party lost {b}" + level * 5 + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                         foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                             pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1));
                         }

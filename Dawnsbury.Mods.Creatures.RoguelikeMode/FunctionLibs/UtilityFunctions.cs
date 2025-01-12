@@ -15,6 +15,8 @@ using System.Text;
 using System.IO;
 using System.Buffers.Text;
 using static System.Net.Mime.MediaTypeNames;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Mechanics.Enumerations;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
 {
@@ -53,6 +55,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
                 output = output.Substring(0, output.Length - 3);
             }
             return output;
+        }
+
+        public static bool IsFlanking(Creature flanker, Creature flankee) {
+            int num1 = flankee.Occupies.X - flanker.Occupies.X;
+            int num2 = flankee.Occupies.Y - flanker.Occupies.Y;
+            int num3 = Math.Abs(num1);
+            int num4 = Math.Abs(num2);
+            if (num3 > 2 || num4 > 2)
+                return false;
+            bool flag = num3 <= 1 && num4 <= 1;
+            if (num3 != num4 && num3 != 0 && num4 != 0)
+                return FlanksWith(flanker, num1 <= 1 && num2 <= 1, flankee.Occupies.X + num1, flankee.Occupies.Y + num2);
+            int num5 = Math.Sign(num1);
+            int num6 = Math.Sign(num2);
+            return FlanksWith(flanker, true, flankee.Occupies.X + num5, flankee.Occupies.Y + num6) || FlanksWith(flanker, false, flankee.Occupies.X + num5 * 2, flankee.Occupies.Y + num6 * 2);
+        }
+
+        private static bool FlanksWith(Creature flanker, bool adjacent, int otherX, int otherY) {
+            Creature primaryOccupant = flanker.Battle.Map.GetTile(otherX, otherY)?.PrimaryOccupant;
+            return primaryOccupant != null && primaryOccupant.FriendOf(flanker) && (adjacent || primaryOccupant.WieldsItem(Trait.Reach)) && primaryOccupant.Actions.CanTakeActions();
         }
 
     }

@@ -64,10 +64,7 @@ using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Tutorial;
-using HarmonyLib;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
@@ -76,6 +73,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
 using System.IO.Enumeration;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using HarmonyLib;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 {
@@ -117,6 +115,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
         private static void LoadEncounters()
         {
+            ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkHuntingParty.tmx");
+            ModManager.RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx");
+
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
@@ -167,6 +168,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<DrowPatrolLv1>("DrowPatrol.tmx", "DrowPatrolLv1");
             RegisterEncounter<DrowPatrolLv2>("DrowPatrol.tmx", "DrowPatrolLv2");
             RegisterEncounter<DrowPatrolLv3>("DrowPatrol.tmx", "DrowPatrolLv3");
+            RegisterEncounter<MerfolkHuntingPartyLv1>("MerfolkhuntingParty.tmx", "MerfolkHuntingPartyLv1");
+            RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkhuntingParty.tmx", "MerfolkHuntingPartyLv2");
+            RegisterEncounter<MerfolkHuntingPartyLv3>("MerfolkhuntingParty.tmx", "MerfolkHuntingPartyLv3");
+            RegisterEncounter<CultOfTheBrineLv1>("CultOfTheBrine.tmx", "CultOfTheBrineLv1");
+            RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx", "CultOfTheBrineLv2");
+            RegisterEncounter<CultOfTheBrineLv3>("CultOfTheBrine.tmx", "CultOfTheBrineLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

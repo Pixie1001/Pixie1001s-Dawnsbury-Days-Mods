@@ -107,7 +107,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             return null;
                         }
 
-                        if (action.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && d.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, d, d.CreateStrike(d.PrimaryWeapon)) == "flanked")) {
+                        if (UtilityFunctions.IsFlanking(d, action.Owner)) {
                             return null;
                         }
 
@@ -118,7 +118,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return null;
                     },
                     AdditionalGoodness = (self, action, defender) => {
-                        if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && defender.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, defender, defender.CreateStrike(defender.PrimaryWeapon)) == "flanked")) {
+                        if (UtilityFunctions.IsFlanking(defender, self.Owner)) {
                             return 0;
                         }
 

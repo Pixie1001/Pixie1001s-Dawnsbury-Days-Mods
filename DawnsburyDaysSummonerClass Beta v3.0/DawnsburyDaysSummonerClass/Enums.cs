@@ -117,6 +117,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftPTendril = ModManager.RegisterFeatName("P_Tendril", "Tendril");
         internal static FeatName ftPHorn = ModManager.RegisterFeatName("P_Horn", "Horn");
         internal static FeatName ftPTail = ModManager.RegisterFeatName("P_Tail", "Tail");
+        internal static FeatName ftPMermaidTail = ModManager.RegisterFeatName("P_MermaidTail", "Tail");
+        internal static FeatName ftPSpiderLeg = ModManager.RegisterFeatName("P_SpiderLeg", "Stabbing Appendage");
 
         // Primary Weapon Statblock Feat Names
         internal static FeatName ftPSPowerful = ModManager.RegisterFeatName("PS_Powerful", "Powerful");
@@ -133,6 +135,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftSTendril = ModManager.RegisterFeatName("S_Tendril", "Tendril");
         internal static FeatName ftSHorn = ModManager.RegisterFeatName("S_Horn", "Horn");
         internal static FeatName ftSTail = ModManager.RegisterFeatName("S_Tail", "Tail");
+        internal static FeatName ftSMermaidTail = ModManager.RegisterFeatName("S_MermaidTail", "Tail");
+        internal static FeatName ftSSpiderLeg = ModManager.RegisterFeatName("S_SpiderLeg", "Stabbing Appendage");
 
         // Ability BoostOptions
         internal static FeatName ftStrengthBoost = ModManager.RegisterFeatName("EidolonStrengthBoost", "Strength Boost");
@@ -206,5 +210,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static ModdedIllustration illTendrilStrike = new ModdedIllustration("SummonerAssets/TendrilStrike.png");
         internal static ModdedIllustration illSoulWrench = new ModdedIllustration("SummonerAssets/SoulWrench.png");
         internal static ModdedIllustration illElementalBurst = new ModdedIllustration("SummonerAssets/ElementalBurst.png");
+        internal static ModdedIllustration illMermaidTail = new ModdedIllustration("SummonerAssets/MermaidTail.png");
+        internal static ModdedIllustration illStabbingAppendage = new ModdedIllustration("SummonerAssets/StabbingAppendage.png");
     }
 }

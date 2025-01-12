@@ -30,10 +30,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             Creature guard = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Drow Fighter");
             guard.Subtitle = "Hatchery Guard";
             battle.Cinematics.EnterCutscene();
-            await battle.Cinematics.LineAsync(guard, "Who goes there!? Ah... Adventurers.");
-            await battle.Cinematics.LineAsync(guard, "In the undercity, each and every drow child is taught that some secrets are best left uncovered...");
-            await battle.Cinematics.LineAsync(guard, "It's a pity you weren't taught the same. But now I'm afraid the secrets of this facility will die with you.");
-            await battle.Cinematics.LineAsync(guard, "Best let me grant you a quick death... Before they start to {i}hatch{/i}.");
+            await battle.Cinematics.LineAsync(guard, "Who goes there!? Ah... Adventurers.", null);
+            await battle.Cinematics.LineAsync(guard, "In the undercity, each and every drow child is taught that some secrets are best left uncovered...", null);
+            await battle.Cinematics.LineAsync(guard, "It's a pity you weren't taught the same. But now I'm afraid the secrets of this facility will die with you.", null);
+            await battle.Cinematics.LineAsync(guard, "Best let me grant you a quick death... Before they start to {i}hatch{/i}.", null);
             battle.Cinematics.ExitCutscene();
 
             List<Creature> eggs = battle.AllCreatures.Where(cr => cr.Illustration == Illustrations.DemonicPustule).ToList();
@@ -49,7 +49,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             if (battle.RoundNumber > 1) {
                 if (battle.RoundNumber == 4) {
                     var doors = battle.AllCreatures.Where(cr => cr.CreatureId == Core.Creatures.Parts.CreatureId.Door).ToList();
-                    while (doors.Count > 0) {
+                    while (doors.Count() > 0) {
                         Creature door = doors[0];
                         doors.Remove(door);
                         await door.DieFastAndWithoutAnimation();
@@ -85,12 +85,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
             battle.Cinematics.EnterCutscene();
             Sfxs.SlideIntoSong(Songname.HighTensionBegins);
-            await battle.Cinematics.LineAsync(priestess, "Ah, we meet at last meddlesome adventurers! But now it is time you met a real adventuring party.");
-            await battle.Cinematics.LineAsync(inquisitrix, "Yes! One that stands for important adventuring values, like inter-family drama, themes of dark academia and killing people for exciting loot.");
-            await battle.Cinematics.LineAsync(mage, "And sexy, flamboyant brooding~");
-            await battle.Cinematics.LineAsync(priestess, "Now wallow in regret at how much cooler our party is, as you face the scions of House Vextra!");
-            await battle.Cinematics.LineAsync(inquisitrix, "I demand their heads at once Kauth!");
-            await battle.Cinematics.LineAsync(guard, "Of course, princess.");
+            await battle.Cinematics.LineAsync(priestess, "Ah, we meet at last meddlesome adventurers! But now it is time you met a real adventuring party.", null);
+            await battle.Cinematics.LineAsync(inquisitrix, "Yes! One that stands for important adventuring values, like inter-family drama, themes of dark academia and killing people for exciting loot.", null);
+            await battle.Cinematics.LineAsync(mage, "And sexy, flamboyant brooding~", null);
+            await battle.Cinematics.LineAsync(priestess, "Now wallow in regret at how much cooler our party is, as you face the scions of House Vextra!", null);
+            await battle.Cinematics.LineAsync(inquisitrix, "I demand their heads at once Kauth!", null);
+            await battle.Cinematics.LineAsync(guard, "Of course, princess.", null);
             battle.Cinematics.ExitCutscene();
         }
 

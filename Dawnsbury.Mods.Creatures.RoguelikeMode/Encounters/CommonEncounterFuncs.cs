@@ -175,6 +175,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         public static void SetItemRewards(List<Item> rewards, int level, ModEnums.EncounterType type) {
             Func<int, bool> levelRange = type == EncounterType.NORMAL ? itemLevel => Between(itemLevel, level - 1, level + 1) : itemLevel => Between(itemLevel, level + 1, level + 2);
 
+            if (LootTables.Party?.Count <= 3) {
+                return;
+            }
+
             rewards.Add(LootTables.RollConsumable(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
             int bonusConsumable = R.NextD20();
             if (bonusConsumable >= 18) {
@@ -191,7 +195,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             if (battle.CampaignState != null) {
                 var treasureDemonEncounters = battle.CampaignState.Tags["TreasureDemonEncounters"].Split(", ");
                 bool addTD = false;
-                // TODO: Why does this cause a crash?
                 foreach (string index in treasureDemonEncounters) {
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
@@ -240,7 +243,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             if (battle.CampaignState == null || battle.CampaignState.AdventurePath == null || battle.CampaignState.AdventurePath.Id != "RoguelikeMode") {
                 return;
             }
-            await battle.Cinematics.NarratorLineAsync("Searching through the loot, some of your opponent's equipment is still intact.");
+            await battle.Cinematics.NarratorLineAsync("Searching through the loot, some of your opponent's equipment is still intact.", null);
             battle.Cinematics.ExitCutscene();
 
             Dictionary<string, (Item, string)> itemOptions = new Dictionary<string, (Item, string)>();

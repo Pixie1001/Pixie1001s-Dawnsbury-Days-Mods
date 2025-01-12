@@ -222,9 +222,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you, unless they're also flanking you.") {
                 StateCheck = self => {
                     foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends)) {
-                        if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && enemy.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, enemy, enemy.CreateStrike(enemy.PrimaryWeapon)) == "flanked")) {
+                        if (UtilityFunctions.IsFlanking(enemy, self.Owner)) {
                             continue;
                         }
+                        
+                        //var test = self.Owner.QEffects.Where(qf => qf.Id == QEffectId.FlankedBy);
+                        //var test2 = self.Owner.QEffects.Where(qf => qf.Id == QEffectId.FlankedBy && enemy.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, enemy, enemy.CreateStrike(enemy.PrimaryWeapon)) == "flanked");
+
+                        //if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && enemy.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, enemy, enemy.CreateStrike(enemy.PrimaryWeapon)) == "flanked")) {
+                        //    continue;
+                        //}
 
                         int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(enemy) <= 2).Count();
                         if (closeAllies == 0) {
@@ -237,7 +244,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AdditionalGoodness = (self, action, defender) => {
-                    if (self.Owner.QEffects.Any(qf => qf.Id == QEffectId.FlankedBy && defender.PrimaryWeapon != null && qf.IsFlatFootedTo(qf, defender, defender.CreateStrike(defender.PrimaryWeapon)) == "flanked")) {
+                    if (UtilityFunctions.IsFlanking(defender, self.Owner)) {
                         return 0;
                     }
 

@@ -88,6 +88,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //    }
         //}
 
+
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TBattle), "EndTheGame")]
         private static void BattlePhaseDrawPatch(TBattle __instance, bool victory, string reason) {
@@ -99,6 +101,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 if (Int32.TryParse(__instance.CampaignState.Tags["deaths"], out int deaths)) {
                     ++deaths;
                     __instance.CampaignState.Tags["deaths"] = $"{deaths}";
+
+                    CampaignState.Autosave();
                 }
             }
         }
@@ -152,6 +156,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                             if (Int32.TryParse(battle.CampaignState.Tags["restarts"], out int restarts)) {
                                 restarts++;
                                 battle.CampaignState.Tags["restarts"] = $"{restarts}";
+                                // TODO: Check if this uses item and resources from start of battle for save
+                                CampaignState.Autosave();
                             }
                         })));
                     },
@@ -190,6 +196,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                                     case CampaignMenuPhase campaignMenuPhase2:
                                         campaignMenuPhase2.RefreshAfterBattle();
                                         Sfxs.BeginSong(campaignMenuPhase2.Songname);
+                                        CampaignState.Autosave();
                                         goto label_5;
                                     case RandomEncounterModePhase _:
                                         song = 2;

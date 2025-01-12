@@ -46,6 +46,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[0].Add(new TypedEncounterCampaignStop<HatcheryLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<RitualSiteLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<DrowPatrolLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<MerfolkHuntingPartyLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv1>());
 
             // level2Encounters
             encounters[1].Add(new TypedEncounterCampaignStop<DrowAmbushLv2>());
@@ -64,6 +66,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[1].Add(new TypedEncounterCampaignStop<HatcheryLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<RitualSiteLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<DrowPatrolLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<MerfolkHuntingPartyLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv2>());
 
             // level3Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
@@ -82,6 +86,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<HatcheryLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<RitualSiteLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<DrowPatrolLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<MerfolkHuntingPartyLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv3>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());
