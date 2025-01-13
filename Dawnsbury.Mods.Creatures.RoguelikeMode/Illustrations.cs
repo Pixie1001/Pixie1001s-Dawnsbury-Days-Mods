@@ -88,6 +88,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration RitualOfAscension = new ModdedIllustration("RoguelikeModeAssets/Icons/RitualOfAscension.png");
         internal static ModdedIllustration StabbingAppendage = new ModdedIllustration("RoguelikeModeAssets/Icons/StabbingAppendage.png");
         internal static ModdedIllustration MermaidTail = new ModdedIllustration("RoguelikeModeAssets/Icons/MermaidTail.png");
+        internal static ModdedIllustration BrinyBolt = new ModdedIllustration("RoguelikeModeAssets/Icons/BrinyBolt.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

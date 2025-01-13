@@ -52,5 +52,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait Drow { get; } = ModManager.RegisterTrait("RL_Drow", new TraitProperties("Drow", true));
         internal static Trait Witch { get; } = ModManager.RegisterTrait("RL_Witch", new TraitProperties("Witch", false));
         internal static Trait Hexshot { get; } = ModManager.RegisterTrait("RL_Hexshot", new TraitProperties("Hexshot", false));
+        internal static Trait Roguelike { get; } = ModManager.RegisterTrait("RL_RoguelikemodSignature", new TraitProperties("Roguelike", true));
     }
 }

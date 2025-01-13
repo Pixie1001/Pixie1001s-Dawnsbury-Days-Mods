@@ -115,8 +115,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
         private static void LoadEncounters()
         {
-            ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkHuntingParty.tmx");
-            ModManager.RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx");
+            //ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkHuntingParty.tmx");
+            //ModManager.RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx");
 
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 

@@ -68,6 +68,7 @@ using Microsoft.VisualBasic;
 using static System.Net.Mime.MediaTypeNames;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using Dawnsbury.Core.Animations.AuraAnimations;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -1019,9 +1020,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
             });
             if (eidolon.Level >= 7) {
-                AuraAnimation auraAnimation = eidolon.AnimationData.AddAuraAnimation(IllustrationName.BlessCircle, 3f);
+                eidolon.AnimationData.AddAuraAnimation(new MagicCircleAuraAnimation(illAngelicAura, Color.LightPink, 3));
                 //auraAnimation.Color = Color.LightSeaGreen;
-                auraAnimation.Color = Color.LawnGreen;
+                //auraAnimation.Color = Color.LawnGreen;
                 //auraAnimation.Color = Color.HotPink;
 
                 eidolon.AddQEffect(new QEffect("Whimsical Aura", "Your eidolon has a +5ft status bonus to its speed, and grants this benefit to all allies that start their turn within 15ft of it. At the end of your eidolon's turn, all allies within the aura reduce their frightened condition by 1.") {
@@ -1044,6 +1045,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     }
                                 },
                                 BonusToAllSpeeds = qf => (bool)qf.Tag == true ? new Bonus(1, BonusType.Status, "Whimsical Aura") : null,
+                                StateCheck = self => {
+                                    if ((bool)self.Tag) {
+                                        self.Name = "Blessed by Whimsical Aura";
+                                        self.Description = "You gain a +5 status bonus to your speed.";
+                                        self.Illustration = Enums.illWhimsicalAura;
+                                    } else {
+                                        self.Name = null;
+                                        self.Description = null;
+                                        self.Illustration = null;
+                                    }
+                                }
                             });
                         }
                     },
@@ -1324,6 +1336,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
                     return new KindedDamage(DiceFormula.FromText("1", "Spirit Touch"), DamageKind.Negative);
                 },
+                // TODO: Alter to just give their natural weapons the GhostTouch trait
                 YourStrikeGainsDamageType = (self, strike) => {
                     if (strike.HasTrait(Trait.Strike) && strike.ChosenTargets.ChosenCreature != null && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Undead) && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Incorporeal)) {
                         return DamageKind.Force;

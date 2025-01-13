@@ -212,5 +212,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static ModdedIllustration illElementalBurst = new ModdedIllustration("SummonerAssets/ElementalBurst.png");
         internal static ModdedIllustration illMermaidTail = new ModdedIllustration("SummonerAssets/MermaidTail.png");
         internal static ModdedIllustration illStabbingAppendage = new ModdedIllustration("SummonerAssets/StabbingAppendage.png");
+        internal static ModdedIllustration illGenericAura = new ModdedIllustration("SummonerAssets/BaneCircleWhite.png");
+        internal static ModdedIllustration illAngelicAura = new ModdedIllustration("SummonerAssets/AngelicHaloCircle.png");
+        internal static ModdedIllustration illKineticistAura = new ModdedIllustration("SummonerAssets/KineticistAuraCircle.png");
+        internal static ModdedIllustration illWhimsicalAura = new ModdedIllustration("SummonerAssets/WhimsicalAura.png");
     }
 }

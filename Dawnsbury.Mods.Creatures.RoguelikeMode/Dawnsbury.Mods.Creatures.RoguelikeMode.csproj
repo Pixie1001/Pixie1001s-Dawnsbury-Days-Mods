@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 		<Reference Include="0Harmony">
-		  <HintPath>..\..\Dawnsbury.Mods.Creatures.RoguelikeMode\0Harmony.dll</HintPath>
+		  <HintPath>0Harmony-unstable.dll</HintPath>
 		</Reference>
 		<Reference Include="Common">
 			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\Common.dll</HintPath>

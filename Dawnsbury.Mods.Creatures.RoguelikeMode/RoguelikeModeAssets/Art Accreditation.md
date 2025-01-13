@@ -31,6 +31,7 @@
 <ul>
 	<li>Automoton.png (Modified)</li>
 	<li>CrawlingHand.png (Modified)</li>
+	<li>BrinyBolt.png (Modified)</li>
 </ul>
 
 ## Creative Commons Artwork

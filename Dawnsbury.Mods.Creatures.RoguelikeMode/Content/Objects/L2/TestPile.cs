@@ -85,6 +85,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                         .WithEffectOnSelf(caster => {
                                                             caster.AddQEffect(QEffect.Stunned(2).WithExpirationNever());
                                                         }),
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.Stunned, "Confused", new Trait[] {},
+                                                        "",
+                                                        Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                        .WithActionCost(0)
+                                                        .WithEffectOnSelf(async (spell, caster) => {
+                                                            caster.AddQEffect(QEffect.Confused(false, spell).WithExpirationNever());
+                                                            caster.AddQEffect(new QEffect() {
+                                                                PreventTakingAction = action => !action.Name.Contains("Summon") ? "banned" : null
+                                                            });
+                                                        }),
                                                     }
 
                                                 }

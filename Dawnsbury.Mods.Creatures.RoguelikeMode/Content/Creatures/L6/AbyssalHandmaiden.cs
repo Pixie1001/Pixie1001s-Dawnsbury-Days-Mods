@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             // TODO: Bite short desc needs an update to explain grab and poison
             // CREATURE - Abyssal Handmaiden
             int radius = 2;
-            Item legAtk = new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6, Trait.Reach }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing));
+            Item legAtk = new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6, Trait.Reach }).WithWeaponProperties(new WeaponProperties("2d4", DamageKind.Piercing));
 
             Creature monster = new Creature(Illustrations.AbyssalHandmaiden, "Abyssal Handmaiden", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 6, 6, 5, new Defenses(23, 11, 17, 14), 90,
             new Abilities(5, 5, 4, 2, 2, 4), new Skills(acrobatics: 15, athletics: 14, intimidation: 14, religion: 10, arcana: 10))
@@ -63,7 +63,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 case 1:
                                     return int.MinValue;
                                 case 2:
-                                    return 20f;
+                                    return 10f;
                                 case 3:
                                     return 30f;
                                 default:
@@ -83,18 +83,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
-                    Delegates.EffectOnEachTarget effect = async (action, attacker, defender, result) => {
-                        if (result < CheckResult.Success) {
-                            return;
-                        }
-                        await Possibilities.Grapple(attacker, defender, result);
-                    };
-                    CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d8", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse));
-                    bite.Description = "The Abyssal Handmaiden attemps to grab and sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
-                    bite.ShortDescription += " and the target becomes grabbed and exposed to abyssal rot.";
+                    //Delegates.EffectOnEachTarget effect = async (action, attacker, defender, result) => {
+                    //    if (result < CheckResult.Success) {
+                    //        return;
+                    //    }
+                    //    await Possibilities.Grapple(attacker, defender, result);
+                    //};
+                    CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d10", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse));
+                    //bite.Description = "The Abyssal Handmaiden attemps to grab and sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
+                    //bite.ShortDescription += " and the target becomes grabbed and exposed to abyssal rot.";
+                    bite.Description = "The Abyssal Handmaiden attemps to sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
+                    bite.ShortDescription += " and the target exposed to abyssal rot.";
                     bite.ActionCost = 2;
-                    bite.WithGoodnessAgainstEnemy((targeting, a, d) => 18f);
-                    bite.EffectOnOneTarget = (Delegates.EffectOnEachTarget)Delegate.Combine(bite.EffectOnOneTarget, effect);
+                    bite.WithGoodnessAgainstEnemy((targeting, a, d) => d.FindQEffect(QEffectIds.AbyssalRot) != null ? 14 : 18f);
+                    //bite.EffectOnOneTarget = (Delegates.EffectOnEachTarget)Delegate.Combine(bite.EffectOnOneTarget, effect);
                     return (ActionPossibility)bite;
                 },
             })
@@ -103,7 +105,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             //    level2: new SpellId[] { SpellId.Harm }).Done()
             var animation = monster.AnimationData.AddAuraAnimation(IllustrationName.AngelicHaloCircle, radius);
             animation.Color = Color.DarkRed;
-            QEffect aura = new QEffect("Aura of Madness", $"Creatures that begin their turn within your aura for 2 turns in a row must pass a DC {SkillChallengeTables.GetDCByLevel(monster.Level) - 2} Will save or become confused until the start of their next turn.") {
+            int dc = SkillChallengeTables.GetDCByLevel(monster.Level) - 3;
+            QEffect aura = new QEffect("Aura of Madness", $"Creatures that begin their turn within your aura for 2 turns in a row must pass a DC {dc} Will save or become confused until the start of their next turn.") {
 
             };
             aura.AddGrantingOfTechnical(cr => cr.EnemyOf(monster), qfAura => {
@@ -113,7 +116,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         if (auraDebuff != null) {
                             auraDebuff.Value += 1;
                             CombatAction action = CombatAction.CreateSimple(monster, "Aura of Madness", Trait.Demon, Trait.Divine, Trait.Mental, Trait.Emotion);
-                            CheckResult result = CommonSpellEffects.RollSavingThrow(you, action, Defense.Will, SkillChallengeTables.GetDCByLevel(monster.Level) - 2);
+                            CheckResult result = CommonSpellEffects.RollSavingThrow(you, action, Defense.Will, dc);
                             if (result < CheckResult.Success) {
                                 you.AddQEffect(QEffect.Confused(false, action).WithExpirationAtStartOfOwnerTurn());
                                 you.Occupies.Overhead("*madness*", Color.Crimson, $"{you.Name} succumbs to madness!");
@@ -121,7 +124,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 you.Occupies.Overhead("*resisted*", Color.Crimson, $"{you.Name} resisted the {monster.Name}'s madness aura!");
                             }
                         } else {
-                            you.AddQEffect(new QEffect("Demonic Exposure", $"Increased each time you end your turn within the Abyssal Handmaiden's aura of madness, and removed when you start your turn outside her aura. Once this reaches 2 or higher, you must pass a DC {SkillChallengeTables.GetDCByLevel(monster.Level) - 2} Will save or become confused until your next turn.", ExpirationCondition.Never, monster, IllustrationName.Chaos) {
+                            you.AddQEffect(new QEffect("Demonic Exposure", $"Increased each time you end your turn within the Abyssal Handmaiden's aura of madness, and removed when you start your turn outside her aura. Once this reaches 2 or higher, you must pass a DC {dc} Will save or become confused until your next turn.", ExpirationCondition.Never, monster, IllustrationName.Chaos) {
                                 Value = 1,
                                 Key = "Aura of Madness Debuff"
                             });

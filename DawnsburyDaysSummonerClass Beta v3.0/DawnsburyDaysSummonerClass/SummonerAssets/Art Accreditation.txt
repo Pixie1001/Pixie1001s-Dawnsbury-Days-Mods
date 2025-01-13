@@ -16,6 +16,10 @@ ElementalBurst.png, TendrilStrike.png, DisciplineTheLegion.png, OstentatiousArri
 
 ConstrictingHold.png: Created by Flaticon.com user 'Freepik'. Please support the origional artist here: https://www.flaticon.com/free-icon/snake_2559297?term=snake&related_id=2559297
 
+WhimsicalAura.png: Origional image has been altered. Created by GameDevMarket artist 'Rexard'. Please support the origional artist here: https://www.gamedevmarket.net/asset/skill-icon-pack-8729
+
 EidolonPortraits/ConvertedbaseGameAssets/: Everything in this folder is taken from the base game assets of DawnsburyDays, and altered or recoloured by this mod's auther. Please see the game's credits to support the origional artist.
+
+BaneCircleWhite.png, KineticistAuraCircle.png, AngelicHaloCircle.png: Base game asset
 
 Dryad.png, MermaidTail.png, StabbingAppendage.png: Self drawn. Support me by playing my mod ^^

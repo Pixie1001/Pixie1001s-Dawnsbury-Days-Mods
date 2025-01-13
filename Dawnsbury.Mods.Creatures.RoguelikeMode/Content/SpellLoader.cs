@@ -66,6 +66,8 @@ using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using System.IO;
+using static HarmonyLib.Code;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -74,7 +76,48 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         //public static List<ItemName> items = new List<ItemName>();
 
+        public static SpellId BrinyBolt = ModManager.RegisterNewSpell("RL_BrinyBolt", 1, (id, spellcaster, spellLevel, inCombat, spellInformation) => {
+            return Spells.CreateModern(Illustrations.BrinyBolt, "Briny Bolt", new Trait[] { Trait.Attack, Trait.Evocation, Trait.Water, Trait.Primal, Trait.Arcane, ModTraits.Roguelike }, "You hurl a bolt of saltwater from your extended hand.",
+                "Make a ranged spell attack against a target within range." +
+                S.FourDegreesOfSuccess("The creature takes " + S.HeightenedVariable(spellLevel * 2 + 2, 4) + "d6 bludgeoning damage and is blinded for 1 round and dazzled for 1 minute as saltwater sprays into its eyes. The creature can spend an Interact action to rub its eyes and end the blinded condition, but not the dazzled condition.",
+                "The creature takes " + S.HeightenedVariable(spellLevel * 2, 2) + "d6 bludgeoning damage and is blinded for 1 round. The creature can spend an Interact action wiping the salt water from its eyes to end the blinded condition.", null, null), Target.Ranged(12), spellLevel, null)
+            .WithHeighteningNumerical(spellLevel, 1, inCombat, 1, "The damage increases by 2d6.")
+            .WithActionCost(2)
+            .WithProjectileCone(Illustrations.BrinyBolt, 7, ProjectileKind.Cone)
+            .WithSoundEffect(SfxName.ElementalBlastWater)
+            .WithSpellAttackRoll()
+            .WithGoodnessAgainstEnemy((targeting, a, d) => {
+                float score = 3.5f * targeting.OwnerAction.SpellLevel;
+                if (!d.HasEffect(QEffectId.Blinded)) {
+                    score += 1.5f * d.Level;
+                }
+                if (!d.HasEffect(QEffectId.Dazzled)) {
+                    score += 0.5f * d.Level;
+                }
+                return score;
+            })
+            .WithEffectOnEachTarget(async (spell, caster, d, result) => {
+                if (result >= CheckResult.Success) {
+                    string dmg = (result == CheckResult.CriticalSuccess ? (spellLevel * 2 + 2).ToString() : spellLevel * 2) + "d6";
+                    await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText(dmg, "Briny Bolt"), d, result, DamageKind.Bludgeoning);
+
+                    QEffect quenchableBlindness = QEffect.Blinded().WithExpirationAtStartOfSourcesTurn(caster, 1);
+                    quenchableBlindness.ProvideContextualAction = (Func<QEffect, Possibility>)(qfBlindness => new ActionPossibility(new CombatAction(qfBlindness.Owner, (Illustration)IllustrationName.RubEyes, "Rub eyes", new Trait[1] { Trait.Manipulate },
+                    "End the blinded condition affecting you because of {i}briny bolt{/i}.", (Target)Target.Self((Func<Creature, AI, float>)((cr, ai) => ai.AlwaysIfSmartAndTakingCareOfSelf))).WithActionCost(1).WithEffectOnSelf((Action<Creature>)(rubber => quenchableBlindness.ExpiresAt = ExpirationCondition.Immediately))).WithPossibilityGroup("Remove debuff"));
+                    d.AddQEffect(quenchableBlindness);
+                }
+
+                if (result == CheckResult.CriticalSuccess) {
+                    d.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(caster, 10));
+                }
+            })
+            ;
+        });
+
         internal static void LoadSpells() {
+
+            var spells = new List<SpellId>() { BrinyBolt };
+
             ModManager.RegisterActionOnEachSpell(spell => {
                 if (spell.SpellId == SpellId.BoneSpray) {
                     spell.WithGoodnessAgainstEnemy((t, a, d) => 5.5f * spell.SpellLevel + (d.WeaknessAndResistance.Immunities.Contains(DamageKind.Bleed) ? 0f : spell.SpellLevel * 2 - 2));
@@ -152,6 +195,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         }
                         return score;
                     });
+                }
+
+                if (spell.SpellId == SpellId.Soothe) {
+                    spell.WithGoodness((t, a, d) => {
+                        float score = spell.SpellLevel * 9.5f + (d.QEffects.Any(qf => qf.Name == "Soothe") ? 0 : 1);
+                        if (d.Damage >= d.MaxHP * 0.75) {
+                            score *= 1.5f;
+                        }
+                        return score;
+                    });
+                }
+
+                if (spell.SpellId == SpellId.Guidance) {
+                    spell.WithGoodness((t, a, d) => 2);
                 }
 
             });

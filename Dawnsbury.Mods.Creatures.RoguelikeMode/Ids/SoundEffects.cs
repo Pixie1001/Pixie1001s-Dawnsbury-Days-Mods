@@ -34,5 +34,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
 
         // SE
         public static SfxName EggHatch = ModManager.RegisterNewSoundEffect("RoguelikeModeAssets/Sfx/SPLAT Squelch 02.ogg");
+        public static SfxName WandOverload = ModManager.RegisterNewSoundEffect("RoguelikeModeAssets/Sfx/DESTRUCTION Break Impact Wood 06.ogg");
     }
 }

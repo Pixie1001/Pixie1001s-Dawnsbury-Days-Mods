@@ -9,9 +9,9 @@
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <imagelayer id="5" name="Image Layer 1">
-  <image source="RoguelikeMapBGs/MotherOfThePool.jpg" width="3328" height="4096"/>
+  <image source="MotherOfThePool.jpg" width="3328" height="4096"/>
  </imagelayer>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="13" height="16" opacity="0.4">
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="13" height="16" visible="0" opacity="0.4">
   <data encoding="csv">
 0,0,0,0,18,18,19,20,20,0,0,0,0,
 22,22,22,22,18,18,19,20,20,22,22,22,22,
