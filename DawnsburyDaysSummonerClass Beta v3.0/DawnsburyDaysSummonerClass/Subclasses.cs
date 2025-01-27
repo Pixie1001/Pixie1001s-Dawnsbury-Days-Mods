@@ -380,10 +380,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             // Elemental type subfeats
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_AirElemental", "Air Elemental"), 1, "Your eidolon is formed from elemental air and is light as a breeze.", "Your eidolon gains the airborn form evolution feat at 1st level.",
-                new Trait[] { Trait.Air, Enums.tElementalType }, cr => {
-                        cr.UnarmedStrike.Traits.Add(Trait.Air);
-                        cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Air);
-                }, null)
+                new Trait[] { Trait.Air, Enums.tElementalType }, cr => { }, null)
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(ftAirbornForm);
                 EidolonBond? bond = (EidolonBond?) sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
@@ -394,10 +391,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_EarthElemental", "Earth Elemental"), 1, "Your eidolon is formed from elemental earth, and is incredibly hard to move by force.",
                 "Your eidolon gains a +2 circumstance bonus to their save DCs against attempts to Shove or Trip them, and are immune to forced movement.",
-                new Trait[] { Trait.Earth, Enums.tElementalType }, cr => {
-                    cr.UnarmedStrike.Traits.Add(Trait.Earth);
-                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Earth);
-                }, null)
+                new Trait[] { Trait.Earth, Enums.tElementalType }, cr => { }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
@@ -407,10 +401,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_FireElemental", "Fire Elemental"), 1, "Your eidolon is formed from elemental fire and burns with embers of flame.",
                 "Your eidolon gains resistance equal to half your level (minimum 1) to fire and an equal amount of weakness to cold and water. Their unarmed attacks deal 1 additional fire damage.",
-                new Trait[] { Trait.Fire, Enums.tElementalType }, cr => {
-                    cr.UnarmedStrike.Traits.Add(Trait.Fire);
-                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Fire);
-                }, null)
+                new Trait[] { Trait.Fire, Enums.tElementalType }, cr => { }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
@@ -425,10 +416,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_MetalElemental", "Metal Elemental"), 1, "Your eidolon is formed from elemental metal and can adapt their metallic form to battle.",
                 "One of your eidolon's starting melee unarmed attacks gains the versatile bludgeoning, piercing, or slashing trait, as your eidolon learns how to shift the metal into various weaponlike forms.",
-                new Trait[] { Trait.Metal, Enums.tElementalType }, cr => {
-                    cr.UnarmedStrike.Traits.Add(Trait.Metal);
-                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Metal);
-                }, new List<Feat>() {
+                new Trait[] { Trait.Metal, Enums.tElementalType }, cr => {}, new List<Feat>() {
                     new Feat(ModManager.RegisterFeatName("MetalElemental_PrimaryUnarmedAttack", "Primary Unarmed Attack"), "",
                     "Your eidolon's primary natural weapon attack gains the Versatile S, P and B traits." + traitTags, new List<Trait>() { tMetalElementalAtkType }, null),
                     new Feat(ModManager.RegisterFeatName("MetalElemental_SecondaryUnarmedAttack", "Secondary Unarmed Attack"), "",
@@ -443,10 +431,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_WaterElemental", "Water Elemental"), 1, "Your eidolon is formed from elemental water and swims with ease.",
                 "Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.",
-                new Trait[] { Trait.Water, Enums.tElementalType }, cr => {
-                    cr.UnarmedStrike.Traits.Add(Trait.Water);
-                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Water);
-                }, null)
+                new Trait[] { Trait.Water, Enums.tElementalType }, cr => { }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
@@ -457,10 +442,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_WoodElemental", "Wood Elemental"), 1, "Your eidolon is formed from elemental wood, and its living wooden form twists and regrows as you focus your elemental energies.",
                 "Your eidolon cans the regrowth ability.\n\n{b}Regrowth {icon:Action}.{/b} Your eidolon regains a number of hits points equal to three times its level. Usable once per day.",
-                new Trait[] { Trait.Wood, Enums.tElementalType }, cr => {
-                    cr.UnarmedStrike.Traits.Add(Trait.Wood);
-                    cr.QEffects.First(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike.Traits.Add(Trait.Wood);
-                }, null)
+                new Trait[] { Trait.Wood, Enums.tElementalType }, cr => { }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
@@ -1337,12 +1319,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     return new KindedDamage(DiceFormula.FromText("1", "Spirit Touch"), DamageKind.Negative);
                 },
                 // TODO: Alter to just give their natural weapons the GhostTouch trait
-                YourStrikeGainsDamageType = (self, strike) => {
-                    if (strike.HasTrait(Trait.Strike) && strike.ChosenTargets.ChosenCreature != null && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Undead) && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Incorporeal)) {
-                        return DamageKind.Force;
-                    }
-                    return null;
-                }
+                //YourStrikeGainsDamageType = (self, strike) => {
+                //    if (strike.HasTrait(Trait.Strike) && strike.ChosenTargets.ChosenCreature != null && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Undead) && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Incorporeal)) {
+                //        return DamageKind.Force;
+                //    }
+                //    return null;
+                //}
             });
             if (eidolon.Level >= 7) {
                 eidolon.AddQEffect(new QEffect() {
@@ -1517,7 +1499,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     });
                     break;
                 case Trait.Fire:
-                    eidolon.AddQEffect(new QEffect("Fire Elemental", "Your eidolon's unarmed attacks deal 1 additional fire damage, and they have weakness equal to half their level attacks with the water trait.") {
+                    eidolon.AddQEffect(new QEffect("Fire Elemental", "Your eidolon's unarmed attacks deal 1 additional fire damage, and they have weakness equal to half their level attacks with the water trait. While underwater, your attacks lose the fire trait.") {
                         AddExtraKindedDamageOnStrike = (action, target) => {
                             return new KindedDamage(DiceFormula.FromText("1", "Fire Elemental"), DamageKind.Fire);
                         },
@@ -1551,6 +1533,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         YouAcquireQEffect = (self, newEffect) => {
                             if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (water elemental)") {
                                 return new QEffect("Aquatic Combat (water elemental)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.") {
+                                    Innate = false,
                                     Id = QEffectId.AquaticCombat,
                                     DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                                     Illustration = IllustrationName.ElementWater,

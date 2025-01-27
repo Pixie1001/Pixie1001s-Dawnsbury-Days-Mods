@@ -254,7 +254,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 text += "\n" + "{b}" + option.Key + ".{/b} " + option.Value.Item2;
             }
 
-            Creature looter = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsHumanControlled);
+            Creature looter = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsPlayer);
 
             ChoiceButtonOption choice = await looter.AskForChoiceAmongButtons(IllustrationName.ChestOpen, text, itemOptions.Select(o => o.Key).ToArray());
 

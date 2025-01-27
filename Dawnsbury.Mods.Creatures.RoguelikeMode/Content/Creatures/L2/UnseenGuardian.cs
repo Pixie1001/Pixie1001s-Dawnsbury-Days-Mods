@@ -50,7 +50,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return null;
                     },
                     StartOfCombat = async self => {
-                        List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
+                        List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsPlayer).ToList();
                         Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
 
                         // TODO: Set so that lurking ends after taking their bonus turn

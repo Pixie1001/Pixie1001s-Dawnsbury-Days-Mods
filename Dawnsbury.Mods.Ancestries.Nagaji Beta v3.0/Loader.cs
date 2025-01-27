@@ -65,6 +65,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Ancestries.Nagaji.ModEnums;
+using Dawnsbury.Campaign.Path;
 
 namespace Dawnsbury.Mods.Ancestries.Nagaji {
 

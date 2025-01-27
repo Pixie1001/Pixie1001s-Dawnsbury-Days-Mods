@@ -60,7 +60,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     }
 
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsControlledByHumanUser && cr.IsAdjacentTo(self.Owner))) {
                         hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
                                 return new SubmenuPossibility(Illustrations.ChokingMushroom, "Interactions") {

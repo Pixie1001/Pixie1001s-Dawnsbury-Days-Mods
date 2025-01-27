@@ -46,7 +46,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 });
 
                                 if (path != null && path.Count > 0 && creature.Speed > 0) {
-                                    return options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll<TileOption>(opt => (TileOption)opt).MinBy(opt => opt.Tile.DistanceTo(path[Math.Min(creature.Speed - 1, path.Count - 1)]));
+                                    if (creature.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Lesser && creature.DistanceTo(stalkTarget) <= 6) {
+                                        // Move to a random tile within 3 tiles that has line of effect
+                                        return options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll<TileOption>(opt => (TileOption)opt).Where(opt => opt.Tile.DistanceTo(stalkTarget.Occupies) > 2 && opt.Tile.HasLineOfEffectToIgnoreLesser(stalkTarget.Occupies) <= CoverKind.Lesser).ToList().GetRandom();
+                                    }
+
+                                    return options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll<TileOption>(opt => (TileOption)opt).Where(opt => opt.Tile.DistanceTo(stalkTarget.Occupies) > 2).MinBy(opt => opt.Tile.DistanceTo(path[Math.Min(creature.Speed - 1, path.Count - 1)]));
 
                                 }
                             }

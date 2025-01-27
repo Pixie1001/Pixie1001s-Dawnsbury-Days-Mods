@@ -168,6 +168,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 //    });
                 //}
 
+                if (spell.SpellId == SpellId.NeutralizePoison) {
+                    spell.WithGoodness((t, a, d) => d.QEffects.Any(qf => qf.RepresentsPoison) ? 15f : int.MinValue);
+                }
+
                 if (spell.SpellId == SpellId.FlourishingFlora) {
                     spell.WithGoodnessAgainstEnemy((t, a, d) => 5f * spell.SpellLevel);
                     spell.Variants.ForEach(v => v.GoodnessModifier = (ai, utility) => {

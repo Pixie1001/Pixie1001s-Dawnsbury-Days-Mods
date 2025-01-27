@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="13" height="16" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Elite mini-boss fight"/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription" value="The party stumbles upon a small settlement, filled by gaunt outcasts and runaways swathed in simple robes as they go about their day... Eyes glassy and dull as they stare down their unexpected guests. When asked for supplies and directions, the figures only point down the road towards a small chapel, painstakingly carved out from the cavern stone."/>
+  <property name="EncounterGroup" value="Roguelike (Elite)"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Mother of the Pool"/>
  </properties>

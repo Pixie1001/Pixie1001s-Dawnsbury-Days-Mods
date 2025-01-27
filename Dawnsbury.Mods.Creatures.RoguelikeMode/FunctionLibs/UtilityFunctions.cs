@@ -17,11 +17,93 @@ using System.Buffers.Text;
 using static System.Net.Mime.MediaTypeNames;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Animations.Movement;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Coroutines.Requests;
+using Dawnsbury.Core.Intelligence;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.Modding;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
-{
-    internal static class UtilityFunctions
-    {
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    internal static class UtilityFunctions {
+
+        internal static async Task<Tile?> GetChargeTiles(Creature self, MovementStyle movementStyle, int minimumDistance, string msg, Illustration img) {
+            Tile startingPos = self.Occupies;
+            Vector2 pos = self.Occupies.ToCenterVector();
+            List<Option> options = new List<Option>();
+            Dictionary<string, Tile> pairs = new Dictionary<string, Tile>();
+
+            PathfindingDescription pathfindingDescription = new PathfindingDescription() {
+                Squares = movementStyle.MaximumSquares,
+                Style = movementStyle
+            };
+
+
+
+            IList<Tile>? tiles = Pathfinding.Floodfill(self, self.Battle, pathfindingDescription);
+
+            if (tiles == null) {
+                self.Occupies.Overhead("cannot move", Color.White);
+                return null;
+            }
+
+            movementStyle.MaximumSquares *= 5;
+            movementStyle.ShortestPath = true;
+
+            // Compile destination tiles
+            foreach (Tile tile in tiles) {
+                // Check if valid tile
+                if (!tile.LooksFreeTo(self)) {
+                    continue;
+                }
+
+                // Handle minimum distance
+                if (self.DistanceTo(tile) < minimumDistance) {
+                    continue;
+                }
+
+                // Handle LoS
+                if (new CoverKind[] { CoverKind.Greater, CoverKind.Blocked, CoverKind.Standard }.Contains(self.HasLineOfEffectTo(tile))) {
+                    continue;
+                }
+
+                // Add tile as option
+                CombatAction movement = new CombatAction(self, img, "Beast's Charge", new Trait[] { Trait.Move }, "", Target.Tile((cr, t) => t.LooksFreeTo(cr), (cr, t) => (float)int.MinValue)
+                    .WithPathfindingGuidelines((cr => pathfindingDescription))
+                )
+                .WithActionCost(0)
+                ;
+                options.Add(movement.CreateUseOptionOn(tile));
+                pairs.Add(options.Last().ToString(), tile);
+            }
+
+            // Adds a Cancel Option
+            if (self.OwningFaction.IsControlledByHumanUser) {
+                options.Add(new CancelOption(true));
+            }
+
+            // Prompts the user for their desired tile and returns it or null
+            Option selectedOption = (await self.Battle.SendRequest(new AdvancedRequest(self, msg, options) {
+                IsMainTurn = false,
+                IsStandardMovementRequest = true,
+                TopBarIcon = img,
+                TopBarText = msg
+            })).ChosenOption;
+
+            if (selectedOption != null) {
+                if (selectedOption is CancelOption cancel) {
+                    return null;
+                }
+
+                return pairs[selectedOption.ToString()];
+            }
+
+            return null;
+        }
+
         internal static string WithPlus(int num) {
             if (num >= 0) {
                 return $"+{num}";
@@ -29,8 +111,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
             return $"{num}";
         }
 
-        public static string FilenameToMapName(string filename)
-        {
+        public static string FilenameToMapName(string filename) {
             filename = filename.Substring(0, filename.Length - 4);
 
             // From Github User Binary Worrier: https://stackoverflow.com/a/272929
@@ -38,20 +119,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
                 return "";
             StringBuilder newText = new StringBuilder(filename.Length * 2);
             newText.Append(filename[0]);
-            for (int i = 1; i < filename.Length; i++)
-            {
+            for (int i = 1; i < filename.Length; i++) {
                 if (char.IsUpper(filename[i]) && filename[i - 1] != ' ')
                     newText.Append(' ');
                 newText.Append(filename[i]);
             }
             string output = newText.ToString();
             // This part was added on by me
-            if (output.EndsWith(".png"))
-            {
+            if (output.EndsWith(".png")) {
                 output = output.Substring(0, output.Length - 4);
             }
-            if (output.EndsWith("256"))
-            {
+            if (output.EndsWith("256")) {
                 output = output.Substring(0, output.Length - 3);
             }
             return output;
@@ -80,12 +158,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
     }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public record WandIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center)
-    {
+    public record WandIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
         public override string IllustrationAsIconString => Center.IllustrationAsIconString;
 
-        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor)
-        {
+        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             int num = rectangle.Width / 6;
             int num2 = rectangle.Height / 6;
             //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
@@ -99,8 +175,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
 
         }
 
-        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor)
-        {
+        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             int num = rectangle.Width / 6;
             int num2 = rectangle.Height / 6;
             //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
@@ -111,12 +186,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
     }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public record DualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center)
-    {
+    public record DualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
         public override string IllustrationAsIconString => Center.IllustrationAsIconString;
 
-        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor)
-        {
+        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             int num = rectangle.Width / 6;
             int num2 = rectangle.Height / 6;
             //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
@@ -130,8 +203,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
 
         }
 
-        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor)
-        {
+        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             int num = rectangle.Width / 6;
             int num2 = rectangle.Height / 6;
             //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
@@ -142,12 +214,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
     }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public record SameSizeDualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center)
-    {
+    public record SameSizeDualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
         public override string IllustrationAsIconString => Center.IllustrationAsIconString;
 
-        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor)
-        {
+        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);
             // Primitives.DrawImage(Assets.TextureFromName(Main), rectangle, color, scale, scaleUp, scaleBgColor);
 
@@ -159,8 +229,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs
 
         }
 
-        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor)
-        {
+        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             Primitives.DrawImageNative(NewMain, rectangle, color, scale, scaleUp, scaleBgColor);
             Primitives.DrawImageNative(Center, rectangle, color, scale, scaleUp, scaleBgColor);
         }

@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test drow encounter"/>
+  <property name="EncounterDescription" value="The next leg of the party's journey takes them to a small workshop operated by a gnome artificer who says he has supplies and information on the ritual site. Yet when they arrive it is not the jovial faces of a gnome, but the bitter sinister smirk of a priestess of the spider queen and her Inquistrix agents..."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Drow Ambush"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15">
+ <imagelayer id="4" name="Image Layer 1">
+  <image source="DrowAmbush.jpg" width="3840" height="3840"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15" opacity="0.5">
   <data encoding="csv">
 22,22,22,22,22,22,18,19,20,22,22,22,22,22,22,
 22,22,22,22,22,21,21,21,21,21,22,22,22,22,22,
@@ -40,29 +43,29 @@
 0,0,0,0,0,0,0,128,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,74,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,8,0,0,16,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,8,8,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="3" name="Topmost layer: Metadata" width="15" height="15">
   <data encoding="csv">
-75,75,75,75,0,0,0,0,0,0,0,75,75,75,75,
-75,75,75,0,0,0,0,0,0,0,0,0,75,75,75,
-75,0,0,0,0,0,0,0,0,0,0,0,0,75,75,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,75,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,75,75,75,75,75,75,0,0,0,0,0,0,0,0,
-0,75,75,75,75,75,75,75,0,0,0,0,0,0,0,
-0,0,75,75,75,75,75,0,0,0,0,0,0,0,75,
-0,0,0,0,0,0,0,0,0,0,0,0,0,75,75
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+75,75,0,0,0,0,0,0,0,0,0,0,0,0,0,
+75,75,75,75,75,75,75,75,0,0,0,0,0,0,0,
+75,75,75,75,75,75,75,75,75,0,0,0,0,0,0,
+75,75,75,75,75,75,75,75,75,0,0,0,0,0,0,
+75,75,75,75,75,75,75,75,0,0,0,0,0,0,0
 </data>
  </layer>
 </map>

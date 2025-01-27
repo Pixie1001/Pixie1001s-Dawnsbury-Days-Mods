@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="19" height="21" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test drow encounter"/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription" value="As the party makes their way through the winding caverns, they soon find themselves facing four well equipped silhouettes standing between them and their final goal. Who could this mysterious group be? Perhaps another adventuring party?"/>
+  <property name="EncounterGroup" value="Roguelike (Elite)"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Antiparty"/>
  </properties>

@@ -56,6 +56,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration Owlbear = new ModdedIllustration("RoguelikeModeAssets/Enemies/Owlbear.png");
         internal static ModdedIllustration WhiteDragon = new ModdedIllustration("RoguelikeModeAssets/Enemies/WhiteDragon.png");
         internal static ModdedIllustration HuntingShark = new ModdedIllustration("RoguelikeModeAssets/Enemies/HuntingShark.png");
+        internal static ModdedIllustration MerfolkKrakenborn = new ModdedIllustration("RoguelikeModeAssets/Enemies/MerfolkKrakenborn.png");
+        internal static ModdedIllustration Unicorn = new ModdedIllustration("RoguelikeModeAssets/Enemies/UnicornFoal.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");
@@ -76,6 +78,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration ShifterFurs = new ModdedIllustration("RoguelikeModeAssets/Items/ShifterFurs.png");
         internal static ModdedIllustration SpiritBeaconAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/SpiritBeaconAmulet.png");
         internal static ModdedIllustration DuelingSpear = new ModdedIllustration("RoguelikeModeAssets/Items/DuelingSpear.png");
+        internal static ModdedIllustration KrakenMail = new ModdedIllustration("RoguelikeModeAssets/Items/KrakenMail.png");
+        internal static ModdedIllustration RobesOfTheWarWizard = new ModdedIllustration("RoguelikeModeAssets/Items/RobesOfTheWarWizard.png");
+        internal static ModdedIllustration WhisperMail = new ModdedIllustration("RoguelikeModeAssets/Items/WhisperMail.png");
+        internal static ModdedIllustration DeathDrinkerAmulet = new ModdedIllustration("RoguelikeModeAssets/Items/DeathDrinkerAmulet.png");
+        internal static ModdedIllustration SpellbanePlate = new ModdedIllustration("RoguelikeModeAssets/Items/SpellbanePlate.png");
+        internal static ModdedIllustration ThrowersBandolier = new ModdedIllustration("RoguelikeModeAssets/Items/ThrowersBandolier.png");
+        internal static ModdedIllustration LightHammer = new ModdedIllustration("RoguelikeModeAssets/Items/LightHammer.png");
+        internal static ModdedIllustration Hatchet = new ModdedIllustration("RoguelikeModeAssets/Items/Hatchet.png");
+        internal static ModdedIllustration SceptreOfTheSpider = new ModdedIllustration("RoguelikeModeAssets/Items/SceptreOfTheSpider.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");
@@ -93,5 +104,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");
         internal static ModdedIllustration BaneCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/BaneCircleWhite.png");
+        internal static ModdedIllustration InkCloud = new ModdedIllustration("RoguelikeModeAssets/Other/InkCloud.png");
     }
 }

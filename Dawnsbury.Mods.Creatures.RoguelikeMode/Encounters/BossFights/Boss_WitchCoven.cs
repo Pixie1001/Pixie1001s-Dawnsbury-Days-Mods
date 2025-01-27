@@ -66,6 +66,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class Boss_WitchCoven : Encounter
     {
-        public Boss_WitchCoven(string filename) : base("Witch Coven", filename, new List<Item>() { }, 0) { }
+        public Boss_WitchCoven(string filename) : base("Witch Coven", filename, new List<Item>() { }, 0) {
+            // Run setup
+            this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
+                await Cutscenes.WitchCoven(battle);
+            });
+        }
     }
 }

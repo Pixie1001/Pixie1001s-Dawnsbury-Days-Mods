@@ -27,7 +27,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     .WithEntersInitiativeOrder(false)
                     .AddQEffect(CommonQEffects.Hazard())
                     .AddQEffect(new QEffect("Combustible Spores",
-                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 17 Basic reflex save to each creature within a 2 tile radius.") {
+                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 17 Basic reflex save to each creature within a 10 foot radius.") {
                         AfterYouTakeDamageOfKind = async (self, action, kind) => {
                             string name = self.Owner.Name;
 
@@ -41,7 +41,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 })
                                 ;
                                 self.Owner.Battle.AllCreatures.Where(cr => cr != self.Owner && cr.DistanceTo(self.Owner.Occupies) <= 2 && cr.HasLineOfEffectTo(self.Owner.Occupies) < CoverKind.Blocked).ForEach(cr => explosion.ChosenTargets.ChosenCreatures.Add(cr));
-                                await CommonAnimations.CreateConeAnimation(self.Owner.Battle, self.Owner.Occupies.ToCenterVector(), self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2).ToList(), 15, ProjectileKind.Cone, IllustrationName.Fireball);
+                                self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2 && t.DistanceTo(self.Owner.Occupies) > 0).ForEach(t => explosion.ChosenTargets.ChosenTiles.Add(t));
+                                //await CommonAnimations.CreateConeAnimation(self.Owner.Battle, self.Owner.Occupies.ToCenterVector(), self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2).ToList(), 15, ProjectileKind.Cone, IllustrationName.Fireball);
                                 self.UsedThisTurn = true;
                                 await explosion.AllExecute();
                                 self.Owner.Battle.RemoveCreatureFromGame(self.Owner);

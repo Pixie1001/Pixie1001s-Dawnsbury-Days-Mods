@@ -282,7 +282,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     case 1:
                         await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} meets the escapee's ravenous gazes with compassion, speaking of their common enemy and offering a map of the path they've cleared so far.", null);
                         result = opt2.Roll();
-                        result = opt1.Roll();
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.", null);
                             await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
@@ -308,75 +307,63 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 }
             }));
 
-            //events.Add(new SkillChallenge("Magical Traps", async (level, battle) => {
-            //    await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.");
-            //    await battle.Cinematics.NarratorLineAsync("Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.");
-            //    await battle.Cinematics.NarratorLineAsync("What does the party do?");
-            //    battle.Cinematics.ExitCutscene();
-            //    SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Intimidation);
-            //    SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy);
+            events.Add(new SkillChallenge("Magical Traps", async (level, battle) => {
+                await battle.Cinematics.NarratorLineAsync("Too late to doubleback, the party finds their path black by an abandoned Duergar stronghold built between a narrow passage.", null);
+                await battle.Cinematics.NarratorLineAsync($"The arrow slits lie empty and dusty, yet the gates glow ominously with cruel arcane runes - no doubt set to unleash their terrible magic on any would-be intruders.", null);
+                await battle.Cinematics.NarratorLineAsync("How does the party proceed?", null);
+                battle.Cinematics.ExitCutscene();
+                SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Arcana);
+                SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Acrobatics);
 
-            //    List<string> choices = new List<string>() {
-            //        $"{opt1.printInfoTag()} {opt1.Nominee.Name} suggests scaring the group away.",
-            //        $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes the group can be reasoned with.",
-            //        "Despite the slave's aggression, the party offers what little they can all the same."
-            //    };
+                List<string> choices = new List<string>() {
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} thinks they might be able to disarm the magical traps.",
+                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes that a particular dexterous thief might be able to avoid the triggering mechanism and safely disable the traps from inside the fortress."
+                };
 
-            //    if (battle.CampaignState.CommonGold < level * 5) {
-            //        choices.RemoveAt(choices.Count - 1);
-            //    }
+                var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+                    $"What does the party do?",
+                    choices.ToArray()
+                    );
+                battle.Cinematics.EnterCutscene();
+                CheckResult result = CheckResult.Failure;
 
-            //    var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
-            //        $"What does the party do?",
-            //        choices.ToArray()
-            //        );
-            //    battle.Cinematics.EnterCutscene();
-            //    CheckResult result = CheckResult.Failure;
+                switch (choice.Index) {
+                    case 0:
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} quickly sets to work identifying the runes used in the traps, and sketching out how best to safely circumvent the magic.", null);
+                        result = opt1.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} seems to be making good progress, until they encounter a rune of acid arrow cleverly disguised as a rune of stinking cloud...", null);
+                            await battle.Cinematics.NarratorLineAsync($"The misstep triggers a chain reaction, leaving {opt1.Nominee.Name} severely injured.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} gains Injured 2, reducing their max HP by 20% until they rest.", null);
+                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2));
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It takes several hour to completely dismantle the traps and ensure the Duergar haven't left any nasty surprises.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"But when {opt1.Nominee.Name} is done, the party continues with several new scrolls to show for it, diligently copied from the traps.", null);
 
-            //    switch (choice.Index) {
-            //        case 0:
-            //            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} steps confidently towards the encroaching mob, motioning for the party to draw steel and spell alike, daring them to come closer.");
-            //            result = opt1.Roll();
-            //            if (result <= CheckResult.Failure) {
-            //                await battle.Cinematics.NarratorLineAsync("{b}" + PrintResult(result) + "!{/b} " + $"The slaves eyes widen in panic, mistaking the attempt to scare them away as an attack... desperately converging on the party.");
-            //                await battle.Cinematics.NarratorLineAsync($"The escaped slaves are no match for a group of trained adventurers, and before long the rest are send fearfully scuyrrying away into the cavern... The cooling bodies of their friend's a grim reminder of the party's failure.");
-            //                await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Guilt 2{/b}, reducing their Will saves by 2 until they rest.");
-            //                foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-            //                    pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, 2));
-            //                }
-            //            } else if (result >= CheckResult.Success) {
-            //                await battle.Cinematics.NarratorLineAsync("{b}" + rPrintResult(result) + "!{/b} " + $"The mob fearfully skitters away from {opt1.Nominee.Name}, their hungry eyes lingering on the party's supply packs and then their weapons...");
-            //                await battle.Cinematics.NarratorLineAsync("The tense silence weighs heavy on the two groups for several moments, before they reluctantly shamble away.");
-            //            }
-            //            break;
-            //        case 1:
-            //            await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} meets the escapee's ravenous gazes with compassion, speaking of their common enemy and offering a map of the path they've cleared so far.");
-            //            result = opt2.Roll();
-            //            result = opt1.Roll();
-            //            if (result <= CheckResult.Failure) {
-            //                await battle.Cinematics.NarratorLineAsync("{b}" + PrintResult(result) + "!{/b} " + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.");
-            //                await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.");
-            //                opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
-            //            } else if (result >= CheckResult.Success) {
-            //                await battle.Cinematics.NarratorLineAsync("{b}" + PrintResult(result) + "!{/b} " + $"The group are scared, hungry and desperate… Yet {opt2.Nominee.Name}'s words remind them of who they used to be.");
-            //                await battle.Cinematics.NarratorLineAsync($"Thanking {opt2.Nominee.Name} for their kindness and directions they shuffle on, seeking refuge in Dawnsbury.");
-            //                await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.");
-            //                foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-            //                    pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1));
-            //                }
-            //            }
-            //            break;
-            //        case 2:
-            //            await battle.Cinematics.NarratorLineAsync($"Despite the slave's aggression, the party offers what little they can all the same.");
-            //            await battle.Cinematics.NarratorLineAsync($"The slaves accept the party's offer of aid with wary eyes, before departing, unwilling to push their luck any further against an armed group.");
-            //            await battle.Cinematics.NarratorLineAsync("The party lost {b}" + level * 5 + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.");
-            //            foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-            //                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1));
-            //            }
-            //            battle.CampaignState.CommonGold -= level * 5;
-            //            break;
-            //    }
-            //}));
+                            int itemLevel = battle.Encounter.CharacterLevel <= 2 ? 3 : 5;
+
+                            Item scroll1 = LootTables.RollScroll(itemLevel, itemLevel, item => item.HasTrait(Trait.Evocation));
+                            Item scroll2 = LootTables.RollScroll(itemLevel, itemLevel, item => item.HasTrait(Trait.Evocation));
+
+                            await battle.Cinematics.NarratorLineAsync($"The party gained a {scroll1.Name} and {scroll2.Name}.", null);
+                            battle.CampaignState.CommonLoot.Add(scroll1);
+                            battle.CampaignState.CommonLoot.Add(scroll2);
+                        }
+                        break;
+                    case 1:
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} takes a moment to scope out the passage, before cautiously placing their foot upon a narrow deadzone in the defences, tottering perilously as the party waits with bated breath...", null);
+                        result = opt2.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The only warning {opt2.Nominee.Name} gets is a low buzzing drone, before the traps abruptly detonate.", null);
+                            await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 2{/b}, reducing their max HP by 20% until they rest.", null);
+                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2));
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the traps remain dormant as {opt2.Nominee.Name} continues to expertly leap, tip toe and crawl their way past the rest of the traps.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Inside, they quickly locate the mechanism to disable the traps, allowing the party to safely continue their journey.", null);
+                        }
+                        break;
+                }
+            }));
         }
 
         private static SCOption GetBestPartyMember(TBattle battle, int level, int difficultyModifier, Func<Creature, Skill, int>? bonusLogic, params Skill[] skills) {

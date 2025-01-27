@@ -31,6 +31,9 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
+using Dawnsbury.Core.StatBlocks;
+using Microsoft.Xna.Framework;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -98,13 +101,40 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
+            LongTermEffects.EasyRegister("Unicorn Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
+                return new QEffect("Unicorn Companion", "You've acquired the aid of a unicorn. They will fight besides you until dying or the party returns to town.") {
+                    ExpiresAt = ExpirationCondition.Never,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")),
+                    StartOfCombat = async self => {
+                        Creature companion = CreatureList.Creatures[CreatureId.UNICORN_FOAL](self.Owner.Battle.Encounter);
+                        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
+                        companion.AddQEffect(new QEffect() {
+                            Source = self.Owner,
+                            WhenMonsterDies = qfDeathCheck => {
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        });
+                    },
+                };
+            });
+
+            LongTermEffects.EasyRegister("Power of the Rat Fiend", LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Power of the Rat Fiend", "You've claimed the power of the rat fiend for yourself. At the start of each encounter, spawn a friendly Rat to aid you.") {
+                    ExpiresAt = ExpirationCondition.Never,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")),
+                    StartOfCombat = async self => {
+                        FeatLoader.SpawnRatFamiliar(self.Owner);
+                    },
+                };
+            });
+
             LongTermEffects.EasyRegister("Drow Renegade Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")),
                     StartOfCombat = async self => {
                         Creature companion = CreatureList.Creatures[CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
-                        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
+                        self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
                         companion.AddQEffect(new QEffect() {
                             Source = self.Owner,
                             WhenMonsterDies = qfDeathCheck => {

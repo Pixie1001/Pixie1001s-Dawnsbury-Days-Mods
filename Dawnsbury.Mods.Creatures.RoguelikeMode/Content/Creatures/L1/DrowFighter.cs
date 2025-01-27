@@ -39,10 +39,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     // Check if crossbow is loaded
                     if (handcrossbow.EphemeralItemProperties.NeedsReload) {
                         // foreach (Option option in options.Where(opt => opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name.StartsWith("Reload") || opt.Text == "Reload")) {
-                        foreach (Option option in options.Where(opt => opt.Text == "Reload" || opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload")) {
+                        foreach (Option option in options.Where(opt => opt.Text == "Reload" || (opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.Name == "Reload"))) {
                             option.AiUsefulness.MainActionUsefulness = 1f;
                         }
                     }
+
+                    //if (creature.Actions.ActionsLeft != 1) {
+                    //    foreach (Option option in options.Where(opt => opt.Text == "Reload")) {
+                    //        option.AiUsefulness.MainActionUsefulness = int.MinValue;
+                    //    }
+                    //}
+
                     return null;
                 };
             })
@@ -114,12 +121,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return 0f;
                     }
 
-                    if (self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction) && cr.Threatens(self.Owner.Occupies)).ToArray().Length > 0) {
-                        return 0f;
-                    }
+                    //if (self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction) && cr.Threatens(self.Owner.Occupies)).ToArray().Length > 0) {
+                    //    return 0f;
+                    //}
 
                     if (target != null && !target.HasEffect(QEffectIds.LethargyPoison) && !target.HasEffect(QEffectId.Slowed)) {
-                        float start = 15f;
+                        float start = self.Owner.Battle.RoundNumber <= 1 ? target.Level * 4f : target.Level * 2f;
                         float percentage = dc - (target.Defenses.GetBaseValue(Defense.Fortitude) + 10.5f);
                         percentage *= 5f;
                         percentage += 50f;

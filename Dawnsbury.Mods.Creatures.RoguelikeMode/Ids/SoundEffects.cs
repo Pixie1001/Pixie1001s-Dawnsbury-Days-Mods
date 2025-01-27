@@ -31,6 +31,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
         public static Songname AntipartyTheme = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/battle-theme-194713.mp3", 0.7f);
         public static Songname MotherOfThePoolTheme = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/MotherOfThePool.mp3", 0.7f);
         public static Songname BossMusic = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/music_epic_orchestral_bg_underscore.wav", 0.7f);
+        public static Songname VikingMusic = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/skjaldmr-norse-viking-background-music-110364.mp3", 0.7f);
 
         // SE
         public static SfxName EggHatch = ModManager.RegisterNewSoundEffect("RoguelikeModeAssets/Sfx/SPLAT Squelch 02.ogg");

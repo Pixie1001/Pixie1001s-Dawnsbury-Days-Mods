@@ -39,8 +39,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     Creature monster = self.Self;
 
                     // Continue fighting if second action in melee
-                    if (monster.Actions.ActionsLeft == 2 && monster.Actions.AttackedThisManyTimesThisTurn <= 1 && monster.Battle.AllCreatures.Any(cr => cr.Alive && cr.EnemyOf(monster) && cr.DistanceTo(monster) >= 1)) {
-                        return options.Where(opt => opt.OptionKind != OptionKind.MoveHere && opt.AiUsefulness.ObjectiveAction != null && opt.AiUsefulness.ObjectiveAction.Action.HasTrait(Trait.Strike)).MaxBy(opt => opt.AiUsefulness.MainActionUsefulness);
+                    if (monster.Actions.ActionsLeft == 2 && monster.Actions.AttackedThisManyTimesThisTurn <= 1 && monster.Battle.AllCreatures.Any(cr => cr.Alive && cr.EnemyOf(monster) && cr.DistanceTo(monster) <= 1)) {
+                        return options.Where(opt => opt.Text.Contains("Strike")).MaxBy(opt => opt.AiUsefulness.MainActionUsefulness);
                     }
 
                     // Use last action to escape melee
@@ -66,6 +66,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     } else if (monster.Actions.AttackedThisManyTimesThisTurn == 1 && !monster.Battle.AllCreatures.Any(cr => cr.Alive && cr.EnemyOf(monster) && cr.DistanceTo(monster) <= 1)) {
                         return options.Where(opt => opt.AiUsefulness.ObjectiveAction?.Action.ActionId == ActionId.Demoralize).ToList().MaxBy(opt => opt.AiUsefulness.MainActionUsefulness);
                     }
+                        //} else if (monster.Actions.AttackedThisManyTimesThisTurn == 1 && monster.Actions.ActionsLeft == 2 && monster.Battle.AllCreatures.Any(cr => cr.Alive && cr.EnemyOf(monster) && cr.DistanceTo(monster) <= 1)) {
+                    //    return options.Where(opt => opt.OptionKind != OptionKind.MoveHere).ToList().MaxBy(opt => opt.AiUsefulness.MainActionUsefulness);
+                    //}
+
 
                     return null;
                 };
@@ -74,7 +78,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.Weapon, Proficiency.Expert)
             .AddHeldItem(Items.CreateNew(CustomItems.DuelingSpear))
-            .WithAdditionalUnarmedStrike(new Item(Illustrations.MermaidTail, "tail", Trait.Unarmed, Trait.Brawling, Trait.Finesse, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning)))
+            .WithUnarmedStrike(new Item(Illustrations.MermaidTail, "tail", Trait.Unarmed, Trait.Brawling, Trait.Finesse, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning)))
+            .AddQEffect(CommonQEffects.UnderwaterMarauder())
             .AddQEffect(new QEffect() {
                 Id = QEffectId.Swimming
             })

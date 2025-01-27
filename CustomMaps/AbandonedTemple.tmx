@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test drow encounter"/>
+  <property name="EncounterDescription" value="As the party continues their journey, the cavern begins to tremble from the shifting of a great worm, sending them skittering for the shelter of a long abandoned temple to the demon queen of spiders. Yet even abandoned by her wicked servants, such places are known to attract dangerous spidery beasts..."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Abandoned Temple"/>

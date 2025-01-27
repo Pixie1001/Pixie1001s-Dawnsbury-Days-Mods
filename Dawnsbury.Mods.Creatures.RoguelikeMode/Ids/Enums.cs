@@ -104,7 +104,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             MERFOLK_HARRIER,
             MERFOLK_BRINEBLADE,
             MERFOLK_SEA_WITCH,
-            HUNTING_SHARK
+            MERFOLK_KRAKENBORN,
+            HUNTING_SHARK,
+            UNICORN_FOAL
         }
 
         internal enum ObjectId

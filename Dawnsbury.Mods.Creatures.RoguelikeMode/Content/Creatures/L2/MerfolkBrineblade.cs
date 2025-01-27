@@ -66,6 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .WithProficiency(Trait.Spell, Proficiency.Trained)
                 .WithBasicCharacteristics()
                 .AddHeldItem(Items.CreateNew(ItemName.Dagger))
+                .AddQEffect(CommonQEffects.UnderwaterMarauder())
                 .AddQEffect(QEffect.AttackOfOpportunity())
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {

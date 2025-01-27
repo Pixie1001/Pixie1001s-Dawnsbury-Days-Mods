@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test encounter"/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription" value="As the party approaches the site of the leyline, they stumble upon a strange temple. The site seems abandoned, and yet the structure stands undisturbed aside from an unsettling smattering of mossy skeletal remains deposited outside the entrance."/>
+  <property name="EncounterGroup" value="Roguelike (Elite)"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Hall of Smoke"/>
  </properties>

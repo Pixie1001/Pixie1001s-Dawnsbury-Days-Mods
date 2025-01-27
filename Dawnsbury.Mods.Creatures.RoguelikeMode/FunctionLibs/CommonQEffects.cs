@@ -64,7 +64,6 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using System.IO;
 using System.Text.Json.Nodes;
 using System.Reflection.Metadata;
@@ -218,6 +217,46 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect RatPlagueAttack(Creature master, string weapon) {
+            Affliction ratPlague = new Affliction(QEffectIds.RatPlague, "Rat Plague", master.ClassOrSpellDC(),
+                "{b}Stage 1{/b} 1d6 poison damage and enfeebled 1; {b}Stage 2{/b} 2d6 poison damage and enfeebled 2; {b}Stage 3{/b} 3d6 poison damage and enfeebled 2", 3, stage => $"{stage}d6",
+                qf => {
+                    if (qf.Value == 1) {
+                        qf.Owner.AddQEffect(QEffect.Enfeebled(1).WithExpirationEphemeral());
+                    } else {
+                        qf.Owner.AddQEffect(QEffect.Enfeebled(2).WithExpirationEphemeral());
+                    }
+                });
+
+            return new QEffect("Plague Rat", "Set Later") {
+                StateCheck = async self => {
+                    if (self.Description == "Set Later") {
+                        self.Name += $" (DC {master.ClassOrSpellDC()})";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Rat Plague: " + "{i}" + $"{ratPlague.StagesDescription}" + "{/i}";
+                    }
+                },
+                AfterYouDealDamage = async (attacker, action, target) => {
+                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                        Affliction poison = ratPlague;
+                        poison.DC = master.ClassOrSpellDC();
+
+                        await Affliction.ExposeToInjury(poison, attacker, target);
+                    }
+                },
+                AdditionalGoodness = (self, action, target) => {
+                    if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
+                        return 0f;
+                    }
+
+                    if (target != null && !target.HasEffect(QEffectIds.RatPlague)) {
+                        return 4.5f;
+                    }
+
+                    return 0f;
+                }
+            };
+        }
+
         public static QEffect PreyUpon() {
             return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you, unless they're also flanking you.") {
                 StateCheck = self => {
@@ -264,7 +303,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return new QEffect() {
                 Tag = false,
                 ProvideMainAction = self => {
-                    return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged },
+                    return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Attack },
                         "{b}Range.{/b} 30-feet\n\nOn a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action to free themselves.",
                         Target.Ranged(6)) {
                         ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape action to free themselves."
@@ -347,6 +386,36 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         }
                     })
                     ;
+                }
+            };
+        }
+
+        public static QEffect UnderwaterMarauder() {
+            return new QEffect("Underwater Marauder", "You are not flat-footed while underwater, and don't take the usual penalties for using a bludgeoning or slashing melee weapon in water.") {
+                YouAcquireQEffect = (self, newEffect) => {
+                    if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (underwater marauder)") {
+                        return new QEffect("Aquatic Combat (underwater marauder)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.") {
+                            Id = QEffectId.AquaticCombat,
+                            DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
+                            Illustration = IllustrationName.ElementWater,
+                            Innate = false,
+                            StateCheck = (Action<QEffect>)(qfAquaticCombat => {
+                                if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
+                                    return;
+                                qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                    Id = QEffectId.CountsAllTerrainAsDifficultTerrain
+                                });
+                            }),
+                            PreventTakingAction = (Func<CombatAction, string>)(action => {
+                                if (action.HasTrait(Trait.Impulse))
+                                    return (string)null;
+                                if (action.HasTrait(Trait.Fire))
+                                    return "You can't use fire actions underwater.";
+                                return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : (string)null;
+                            })
+                        };
+                    }
+                    return newEffect;
                 }
             };
         }
@@ -662,6 +731,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             //    self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectIds.ExtraTurn);
             //    self.UsedThisTurn = true;
             //}
+        }
+
+        private static bool IsSlashingOrBludgeoning(CombatAction action) {
+            Item obj1 = action.Item;
+            DamageKind? damageKind1;
+            int num1;
+            if (obj1 == null) {
+                num1 = 0;
+            } else {
+                damageKind1 = obj1.WeaponProperties?.DamageKind;
+                DamageKind damageKind2 = DamageKind.Slashing;
+                num1 = damageKind1.GetValueOrDefault() == damageKind2 & damageKind1.HasValue ? 1 : 0;
+            }
+            if (num1 == 0) {
+                Item obj2 = action.Item;
+                int num2;
+                if (obj2 == null) {
+                    num2 = 0;
+                } else {
+                    damageKind1 = obj2.WeaponProperties?.DamageKind;
+                    DamageKind damageKind3 = DamageKind.Bludgeoning;
+                    num2 = damageKind1.GetValueOrDefault() == damageKind3 & damageKind1.HasValue ? 1 : 0;
+                }
+                if (num2 == 0)
+                    return false;
+            }
+            Item obj3 = action.Item;
+            return (obj3 != null ? (obj3.HasTrait(Trait.VersatileP) ? 1 : 0) : 0) == 0;
         }
     }
 }

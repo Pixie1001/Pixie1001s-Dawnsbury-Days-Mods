@@ -81,16 +81,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static QEffectId Hazard { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Hazard");
         internal static QEffectId MushroomInoculation { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MushroomInoculation");
         internal static QEffectId ShifterFurs { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ShifterFurs");
-
         internal static QEffectId HomunculusMaster { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_HomunculusMaster");
-
         internal static QEffectId HomunculusPoison { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_HomunculusPoison");
-
         internal static QEffectId MarkQuarry { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MarkQuarry");
-
         internal static QEffectId LoosenedGrip { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_LoosenedGrip");
-
         internal static QEffectId BloodcurdlingScreechImmunity { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_BloodcurdlingScreechImmunity");
+        internal static QEffectId CommandSwarm { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_CommandSwarm");
+        internal static QEffectId RatFamiliar { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_RatFamiliar");
+        internal static QEffectId RatPlague { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_RatPlague");
 
         // Tile Effects IDs
         internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription">Continuing on their journey, the party stumbles upon the battle ravaged site of a bygone conflict - rusted blades and bleached bone, picked clean by scavengers, scattered across the mass grave as they forge onwards. Yet it seems they're not the only ones interested in exploring such places...
+</property>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Grave Encounter"/>

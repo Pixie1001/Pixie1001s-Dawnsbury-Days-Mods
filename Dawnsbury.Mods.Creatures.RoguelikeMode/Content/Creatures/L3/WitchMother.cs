@@ -36,6 +36,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithUnarmedStrike(new Item(IllustrationName.Fist, "nails", new Trait[] { Trait.Unarmed, Trait.Melee, Trait.Brawling, Trait.Finesse }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)))
             .AddHeldItem(Items.CreateNew(CustomItems.ProtectiveAmulet))
             .AddQEffect(new QEffect("Curse of Dread", "The party are afflicted by a powerful supernatural uncertainty, as if fate itself will conspire against them so long as the caster lives.") {
+                WhenCreatureDiesAtStateCheckAsync = async self => {
+                    if (self.Owner.Battle.Encounter.Name == "Mother of the Pool") {
+                        self.Owner.Battle.Cinematics.EnterCutscene();
+                        await self.Owner.Battle.Cinematics.LineAsync(self.Owner, "Ah, a pity. It seems this batch was found wanting. No matter, there is no short supply of fools lining up to drink of my waters... See you again soon, my children.", null);
+                        self.Owner.Battle.Cinematics.ExitCutscene();
+                    }
+                },
                 StateCheckWithVisibleChanges = async self => {
                     if (!self.Owner.Alive) {
                         return;

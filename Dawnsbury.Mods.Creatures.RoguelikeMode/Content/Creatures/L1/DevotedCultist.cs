@@ -76,6 +76,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                     newForm.ApplyEliteAdjustments(true);
                                 }
                                 Sfxs.Play(SfxName.DeepNecromancy);
+                                Sfxs.SlideIntoSong(SoundEffects.VikingMusic);
                                 caster.Battle.SpawnCreature(newForm, caster.OwningFaction, pos);
                             }
                         }

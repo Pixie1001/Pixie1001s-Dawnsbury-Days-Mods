@@ -16,6 +16,9 @@
 	<li>DolmanOfVanishing.png (modified)</li>
 	<li>BloodBondAmulet.png (modified)</li>
 	<li>DemonBoundRing.png</li>
+	<li>WhisperMail.png</li>
+	<li>SpellbanePlate.png</li>
+	<li>ThrowersBandolier.png</li>
 </ul>
 
 ### YusufArtun
@@ -24,6 +27,8 @@
 	<li>SpiritBeaconAmulet.png</li>
 	<li>ShifterFurs.png</li>
 	<li>DuelingSpear.png</li>
+	<li>RobesofTheWarWizard.png</li>
+	<li>DeathDrinkerAmulet.png (modified)</li>
 </ul>
 
 ### Rexard
@@ -32,6 +37,7 @@
 	<li>Automoton.png (Modified)</li>
 	<li>CrawlingHand.png (Modified)</li>
 	<li>BrinyBolt.png (Modified)</li>
+	<li>KrakenMail.png (Modified)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -78,6 +84,8 @@
 	<li>AnimatedStatue.png</li>
 	<li>Nuglub.png</li>
 	<li>Owlbear.png</li>
+	<li>MerfolkKrakenborn.png</li>
+	<li>SceptreOfTheSpider.png</li>
 </ul>
 
 ## Volunteer Contributions

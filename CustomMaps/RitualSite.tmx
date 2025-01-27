@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="The party stumbles upon a small eerily quiet settlement, with drag marks leading through the moss. Setting off to investigate, they realise they're far too late - the residents butchered by drow for some macabre ritual. All that's left is to avenge them."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Ritual Site"/>

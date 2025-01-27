@@ -33,6 +33,7 @@ using Dawnsbury.Audio;
 using Dawnsbury.Phases.Popups;
 using System.Reflection;
 using Dawnsbury.Display.Text;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -126,12 +127,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             int height = 80;
 
             if (!fromCampaignScreen && battle != null) {
-                //Assembly a = Assembly.Load("Dawnsbury Days");
-                //var test1 = Type.GetType("Dawnsbury.Display.UI, Assembly.Dawnsbury Days");
-                //var test2 = Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days");
-                //var test3 = Type.GetType("Display.UI");
-                //var test4 = Type.GetType("Dawnsbury.Display+UI");
-
                 // Draw over restart button
                 Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
                     .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
@@ -241,9 +236,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         }
 
         // AddRuneTo
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(RunestoneRules), "AddRuneTo")]
+        private static bool AddRuneToPrefixPatch(Item runestone, Item equipment) {
+            if (equipment.ItemName == CustomItems.ThrowersBandolier) {
+                equipment.Price += runestone.Price;
+                equipment.Runes.Add(runestone);
+
+                Item itemTemplate = Items.GetItemTemplate(equipment.ItemName);
+                if (runestone.Level > equipment.Level)
+                    equipment.Level = runestone.Level;
+                if (equipment.Description != "")
+                    equipment.Description += "\n";
+                Item obj1 = equipment;
+                obj1.Description = obj1.Description + "{b}" + runestone.RuneProperties.Prefix.Capitalize() + ".{/b} " + runestone.RuneProperties.RulesText;
+                equipment.Name = itemTemplate.Name;
+                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending<Item, RuneKind>((Func<Item, RuneKind>)(rune => rune.RuneProperties.RuneKind)))
+                    equipment.Name = obj2.RuneProperties.Prefix + " " + equipment.Name;
+                return false;
+            }
+            return true;
+        }
+
+        // AddRuneTo
         [HarmonyPostfix]
         [HarmonyPatch(typeof(RunestoneRules), "AddRuneTo")]
-        private static void AddRuneToPatch(Item runestone, Item equipment) {
+        private static void AddRuneToPostfixPatch(Item runestone, Item equipment) {
             if (equipment.HasTrait(Trait.SpecificMagicWeapon)) {
                 equipment.Price += Items.GetItemTemplate(equipment.ItemName).Price;
             }
@@ -252,6 +270,51 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPrefix]
         [HarmonyPatch(typeof(RunestoneRules), "AttachSubitem")]
         private static bool AttachSubitemPatch(ref SubitemAttachmentResult __result, Item runestone, Item? equipment) {
+            var allowedRunes = new RuneKind[] { RuneKind.WeaponPotency, RuneKind.WeaponStriking, RuneKind.WeaponProperty };
+            if (equipment?.ItemName == CustomItems.ThrowersBandolier && runestone.RuneProperties != null && allowedRunes.Contains(runestone.RuneProperties.RuneKind)) {
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && !equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only +1, +2 or +3 weapons can be enchanted with weapon property runes.");
+                    return false;
+                }
+
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponPotency && equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)) {
+                    //int nLevel = runestone.RuneProperties.Prefix[1] - '0';
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one potency rune can be attached to this item at a time.");
+                    return false;
+                }
+
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponStriking && equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponStriking)) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one striking rune can be attached to this item at a time.");
+                    return false;
+                }
+
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty)) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
+                    return false;
+                }
+
+                //int num = equipment.Runes.Count((Item itm) => itm.RuneProperties.RuneKind == runestone.RuneProperties.RuneKind);
+                //if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
+                //    if (equipment.Runes.Any(r => r.RuneProperties.RuneKind == RuneKind.WeaponPotency)) {
+                //        __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only +1, +2 or +3 weapons can be enchanted with weapon property runes.");
+                //        return false;
+                //    }
+
+                //    // TODO: Figure out what this means and add it
+                //    //if (num >= equipment.WeaponProperties.ItemBonus) {
+                //    //    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, $"A +{equipment.WeaponProperties.ItemBonus} weapon can only be enchanted with {equipment.WeaponProperties.ItemBonus} property runes.");
+                //    //    return false;
+                //    //}
+                //} else if (num > 0) {
+                //    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, equipment.Name + " already has a " + runestone.RuneProperties.RuneKind.HumanizeTitleCase2().WithIndefiniteArticle() + " rune.");
+                //    return false;
+                //}
+                equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlacedAsSubitem);
+                Sfxs.Play(SfxName.AttachRune);
+                return false;
+            }
+            
             if (runestone.RuneProperties == null) {
                 return true;
             }

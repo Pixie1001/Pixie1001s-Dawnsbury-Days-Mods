@@ -33,7 +33,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithUnarmedStrike(new Item(IllustrationName.Fist, "nails", new Trait[] { Trait.Unarmed, Trait.Melee, Trait.Brawling, Trait.Finesse }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)))
             .AddQEffect(new QEffect("Curse of Skittering Paws", "Nature itself turns against the party, calling forth swarms of critters to decend upon them so long as Agatha Agaricus lives.") {
                 Tag = true,
-                StartOfYourTurn = async (self, owner) => {
+                WhenCreatureDiesAtStateCheckAsync = async self => {
+                    if (self.Owner.Battle.Encounter.Name == "Crone of the Wilds") {
+                        self.Owner.Battle.Cinematics.EnterCutscene();
+                        await self.Owner.Battle.Cinematics.LineAsync(self.Owner, "You fiend! This isn't the last you've seen of old Agatha, mark my words!", null);
+                        self.Owner.Battle.Cinematics.ExitCutscene();
+                    }
+                },
+                StartOfYourPrimaryTurn = async (self, owner) => {
                     if (!owner.Alive) {
                         return;
                     }
@@ -96,7 +103,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 },
             })
             .AddQEffect(new QEffect("Wild Shape", "At the start of each turn, if wounded, Agatha Agaricus takes on a new animal form, preventing her from casting spells but allowing her access to new attacks.") {
-                StartOfYourTurn = async (self, owner) => {
+                StartOfYourPrimaryTurn = async (self, owner) => {
                     if (owner.HP > owner.MaxHP * 0.8f) {
                         return;
                     }

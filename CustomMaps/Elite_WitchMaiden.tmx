@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="20" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Elite mini-boss fight"/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription" value="The party's journey soon takes them towards a small mausoleum on the other side of a stream, the path dotted by dilapidated tomestones. But who would build such a place so far out in the pitiless depths of the Below?"/>
+  <property name="EncounterGroup" value="Roguelike (Elite)"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Maiden of the Lost"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <imagelayer id="5" name="Image Layer 1">
-  <image source="RoguelikeMapBGs/MaidenOfTheLost.jpg" width="3840" height="5120"/>
+  <image source="MaidenOfTheLost.jpg" width="3840" height="5120"/>
  </imagelayer>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="20" opacity="0.5">
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="20" visible="0" opacity="0.5">
   <data encoding="csv">
 21,21,21,21,21,22,21,21,21,22,21,21,21,21,21,
 21,21,21,21,21,22,21,21,21,22,21,21,21,21,21,

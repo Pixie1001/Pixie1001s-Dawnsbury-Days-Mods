@@ -110,13 +110,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             //LTEs.LoadBoons();
             //ScriptHooks.LoadHooks();
             SpellLoader.LoadSpells();
+            FeatLoader.LoadFeats();
             LoadEncounters();
         }
 
         private static void LoadEncounters()
         {
             //ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkHuntingParty.tmx");
-            //ModManager.RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx");
 
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 
@@ -169,34 +169,40 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<DrowPatrolLv2>("DrowPatrol.tmx", "DrowPatrolLv2");
             RegisterEncounter<DrowPatrolLv3>("DrowPatrol.tmx", "DrowPatrolLv3");
             RegisterEncounter<MerfolkHuntingPartyLv1>("MerfolkhuntingParty.tmx", "MerfolkHuntingPartyLv1");
-            RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkhuntingParty.tmx", "MerfolkHuntingPartyLv2");
+            ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkhuntingParty.tmx");
             RegisterEncounter<MerfolkHuntingPartyLv3>("MerfolkhuntingParty.tmx", "MerfolkHuntingPartyLv3");
             RegisterEncounter<CultOfTheBrineLv1>("CultOfTheBrine.tmx", "CultOfTheBrineLv1");
-            RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx", "CultOfTheBrineLv2");
+            ModManager.RegisterEncounter<CultOfTheBrineLv2>("CultOfTheBrine.tmx");
             RegisterEncounter<CultOfTheBrineLv3>("CultOfTheBrine.tmx", "CultOfTheBrineLv3");
+            RegisterEncounter<ChosenOfTheKrakenLv1>("ChosenOfTheKraken.tmx", "ChosenOfTheKrakenLv1");
+            ModManager.RegisterEncounter<ChosenOfTheKrakenLv2>("ChosenOfTheKraken.tmx");
+            RegisterEncounter<ChosenOfTheKrakenLv3>("ChosenOfTheKraken.tmx", "ChosenOfTheKrakenLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
             RegisterEncounter<HallOfSmokeLv2>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv2");
             RegisterEncounter<HallOfSmokeLv3>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv3");
             RegisterEncounter<AntiPartyLv1>("Antiparty.tmx", "AntipartyLv1");
-            RegisterEncounter<AntiPartyLv2>("Antiparty.tmx", "AntipartyLv2");
+            ModManager.RegisterEncounter<AntiPartyLv2>("Antiparty.tmx");
             RegisterEncounter<AntiPartyLv3>("Antiparty.tmx", "AntipartyLv3");
             RegisterEncounter<AqueductsLv1>("Aqueducts.tmx", "AqueductsLv1");
             RegisterEncounter<AqueductsLv2>("Aqueducts.tmx", "AqueductsLv2");
             RegisterEncounter<AqueductsLv3>("Aqueducts.tmx", "AqueductsLv3");
             RegisterEncounter<MaidenOfTheLostLv1>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv1");
-            RegisterEncounter<MaidenOfTheLostLv2>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv2");
+            ModManager.RegisterEncounter<MaidenOfTheLostLv2>("Elite_WitchMaiden.tmx");
             RegisterEncounter<MaidenOfTheLostLv3>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv3");
             RegisterEncounter<MotherOfThePoolLv1>("Elite_WitchMother.tmx", "MotherOfThePoolLv1");
-            RegisterEncounter<MotherOfThePoolLv2>("Elite_WitchMother.tmx", "MotherOfThePoolLv2");
+            ModManager.RegisterEncounter<MotherOfThePoolLv2>("Elite_WitchMother.tmx");
             RegisterEncounter<MotherOfThePoolLv3>("Elite_WitchMother.tmx", "MotherOfThePoolLv3");
             RegisterEncounter<CroneOfTheWildsLv1>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv1");
-            RegisterEncounter<CroneOfTheWildsLv2>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv2");
+            ModManager.RegisterEncounter<CroneOfTheWildsLv2>("Elite_WitchCrone.tmx");
             RegisterEncounter<CroneOfTheWildsLv3>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv3");
             RegisterEncounter<GrandStaircaseL1>("GrandStaircase.tmx", "GrandStaircaseL1");
             RegisterEncounter<GrandStaircaseL2>("GrandStaircase.tmx", "GrandStaircaseL2");
             RegisterEncounter<GrandStaircaseL3>("GrandStaircase.tmx", "GrandStaircaseL3");
+            RegisterEncounter<LairOfTheDriderLv1>("Elite_LairOfTheDrider.tmx", "LairOfTheDriderLv1");
+            RegisterEncounter<LairOfTheDriderLv2>("Elite_LairOfTheDrider.tmx", "LairOfTheDriderLv2");
+            RegisterEncounter<LairOfTheDriderLv3>("Elite_LairOfTheDrider.tmx", "LairOfTheDriderLv3");
 
             // Boss fights
             ModManager.RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx");
@@ -221,3 +227,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
     }
 }
+
+
+// TODO: Add this to class and skill feats for roguelike specific unlocks
+            //.WithPrerequisite(sheet => {
+            //     if (CampaignState.Instance?.AdventurePath?.Name == "Roguelike Mode") {
+            //         return true;
+            //     } else {
+            //         return false;
+            //     }
+            // }, "Roguelike mode check");

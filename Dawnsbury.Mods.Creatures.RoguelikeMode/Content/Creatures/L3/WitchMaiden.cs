@@ -32,6 +32,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddHeldItem(Items.CreateNew(CustomItems.Hexshot))
             .WithUnarmedStrike(new Item(IllustrationName.Fist, "nails", new Trait[] { Trait.Unarmed, Trait.Melee, Trait.Brawling, Trait.Finesse }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)))
             .AddQEffect(new QEffect("Curse of Agony", $"The party are wracked by terrible pain, which will not abate so long as the caster lives.") {
+                WhenCreatureDiesAtStateCheckAsync = async self => {
+                    if (self.Owner.Battle.Encounter.Name == "Maiden of the Lost") {
+                        self.Owner.Battle.Cinematics.EnterCutscene();
+                        await self.Owner.Battle.Cinematics.LineAsync(self.Owner, "It seems I must retreat. Do not walk this road any further. Only your death awaits.", null);
+                        self.Owner.Battle.Cinematics.ExitCutscene();
+                    }
+                },
                 StateCheckWithVisibleChanges = async self => {
                     if (!self.Owner.Alive) {
                         return;
@@ -53,7 +60,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             Innate = false,
                             Source = self.Owner,
                             Illustration = self.Owner.Illustration,
-                            StartOfYourTurn = async (qfCurse, victim) => {
+                            StartOfYourPrimaryTurn = async (qfCurse, victim) => {
                                 if (victim.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon")) {
                                     QEffect bond = victim.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
                                     CombatAction action = new CombatAction(self.Owner, self.Illustration, "Curse of Agony", new Trait[] { Trait.Curse, Trait.Mental, Trait.Arcane }, "", Target.Emanation(100).WithIncludeOnlyIf((area, target) => {

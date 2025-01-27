@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="25" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test drow encounter"/>
+  <property name="EncounterDescription" value="Caught off guard, the party is sent scurrying into the mushroom forests by a large drow patrol, braving their toxic spores to lose their attackers. Yet even here, their opportunistic attackers lie in wait, armed with poison tipped arrows. Their only choice is to rush their remaining pursuers, and slip away into the caverns to continue their journey."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Fungal Forest"/>

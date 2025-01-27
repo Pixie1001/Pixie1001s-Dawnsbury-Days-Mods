@@ -32,7 +32,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .AddQEffect(CommonQEffects.Drow())
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
-                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Moonbeam, "Crescent Moon Strike", new Trait[] { Trait.Magical, Trait.Divine }, "...", Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy)) {
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Moonbeam, "Crescent Moon Strike", new Trait[] { Trait.Magical, Trait.Divine },
+                        "Deal 3d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. The Drow Renegade cannot use this attack again for 1d4 rounds.",
+                        Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy)) {
                             ShortDescription = "Deal 3d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. The Drow Renegade cannot use this attack again for 1d4 rounds."
                         }
                         .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr.Level + cr.Abilities.Charisma + 4 + 10))

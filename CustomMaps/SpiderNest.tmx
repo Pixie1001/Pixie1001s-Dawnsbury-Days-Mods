@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test encounter"/>
+  <property name="EncounterDescription" value="Cutoff by a caved-in passage, the party stumbles upon one of the many web entangled pits Drow Arcanists use to breed and experiment on their beasts of war."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Spider Nest"/>

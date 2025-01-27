@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="A debug map made for testing mods against different kinds of creatures."/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription" value="The party's journey soon takes them towards a small mausoleum on the other side of a stream, the path dotted by dilapidated tomestones. But who would build such a place so far out in the pitiless depths of the Below?"/>
+  <property name="EncounterGroup" value="Roguelike (Boss)"/>
   <property name="EncounterLevel" type="int" value="4"/>
   <property name="EncounterName" value="Handmaiden of the Spider Queen"/>
  </properties>

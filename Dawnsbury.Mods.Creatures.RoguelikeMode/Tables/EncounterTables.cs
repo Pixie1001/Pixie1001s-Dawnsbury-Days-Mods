@@ -48,6 +48,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[0].Add(new TypedEncounterCampaignStop<DrowPatrolLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<MerfolkHuntingPartyLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv1>());
 
             // level2Encounters
             encounters[1].Add(new TypedEncounterCampaignStop<DrowAmbushLv2>());
@@ -68,6 +69,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[1].Add(new TypedEncounterCampaignStop<DrowPatrolLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<MerfolkHuntingPartyLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv2>());
 
             // level3Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
@@ -88,6 +90,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<DrowPatrolLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<MerfolkHuntingPartyLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv3>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());
@@ -97,6 +100,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv1>());
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<GrandStaircaseL1>());
+            eliteEncounters[0].Add(new TypedEncounterCampaignStop<LairOfTheDriderLv1>());
 
             // level2EliteEncounters
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<HallOfSmokeLv2>());
@@ -106,6 +110,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv2>());
             eliteEncounters[1].Add(new TypedEncounterCampaignStop<GrandStaircaseL2>());
+            eliteEncounters[1].Add(new TypedEncounterCampaignStop<LairOfTheDriderLv2>());
 
             // level3EliteEncounters
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<HallOfSmokeLv3>());
@@ -115,6 +120,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<MotherOfThePoolLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<CroneOfTheWildsLv3>());
             eliteEncounters[2].Add(new TypedEncounterCampaignStop<GrandStaircaseL3>());
+            eliteEncounters[2].Add(new TypedEncounterCampaignStop<LairOfTheDriderLv3>());
 
             // Boss Fights
             bossFights.Add(new TypedEncounterCampaignStop<Boss_DriderFight>());

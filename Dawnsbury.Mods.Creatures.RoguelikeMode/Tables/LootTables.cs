@@ -108,6 +108,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             items.Add(Items.CreateNew(CustomItems.MaskOfConsumption));
             items.Add(Items.CreateNew(CustomItems.WebwalkerArmour));
             items.Add(Items.CreateNew(CustomItems.DreadPlate));
+            items.Add(Items.CreateNew(CustomItems.KrakenMail));
+            items.Add(Items.CreateNew(CustomItems.WhisperMail));
+            items.Add(Items.CreateNew(CustomItems.RobesOfTheWarWizard));
+            items.Add(Items.CreateNew(CustomItems.GreaterRobesOfTheWarWizard));
+            items.Add(Items.CreateNew(CustomItems.SceptreOfTheSpider));
+            items.Add(Items.CreateNew(CustomItems.DeathDrinkerAmulet));
+            items.Add(Items.CreateNew(CustomItems.GreaterDeathDrinkerAmulet));
+            items.Add(Items.CreateNew(CustomItems.SpellbanePlate));
+            items.Add(Items.CreateNew(CustomItems.ThrowersBandolier).WithModificationRune(ItemName.WeaponPotencyRunestone));
+            items.Add(Items.CreateNew(CustomItems.ThrowersBandolier).WithModificationRune(ItemName.WeaponPotencyRunestone).WithModificationRune(ItemName.StrikingRunestone));
 
             return items;
         }
@@ -138,6 +148,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             return general[R.Next(0, general.Count)];
         }
 
+        public static Item RollScroll(int minLevel, int maxLevel, Func<Item, bool> filter) {
+
+            List<Item> scrolls = Items.ShopItems.Where(item => item.HasTrait(Trait.Scroll) && item.Level >= minLevel && item.Level <= maxLevel).ToList();
+
+            return scrolls[R.Next(0, scrolls.Count)];
+        }
+
         // TODO: Modify this to take a lambda funct to specify the level range
         public static Item RollWeapon(Creature character, Func<int, bool> levelRange) {
             Feat classFeat = character.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft is ClassSelectionFeat);
@@ -146,7 +163,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 className = classFeat.Name.ToLower();
             }
 
-            List<Item> itemList = Items.ShopItems.Concat(CreateSpecialItems()).ToList().Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
+            List<Item> itemList = Items.ShopItems.Concat(CreateSpecialItems()).Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
 
             List<Item> weaponTable = itemList.Where(item => (item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || item.Name.Contains("handwraps of mighty blows")) && levelRange(item.Level)).ToList();
             // Add extra basic scaling runes
@@ -227,8 +244,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             //    className = classFeat.Name.ToLower();
             //}
 
-            List<Item> itemList = Items.ShopItems.Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && item.Price >= 10).ToList();
-            List<Item> wearableTable = itemList.Where(item => item.ItemName != ItemName.GateAttenuator && (item.HasTrait(Trait.Runestone) && item.HasTrait(Trait.Abjuration) || (item.HasTrait(Trait.Worn) && !item.Name.Contains("handwraps of mighty blows")) || item.HasTrait(Trait.Armor))).ToList();
+            List<Item> itemList = Items.ShopItems.Concat(CreateSpecialItems()).Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && item.Price >= 10).ToList();
+            List<Item> wearableTable = itemList.Where(item => item.ItemName != ItemName.GateAttenuator && (item.HasTrait(Trait.Runestone) && item.HasTrait(Trait.Abjuration) || (item.HasTrait(Trait.Worn) && !item.Name.Contains("handwraps of mighty blows")) || (item.HasTrait(Trait.Armor) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained))).ToList();
 
             return wearableTable[R.Next(0, wearableTable.Count)];
         }

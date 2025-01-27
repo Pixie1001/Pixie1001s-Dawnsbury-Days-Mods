@@ -36,7 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             QEffect interactable = new QEffect("Interactable", "This is a debug object that can be used to inflict status effects on yourself for testing purposes ^^") {
                 StateCheckWithVisibleChanges = async self => {
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsControlledByHumanUser && cr.IsAdjacentTo(self.Owner))) {
                         hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
                                 return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions") {

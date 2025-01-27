@@ -87,7 +87,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return null;
                     }
 
-                    CombatAction action = new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.HandCrossbow, IllustrationName.HandCrossbow), "Reloading Trick", new Trait[] { Trait.Manipulate }, "The Drow Shootist relaods both of their hand crossbows", Target.Self((cr, ai) => 15))
+                    CombatAction action = new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.HandCrossbow, IllustrationName.HandCrossbow), "Reloading Trick", new Trait[] { Trait.Manipulate }, "The Drow Shootist reloads both of their hand crossbows", Target.Self((cr, ai) => 15))
                     .WithActionCost(1)
                     .WithSoundEffect(SfxName.OpenLock)
                     .WithEffectOnSelf(user => {

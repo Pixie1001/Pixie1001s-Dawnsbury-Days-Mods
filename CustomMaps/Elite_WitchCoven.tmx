@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Elite mini-boss fight"/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription" value="As the party approaches the ritual site, the sound of cackles and chanting fills the cavernous passageways, growing louder until at last the party emerges to the site of three figures dancing around a bubbling cauldron. The tingle of abyssal sorcery is almost palpable. One can only dread what will happen should they finish whatever foul rite they're conducting."/>
+  <property name="EncounterGroup" value="Roguelike (Boss)"/>
   <property name="EncounterLevel" type="int" value="4"/>
   <property name="EncounterName" value="Witch Coven"/>
  </properties>

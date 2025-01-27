@@ -70,6 +70,9 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
 using Dawnsbury.Core.Noncombat;
+using Dawnsbury.Phases.Menus;
+using Dawnsbury.Phases.Popups;
+using Dawnsbury.Campaign.Path;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
 
@@ -238,7 +241,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Unarmed, Proficiency.Expert));
                 sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.UnarmoredDefense, Proficiency.Expert));
                 sheet.AddAtLevel(15, _ => _.SetProficiency(Trait.Will, Proficiency.Master));
-            }));
+            }))
+            .WithOnCreature((Action<Creature>)(creature => creature.Traits.Add(Trait.BasicallyNeverWantsToMakeBasicUnarmedStrike)));
 
             // Init eidolon ability boosts
             yield return new Feat(ftStrengthBoost, "Your eidolon grows stronger.",
@@ -278,13 +282,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             foreach (DamageKind energy in energyDamageTypes.Concat(alignmentDamageTypes)) {
                 Feat temp = new Feat(ModManager.RegisterFeatName("EidolonsWrath" + energy.HumanizeTitleCase2(), "Eidolon's Wrath: " + energy.HumanizeTitleCase2()), "", $"The Eidolon's Wrath focus spell deals {energy.HumanizeTitleCase2()} damage", new List<Trait> { DamageToTrait(energy), tEidolonsWrathType }, null);
                 if (alignmentDamageTypes.Contains(energy)) {
-                    temp.WithPrerequisite((sheet => {
+                    temp.WithPrerequisite(sheet => {
                         if (sheet.AllFeats.FirstOrDefault(ft => divineTypes.Contains(ft.FeatName.HumanizeTitleCase2())) == null)
                             return false;
                         if (sheet.AllFeats.FirstOrDefault(ft => ft.HasTrait(DamageToTrait(energy)) && ft.HasTrait(tAlignment)) == null)
                             return false;
                         return true;
-                    }), $"Your eidolon must be of {DamageToTrait(energy).HumanizeTitleCase2()} alignment, and celestial origin.");
+                    }, $"Your eidolon must be of {DamageToTrait(energy).HumanizeTitleCase2()} alignment, and celestial origin.");
                 }
                 ewSubFeats.Add(temp);
             }
@@ -1669,9 +1673,62 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 bond.ClassFeatures(eidolon, summoner);
             }
 
+            // Add Evolution feats
             foreach (EvolutionFeat feat in evoFeats) {
                 if (feat.EffectOnEidolon != null) {
                     feat.EffectOnEidolon.Invoke(eidolon);
+                }
+            }
+
+            // Handle hard coded natural attack adjustments
+            if (bond.Name == "Psychopomp Eidolon") {
+                eidolon.UnarmedStrike.Traits.Add(Trait.GhostTouch);
+                foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                    effect.AdditionalUnarmedStrike.Traits.Add(Trait.GhostTouch);
+                }
+            }
+
+            if (bond.Name == "Elemental Eidolon") {
+                if (bond.eidolonTraits.Contains(Trait.Air)) {
+                    eidolon.UnarmedStrike.Traits.Add(Trait.Air);
+                    foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                        effect.AdditionalUnarmedStrike.Traits.Add(Trait.Air);
+                    }
+                }
+
+                if (bond.eidolonTraits.Contains(Trait.Earth)) {
+                    eidolon.UnarmedStrike.Traits.Add(Trait.Earth);
+                    foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                        effect.AdditionalUnarmedStrike.Traits.Add(Trait.Earth);
+                    }
+                }
+
+                if (bond.eidolonTraits.Contains(Trait.Fire) && !summoner.HasEffect(QEffectId.AquaticCombat)) {
+                    eidolon.UnarmedStrike.Traits.Add(Trait.Fire);
+                    foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                        effect.AdditionalUnarmedStrike.Traits.Add(Trait.Fire);
+                    }
+                }
+
+                if (bond.eidolonTraits.Contains(Trait.Metal)) {
+                    eidolon.UnarmedStrike.Traits.Add(Trait.Metal);
+                    foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                        effect.AdditionalUnarmedStrike.Traits.Add(Trait.Metal);
+                    }
+                }
+
+                if (bond.eidolonTraits.Contains(Trait.Water)) {
+                    eidolon.UnarmedStrike.Traits.Add(Trait.Water);
+                    foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                        effect.AdditionalUnarmedStrike.Traits.Add(Trait.Water);
+                    }
+                }
+
+                if (bond.eidolonTraits.Contains(Trait.Wood)) {
+                    eidolon.UnarmedStrike.Traits.Add(Trait.Wood);
+                    foreach (QEffect effect in eidolon.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                        effect.AdditionalUnarmedStrike.Traits.Add(Trait.Wood);
+                    }
                 }
             }
 
@@ -2442,8 +2499,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 Style = movementStyle
             };
 
-            IList<Tile>? tiles = (IList<Tile>?)(typeof(ModManager).Assembly.GetType("Dawnsbury.Core.Intelligence.Pathfinding").GetMethod("Floodfill", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
-                    .Invoke(null, [self, self.Battle, pathfindingDescription]));
+            IList<Tile>? tiles = Pathfinding.Floodfill(self, self.Battle, pathfindingDescription);
 
             if (tiles == null) {
                 self.Occupies.Overhead("cannot move", Color.White);
@@ -2471,7 +2527,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
 
                 // Add tile as option
-                CombatAction movement = new CombatAction(self, illBeastsCharge, "Beast's Charge", new Trait[] { Trait.Move }, "", Target.Tile((cr, t) => t.LooksFreeTo(cr), (cr, t) => (float)int.MinValue)
+                CombatAction movement = new CombatAction(self, img, "Beast's Charge", new Trait[] { Trait.Move }, "", Target.Tile((cr, t) => t.LooksFreeTo(cr), (cr, t) => (float)int.MinValue)
                     .WithPathfindingGuidelines((cr => pathfindingDescription))
                 )
                 .WithActionCost(0)

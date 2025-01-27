@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Expert)
             .WithBasicCharacteristics()
-            .AddHeldItem(Items.CreateNew(ItemName.Glaive))
+            .AddHeldItem(Items.CreateNew(ItemName.Halberd))
             .WithUnarmedStrike(new Item(IllustrationName.Jaws, "fangs", new Trait[] { Trait.Melee, Trait.Finesse, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(QEffect.AttackOfOpportunity())

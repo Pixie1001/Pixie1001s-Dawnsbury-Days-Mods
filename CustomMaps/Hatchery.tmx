@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="Slipping through a crevice in the rockface, the party stumbles upon a strange facility hidden between the cavernous passageways... The sounds of something squelching on a strange, fleshy surface echoing through the cramped corridors. What foul purpose could such a place possibly possess?"/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Hatchery"/>
@@ -39,13 +39,13 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,127,0,0,0,0,0,0,0,
 0,2148,0,0,0,74,0,0,0,74,0,0,0,2148,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,2148,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2148,16,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,74,0,0,0,74,0,0,0,2148,0,
 0,0,0,0,0,0,0,0,0,0,0,0,2148,0,0,
 0,2148,0,0,0,74,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>

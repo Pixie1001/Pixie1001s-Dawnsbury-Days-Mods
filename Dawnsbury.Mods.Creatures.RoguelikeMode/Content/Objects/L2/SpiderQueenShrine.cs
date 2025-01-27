@@ -45,7 +45,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             QEffect interactable = new QEffect("Interactable", "You can use Religion, Thievery and Crafting to interact with this shrine.") {
                 StateCheckWithVisibleChanges = async self => {
                     // Add contextual actions
-                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsHumanControlled && cr.IsAdjacentTo(self.Owner))) {
+                    foreach (Creature hero in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer && cr.IsAdjacentTo(self.Owner))) {
                         hero.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                             ProvideContextualAction = qfContextActions => {
                                 return new SubmenuPossibility(Illustrations.SpiderShrine, "Interactions") {

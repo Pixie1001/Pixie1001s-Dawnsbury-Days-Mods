@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="37" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="39" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -222,5 +222,17 @@
    <property name="Id" value="Merfolk Brineblade"/>
   </properties>
   <image source="Creatures/DarkPoet256.png" width="256" height="256"/>
+ </tile>
+ <tile id="2030">
+  <properties>
+   <property name="Id" value="Merfolk Krakenborn"/>
+  </properties>
+  <image source="CustomCreatures/MerfolkKrakenborn.png" width="256" height="256"/>
+ </tile>
+ <tile id="2031">
+  <properties>
+   <property name="Id" value="Unicorn, Foal"/>
+  </properties>
+  <image source="CustomCreatures/UnicornFoal.png" width="256" height="256"/>
  </tile>
 </tileset>

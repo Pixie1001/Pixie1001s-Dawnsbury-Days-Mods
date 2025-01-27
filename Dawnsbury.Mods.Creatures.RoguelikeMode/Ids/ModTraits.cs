@@ -53,5 +53,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait Witch { get; } = ModManager.RegisterTrait("RL_Witch", new TraitProperties("Witch", false));
         internal static Trait Hexshot { get; } = ModManager.RegisterTrait("RL_Hexshot", new TraitProperties("Hexshot", false));
         internal static Trait Roguelike { get; } = ModManager.RegisterTrait("RL_RoguelikemodSignature", new TraitProperties("Roguelike", true));
+        internal static Trait Archetype { get; } = ModManager.RegisterTrait("RL_ArchetypeFeat", new TraitProperties("Archetype", true));
+        internal static Trait Dedication { get; } = ModManager.RegisterTrait("RL_ArchetypeDedication", new TraitProperties("Dedication", true));
+        internal static Trait Event { get; } = ModManager.RegisterTrait("RL_EventFeat", new TraitProperties("Event", true, "These feats can be unlocked by meeting specific conditions in the Roguelike mode adventure path.", false) {
+            BackgroundColor = Color.MediumPurple,
+            WhiteForeground = true
+        });
     }
 }

@@ -64,12 +64,12 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using System.IO;
 using System.Buffers.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
+using System.Xml.Linq;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -83,9 +83,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
         .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
 
+        public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
+            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
+
+        public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
+            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
+
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
-                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithMainTrait(Trait.Whip)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
                 ItemBonus = 1,
@@ -109,10 +117,96 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return item;
         });
 
+        public static ItemName SceptreOfTheSpider { get; } = ModManager.RegisterNewItemIntoTheShop("SceptreOfTheSpider", itemName => {
+            Item item = new Item(itemName, Illustrations.SceptreOfTheSpider, "sceptre of the spider", 2, 35,
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
+            .WithDescription("{i}This esoteric sceptre appears to have been forged from within the demonic lair of the spider queen herself.{/i}\n\n" +
+            "While wielding the sceptre, you can use the 'Shoot Web' action once per encounter.\n\n" +
+            "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy\n\nMake a ranged attack roll against the target. On a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action vs. DC 15 + your level to free themselves.");
 
+            int baseDC = 15;
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    ProvideStrikeModifier = (item) => {
+                        if (item != weapon || weapon.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
+                            return null;
+                        }
+
+                        return new CombatAction(wielder, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Attack },
+                        "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy\n\nMake a ranged attack roll against the target. On a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action to free themselves.",
+                        Target.Ranged(6)) {
+                            ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape action to free themselves."
+                        }
+                        .WithProjectileCone(IllustrationName.Web, 5, ProjectileKind.Cone)
+                        .WithSoundEffect(SfxName.AeroBlade)
+                        .WithActionCost(1)
+                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(new Item(IllustrationName.Web, "Web", new Trait[] { Trait.Attack, Trait.Unarmed, Trait.Finesse, Trait.Ranged })), Checks.DefenseDC(Defense.AC)))
+                        .WithEffectOnSelf(user => {
+                            weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                        })
+                        .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {
+                            if (checkResult >= CheckResult.Success) {
+                                QEffect webbed = new QEffect($"Webbed (DC {baseDC + caster.Level})", "You cannot use any action with the move trait, until you break free of the webs.") {
+                                    Id = QEffectId.Immobilized,
+                                    Source = caster,
+                                    PreventTakingAction = (ca) => !ca.HasTrait(Trait.Move) ? null : "You're immobilized.",
+                                    Illustration = IllustrationName.Web,
+                                    ProvideContextualAction = self => {
+                                        CombatAction combatAction = new CombatAction(self.Owner, (Illustration)IllustrationName.Escape, "Escape from " + caster?.ToString() + "'s webs.", new Trait[] {
+                                            Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({baseDC + (caster != null ? caster.Level : 0)}) of the webs.",
+                                            Target.Self((_, ai) => ai.EscapeFrom(caster))) {
+                                            ActionId = ActionId.Escape
+                                        };
+
+                                        ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
+                                            new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(baseDC + caster.Level)),
+                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Athletics), Checks.FlatDC(baseDC + caster.Level)),
+                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(baseDC + caster.Level))
+                                        }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
+
+                                        return (ActionPossibility)combatAction
+                                        .WithActiveRollSpecification(activeRollSpecification)
+                                        .WithSoundEffect(combatAction.Owner.HasTrait(Trait.Female) ? SfxName.TripFemale : combatAction.Owner.HasTrait(Trait.Male) ? SfxName.TripMale : SfxName.BeastRoar)
+                                        .WithEffectOnEachTarget(async (spell, a, d, cr) => {
+                                            switch (cr) {
+                                                case CheckResult.CriticalFailure:
+                                                    a.AddQEffect(new QEffect("Cannot escape", "You can't Escape until your next turn.", ExpirationCondition.ExpiresAtStartOfYourTurn, a) {
+                                                        PreventTakingAction = ca => !ca.Name.StartsWith("Escape") ? null : "You already tried to escape and rolled a critical failure."
+                                                    });
+                                                    break;
+                                                case CheckResult.Success:
+                                                    self.ExpiresAt = ExpirationCondition.Immediately;
+                                                    break;
+                                                case CheckResult.CriticalSuccess:
+                                                    self.ExpiresAt = ExpirationCondition.Immediately;
+                                                    int num = await self.Owner.StrideAsync("You escape and you may Stride 5 feet.", maximumFiveFeet: true, allowPass: true) ? 1 : 0;
+                                                    break;
+                                            }
+                                        });
+                                    }
+                                };
+                                target.AddQEffect(webbed);
+                            }
+                        });
+                    },
+                    EndOfCombat = async (self, won) => {
+                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
+                    }
+                });
+            };
+            return item;
+        });
+
+
+        //new Item(itemName, illustration, name, (int) level * 2 - 1, GetWandPrice((int) level * 2 - 1), traits.ToArray())
+        //   .WithDescription(desc)
+        //   .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
 
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
-            Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical, Trait.DoNotAddToShop, ModTraits.Roguelike })
+            Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithDescription("{i}An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.{/i}\n\n" +
             "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.\n\n" +
             "After using the amulet in this way, it cannot be used again until you recharge its magic as an {icon:Action} action.");
@@ -183,7 +277,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
-                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(ModTraits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
             .WithDescription("{i}This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.{/i}\n\n" +
@@ -234,7 +328,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName SmokingSword { get; } = ModManager.RegisterNewItemIntoTheShop("Smoking Sword", itemName => {
             Item item = new Item(itemName, new WandIllustration(IllustrationName.ElementFire, IllustrationName.Longsword), "smoking sword", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Martial, Trait.Sword, Trait.Fire, Trait.VersatileP, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike
+                new Trait[] { Trait.Magical, Trait.Martial, Trait.Sword, Trait.Fire, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike
             })
             .WithMainTrait(Trait.Longsword)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
@@ -247,7 +341,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName StormHammer { get; } = ModManager.RegisterNewItemIntoTheShop("Storm Hammer", itemName => {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.Warhammer), "storm hammer", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Warhammer)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Bludgeoning))
             .WithDescription("{i}Sparks of crackling electricity arc from this warhammer, and the head thrums with distant thunder.{/i}\n\nAny hit with this hammer deals 1 extra electricity damage.\n\n" +
@@ -259,7 +353,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName ChillwindBow { get; } = ModManager.RegisterNewItemIntoTheShop("Chillwind Bow", itemName => {
             Item item = new Item(itemName, Illustrations.ChillwindBow, "chillwind bow", 3, 25,
-                new Trait[] { Trait.Magical, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.Cold, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.Cold, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Shortbow)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
             .WithRangeIncrement(12))
@@ -272,7 +366,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName Sparkcaster { get; } = ModManager.RegisterNewItemIntoTheShop("Sparkcaster", itemName => {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.HeavyCrossbow), "sparkcaster", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Reload2, Trait.Simple, Trait.Bow, Trait.TwoHanded, Trait.Crossbow, Trait.WizardWeapon, Trait.Electricity, Trait.DoNotAddToShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Reload2, Trait.Simple, Trait.Bow, Trait.TwoHanded, Trait.Crossbow, Trait.WizardWeapon, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.HeavyCrossbow)
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
             .WithRangeIncrement(24))
@@ -330,7 +424,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName SpiderChopper { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Chopper", itemName => {
             Item item = new Item(itemName, Illustrations.SpiderChopper, "spider chopper", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                               new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.BattleAxe)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
             .WithDescription("{i}An obsidian cleaver, erodated down to a brutal jagged edge by acidic spittle. The weapon seems to shifting and throb when in the presence of spiders.{/i}\n\n" +
@@ -356,7 +450,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName Widowmaker { get; } = ModManager.RegisterNewItemIntoTheShop("Widowmaker", itemName => {
             Item item = new Item(itemName, Illustrations.Widowmaker, "widowmaker", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                               new Trait[] { Trait.Magical, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Dagger)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing))
             .WithDescription("{i}A wicked looking dagger, with a small hollow at the tip of the blade, from which a steady supply of deadly poison drips.{/i}\n\nAttacks made against flat footed creatures using this dagger expose them to spider venom.");
@@ -382,7 +476,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName FlashingRapier { get; } = ModManager.RegisterNewItemIntoTheShop("Flashing Rapier", itemName => {
             Item item = new Item(itemName, IllustrationName.Rapier, "flashing rapier", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                               new Trait[] { Trait.Magical, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Rapier)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing))
             .WithDescription("{/i}A brilliant sparkling rapier, that causes the light to bend around its blade in strange prismatic patterns.{/i}" +
@@ -430,7 +524,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName HungeringBlade { get; } = ModManager.RegisterNewItemIntoTheShop("Hungering Blade", itemName => {
             Item item = new Item(itemName, Illustrations.HungeringBlade, "hungering blade", 3, 25,
-                new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Greatsword)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
             .WithDescription("{i}A sinister greatsword made from cruel black steel and an inhospitable grip dotted by jagged spines. No matter how many times the blade is cleaned, it continues to ooze forth a constant trickle of blood.{/i}\n\n" +
@@ -438,7 +532,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 wielder.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
-                    StartOfYourTurn = async (self, owner) => {
+                    StartOfYourPrimaryTurn = async (self, owner) => {
                         owner.AddQEffect(QEffect.PersistentDamage("1d8", DamageKind.Bleed));
                     },
                     AddExtraKindedDamageOnStrike = (strike, attacker) => {
@@ -467,28 +561,64 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName WebwalkerArmour { get; } = ModManager.RegisterNewItemIntoTheShop("Webwalker Armour", itemName => {
             return new Item(itemName, Illustrations.WebWalkerArmour, "webwalker armour", 2, 35,
-                new Trait[] { Trait.Magical, Trait.LightArmor, Trait.Leather, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.LightArmor, Trait.Leather, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithArmorProperties(new ArmorProperties(2, 3, -1, 0, 12))
-            .WithDescription("{i}Flexible jetblack armour of elven make, sewn from some exotic underdark silk.{/i}\n\nThe wearer of this armour may pass through webs unhindered.");
+            .WithDescription("{i}Flexible jetblack armour of dark elven make, sewn from some exotic underdark silk.{/i}\n\nThe wearer of this armour may pass through webs unhindered.");
+        });
+
+        public static ItemName KrakenMail { get; } = ModManager.RegisterNewItemIntoTheShop("Kraken Mail", itemName => {
+            return new Item(itemName, Illustrations.KrakenMail, "kraken mail", 2, 35,
+                new Trait[] { Trait.Magical, Trait.MediumArmor, Trait.Leather, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithArmorProperties(new ArmorProperties(4, 1, -2, 1, 16))
+            .WithDescription("{i}The eyes on this briny chitin armour blink periodically.{/i}\n\nThe wearer of this armour gains a swim speed, and a +2 status bonus to grapple rolls while submerged in water.");
+        });
+
+        public static ItemName RobesOfTheWarWizard { get; } = ModManager.RegisterNewItemIntoTheShop("Robes of the War Wizard", itemName => {
+            return new Item(itemName, Illustrations.RobesOfTheWarWizard, "robes of the war wizard", 2, 35,
+                new Trait[] { Trait.Magical, Trait.UnarmoredDefense, Trait.Armor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
+            .WithDescription("{i}This bold red robe is enchanted to collect neither sweat, dust nor grime.{/i}\n\nThe wearer of this armour gains a +2 damage bonus per spell level to non-cantrip cone and emanation spells used against creatures within 15-feet of them.\n\nIn addition, they gain resistance 1 to acid, cold, electricity and fire damage.");
+        });
+
+        public static ItemName GreaterRobesOfTheWarWizard { get; } = ModManager.RegisterNewItemIntoTheShop("Greater Robes of the War Wizard", itemName => {
+            return new Item(itemName, Illustrations.RobesOfTheWarWizard, "robes of the war wizard, greater", 4, 90,
+                new Trait[] { Trait.Magical, Trait.UnarmoredDefense, Trait.Armor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
+            .WithDescription("{i}This bold red robe is enchanted to collect neither sweat, dust nor grime.{/i}\n\nThe wearer of this armour gains a +3 damage bonus per spell level to non-cantrip cone and emanation spells used against creatures within 15-feet of them.\n\nIn addition, they gain resistance 2 to acid, cold, electricity and fire damage.");
+        });
+
+        public static ItemName WhisperMail { get; } = ModManager.RegisterNewItemIntoTheShop("Whisper Mail", itemName => {
+            return new Item(itemName, Illustrations.WhisperMail, "whisper mail", 2, 35,
+                new Trait[] { Trait.Magical, Trait.MediumArmor, Trait.Chain, Trait.MetalArmor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithArmorProperties(new ArmorProperties(4, 1, -2, 1, 16))
+            .WithDescription("{i}This ominous armour set whispers incessantly into the wearer's ears... Revealing profound and disturbing secrets.{/i}\n\nThe wearer of this armour imposes weakness 1 to all physical damage against adjacent enemies, and a +1 item bonus to Seek checks.");
         });
 
         public static ItemName DreadPlate { get; } = ModManager.RegisterNewItemIntoTheShop("Dread Plate", itemName => {
-            return new Item(itemName, Illustrations.DreadPlate, "dread plate", 3, 80,
-                new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToShop, ModTraits.Roguelike })
+            return new Item(itemName, Illustrations.DreadPlate, "dread plate", 3, 70,
+                new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
             .WithDescription("{i}This cold, black steel suit of plate armour radiates a spiteful presence, feeding off its wearer's own lifeforce to strike at any who would dare mar it.{/i}\n\nWhile wearing this cursed armour, you take an additional 1d4 negative damage when damaged by an adjacent creature, but deal 1d6 negative damage in return.");
         });
 
+        public static ItemName SpellbanePlate { get; } = ModManager.RegisterNewItemIntoTheShop("Spellbane Plate", itemName => {
+            return new Item(itemName, Illustrations.SpellbanePlate, "spellbane plate", 3, 70,
+                new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
+            .WithDescription("{i}This suit of armour is forged from a strange, mercurial alloy - perhaps a lost relic forged by dwarven smithes during the height of the Starborn invasion.{/i}"+
+            "\n\nWhile wearing this suit of armour, you gain a +1 item bonus to all spell saving throws, but cannot cast spells of your own.");
+        });
+
         public static ItemName DolmanOfVanishing { get; } = ModManager.RegisterNewItemIntoTheShop("Dolman of Vanishing", itemName => {
             return new Item(itemName, Illustrations.DolmanOfVanishing, "dolman of vanishing", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Armor, Trait.UnarmoredDefense, Trait.Cloth, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Armor, Trait.UnarmoredDefense, Trait.Cloth, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
             .WithDescription("{i}A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it.{/i}\n\nThe wearer of this cloak gains a +2 item bonus to stealth and can hide in plain sight.");
         });
 
         public static ItemName MaskOfConsumption { get; } = ModManager.RegisterNewItemIntoTheShop("Mask of Consumption", itemName => {
             return new Item(itemName, Illustrations.MaskOfConsumption, "mask of consumption", 2, 30,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Mask)
             .WithDescription("{i}This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.{/i}\n\n" +
             "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
@@ -520,7 +650,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 qfMoC.AddGrantingOfTechnical(cr => cr.OwningFaction.IsEnemy && cr.IsLivingCreature, qfTechnical => {
                     qfTechnical.Key = "Mask of Consumption Technical";
                     qfTechnical.AfterYouTakeAmountOfDamageOfKind = async (self, strike, damage, kind) => {
-                        if (strike != null && strike.Owner != null && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == strike.Owner.UnarmedStrike.Name && self.Owner.IsLivingCreature) {
+                        if (strike != null && strike.Owner != null && strike.Owner == qfMoC.Owner && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == strike.Owner.UnarmedStrike.Name && self.Owner.IsLivingCreature) {
                             await strike.Owner.HealAsync(DiceFormula.FromText($"{damage}", "Mask of Consumption"), strike);
                         }
                     };
@@ -528,9 +658,106 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
         });
 
+        public static ItemName ThrowersBandolier { get; } = ModManager.RegisterNewItemIntoTheShop("Thrower's Bandolier", itemName => {
+            return new Item(itemName, Illustrations.ThrowersBandolier, "thrower's bandolier", 3, 35,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Worn, Trait.Conjuration, ModTraits.Roguelike })
+            .WithDescription("{i}This bandolier is perfect for sharing expensive weapon runes between a wide array of side arms and thrown weapons.{/i}\n\n" +
+            "The thrower's bandoldier holds an infinite number of daggers, hatchets and light hammers within it, which can be drawn from the bandolier as an action {icon:Action}, or a {icon:FreeAction} if you have the Quick Draw feat.\n\n" +
+            "The bandolier, unlike most worn items, can also be invested with weapon runes. These runes will affect any weapon drawn from the bandolier, making them more powerful.")
+            .WithPermanentQEffectWhenWorn((qfTB, item) => {
+                qfTB.StartOfCombat = async self => {
+                    var dagger = Items.CreateNew(ItemName.Dagger);
+                    foreach (Item rune in item.Runes) {
+                        dagger.WithModificationRune(rune.ItemName);
+                    }
+                    dagger.Traits.Add(Trait.EncounterEphemeral);
+
+                    var hammer = Items.CreateNew(LightHammer);
+                    foreach (Item rune in item.Runes) {
+                        hammer.WithModificationRune(rune.ItemName);
+                    }
+                    hammer.Traits.Add(Trait.EncounterEphemeral);
+
+                    var axe = Items.CreateNew(Hatchet);
+                    foreach (Item rune in item.Runes) {
+                        axe.WithModificationRune(rune.ItemName);
+                    }
+                    axe.Traits.Add(Trait.EncounterEphemeral);
+
+                    qfTB.Tag = new List<Item>() { dagger, hammer, axe };
+                };
+
+                qfTB.ProvideActionIntoPossibilitySection = (self, section) => {
+                    if (section.PossibilitySectionId != PossibilitySectionId.ItemActions || qfTB.Tag == null) {
+                        return null;
+                    }
+
+                    int cost = qfTB.Owner.HasFeat(FeatName.QuickDraw) ? 0 : 1;
+
+                    SubmenuPossibility menu = new SubmenuPossibility(Illustrations.ThrowersBandolier, "Thrower's Bandolier");
+                    menu.Subsections.Add(new PossibilitySection("Thrower's Bandolier"));
+
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[0].Illustration, "Draw Dagger", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)[0].Name} from your thrower's bandolier.",
+                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
+                    .WithActionCost(cost)
+                    .WithSoundEffect(SfxName.ItemGet)
+                    .WithEffectOnSelf(async user => {
+                        user.HeldItems.Add((qfTB.Tag as List<Item>)[0].Duplicate());
+                    }));
+
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[1].Illustration, "Draw Light Hammer", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)[1].Name} from your thrower's bandolier.",
+                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
+                    .WithActionCost(cost)
+                    .WithSoundEffect(SfxName.ItemGet)
+                    .WithEffectOnSelf(async user => {
+                        user.HeldItems.Add((qfTB.Tag as List<Item>)[1].Duplicate());
+                    }));
+
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[2].Illustration, "Draw Hatchet", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)[2].Name} from your thrower's bandolier.",
+                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
+                    .WithActionCost(cost)
+                    .WithSoundEffect(SfxName.ItemGet)
+                    .WithEffectOnSelf(async user => {
+                        user.HeldItems.Add((qfTB.Tag as List<Item>)[2].Duplicate());
+                    }));
+
+                    return menu;
+                };
+            });
+        });
+
+        public static ItemName DeathDrinkerAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("DeathDrinkerAmulet", itemName => {
+            return new Item(itemName, Illustrations.SpiritBeaconAmulet, "death drinker amulet", 2, 35,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithWornAt(Trait.Necklace)
+            .WithDescription("{i}This eerie necklace seems to feed off necrotic energy, storing it within its amethyst gems for some unknowable purpose.{/i}\n\n" +
+            "While wearing this necklace, you gain resist Negative 3")
+            .WithPermanentQEffectWhenWorn((qfMoC, item) => {
+                qfMoC.StateCheck = self => {
+                    self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Negative, 3);
+                };
+            });
+        });
+
+        public static ItemName GreaterDeathDrinkerAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("GreaterDeathDrinkerAmulet", itemName => {
+            return new Item(itemName, Illustrations.SpiritBeaconAmulet, "death drinker amulet, greater", 4, 60,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithWornAt(Trait.Necklace)
+            .WithDescription("{i}This eerie necklace seems to feed off necrotic energy, storing it within its amethyst gems for some unknowable purpose.{/i}\n\n" +
+            "While wearing this necklace, you gain resist Negative 7")
+            .WithPermanentQEffectWhenWorn((qfMoC, item) => {
+                qfMoC.StateCheck = self => {
+                    self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Negative, 7);
+                };
+            });
+        });
+
         public static ItemName SpiritBeaconAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Spirit Beacon Amulet", itemName => {
             return new Item(itemName, Illustrations.SpiritBeaconAmulet, "spirit beacon amulet", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
             .WithDescription("{i}This skull shaped necklace is cold to the touch.{/i}\n\n" +
             "You have a +1 item bonus to Occultism.\n\n" +
@@ -556,7 +783,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName DemonBoundRing { get; } = ModManager.RegisterNewItemIntoTheShop("DemonBoundRing", itemName => {
             return new Item(itemName, Illustrations.DemonBoundRing, "demon bound ring", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
             "While wearing this ring, the wear gains a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
@@ -672,7 +899,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName HornOfTheHunt { get; } = ModManager.RegisterNewItemIntoTheShop("Horn of the Hunt", itemName => {
             return new Item(itemName, Illustrations.HornOfTheHunt, "horn of the hunt", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Conjuration, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Conjuration, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
             .WithDescription("{i}This ancient bone hunting horn is carved into the likeness of a snarling wolf, and seems possessed of some strange primal magic.{/i}\n\n" +
             "You have a +1 item bonus to Nature.\n\n" +
@@ -772,7 +999,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName ShifterFurs { get; } = ModManager.RegisterNewItemIntoTheShop("Shifter Furs", itemName => {
             return new Item(itemName, Illustrations.ShifterFurs, "shifter furs", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Transmutation, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Transmutation, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Cloak)
             .WithDescription("{i}This haggard fur cloak is has a musky, feral smell to it and seems to pulsate warmly... as if it were not simply a cloak, but the flesh of a living, breathing thing.{/i}\n\n" +
             "You have a +2 item bonus to Demoralize check made against animals, and gain the benefits of the Intimidating Glare feat.\n\n" +
@@ -888,7 +1115,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName CloakOfAir { get; } = ModManager.RegisterNewItemIntoTheShop("Cloak of Air", itemName => {
             return new Item(itemName, Illustrations.CloakOfAir, "cloak of air", 3, 60,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Evocation, Trait.Elemental, Trait.Air, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Evocation, Trait.Elemental, Trait.Air, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Cloak)
             .WithDescription("This swooshing cloak seems to be perpetually billowing in the wind. While donned, it grants the wear several benefits.\n• The wearer of this cloak may dramatically swoosh it about, to send a blade of air at their enemies for 1d8 damage, 20ft range.\n• When you Leap while wearing this cloak, you increase the distance you can jump horizontally by 5 feet. {i}(This stacks with the Powerful Leap feat, but not other items){/i}\n• Kineticists wearing this cloak deal +2 damage with their air impulses.")
             .WithItemAction((item, user) => {
@@ -915,7 +1142,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName BloodBondAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Blood Bond Amulet", itemName => {
             return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 40,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
             // TODO: Add description
             .WithDescription("These matching amulets link the lifeforce of those who wear them, allowing them to freely claw away the vitality of the paired wearer for themselves.\n\n" +
@@ -949,7 +1176,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -979,6 +1206,103 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             ModManager.RegisterActionOnEachCreature(creature => {
                 if (creature.BaseArmor == null) {
                     return;
+                }
+
+                if (creature.BaseArmor.ItemName == SpellbanePlate) {
+                    creature.AddQEffect(new QEffect("Spellbane Plate", "You have a +1 item bonus vs. all spell saving throws but cannot cast spells of your own.") {
+                        BonusToDefenses = (self, action, defence) => defence != Defense.AC && action != null && action.HasTrait(Trait.Spell) ? new Bonus(1, BonusType.Item, "Spellbane Plate") : null,
+                        PreventTakingAction = action => action.HasTrait(Trait.Spell) ? "blocked by spellbane plate" : null
+                    });
+                }
+
+                if (creature.BaseArmor.ItemName == WhisperMail) {
+                    var aura = creature.AnimationData.AddAuraAnimation(IllustrationName.BaneCircle, 1, Color.Black);
+                    aura.MaximumOpacity = 0.5f;
+                    creature.AddQEffect(new QEffect("Whisper Mail", "Adjacent enemies gain weakness 1 to slashing, bludgeoning and piercing damage.") {
+                        StateCheck = self => {
+                            foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && cr.DistanceTo(self.Owner) <= 1)) {
+                                enemy.AddQEffect(new QEffect("Whisper Mail Aura", "You suffer weakness 1 to physical damage, as the whisper mail imparts your openings to your enemies.", ExpirationCondition.Ephemeral, self.Owner, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.WhisperMail)));
+                                enemy.WeaknessAndResistance.AddWeakness(DamageKind.Slashing, 1);
+                                enemy.WeaknessAndResistance.AddWeakness(DamageKind.Bludgeoning, 1);
+                                enemy.WeaknessAndResistance.AddWeakness(DamageKind.Piercing, 1);
+                            }
+                        },
+                        BonusToAttackRolls = (self, action, target) => {
+                            if (action != null && action.ActionId == ActionId.Seek) {
+                                return new Bonus(1, BonusType.Item, "Whisper Mail");
+                            }
+                            return null;
+                        }
+                    });
+                }
+
+                if (creature.BaseArmor.ItemName == RobesOfTheWarWizard) {
+                    creature.AddQEffect(new QEffect("Robes of the War Wizard", "You deal +2 damage per spell level against enemies with 15-feet, who you hit with a non-cantrip cone or emanation spell.") {
+                        BonusToDamage = (self, action, target) => {
+
+                            if (!action.HasTrait(Trait.Spell) || action.HasTrait(Trait.Cantrip) || self.Owner.DistanceTo(target) > 3) {
+                                return null;
+                            }
+
+                            SpellVariant? varient = action.ChosenVariant;
+                            DependsOnActionsSpentTarget? vas = action.Target is DependsOnActionsSpentTarget ? (DependsOnActionsSpentTarget)action.Target : null;
+
+                            if (vas != null && !( (action.ActuallySpentActions == 1 && (vas.IfOneAction is EmanationTarget || vas.IfOneAction is ConeAreaTarget)) || (action.ActuallySpentActions == 2 && (vas.IfTwoActions is EmanationTarget || vas.IfTwoActions is ConeAreaTarget))
+                            || (action.ActuallySpentActions == 3 && (vas.IfThreeActions is EmanationTarget || vas.IfThreeActions is ConeAreaTarget))) ) {
+                                return null;
+                            } else if (vas == null && varient != null && !(varient.TargetInThisVariant is EmanationTarget || varient.TargetInThisVariant is ConeAreaTarget)) {
+                                return null;
+                            } else if (vas == null && varient == null && !(action.Target is EmanationTarget || action.Target is ConeAreaTarget)) {
+                                return null;
+                            }
+
+                            return new Bonus(2 * action.SpellLevel, BonusType.Item, "Robes of the War Wizard", true);
+                        },
+                        StateCheck = self => {
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Acid, 1);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Cold, 1);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Fire, 1);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Electricity, 1);
+                        }
+                    });
+                }
+
+                if (creature.BaseArmor.ItemName == GreaterRobesOfTheWarWizard) {
+                    creature.AddQEffect(new QEffect("Robes of the War Wizard", "You deal +3 damage per spell level against enemies with 15-feet, who you hit with a non-cantrip cone or emanation spell.") {
+                        BonusToDamage = (self, action, target) => {
+
+                            if (!action.HasTrait(Trait.Spell) || action.HasTrait(Trait.Cantrip) || self.Owner.DistanceTo(target) > 3) {
+                                return null;
+                            } 
+
+                            SpellVariant? varient = action.ChosenVariant;
+                            DependsOnActionsSpentTarget? vas = action.Target is DependsOnActionsSpentTarget ? (DependsOnActionsSpentTarget)action.Target : null;
+
+                            if (vas != null && !((action.ActuallySpentActions == 1 && (vas.IfOneAction is EmanationTarget || vas.IfOneAction is ConeAreaTarget)) || (action.ActuallySpentActions == 2 && (vas.IfTwoActions is EmanationTarget || vas.IfTwoActions is ConeAreaTarget))
+                            || (action.ActuallySpentActions == 3 && (vas.IfThreeActions is EmanationTarget || vas.IfThreeActions is ConeAreaTarget)))) {
+                                return null;
+                            } else if (vas == null && varient != null && !(varient.TargetInThisVariant is EmanationTarget || varient.TargetInThisVariant is ConeAreaTarget)) {
+                                return null;
+                            } else if (vas == null && varient == null && !(action.Target is EmanationTarget || action.Target is ConeAreaTarget)) {
+                                return null;
+                            }
+
+                            return new Bonus(3 * action.SpellLevel, BonusType.Item, "Robes of the War Wizard", true);
+                        },
+                        StateCheck = self => {
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Acid, 2);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Cold, 2);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Fire, 2);
+                            self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Electricity, 2);
+                        }
+                    });
+                }
+
+                if (creature.BaseArmor.ItemName == KrakenMail) {
+                    creature.AddQEffect(new QEffect() {
+                        Id = QEffectId.Swimming,
+                        BonusToAttackRolls = (self, action, target) => (self.Owner.HasEffect(QEffectId.AquaticCombat) || self.Owner.Occupies.Kind == TileKind.ShallowWater || self.Owner.Occupies.Kind == TileKind.Water) && action.ActionId == ActionId.Grapple ? new Bonus(2, BonusType.Status, "Kraken Mail", true) : null
+                    });
                 }
 
                 if (creature.BaseArmor.ItemName == DreadPlate) {
@@ -1166,7 +1490,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                                 (CheckResult, string) result = Checks.RollFlatCheck(10);
                                                 wandHolder.Occupies.Overhead(result.Item1 >= CheckResult.Success ? "Overcharge success!" : $"{wand.Name} was destoyed!", result.Item1 >= CheckResult.Success ? Color.Green : Color.Red, result.Item2, result.Item1 <= CheckResult.Failure ? $"{wand.Name} was permanantly destroyed from being overcharged!" : null);
                                                 if (result.Item1 <= CheckResult.Failure) {
-                                                    Sfxs.Play(SoundEffects.WandOverload);
+                                                    Sfxs.Play(SoundEffects.WandOverload, 1.2f);
                                                     wandHolder.HeldItems.Remove(wand);
                                                 }
                                             }

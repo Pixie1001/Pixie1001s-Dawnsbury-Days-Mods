@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Test drow encounter"/>
+  <property name="EncounterDescription" value="Dark sorcery blocks the party's way, channeled from some foul ritual that they've tracked back to a secluded temple to the demon queen of spiders built into the rocky walls. The only way forward is to descend into its maws, and face her servants at the heart of their dark mistress' power."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Temple of the Spider Queen"/>

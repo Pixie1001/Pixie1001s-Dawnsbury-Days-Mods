@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="Placeholder swarm test"/>
+  <property name="EncounterDescription" value="As the party approaches an intersection in the winding caverns, their ears are filled by the chittering of swarming rats... Corralled together by the scare conditions of the Below, so they can swarm over and consume large prey."/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Rat Swarm"/>
