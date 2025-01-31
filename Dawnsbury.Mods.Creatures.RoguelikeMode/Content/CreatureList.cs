@@ -154,6 +154,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return MerfolkKrakenborn.Create();
                 case ModEnums.CreatureId.UNICORN_FOAL:
                     return UnicornFoal.Create();
+                case ModEnums.CreatureId.MINNOW_OF_MULNOK:
+                    return MinnowOfMulnok.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -202,6 +204,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 0 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HOMUNCULUS);
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MINNOW_OF_MULNOK);
 
             // Level 1 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_ASSASSIN);

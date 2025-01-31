@@ -15,7 +15,7 @@ using Dawnsbury.Core.Animations.AuraAnimations;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L0
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class MinnowOfMulnok
@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L0
         {
             var creature = new Creature(new ModdedIllustration("ElementalChaosAssets\\Chapter1\\MinnowOfMulnok.png"),
                 "Minnow of Mulnok",
-                [Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.Fire],
+                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil],
                 0, 6, 7,
                 new Defenses(15, 6, 8, 3),
                 15,
@@ -63,13 +63,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L0
                     .WithActionCost(1)
                     .WithEffectOnSelf(async (CombatAction combatAction, Creature user) =>
                     {
-                        //await user.StrideAsync("Select where you want to stride.", allowPass: true);
-
-                        foreach (var creature in user.Battle.AllCreatures)
+                        for (int i = 0; i < user.Battle.AllCreatures.Count; i++)
                         {
-                            if (creature.FriendOfAndNotSelf(user) && creature.BaseName == "Minnow of Mulnok"/* && await creature.AskToUseReaction("Do you want to use your reaction to Stride?")*/)
+                            var creature = user.Battle.AllCreatures[i];
+
+                            if (creature.FriendOfAndNotSelf(user) && creature.BaseName == "Minnow of Mulnok")
                             {
                                 await creature.StrideAsync("Select where you want to stride.", allowPass: true);
+
+                                if (!user.Battle.AllCreatures.Contains(creature))
+                                {
+                                    i--;
+                                }
                             }
                         }
                     })
@@ -135,7 +140,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures.L0
                             }
                         }
 
-                        if (activeCount >= 1)
+                        if (activeCount >= (total - 1) / 4 + 1)
                         {
                             return AIConstants.ALWAYS;
                         }
