@@ -24,11 +24,46 @@ using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Tiles;
-using Dawnsbury.Modding;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Roller;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class UtilityFunctions {
+
+        internal static Creature AddNaturalWeapon(Creature creature, string naturalWeaponName, Illustration illustration, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null)
+        {
+            bool flag = traits.Contains(Trait.Finesse) || traits.Contains(Trait.Ranged);
+            int num = creature.Abilities.Strength;
+            if (flag)
+            {
+                num = Math.Max(num, creature.Abilities.Dexterity);
+            }
+
+            int proficiencyLevel = creature.ProficiencyLevel;
+            if (creature.Proficiencies.Get(Trait.Weapon) == Proficiency.Untrained)
+            {
+                creature.WithProficiency(Trait.Weapon, (Proficiency)(attackBonus - proficiencyLevel - num));
+            }
+
+            MediumDiceFormula mediumDiceFormula = DiceFormula.ParseMediumFormula(damage, naturalWeaponName, naturalWeaponName);
+            int additionalFlatBonus = mediumDiceFormula.FlatBonus - creature.Abilities.Strength;
+            Item item = new Item(illustration, naturalWeaponName, traits.Concat([Trait.Unarmed]).ToArray()).WithWeaponProperties(new WeaponProperties(mediumDiceFormula.DiceCount + "d" + (int)mediumDiceFormula.DieSize, damageKind)
+            {
+                AdditionalFlatBonus = additionalFlatBonus
+            });
+            additionalWeaponPropertyActions?.Invoke(item.WeaponProperties!);
+            if (creature.UnarmedStrike == null)
+            {
+                creature.UnarmedStrike = item;
+            }
+            else
+            {
+                creature.WithAdditionalUnarmedStrike(item);
+            }
+
+            return creature;
+        }
 
         internal static async Task<Tile?> GetChargeTiles(Creature self, MovementStyle movementStyle, int minimumDistance, string msg, Illustration img) {
             Tile startingPos = self.Occupies;
