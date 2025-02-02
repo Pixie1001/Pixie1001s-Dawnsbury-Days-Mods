@@ -120,6 +120,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 
+            RegisterEncounter<AlchemicalAmbushLv1>("AlchemicalAmbush.tmx", "AlchemicalAmbushLv1");
+            ModManager.RegisterEncounter<AlchemicalAmbushLv2>("AlchemicalAmbush.tmx");
+            RegisterEncounter<AlchemicalAmbushLv3>("AlchemicalAmbush.tmx", "AlchemicalAmbushLv3");
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");
@@ -177,6 +180,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<ChosenOfTheKrakenLv1>("ChosenOfTheKraken.tmx", "ChosenOfTheKrakenLv1");
             ModManager.RegisterEncounter<ChosenOfTheKrakenLv2>("ChosenOfTheKraken.tmx");
             RegisterEncounter<ChosenOfTheKrakenLv3>("ChosenOfTheKraken.tmx", "ChosenOfTheKrakenLv3");
+            ModManager.RegisterEncounter<BesetByMinnowsLv1>("BesetByMinnows1.tmx");
+            ModManager.RegisterEncounter<BesetByMinnowsLv2>("BesetByMinnows2.tmx");
+            ModManager.RegisterEncounter<BesetByMinnowsLv3>("BesetByMinnows3.tmx");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

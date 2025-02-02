@@ -127,7 +127,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             List<Item> itemList = Items.ShopItems.Where(item => levelRange(item.Level)).ToList();
 
-            List<Item> general = itemList.Where(item => (item.HasTrait(Trait.Potion) || item.HasTrait(Trait.Elixir) || item.HasTrait(Trait.Elixir)) && levelRange(item.Level)).ToList();
+            List<Item> general = itemList.Where(item => (item.HasTrait(Trait.Potion) || item.HasTrait(Trait.Elixir)) && levelRange(item.Level)).ToList();
             general = general.Concat(itemList.Where(item => item.HasTrait(Trait.Potion) && item.HasTrait(Trait.Healing) && levelRange(item.Level))).ToList();
 
             if (character.Spellcasting != null) {

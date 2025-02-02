@@ -257,6 +257,41 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect MonsterKnockdown()
+        {
+            return new QEffect("Knockdown", "When your Strike hits, you can spend an action to trip without a trip check.", ExpirationCondition.Never, null, IllustrationName.None)
+            {
+                Innate = true,
+                ProvideMainAction = delegate (QEffect qfGrab)
+                {
+                    Creature monster = qfGrab.Owner;
+                    IEnumerable<Creature> source = monster.Battle.AllCreatures.Where(delegate (Creature cr)
+                    {
+                        CombatAction combatAction2 = monster.Actions.ActionHistoryThisTurn.LastOrDefault()!;
+                        return (combatAction2 != null && combatAction2.CheckResult >= CheckResult.Success && combatAction2.HasTrait(Trait.Trip) && combatAction2.ChosenTargets.ChosenCreature == cr);
+                    });
+
+                    return new SubmenuPossibility(IllustrationName.Trip, "Knockdown")
+                    {
+                        Subsections =
+                    {
+                        new PossibilitySection("Knockdown")
+                        {
+                            Possibilities = source.Select((Func<Creature, Possibility>)delegate(Creature lt)
+                            {
+                                CombatAction combatAction = new CombatAction(monster, IllustrationName.Trip, "Trip " + lt.Name, [Trait.Melee], "Trip the target.", Target.Melee((Target t, Creature a, Creature d) => (!d.HasEffect(QEffectId.Unconscious) && !d.HasEffect(QEffectId.Prone)) ? 1.07374182E+09f : (-2.14748365E+09f)).WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable)).WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr)
+                                {
+                                    d.AddQEffect(QEffect.Prone());
+                                });
+                                return new ActionPossibility(combatAction);
+                            }).ToList()
+                        }
+                    }
+                    };
+                }
+            };
+        }
+
         public static QEffect PreyUpon() {
             return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you, unless they're also flanking you.") {
                 StateCheck = self => {
