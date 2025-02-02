@@ -88,6 +88,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         internal static ModdedIllustration LightHammer = new ModdedIllustration("RoguelikeModeAssets/Items/LightHammer.png");
         internal static ModdedIllustration Hatchet = new ModdedIllustration("RoguelikeModeAssets/Items/Hatchet.png");
         internal static ModdedIllustration SceptreOfTheSpider = new ModdedIllustration("RoguelikeModeAssets/Items/SceptreOfTheSpider.png");
+        internal static ModdedIllustration AlicornPike = new ModdedIllustration("RoguelikeModeAssets/Items/AlicornPike.png");
+        internal static ModdedIllustration AlicornDagger = new ModdedIllustration("RoguelikeModeAssets/Items/AlicornDagger.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");

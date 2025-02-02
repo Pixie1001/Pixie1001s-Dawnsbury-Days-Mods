@@ -149,7 +149,7 @@
   <properties>
    <property name="Id" value="Abyssal Handmaiden"/>
   </properties>
-  <image source="../../../../../../../Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
+  <image source="CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
  </tile>
  <tile id="25">
   <properties>
@@ -209,7 +209,7 @@
   <properties>
    <property name="Id" value="Merfolk Harrier"/>
   </properties>
-  <image source="CustomCreatures/Shortlist/DarkMerfolk256.png"/>
+  <image source="CustomCreatures/Shortlist/DarkMerfolk256.png" width="256" height="256"/>
  </tile>
  <tile id="2027">
   <properties>
@@ -221,7 +221,7 @@
   <properties>
    <property name="Id" value="Merfolk Brineblade"/>
   </properties>
-  <image source="Creatures/DarkPoet256.png"/>
+  <image source="Creatures/DarkPoet256.png" width="256" height="256"/>
  </tile>
  <tile id="2030">
   <properties>

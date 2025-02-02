@@ -86,6 +86,10 @@
 	<li>Owlbear.png</li>
 	<li>MerfolkKrakenborn.png</li>
 	<li>SceptreOfTheSpider.png</li>
+	<li>Unicorn.png</li>
+	<li>AlicornPike.png</li>
+	<li>AlicornDagger.png</li>
+	<li>MinnowOfMulnok.png</li>
 </ul>
 
 ## Volunteer Contributions

@@ -39,7 +39,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             battle.Cinematics.ExitCutscene();
 
             List<Creature> eggs = battle.AllCreatures.Where(cr => cr.Illustration == Illustrations.DemonicPustule).ToList();
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 4; i++) {
                 eggs.Remove(eggs.GetRandom());
             }
             foreach (Creature egg in eggs) {

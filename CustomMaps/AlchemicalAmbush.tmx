@@ -6,7 +6,7 @@
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Alchemical Ambush"/>
  </properties>
- <tileset firstgid="1" source="../../../../../../../Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/BasicTileset.tsx"/>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="17" height="14">
   <data encoding="csv">

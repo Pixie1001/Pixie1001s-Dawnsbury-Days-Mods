@@ -1,5 +1,6 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
@@ -28,6 +29,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Agile, Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
             .AddQEffect(new QEffect() {
                 StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
+            })
+            .AddQEffect(new QEffect() {
+                StateCheckWithVisibleChanges = async self => {
+                    if (self.Owner.Battle.Encounter.CharacterLevel <= 3 && CampaignState.Instance != null && CampaignState.Instance.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Tags.TryGetValue("SeenBebilithSpawn", out string val) == false) {
+                        CampaignState.Instance.Tags.Add("SeenBebilithSpawn", "true");
+                        var advisor1 = self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToList().GetRandom();
+                        var advisor2 = self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr != advisor1).ToList().GetRandom();
+                        advisor1.Battle.Cinematics.EnterCutscene();
+                        Sfxs.Play(SoundEffects.BebilithHiss, 0.5f);
+                        await advisor1.Battle.Cinematics.LineAsync(self.Owner, "Krahhh...!", null);
+                        await advisor1.Battle.Cinematics.LineAsync(advisor1, "W-what is that!?", null);
+                        await advisor1.Battle.Cinematics.LineAsync(advisor2, "It looks like a Bebilith demon...? We should be careful. I've read that their rotting venom can be crippling. If we let it progress, we won't be able to fully recover from its effects until we return to Dawnsbury.", null);
+                        advisor1.Battle.Cinematics.ExitCutscene();
+                    }
+                }
             })
             .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
             .AddQEffect(QEffect.AttackOfOpportunity())

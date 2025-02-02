@@ -160,7 +160,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<MysteriousRoom_ArtRoomL2>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL2");
             RegisterEncounter<MysteriousRoom_ArtRoomL3>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL3");
             RegisterEncounter<HatcheryLv1>("Hatchery.tmx", "HatcheryLv1");
-            RegisterEncounter<HatcheryLv2>("Hatchery.tmx", "HatcheryLv2");
+            ModManager.RegisterEncounter<HatcheryLv2>("Hatchery.tmx");
             RegisterEncounter<HatcheryLv3>("Hatchery.tmx", "HatcheryLv3");
             RegisterEncounter<GraveEncounterLv1>("GraveEncounter.tmx", "GraveEncounterLv1");
             RegisterEncounter<GraveEncounterLv2>("GraveEncounter.tmx", "GraveEncounterLv2");

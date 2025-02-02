@@ -26,6 +26,7 @@ using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -313,7 +314,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 await battle.Cinematics.NarratorLineAsync("How does the party proceed?", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Arcana);
-                SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Acrobatics);
+                SCOption opt2 = GetBestPartyMember(battle, level, -2, Skill.Acrobatics);
 
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} thinks they might be able to disarm the magical traps.",
@@ -338,7 +339,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2));
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It takes several hour to completely dismantle the traps and ensure the Duergar haven't left any nasty surprises.", null);
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"But when {opt1.Nominee.Name} is done, the party continues with several new scrolls to show for it, diligently copied from the traps.", null);
+                            await battle.Cinematics.NarratorLineAsync($"But when {opt1.Nominee.Name} is done, the party continues with several new scrolls to show for it, diligently copied from the traps.", null);
 
                             int itemLevel = battle.Encounter.CharacterLevel <= 2 ? 3 : 5;
 
@@ -364,6 +365,176 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
+
+            events.Add(new SkillChallenge("Injured Unicorn", async (level, battle) => {
+                await battle.Cinematics.NarratorLineAsync("As the party treks through the jagged stalagmites, they're drawn towards a soft, almost musical whinny of distress.", null);
+                await battle.Cinematics.NarratorLineAsync($"Venturing closer, they soon locate the source of the disturbance - an injured unicorn foal, curling up in a rocky alcove, collapsed from a gorey wound upon its hind leg.", null);
+                await battle.Cinematics.NarratorLineAsync("What could possibly have driven such a pure creature to wander into a place such as this?", null);
+                battle.Cinematics.ExitCutscene();
+                SCOption opt1 = GetBestPartyMember(battle, level, 2, Skill.Medicine, Skill.Nature);
+                SCOption opt2 = GetBestPartyMember(battle, level, 2, (user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet.IdentityChoice.Alignment) ? 2 : 0, Skill.Diplomacy);
+                SCOption opt3 = GetBestPartyMember(battle, level, -4, Skill.Arcana, Skill.Occultism);
+
+                List<string> choices = new List<string>() {
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they might be able to nurse the creature back to health",
+                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests beseeching the unicorn to use the last of its strength to aid the party with a blessing.",
+                    $"{opt3.printInfoTag()} With an uneasy glance, {opt3.Nominee.Name} apprehensively mentions that the dying creature's horn could be used to forge a powerful Alicorn weapon."
+                };
+
+                var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+                    $"Kneeling around the injured creature, the party ponders their options.",
+                    choices.ToArray()
+                );
+                battle.Cinematics.EnterCutscene();
+                CheckResult result = CheckResult.Failure;
+
+                switch (choice.Index) {
+                    case 0:
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} believes they might be able to nurse the creature back to health.", null);
+                        result = opt1.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts and many long hours spent sitting with the creature, the poor creature has already lost too much blood, the infection spread too far up the weakening creature's body.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The party stays with it till it's final moments, head resting up {opt1.Nominee.Name}'s lap until it finally grows still.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The unicorn whinnies in pain as {opt1.Nominee.Name} cauterises the infection from its wound and bandages its leg, nursing the creature back to health with what meager paultices can be produced from the scant fungal life that struggles to grow in the Below.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Though things seem uncertain at times, the unicorn eventually begins to regain its celestial glow... Finally regaining enough strength to magically restore itself back to health.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Nuzzling up to {opt1.Nominee.Name}'s cheek fondly, it seems determined to repay the party by fighting along their side until they're able to safely guide it back to the surface.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The Unicorn Foal will aid {opt1.Nominee.Name} in battle until it perishes, or the party returns to town.", null);
+                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion", null, null));
+                        }
+                        break;
+                    case 1:
+                        await battle.Cinematics.NarratorLineAsync($"With a regretful look towards the creature's nasty wound, {opt2.Nominee.Name} kneels beside the creature, beseeching it to use the last of its strength to help them avenge its death.", null);
+                        result = opt2.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The creature's big sorrowful eyes harden into determination as it listens to {opt2.Nominee.Name}'s request, before squeezing its eyes shut in concentration.", null);
+                            await battle.Cinematics.NarratorLineAsync("The beautiful creature seems to glow momentarily with a warm light that bathes the party... When it finally fades, the creature's eyes do not open.", null);
+                            await battle.Cinematics.NarratorLineAsync("The party gains 'Unicorn Blessing', increasing their max HP by 5 and their saving throws by 1 until they return to town.", null);
+                            foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
+                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null));
+                            }
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"But the creature merely shakes its head, clinging to some greater, unknown purpose - or perhaps simply finding {opt2.Nominee.Name} unworthy of such a boon - as it rises to its feet and limps off into the caverns to die.", null);
+                        }
+                        break;
+                    case 2:
+                        await battle.Cinematics.NarratorLineAsync($"Kneeling by the creature, {opt3.Nominee.Name} apprehensively attempts to soothe the creature with one hand, while raising their knife in the other.", null);
+                        await battle.Cinematics.NarratorLineAsync($"Moments before they bring the blade down, the creature startles - emitting a hard purple light, cursing {opt3.Nominee.Name} for their cruelty even as they bring the knife down into the pure creature's jugular.", null);
+                        result = opt3.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet despite the terrible deed, it yields no spoils. Without the proper tools and with few smiths willing to work with such forbidden materials, X is unable to craft the alicorn into a usable weapon.", null);
+                            await battle.Cinematics.NarratorLineAsync("The unicorn died for nothing.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until their next long rest.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The party watches on guiltily as {opt3.Nominee.Name} sets about carving up the majestic creature and inscribing the forbidden runes required to forge the poached spoils into a righteous Alicorn armament.", null);
+                            var chosenWeapon = await CommonQuestions.OfferDialogueChoice(opt3.Nominee,
+                                $"{opt3.Nominee} uses the unicorn's carcass to forge...",
+                                "An easily handled Alicorn Dagger.", "A warding Alicorn Pike"
+                            );
+                            await battle.Cinematics.NarratorLineAsync($"The party gains an Alicorn {(chosenWeapon.Index == 0 ? "Dagger" : "Pike")}, but {opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until they return to turn.", null);
+                            Item AlicornWeapon;
+                            if (chosenWeapon.Index == 0) {
+                                AlicornWeapon = Items.CreateNew(CustomItems.AlicornDagger);
+                            } else {
+                                AlicornWeapon = Items.CreateNew(CustomItems.AlicornPike);
+                            }
+                            if (level == 2) {
+                                AlicornWeapon = AlicornWeapon.WithModificationPlusOne();
+                            }
+                            if (level >= 3) {
+                                AlicornWeapon = AlicornWeapon.WithModificationPlusOneStriking();
+                            }
+                            battle.CampaignState.CommonLoot.Add(AlicornWeapon);
+                        }
+                        opt3.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null));
+                        break;
+                }
+            }));
+
+            //events.Add(new SkillChallenge("The Rat Fiend's Offer", async (level, battle) => {
+            //    await battle.Cinematics.NarratorLineAsync("As the party treks through the jagged stalagmites, they're drawn towards a soft, almost musical whinny of distress.", null);
+            //    await battle.Cinematics.NarratorLineAsync($"Venturing closer, they soon locate the source of the disturbance - an injured unicorn foal, curling up in a rocky alcove, collapsed from a gorey wound upon its hind leg.", null);
+            //    await battle.Cinematics.NarratorLineAsync("What could possibly have driven such a pure creature to wander into a place such as this?", null);
+            //    battle.Cinematics.ExitCutscene();
+            //    SCOption opt1 = GetBestPartyMember(battle, level, 2, Skill.Medicine, Skill.Nature);
+            //    SCOption opt2 = GetBestPartyMember(battle, level, 2, (user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet.IdentityChoice.Alignment) ? 2 : 0, Skill.Diplomacy);
+            //    SCOption opt3 = GetBestPartyMember(battle, level, -4, Skill.Arcana, Skill.Occultism);
+
+            //    List<string> choices = new List<string>() {
+            //        $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they might be able to nurse the creature back to health",
+            //        $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests beseeching the unicorn to use the last of its strength to aid the party with a blessing.",
+            //        $"{opt3.printInfoTag()} With an uneasy glance, {opt3.Nominee.Name} apprehensively mentions that the dying creature's horn could be used to forge a powerful Alicorn weapon."
+            //    };
+
+            //    var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+            //        $"Kneeling around the injured creature, the party ponders their options.",
+            //        choices.ToArray()
+            //    );
+            //    battle.Cinematics.EnterCutscene();
+            //    CheckResult result = CheckResult.Failure;
+
+            //    switch (choice.Index) {
+            //        case 0:
+            //            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} believes they might be able to nurse the creature back to health.", null);
+            //            result = opt1.Roll();
+            //            if (result <= CheckResult.Failure) {
+            //                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts and many long hours spent sitting with the creature, the poor creature has already lost too much blood, the infection spread too far up the weakening creature's body.", null);
+            //                await battle.Cinematics.NarratorLineAsync($"The party stays with it till it's final moments, head resting up {opt1.Nominee.Name}'s lap until it finally grows still.", null);
+            //            } else if (result >= CheckResult.Success) {
+            //                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The unicorn whinnies in pain as {opt1.Nominee.Name} cauterises the infection from its wound and bandages its leg, nursing the creature back to health with what meager paultices can be produced from the scant fungal life that struggles to grow in the Below.", null);
+            //                await battle.Cinematics.NarratorLineAsync($"Though things seem uncertain at times, the unicorn eventually begins to regain its celestial glow... Finally regaining enough strength to magically restore itself back to health.", null);
+            //                await battle.Cinematics.NarratorLineAsync($"Nuzzling up to {opt1.Nominee.Name}'s cheek fondly, it seems determined to repay the party by fighting along their side until they're able to safely guide it back to the surface.", null);
+            //                await battle.Cinematics.NarratorLineAsync($"The Unicorn Foal will aid {opt1.Nominee.Name} in battle until it perishes, or the party returns to town.", null);
+            //                opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion", null, null));
+            //            }
+            //            break;
+            //        case 1:
+            //            await battle.Cinematics.NarratorLineAsync($"With a regretful look towards the creature's nasty wound, {opt2.Nominee.Name} kneels beside the creature, beseeching it to use the last of its strength to help them avenge its death.", null);
+            //            result = opt2.Roll();
+            //            if (result <= CheckResult.Failure) {
+            //                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The creature's big sorrowful eyes harden into determination as it listens to {opt2.Nominee.Name}'s request, before squeezing its eyes shut in concentration.", null);
+            //                await battle.Cinematics.NarratorLineAsync("The beautiful creature seems to glow momentarily with a warm light that bathes the party... When it finally fades, the creature's eyes do not open.", null);
+            //                await battle.Cinematics.NarratorLineAsync("The party gains 'Unicorn Blessing', increasing their max HP by 5 and their saving throws by 1 until they return to town.", null);
+            //                foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
+            //                    pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null));
+            //                }
+            //            } else if (result >= CheckResult.Success) {
+            //                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"But the creature merely shakes its head, clinging to some greater, unknown purpose - or perhaps simply finding {opt2.Nominee.Name} unworthy of such a boon - as it rises to its feet and limps off into the caverns to die.", null);
+            //            }
+            //            break;
+            //        case 2:
+            //            await battle.Cinematics.NarratorLineAsync($"Kneeling by the creature, {opt3.Nominee.Name} apprehensively attempts to soothe the creature with one hand, while raising their knife in the other.", null);
+            //            await battle.Cinematics.NarratorLineAsync($"Moments before they bring the blade down, the creature startles - emitting a hard purple light, cursing {opt3.Nominee.Name} for their cruelty even as they bring the knife down into the pure creature's jugular.", null);
+            //            result = opt3.Roll();
+            //            if (result <= CheckResult.Failure) {
+            //                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet despite the terrible deed, it yields no spoils. Without the proper tools and with few smiths willing to work with such forbidden materials, X is unable to craft the alicorn into a usable weapon.", null);
+            //                await battle.Cinematics.NarratorLineAsync("The unicorn died for nothing.", null);
+            //                await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until their next long rest.", null);
+            //            } else if (result >= CheckResult.Success) {
+            //                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The party watches on guiltily as {opt3.Nominee.Name} sets about carving up the majestic creature and inscribing the forbidden runes required to forge the poached spoils into a righteous Alicorn armament.", null);
+            //                var chosenWeapon = await CommonQuestions.OfferDialogueChoice(opt3.Nominee,
+            //                    $"{opt3.Nominee} uses the unicorn's carcass to forge...",
+            //                    "An easily handled Alicorn Dagger.", "A warding Alicorn Pike"
+            //                );
+            //                await battle.Cinematics.NarratorLineAsync($"The party gains an Alicorn {(chosenWeapon.Index == 0 ? "Dagger" : "Pike")}, but {opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until they return to turn.", null);
+            //                Item AlicornWeapon;
+            //                if (chosenWeapon.Index == 0) {
+            //                    AlicornWeapon = Items.CreateNew(CustomItems.AlicornDagger);
+            //                } else {
+            //                    AlicornWeapon = Items.CreateNew(CustomItems.AlicornPike);
+            //                }
+            //                if (level == 2) {
+            //                    AlicornWeapon = AlicornWeapon.WithModificationPlusOne();
+            //                }
+            //                if (level >= 3) {
+            //                    AlicornWeapon = AlicornWeapon.WithModificationPlusOneStriking();
+            //                }
+            //                battle.CampaignState.CommonLoot.Add(AlicornWeapon);
+            //            }
+            //            opt3.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null));
+            //            break;
+            //    }
+            //}));
         }
 
         private static SCOption GetBestPartyMember(TBattle battle, int level, int difficultyModifier, Func<Creature, Skill, int>? bonusLogic, params Skill[] skills) {

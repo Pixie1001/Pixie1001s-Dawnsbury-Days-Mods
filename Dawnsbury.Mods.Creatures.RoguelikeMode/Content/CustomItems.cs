@@ -79,6 +79,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         //public static List<ItemName> items = new List<ItemName>();
 
+        public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
+            var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
+                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, ModTraits.Roguelike)
+            .WithDescription("An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.\n\nWhilst wielding this pike, you gain Regeneration 4.")
+            .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
+                .WithAdditionalDamage("1d4", DamageKind.Good)
+            );
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect("Regeneration", "You heal for 4 at the beginning of each turn, while holding the Alicorn Pike", ExpirationCondition.Ephemeral, wielder, IllustrationName.PositiveAttunement) {
+                    Value = 4,
+                    StartOfYourPrimaryTurn = async (self, owner) => {
+                        await owner.HealAsync("4", CombatAction.CreateSimple(owner, "Regeneration"));
+                    }
+                });
+            };
+
+            return item;
+        });
+
+        public static ItemName AlicornDagger { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornDagger", itemName => {
+            var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 35, 3,
+                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
+            .WithMainTrait(Trait.Dagger)
+            .WithDescription("An illustrious dagger, forged from the horn of a unicorn and infused with their goodly healing powers.\n\nWhilst wielding this dagger, you gain Regeneration 4.")
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)
+                .WithAdditionalDamage("1d4", DamageKind.Good)
+            );
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect("Regeneration", "You heal for 4 at the beginning of each turn, while holding the Alicorn Dagger", ExpirationCondition.Ephemeral, wielder, IllustrationName.PositiveAttunement) {
+                    Value = 4,
+                    StartOfYourPrimaryTurn = async (self, owner) => {
+                        await owner.HealAsync("4", CombatAction.CreateSimple(owner, "Regeneration"));
+                    }
+                });
+            };
+
+            return item;
+        });
+
         public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
             Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
         .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
@@ -438,7 +479,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
 
                         if (d.HasTrait(ModTraits.Spider) || d.Name.ToLower().Contains("spider")) {
-                            return new KindedDamage(DiceFormula.FromText("1d4"), DamageKind.Slashing);
+                            return new KindedDamage(DiceFormula.FromText("1d6"), DamageKind.Slashing);
                         }
                         return null;
                     }
@@ -1003,13 +1044,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithWornAt(Trait.Cloak)
             .WithDescription("{i}This haggard fur cloak is has a musky, feral smell to it and seems to pulsate warmly... as if it were not simply a cloak, but the flesh of a living, breathing thing.{/i}\n\n" +
             "You have a +2 item bonus to Demoralize check made against animals, and gain the benefits of the Intimidating Glare feat.\n\n" +
-            "Once per day, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn.")
+            "Once per encounter, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn.")
             .WithItemAction((item, user) => {
                 if (user.FindQEffect(QEffectIds.ShifterFurs) != null) {
                     return null;
                 }
 
-                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Frequency{/b} once per day\n\n{b}Target{/b} Self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
+                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Frequency{/b} once per encounter\n\n{b}Target{/b} self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
                 .WithActionCost(0)
                 .WithSoundEffect(SfxName.BeastRoar)
                 .WithEffectOnSelf(caster => {
@@ -1094,7 +1135,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             };
                             goto case 10;
                         case 10:
-                            transform.Description += " Whilst transformed, they cannot cast spells.";
+                            transform.Description += " Whilst transformed, you cannot cast spells.";
                             user.AddQEffect(transform);
                             break;
                         default:
@@ -1110,6 +1151,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
                 qfCoA.BonusToSkillChecks = (skill, action, d) => action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "shifter furs") : null;
                 qfCoA.Id = QEffectId.IntimidatingGlare;
+                qfCoA.EndOfCombat = async (self, won) => {
+                    ItemModification used = item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay);
+                    if (used != null) {
+                        item.ItemModifications.Remove(used);
+                    }
+                };
             });
         });
 
@@ -1176,7 +1223,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -1190,7 +1237,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             CreateWand(SpellId.TrueStrike, null);
             CreateWand(SpellId.AcidArrow, null);
             CreateWand(SpellId.Barkskin, null);
-            CreateWand(SpellId.MageArmor, null);
+            CreateWand(SpellId.ObscuringMist, null);
             CreateWand(SpellId.Bane, null);
             CreateWand(SpellId.Grease, null);
             CreateWand(SpellId.MagicWeapon, null);

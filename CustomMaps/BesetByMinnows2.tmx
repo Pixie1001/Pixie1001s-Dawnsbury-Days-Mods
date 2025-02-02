@@ -6,7 +6,7 @@
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Beset by Minnows"/>
  </properties>
- <tileset firstgid="1" source="../../../../../../../Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/BasicTileset.tsx"/>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <imagelayer id="7" name="Image Layer 1">
   <image source="ChosenOfTheKraken.jpg" width="4352" height="4608"/>

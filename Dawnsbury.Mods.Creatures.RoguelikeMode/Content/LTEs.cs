@@ -155,6 +155,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
+            LongTermEffects.EasyRegister("Unicorn's Curse", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Unicorn's Curse", $"You've been cursed by a unicorn for attempting to poach it, reducing your max HP by 5 and your saves by 1 until you take a long rest.") {
+                    StateCheck = self => {
+                        self.Owner.DrainedMaxHPDecrease += 5;
+                    },
+                    BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(-1, BonusType.Untyped, "Unicorn's Curse") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null))
+                };
+            });
+
+            LongTermEffects.EasyRegister("Unicorn's Blessing", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Unicorn's Blessing", $"You've been blessed by a unicorn using the last of its dying strength, increasing your max HP by 5 and your saves by +1 until you take a long rest.") {
+                    StartOfCombat = async self => self.Owner.MaxHP += 5,
+                    BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(1, BonusType.Untyped, "Unicorn's Blessing") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null))
+                };
+            });
+
             LongTermEffects.EasyRegister("Guilt", LongTermEffectDuration.UntilLongRest, (_, val) => {
                 return new QEffect("Guilt", $"Your failures weigh heavy on your conscience. You gain a -{val} status penalty to Will saves.") {
                     Value = val,
