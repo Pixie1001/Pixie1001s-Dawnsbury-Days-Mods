@@ -22,7 +22,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            var creature = new Creature(new ModdedIllustration("ElementalChaosAssets\\Chapter1\\MinnowOfMulnok.png"),
+            var creature = new Creature(Illustrations.MInnowOfMulnok,
                 "Minnow of Mulnok",
                 [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil],
                 0, 6, 7,

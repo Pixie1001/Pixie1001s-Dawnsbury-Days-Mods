@@ -40,7 +40,9 @@
             MERFOLK_KRAKENBORN,
             HUNTING_SHARK,
             UNICORN_FOAL,
-            MINNOW_OF_MULNOK
+            MINNOW_OF_MULNOK,
+            BODYGUARD,
+            ALCHEMIST
         }
 
         internal enum ObjectId

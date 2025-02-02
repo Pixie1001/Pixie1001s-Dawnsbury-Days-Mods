@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="40" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="42" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -240,5 +240,17 @@
    <property name="Id" value="Minnow of Mulnok"/>
   </properties>
   <image source="CustomCreatures/MinnowOfMulnok.png" width="256" height="256"/>
+ </tile>
+ <tile id="2033">
+  <properties>
+   <property name="Id" value="Bodyguard"/>
+  </properties>
+  <image source="CustomCreatures/DrowTempleGuard.png" width="256" height="256"/>
+ </tile>
+ <tile id="2034">
+  <properties>
+   <property name="Id" value="Alchemist"/>
+  </properties>
+  <image source="CustomCreatures/DrowArcanist.png" width="256" height="256"/>
  </tile>
 </tileset>

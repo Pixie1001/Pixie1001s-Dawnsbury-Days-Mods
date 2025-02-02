@@ -120,6 +120,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 
+            RegisterEncounter<AlchemicalAmbushLv1>("AlchemicalAmbush.tmx", "AlchemicalAmbushLv1");
+            ModManager.RegisterEncounter<AlchemicalAmbushLv2>("AlchemicalAmbush.tmx");
+            RegisterEncounter<AlchemicalAmbushLv3>("AlchemicalAmbush.tmx", "AlchemicalAmbushLv3");
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");

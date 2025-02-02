@@ -156,6 +156,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return UnicornFoal.Create();
                 case ModEnums.CreatureId.MINNOW_OF_MULNOK:
                     return MinnowOfMulnok.Create();
+                case ModEnums.CreatureId.ALCHEMIST:
+                    return Alchemist.Create();
+                case ModEnums.CreatureId.BODYGUARD:
+                    return Bodyguard.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -203,6 +207,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.CRAWLING_HAND);
 
             // Level 0 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.BODYGUARD);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HOMUNCULUS);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MINNOW_OF_MULNOK);
 
@@ -228,6 +233,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_NECROMANCER);
 
             // Level 2 Creatures - Other
+            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ALCHEMIST);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.UNSEEN_GUARDIAN);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.TREASURE_DEMON);
             RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.NUGLUB);
