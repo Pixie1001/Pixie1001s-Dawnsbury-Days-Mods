@@ -25,7 +25,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.DrowArcanist,
                 "Alchemist",
-                [Trait.Human, Trait.Humanoid, Trait.Chaotic],
+                [Trait.Elf, Trait.Humanoid, Trait.Chaotic],
                 2, 8, 5,
                 new Defenses(17, 8, 11, 6),
                 28,
