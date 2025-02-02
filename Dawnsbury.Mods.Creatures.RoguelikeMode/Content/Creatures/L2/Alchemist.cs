@@ -15,6 +15,7 @@ using Microsoft.Xna.Framework;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -25,7 +26,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.DrowArcanist,
                 "Alchemist",
-                [Trait.Elf, Trait.Humanoid, Trait.Chaotic],
+                [ModTraits.Drow, Trait.Elf, Trait.Humanoid, Trait.Chaotic],
                 2, 8, 5,
                 new Defenses(17, 8, 11, 6),
                 28,
