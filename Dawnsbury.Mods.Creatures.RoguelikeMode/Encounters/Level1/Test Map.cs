@@ -60,6 +60,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Campaign.Encounters.Evil_from_the_Stars;
+using Dawnsbury.Campaign.LongTerm;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
 
@@ -78,6 +79,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
                 // TODO: Check why effect isn't removed
 
                 Creature pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
+
                 //pm.AddQEffect(new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
                 //    StartOfCombat = async self => {
                 //        Creature companion = CreatureList.Creatures[ModEnums.CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);

@@ -128,6 +128,27 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
+            LongTermEffects.EasyRegister("Curse of the Rat Fiend", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Curse of the Rat Fiend", "Each enemy you defeat has a 25% chance of spawning a Giant Rat from its corpse.") {
+                    AfterYouDealDamage = async (owner, action, defender) => {
+                        if (defender.HP <= 0 && defender.OwningFaction.EnemyFactionOf(owner.OwningFaction) && defender.BaseName != "Giant Rat") {
+                            if (R.NextD20() <= 15) {
+                                return;
+                            }
+                            var rat = MonsterStatBlocks.CreateGiantRat();
+                            if (owner.Level == 2) {
+                                rat = rat.ApplyEliteAdjustments();
+                            } else if (owner.Level == 3) {
+                                rat = rat.ApplyEliteAdjustments(true);
+                            }
+                            owner.Battle.SpawnCreature(rat, defender.OwningFaction, defender.Occupies);
+                            owner.Occupies.Overhead("Curse of the Rat Fiend!", Color.Red, $"A giant rat crawls up out of {defender.Name}'s corpse, thanks to the curse of the Rat Fiend.");
+                        }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")),
+                };
+            });
+
             LongTermEffects.EasyRegister("Drow Renegade Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
                     ExpiresAt = ExpirationCondition.Never,
