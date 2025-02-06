@@ -27,6 +27,8 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -154,7 +156,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         break;
                     case 1:
-                        // TODO: Fill this out for poison immunity
                         await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} recreates the ritual to the best of their ability, before sitting down and pressing their head up against the mushroom.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
@@ -428,7 +429,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until their next long rest.", null);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The party watches on guiltily as {opt3.Nominee.Name} sets about carving up the majestic creature and inscribing the forbidden runes required to forge the poached spoils into a righteous Alicorn armament.", null);
-                            var chosenWeapon = await CommonQuestions.OfferDialogueChoice(opt3.Nominee,
+                            var chosenWeapon = await CommonQuestions.OfferDialogueChoice(opt3.Nominee, GetNarrator(),
                                 $"{opt3.Nominee} uses the unicorn's carcass to forge...",
                                 "An easily handled Alicorn Dagger.", "A warding Alicorn Pike"
                             );
@@ -513,6 +514,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"And all at once, a large stack of bone chips are reluctantly swept towards their side of the table.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
+                            opt1.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
                             opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null));
                         }
                         break;
@@ -531,6 +533,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, X's superior guile and sleight of hand makes victory an inevitability.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
+
+                            opt2.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
+                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null));
                         }
                         break;
                     case 2:

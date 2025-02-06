@@ -48,7 +48,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Content\Creatures\L4\" />
 	  <Folder Include="Content\Objects\L-1\" />
 	  <Folder Include="Content\Objects\L0\" />
 	  <Folder Include="Content\Objects\L3\" />

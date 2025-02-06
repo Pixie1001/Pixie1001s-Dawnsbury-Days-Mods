@@ -28,9 +28,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class AbyssalHandmaiden {
         public static Creature Create() {
-            // TODO: Aura of madness not working
-            // TODO: Not using bite on single targets
-            // TODO: Bite short desc needs an update to explain grab and poison
             // CREATURE - Abyssal Handmaiden
             int radius = 1;
             Item legAtk = new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6 }).WithWeaponProperties(new WeaponProperties("2d6", DamageKind.Piercing));

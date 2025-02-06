@@ -621,6 +621,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static TileQEffect Maelstrom(int dc, Tile owner, Creature source) {
+            return new TileQEffect(owner) {
+                TileQEffectId = QEffectIds.Maelstrom,
+                AfterCreatureEntersHere = async creature => {
+                    if (!(creature.OwningFaction.IsPlayer || creature.OwningFaction.IsGaiaFriends)) {
+                        return;
+                    }
+
+                    CombatAction ca = new CombatAction(source, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
+                    .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
+                    .WithSoundEffect(SfxName.ElementalBlastWater)
+                    .WithEffectOnEachTarget(async (spell, user, d, result) => {
+                        await CommonSpellEffects.DealBasicDamage(spell, user, d, result, DiceFormula.FromText($"1d8", "Maelstrom"), DamageKind.Bludgeoning);
+                    });
+
+                    ca.ChosenTargets.ChosenCreatures.Add(creature);
+                    ca.ChosenTargets.ChosenCreature = creature;
+                    ca.AllExecute();
+                },
+                TransformsTileIntoHazardousTerrain = true
+            };
+        }
+
         /// <summary>
         /// Creature with this qeffect should be counted as two creatures for the purpose of encounter balancing. You can use it to create a boss monster with appropriate stats, without also giving them a frustrating amount of AC.
         /// </summary>

@@ -75,10 +75,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using HarmonyLib;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode
-{
-
-    // TODO: Add modular AI functions to making adding new enemies easier and lcean up creature list
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class Loader
@@ -94,7 +91,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             "{b}Additional programming: {/b} SudoProgramming, Dinglebob\n" +
             "{b}Playtesting: {/b} Petr, Beets, SudoProgramming";
 
-        internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
+        internal static Dictionary<CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<CreatureId, Func<Encounter?, Creature>>();
 
         [DawnsburyDaysModMainMethod]
         public static void LoadMod()
@@ -215,6 +212,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             ModManager.RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx");
             ModManager.RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx");
             ModManager.RegisterEncounter<Boss_FrozenTemple>("FrozenTemple.tmx");
+            ModManager.RegisterEncounter<Boss_CoralCourt>("Boss_CourtOfTheCoralQueen.tmx");
 
             // Skill Challenges
             RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");
@@ -233,13 +231,3 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
     }
 }
-
-
-// TODO: Add this to class and skill feats for roguelike specific unlocks
-            //.WithPrerequisite(sheet => {
-            //     if (CampaignState.Instance?.AdventurePath?.Name == "Roguelike Mode") {
-            //         return true;
-            //     } else {
-            //         return false;
-            //     }
-            // }, "Roguelike mode check");

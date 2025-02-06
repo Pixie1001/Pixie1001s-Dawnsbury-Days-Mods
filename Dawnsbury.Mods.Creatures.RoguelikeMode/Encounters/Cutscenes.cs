@@ -180,5 +180,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             await battle.Cinematics.LineAsync(witch, "But you pretty little morsels will do just fine.", null);
             battle.Cinematics.ExitCutscene();
         }
+
+        public async static Task CourtOfTheCorralQueen(TBattle battle) {
+            Creature witch = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Merfolk Sea Witch");
+            witch.MainName = "Queen Ursula";
+            witch.Subtitle = "The Coral Queen";
+
+            battle.Cinematics.EnterCutscene();
+            Sfxs.SlideIntoSong(Songname.HighTensionBegins);
+            await battle.Cinematics.LineAsync(witch, "Ah, petitioners to my court! What a novelty! It has been ohhh so long since land dwellers visited my domain...", null);
+            await battle.Cinematics.LineAsync(witch, "Are you here to witness the rousing of the deep ones after their great slumber? Oh, it will be a glorious sight indeed.", null);
+            await battle.Cinematics.LineAsync(witch, "The oceans will turn red with the blood of our fickle surface cousins, who cast my people out to the sunless aquifers of the Below... Here, let me show just a taste of their ancient power!", null);
+            Sfxs.SlideIntoSong(SoundEffects.OceanTheme);
+            battle.Cinematics.ExitCutscene();
+        }
     }
 }

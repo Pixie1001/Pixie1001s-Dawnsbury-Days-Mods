@@ -90,6 +90,8 @@
 	<li>AlicornPike.png</li>
 	<li>AlicornDagger.png</li>
 	<li>MinnowOfMulnok.png</li>
+	<li>DrowAlchemist.png</li>
+	<li>MerfolkSeaWitch.png</li>
 </ul>
 
 ## Volunteer Contributions

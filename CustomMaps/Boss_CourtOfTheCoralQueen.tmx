@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="19" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
+ <properties>
+  <property name="EncounterDescription">The coordinates of the ritual site point to deep within the flooded passageways of the below which the corrupted merfolk that inhabit the Below call their home. Legend has it that they were once banished from the surface world for offering up their kin as sacrifices to great nautical leviathans, worshipping the cruel and capricious monsters as false idols. Perhaps the Starborn are helping them rouse such fabled creatures once again?
+
+Whatever the truth of the matter, it soon becomes clear that the party must strike at the height of their squalid kingdom to stop them once and for all.
+
+The ritual site will no doubt be flooded as well. Piercing and slashing weapons are less effective when fighting underwater, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.
+</property>
+  <property name="EncounterGroup" value="Roguelike (Boss)"/>
+  <property name="EncounterLevel" type="int" value="4"/>
+  <property name="EncounterName" value="Court of the Coral Queen"/>
+  <property name="IsDark" type="bool" value="false"/>
+ </properties>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
+ <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <imagelayer id="6" name="Image Layer 1">
+  <image source="CourtOfTheCoralQueen.jpg" width="4864" height="4608"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="19" height="18" opacity="0.33">
+  <data encoding="csv">
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,22,
+22,22,22,22,22,21,21,21,21,21,21,21,21,21,21,22,22,22,22,
+22,22,22,22,22,22,21,21,21,21,21,21,21,21,22,22,22,22,22,
+22,22,22,22,22,22,21,21,21,21,21,21,21,22,22,22,22,22,22,
+22,22,22,22,22,22,22,21,21,21,21,21,22,22,22,22,22,22,22,
+22,22,22,22,22,22,22,22,22,21,22,22,22,22,22,22,22,22,22
+</data>
+ </layer>
+ <layer id="2" name="Top layer: stones, trees, creatures..." width="19" height="18">
+  <data encoding="csv">
+0,0,8,0,0,0,14,0,37,39,38,0,14,0,0,0,8,0,0,
+0,8,0,0,0,0,14,0,0,36,0,0,14,0,0,0,0,8,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,14,0,0,0,14,0,0,0,0,0,14,0,0,0,14,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,14,0,0,0,14,0,0,0,0,0,14,0,0,0,14,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2151,0,0,0,0,0,0,0,0,0,0,0,2151,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2153,0,0,0,2155,0,0,8,0,0,0,0,
+0,0,0,0,0,8,0,8,0,0,0,8,0,8,0,0,0,0,0,
+0,0,0,0,0,0,8,0,0,0,0,0,8,0,0,0,0,0,0,
+0,0,0,0,0,0,0,8,0,2160,0,8,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="3" name="Topmost layer: Metadata" width="19" height="18">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2151,0,0,0,0,0,0,0,0,0,0,0,2151,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,108,0,0,0,108,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

@@ -24,9 +24,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            var creature = new Creature(Illustrations.DrowArcanist,
+            var creature = new Creature(Illustrations.DrowAlchemist,
                 "Alchemist",
-                [ModTraits.Drow, Trait.Elf, Trait.Humanoid, Trait.Chaotic],
+                [ModTraits.Drow, Trait.Elf, Trait.Humanoid, Trait.Chaotic, Trait.Evil],
                 2, 8, 5,
                 new Defenses(17, 8, 11, 6),
                 28,
@@ -34,6 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 new Skills(acrobatics: 7, crafting: 11, thievery: 7))
             .WithBasicCharacteristics()
             .WithProficiency(Trait.Martial, Proficiency.Master)
+            .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(new()
             {
                 ProvideMainAction = (QEffect effect) =>

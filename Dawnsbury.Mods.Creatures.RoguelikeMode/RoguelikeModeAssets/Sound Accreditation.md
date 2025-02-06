@@ -9,7 +9,7 @@
 	<li>music_epic_orchestral_bg_underscore.wav *by GamemasterAudio. Please support them here: [here (Game Dev Market)](https://www.gamedevmarket.net/member/gamemasteraudio).*</li>
 	<li>skjaldmr-norse-viking-background-music-110364.mp3 *by OB-LIX. Please support them here: [here (Pixabay)](https://pixabay.com/music/build-up-scenes-skjaldmr-norse-viking-background-music-110364/).*</li>
 	<li>ghost_witch_voice_hiss_11.wav *by GamemasterAudio. Please support them here: [here (Game Dev Market)](https://www.gamedevmarket.net/member/gamemasteraudio).*</li>
-	
+	<li>blackout-hybrid-cinematic-action-battle-electronic-268916.mp3 *by Kulakovka. Please support them here: [here (Pixabay)](https://pixabay.com/music/suspense-blackout-hybrid-cinematic-action-battle-electronic-268916/).*</li>
 </ul>
 
 ## Volunteer Contributions

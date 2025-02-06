@@ -34,6 +34,7 @@ using FMOD;
 using Dawnsbury.Core.StatBlocks;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.Creatures.Parts;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -106,7 +107,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")),
                     StartOfCombat = async self => {
-                        Creature companion = CreatureList.Creatures[CreatureId.UNICORN_FOAL](self.Owner.Battle.Encounter);
+                        Creature companion = CreatureList.Creatures[CreatureIds.UnicornFoal](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
                         companion.AddQEffect(new QEffect() {
                             Source = self.Owner,
@@ -154,7 +155,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")),
                     StartOfCombat = async self => {
-                        Creature companion = CreatureList.Creatures[CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
+                        Creature companion = CreatureList.Creatures[CreatureIds.DrowRenegade](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
                         companion.AddQEffect(new QEffect() {
                             Source = self.Owner,

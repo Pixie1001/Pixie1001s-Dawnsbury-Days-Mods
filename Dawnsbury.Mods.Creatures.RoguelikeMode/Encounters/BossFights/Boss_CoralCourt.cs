@@ -59,17 +59,20 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Campaign.Encounters.Evil_from_the_Stars;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class MerfolkHuntingPartyLv2 : Level2Encounter
+    internal class Boss_CoralCourt : Encounter
     {
-        public MerfolkHuntingPartyLv2(string filename) : base("Merfolk Hunting Party", filename) {
-            this.Map.Description = "The party's journey is interrupted by a flooded passage. An unfortunate but not altogether unexpected occurrence down in the twisting caves of the Below. " +
-                "With no other choice, they gather their potions of water breathing and begin to dredge down in the murky depths, wary of corrupted merfolk and other aquatic predators.\n\n" +
-                "Piercing and slashing weapons are less effective when fighting underwater, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.";
+        public Boss_CoralCourt(string filename) : base("Court of the Coral Queen", filename, new List<Item>() { }, 0) {
+            // Run setup
+            this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
+                await Cutscenes.CourtOfTheCorralQueen(battle);
+
+            });
         }
 
         public override void ModifyCreatureSpawningIntoTheEncounter(Creature creature) {

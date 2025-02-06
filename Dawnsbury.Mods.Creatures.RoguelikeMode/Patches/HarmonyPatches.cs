@@ -71,9 +71,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
         //}
 
-        // TODO: Detect deaths and restarts
-        // If 
-
         //[HarmonyPostfix]
         //[HarmonyPatch(typeof(BattlePhase), "Draw")]
         //private static void BattlePhaseDrawPatch(BattlePhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
@@ -151,7 +148,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                             if (Int32.TryParse(battle.CampaignState.Tags["restarts"], out int restarts)) {
                                 restarts++;
                                 battle.CampaignState.Tags["restarts"] = $"{restarts}";
-                                // TODO: Check if this uses item and resources from start of battle for save
                                 CampaignState.Autosave();
                             }
                         })));
@@ -292,23 +288,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
                     return false;
                 }
-
-                //int num = equipment.Runes.Count((Item itm) => itm.RuneProperties.RuneKind == runestone.RuneProperties.RuneKind);
-                //if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
-                //    if (equipment.Runes.Any(r => r.RuneProperties.RuneKind == RuneKind.WeaponPotency)) {
-                //        __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only +1, +2 or +3 weapons can be enchanted with weapon property runes.");
-                //        return false;
-                //    }
-
-                //    // TODO: Figure out what this means and add it
-                //    //if (num >= equipment.WeaponProperties.ItemBonus) {
-                //    //    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, $"A +{equipment.WeaponProperties.ItemBonus} weapon can only be enchanted with {equipment.WeaponProperties.ItemBonus} property runes.");
-                //    //    return false;
-                //    //}
-                //} else if (num > 0) {
-                //    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, equipment.Name + " already has a " + runestone.RuneProperties.RuneKind.HumanizeTitleCase2().WithIndefiniteArticle() + " rune.");
-                //    return false;
-                //}
                 equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlacedAsSubitem);
                 Sfxs.Play(SfxName.AttachRune);
@@ -374,6 +353,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
                 campaign.Tags.Add("restarts", "0");
                 campaign.Tags.Add("deaths", "0");
+                foreach (AdventurePathHero hero in campaign.Heroes) {
+                    hero.CharacterSheet.SelectedFeats.Remove("Power of the Rat Fiend");
+                }
             }
 
             if (!Int32.TryParse(campaign.Tags["seed"], out int result)) {
@@ -428,9 +410,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     }
                 }
             }
-
-            // TODO: Override the .Description property of DawnsburyStop to instead show my credits if city name matches one from this adventure path.
-            //(path.Last() as DawnsburyStop).Description = Loader.Credits;
             
             
             
@@ -461,9 +440,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 stop = EncounterTables.encounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}Encounters"]) - removed)];
                 EncounterTables.encounters[level - 1].Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.ELITE) {
-                // TODO: Rework removed to be a seperate count for elite and regular encounters if I add optional mid-run elite fights.
                 stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]) - (level - 1))];
-                //EncounterTables.eliteEncounters[level - 1].Remove(stop);
                 if (level == 1) {
                     EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
                     EncounterTables.eliteEncounters[level + 1].RemoveAll(en => en.Name == stop.Name);

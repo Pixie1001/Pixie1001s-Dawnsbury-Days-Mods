@@ -58,6 +58,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     }
                 })))
                 .AddQEffect(CommonQEffects.UnderwaterMarauder())
+                .AddQEffect(new QEffect() {
+                    Id = QEffectId.Flying
+                })
                 .AddQEffect(new QEffect("Grabbing Tentacles", "After hitting an enemy with an attack, they also become grabbed by your tentacles.") {
 
                 })
@@ -106,7 +109,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 })
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
-                        return (ActionPossibility)new CombatAction(self.Owner, Illustrations.InkCloud, "Ink Cloud", new Trait[] { Trait.Manipulate },
+                        return (ActionPossibility)new CombatAction(self.Owner, Illustrations.InkCloud, "Ink Cloud", new Trait[] { },
                             $"You emit a cloud of dark-brown ink in a 10-foot emanation. Creatures inside the cloud are hidden. You can't use Ink Cloud again for 2d6 rounds.", Target.Emanation(2)
                             .WithGoodness((t, a, d) => a.Battle.AllCreatures.Any(cr => cr.DistanceTo(a) <= 1 && cr.QEffects.Any(qf => qf.Id == QEffectId.Grappled && qf.Source == a)) ? 10f : int.MinValue))
                         //.WithGoodness((t, a, d) => a.Battle.AllCreatures.Any(cr => cr.DistanceTo(a) <= 1 && cr.QEffects.Any(qf => qf.Id == QEffectId.Grappled && qf.Source == a)) ? 10f : int.MinValue)

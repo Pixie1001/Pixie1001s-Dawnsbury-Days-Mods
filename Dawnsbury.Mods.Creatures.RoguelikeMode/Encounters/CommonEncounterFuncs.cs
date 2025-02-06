@@ -146,14 +146,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                         Tile pos = creatures[i].Occupies;
                         Faction faction = creatures[i].OwningFaction;
                         battle.RemoveCreatureFromGame(creatures[i]);
-                        battle.SpawnCreature(CreatureList.Creatures[CreatureId.DROW_ARCANIST](battle.Encounter), faction, pos);
+                        battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowArcanist](battle.Encounter), faction, pos);
                     }
                 } else if (!levelDrain && adj == QEffectId.Elite) {
                     if (creatures[i].BaseName == "Drow Arcanist") {
                         Tile pos = creatures[i].Occupies;
                         Faction faction = creatures[i].OwningFaction;
                         battle.RemoveCreatureFromGame(creatures[i]);
-                        battle.SpawnCreature(CreatureList.Creatures[CreatureId.DROW_SHADOWCASTER](battle.Encounter), faction, pos);
+                        battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowShadowcaster](battle.Encounter), faction, pos);
                     }
                 }
             }
@@ -199,7 +199,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
                         Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).ToList().GetRandom();
-                        Creature td = CreatureList.Creatures[ModEnums.CreatureId.TREASURE_DEMON](battle.Encounter);
+                        Creature td = CreatureList.Creatures[CreatureIds.TreasureDemon](battle.Encounter);
                         if (battle.Encounter.CharacterLevel == 1) td.ApplyWeakAdjustments(false);
                         else if (battle.Encounter.CharacterLevel == 3) td.ApplyEliteAdjustments();
                         battle.SpawnCreature(td, enemyFaction, freeTile);
