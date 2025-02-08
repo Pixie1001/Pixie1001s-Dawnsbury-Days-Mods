@@ -638,7 +638,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
                     ca.ChosenTargets.ChosenCreatures.Add(creature);
                     ca.ChosenTargets.ChosenCreature = creature;
-                    ca.AllExecute();
+                    await ca.AllExecute();
                 },
                 TransformsTileIntoHazardousTerrain = true
             };

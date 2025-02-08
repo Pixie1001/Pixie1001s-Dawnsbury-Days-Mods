@@ -81,13 +81,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             });
                             ca.ChosenTargets.ChosenCreatures.Add(owner);
                             ca.ChosenTargets.ChosenCreatures.Add(bond.Source);
-                            ca.AllExecute();
+                            await ca.AllExecute();
                         } else if (owner.Traits.Any(t => t.HumanizeTitleCase2() == "Summoner") && owner.Battle.AllCreatures.Any(cr => cr.DistanceTo(qfTechnical.Source.Occupies) <= radius && cr.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon"))) {
                             return;
                         } else {
                             ca.ChosenTargets.ChosenCreatures.Add(owner);
                             ca.ChosenTargets.ChosenCreature = owner;
-                            ca.AllExecute();
+                            await ca.AllExecute();
                         }
                     };
                 };
