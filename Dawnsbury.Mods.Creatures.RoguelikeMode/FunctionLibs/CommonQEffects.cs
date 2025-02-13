@@ -339,9 +339,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 Tag = false,
                 ProvideMainAction = self => {
                     return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Attack },
-                        "{b}Range.{/b} 30-feet\n\nOn a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action to free themselves.",
+                        "{b}Range.{/b} 30-feet\n\nOn a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape (DC " + (int)(baseDC + self.Owner.Level) + ") action to free themselves.",
                         Target.Ranged(6)) {
-                        ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape action to free themselves."
+                        ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape (DC " + (int)(baseDC + self.Owner.Level) + ") action to free themselves."
                     }
                     .WithProjectileCone(IllustrationName.Web, 5, ProjectileKind.Cone)
                     .WithSoundEffect(SfxName.AeroBlade)

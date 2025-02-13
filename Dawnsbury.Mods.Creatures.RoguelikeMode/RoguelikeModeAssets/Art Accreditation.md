@@ -29,6 +29,7 @@
 	<li>DuelingSpear.png</li>
 	<li>RobesofTheWarWizard.png</li>
 	<li>DeathDrinkerAmulet.png (modified)</li>
+	<li>SpideryHalberd.png</li>
 </ul>
 
 ### Rexard

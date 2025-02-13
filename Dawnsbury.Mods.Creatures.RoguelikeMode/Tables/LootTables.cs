@@ -105,6 +105,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             items.Add(Items.CreateNew(CustomItems.FlashingRapier).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.Widowmaker).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.HungeringBlade).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.VipersSpit).WithModificationPlusOne());
+            items.Add(Items.CreateNew(CustomItems.VipersSpit).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.MaskOfConsumption));
             items.Add(Items.CreateNew(CustomItems.WebwalkerArmour));
             items.Add(Items.CreateNew(CustomItems.DreadPlate));

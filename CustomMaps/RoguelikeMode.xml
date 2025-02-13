@@ -6,6 +6,10 @@
     <name>Roguelike Mode</name>
     <description>
         A roguelike mode where you challenge a party against a variety of randomly selected encounters from levels 1-4 to see how far you can go.
+		
+		The final encounter of each day is an especially difficult elite fight. After beating them, you'll either recieve a random high level item, or your choice of two special items related to the encounter.
+		
+		Make it all the way to the final boss at level 4 to win! Your total number of deaths and restarts will be tallied up at the end.
     </description>
     <mediumRestFlavorText>Your heroes take a little rest to regain health on their long journey.</mediumRestFlavorText>
     <startingLevel>1</startingLevel>

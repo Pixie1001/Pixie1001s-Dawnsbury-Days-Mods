@@ -59,16 +59,11 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class AqueductsLv2 : Level2EliteEncounter
-    {
-        public AqueductsLv2(string filename) : base("Aqueducts", filename, eliteRewards: new List<(Item, string)> {
-            (Items.CreateNew(CustomItems.ScourgeOfFangs).WithModificationPlusOne(), "A twitching three pronged whip tipped by three snapping serpent heads, with a malevolent intelligence meant to compensate for a priestess's lack of martial prowess."),
-            (Items.CreateNew(CustomItems.SpiderHatchling), "A dazed looking spiderling, ready to be imprinted upon a new master.")
-        }) { }
+    internal class DrowSalavagingPartyLv1 : Level1Encounter {
+        public DrowSalavagingPartyLv1(string filename) : base("Drow Salvaging Party", filename) { }
     }
 }

@@ -180,6 +180,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<BesetByMinnowsLv1>("BesetByMinnows1.tmx");
             ModManager.RegisterEncounter<BesetByMinnowsLv2>("BesetByMinnows2.tmx");
             ModManager.RegisterEncounter<BesetByMinnowsLv3>("BesetByMinnows3.tmx");
+            RegisterEncounter<DrowSalavagingPartyLv1>("DrowSalavagingParty.tmx", "DrowSalvagingPartyLv1");
+            ModManager.RegisterEncounter<DrowSalavagingPartyLv2>("DrowSalavagingParty.tmx");
+            RegisterEncounter<DrowSalavagingPartyLv3>("DrowSalavagingParty.tmx", "DrowSalvagingPartyLv3");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
