@@ -100,7 +100,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         public static void LoadMod()
         {
             var harmony = new Harmony("Dawnsbury.Mods.GameModes.RoguelikeMode");
-            Harmony.DEBUG = true;
+            Harmony.DEBUG = false;
             harmony.PatchAll();
 
             CustomItems.LoadItems();
@@ -116,8 +116,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
         private static void LoadEncounters()
         {
-            //ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkHuntingParty.tmx");
-
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 
             RegisterEncounter<AlchemicalAmbushLv1>("AlchemicalAmbush.tmx", "AlchemicalAmbushLv1");
@@ -126,6 +124,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");
+            //RegisterEncounter<Colosseum1Lv2>("Colosseum.tmx", "Colosseum1Lv1");
+            ModManager.RegisterEncounter<Colosseum1Lv2>("Colosseum.tmx");
             RegisterEncounter<InquisitrixTrapLv1>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv1");
             RegisterEncounter<InquisitrixTrapLv2>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv2");
             RegisterEncounter<InquisitrixTrapLv3>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv3");

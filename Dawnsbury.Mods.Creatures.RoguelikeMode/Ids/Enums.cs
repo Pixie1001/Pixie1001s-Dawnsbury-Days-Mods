@@ -42,7 +42,8 @@
             UNICORN_FOAL,
             MINNOW_OF_MULNOK,
             BODYGUARD,
-            ALCHEMIST
+            ALCHEMIST,
+            Chest
         }
 
         internal enum ObjectId

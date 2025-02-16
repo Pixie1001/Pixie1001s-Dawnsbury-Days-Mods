@@ -292,6 +292,54 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect MonsterPush()
+        {
+            return new QEffect("Push", "When your Strike hits, you can spend an action to shove without a shove check.", ExpirationCondition.Never, null, IllustrationName.None)
+            {
+                Innate = true,
+                ProvideMainAction = delegate (QEffect qfGrab)
+                {
+                    Creature monster = qfGrab.Owner;
+                    IEnumerable<Creature> source = monster.Battle.AllCreatures.Where(delegate (Creature cr)
+                    {
+                        CombatAction combatAction2 = monster.Actions.ActionHistoryThisTurn.LastOrDefault()!;
+                        return (combatAction2 != null && combatAction2.CheckResult >= CheckResult.Success && combatAction2.HasTrait(Trait.Shove) && combatAction2.ChosenTargets.ChosenCreature == cr);
+                    });
+
+                    return new SubmenuPossibility(IllustrationName.Shove, "Push")
+                    {
+                        Subsections =
+                    {
+                        new PossibilitySection("Push")
+                        {
+                            Possibilities = source.Select((Func<Creature, Possibility>)delegate(Creature lt)
+                            {
+                                CombatAction combatAction = new CombatAction(monster, IllustrationName.Shove, "Shove" + lt.Name, [Trait.Melee], "Shove the target.", Target.Melee((Target t, Creature a, Creature d) => (a.Actions.ActionsLeft == 1 && PushTileIsFree(a, d) && !d.HasEffect(QEffectId.Unconscious)) ? 1.07374182E+09f : (-2.14748365E+09f)).WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable)).WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr)
+                                {
+                                    await monster.PushCreature(d, 1);
+                                });
+                                return new ActionPossibility(combatAction);
+                            }).ToList()
+                        }
+                    }
+                    };
+                }
+            };
+        }
+
+        private static bool PushTileIsFree(Creature user, Creature target)
+        {
+            var point = new Point(target.Occupies.X + Math.Sign(target.Occupies.X - user.Occupies.X), target.Occupies.Y + Math.Sign(target.Occupies.Y - user.Occupies.Y));
+            var tile = user.Battle.Map.GetTile(point.X, point.Y);
+
+            if (tile == null || !tile.LooksFreeTo(user))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public static QEffect PreyUpon() {
             return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you, unless they're also flanking you.") {
                 StateCheck = self => {
