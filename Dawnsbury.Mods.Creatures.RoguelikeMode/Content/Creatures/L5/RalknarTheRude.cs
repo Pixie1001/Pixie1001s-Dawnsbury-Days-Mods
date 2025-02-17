@@ -2,7 +2,6 @@
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.CombatActions;
@@ -32,6 +31,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 new Abilities(5, 3, 4, 2, 2, 5),
                 new Skills(athletics: 12, intimidation: 13))
             .WithBasicCharacteristics()
+            .WithIsNamedMonster()
             .AddQEffect(new QEffect("Angry Soul", "Ralknar's anger builds whenever he is damaged.")
             {
                 YouAreDealtDamage = async (QEffect _, Creature _, DamageStuff _, Creature defender) =>
@@ -138,7 +138,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                     for (var i = 0; i <= angerValue; i++)
                     {
-                        user.Battle.SpawnCreature(Bodyguard.Create(), user.OwningFaction, user.Occupies);
+                        user.Battle.SpawnCreature(AngerPhantasm.Create(), user.OwningFaction, user.Occupies);
                     }
 
                     user.AddQEffect(new()

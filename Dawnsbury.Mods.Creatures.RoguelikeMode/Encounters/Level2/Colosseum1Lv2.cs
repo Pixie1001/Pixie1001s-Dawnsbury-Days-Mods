@@ -31,8 +31,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
                     creature.MainName = "Gladiator";
                     battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 2 + ((i / 2) % 2));
                 }
-
-                //battle.SpawnCreature(RalknarTheRude.Create(), battle.Enemy, 7, 2);
             });
 
             ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async (TBattle battle) =>
@@ -55,7 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {
-                            await character.HealAsync($"{character.Level}d4+{character.Level * 4}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
+                            await character.HealAsync($"{character.Level}d4+{character.Level * 2}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
 
                             if (character.Spellcasting != null && character.Spellcasting.FocusPoints < character.Spellcasting.FocusPointsMaximum)
                             {
@@ -76,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {
-                            await character.HealAsync($"{character.Level}d4+{character.Level * 4}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
+                            await character.HealAsync($"{character.Level}d4+{character.Level * 2}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
 
                             if (character.Spellcasting != null && character.Spellcasting.FocusPoints < character.Spellcasting.FocusPointsMaximum)
                             {
