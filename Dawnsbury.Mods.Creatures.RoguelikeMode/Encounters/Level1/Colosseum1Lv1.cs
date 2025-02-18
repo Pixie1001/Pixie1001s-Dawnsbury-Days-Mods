@@ -11,12 +11,12 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Auxiliary;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class Colosseum1Lv2 : Level2Encounter
+    internal class Colosseum1Lv1 : Level1Encounter
     {
-        public Colosseum1Lv2(string filename) : base("Colosseum", filename)
+        public Colosseum1Lv1(string filename) : base("Colosseum", filename)
         {
             RewardGold = (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.7);
 
@@ -28,7 +28,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
                 for (int i = 0; i < 4; i++)
                 {
-                    var creature = Bodyguard.Create();
+                    var creature = Bodyguard.Create().ApplyWeakAdjustments(false);
                     creature.MainName = "Gladiator";
                     battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 2 + ((i / 2) % 2));
                 }
@@ -48,14 +48,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
                         for (int i = 0; i < 2; i++)
                         {
-                            var creature = Bodyguard.Create();
+                            var creature = Bodyguard.Create().ApplyWeakAdjustments(false);
                             creature.MainName = "Gladiator";
                             battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
                         }
 
                         for (int i = 0; i < 2; i++)
                         {
-                            battle.SpawnCreature(Pikeman.Create(), battle.Enemy, 6 + i % 2, 2);
+                            battle.SpawnCreature(Pikeman.Create().ApplyWeakAdjustments(false), battle.Enemy, 6 + i % 2, 2);
                         }
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
@@ -79,7 +79,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
                     {
                         RewardGold += (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.8);
 
-                        battle.SpawnCreature(R.Coin() ? RalknarTheRude.Create() : SorantonTheSkilled.Create(), battle.Enemy, 7, 2);
+                        var champion = R.Coin() ? RalknarTheRude.Create() : SorantonTheSkilled.Create();
+
+                        battle.SpawnCreature(champion.ApplyWeakAdjustments(false), battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {
