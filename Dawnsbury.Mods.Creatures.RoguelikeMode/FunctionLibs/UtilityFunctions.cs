@@ -26,10 +26,22 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Campaign.Path;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class UtilityFunctions {
+
+        internal static bool DiedThisRun(CampaignState save) {
+            if (!save.Tags.TryGetValue("deaths", out string deaths) || !save.Tags.TryGetValue("restarts", out string restarts)) {
+                return false;
+            }
+
+            if (deaths != "0" || restarts != "0") {
+                return true;
+            }
+            return false;
+        }
 
         internal static Creature AddNaturalWeapon(Creature creature, string naturalWeaponName, Illustration illustration, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null)
         {

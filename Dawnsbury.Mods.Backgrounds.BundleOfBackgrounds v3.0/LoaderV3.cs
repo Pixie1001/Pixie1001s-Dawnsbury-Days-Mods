@@ -246,7 +246,9 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         extraGold += loot.Price;
                     }
                     extraGold += self.Owner.Battle.Encounter.RewardGold;
-                    self.Owner.Battle.CampaignState.CommonGold += (int)(extraGold * multiplier);
+                    if (self.Owner.Battle.CampaignState != null) {
+                        self.Owner.Battle.CampaignState.CommonGold += (int)(extraGold * multiplier);
+                    }
                 };
             }).WithPrerequisite(sheet => {
                 return sheet.Proficiencies.Get(Trait.Athletics) >= Proficiency.Trained;

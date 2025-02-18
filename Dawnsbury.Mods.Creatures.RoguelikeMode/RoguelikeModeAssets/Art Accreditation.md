@@ -93,6 +93,7 @@
 	<li>MinnowOfMulnok.png</li>
 	<li>DrowAlchemist.png</li>
 	<li>MerfolkSeaWitch.png</li>
+	<li>FailedRun.png</li>
 </ul>
 
 ## Volunteer Contributions

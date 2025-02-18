@@ -9,6 +9,7 @@ using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Phases.Menus;
+using Dawnsbury.Phases.Menus.StoryMode;
 using HarmonyLib;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.Mechanics.Treasure;
@@ -34,6 +35,8 @@ using Dawnsbury.Phases.Popups;
 using System.Reflection;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -322,10 +325,59 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch("ChooseProfilePhase", "Draw")]
+        private static void ChooseProfilePhaseDrawPatch(object __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            Savegame?[] profiles = (Savegame?[]) Type.GetType("Dawnsbury.Phases.Menus.StoryMode.ChooseProfilePhase, Dawnsbury Days").GetProperty("Profiles").GetValue(__instance);
+
+            if (profiles == null) {
+                return;
+            }
+
+            int i = 0;
+            foreach (Savegame? save in profiles) {
+                if (save != null && UtilityFunctions.DiedThisRun(save.CampaignState)) {
+                    int h = 200;
+                    int w = 200;
+                    int padding = 10;
+                    Illustrations.FailedRun.DrawImage(new Rectangle(1860 - padding - w, 500 + i * 210, w, h), null, true, false, null);
+                }
+
+                i += 1;
+            }
+
+                //Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
+                //    .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
+                //        typeof(Rectangle),
+                //        typeof(string),
+                //        typeof(Action),
+                //        typeof(Writer.TextAlignment),
+                //        typeof(BitmapFontGroup),
+                //        typeof(string),
+                //        typeof(Color),
+                //    }).Invoke(null, new object[]
+
+            // Patch code goes here
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CampaignMenuPhase), "Draw")]
+        private static void CampaignMenuPhaseDrawPatch(CampaignMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            CampaignState state = CampaignState.Instance;
+
+            if (state.AdventurePath.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
+                // && (state.Tags.TryGetValue("deaths", ) != "0" || state.Tags["restarts"] != "0")
+                int h = 250;
+                int w = 250;
+                int padding = 10;
+                Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CampaignMenuPhase), "CreateViews")]
-        private static void CreateViewsPatch(CampaignMenuPhase __instance) {
-            CampaignState state = __instance.CurrentCampaignState;
+        private static void CreateViewsPatch() {
+            CampaignState state = CampaignState.Instance;
 
             if (state.AdventurePath.CampaignStops[2].Name == "Random Encounter" || state.Tags.ContainsKey("new run")) {
                 GenerateRun(state);
@@ -410,22 +462,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     }
                 }
             }
-            
-            
-            
-            var stop = path[path.Count - 1];
 
-            var t1 = (string)typeof(DawnsburyStop).GetField("flavorText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
-            var t2 = (int)typeof(DawnsburyStop).GetField("dawnsburyStopIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
-            var t3 = (int)typeof(DawnsburyStop).GetField("<ShopLevel>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
-
-            path[path.Count - 1] = new CustomLastStop(path[path.Count - 1] as DawnsburyStop, path[path.Count - 1].Index, campaign);
-
-
-            //path.Remove(path.Last());
-            //path.Add(new DawnsburyStop("You won! Congrats!", path.Last().Index + 1, level, false, "Post Init"));
-
-            var test = 3;
+            (path[path.Count - 1] as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+                    "{b}Stats{/b}\n" +
+                    "{b}Deaths:{/b} " + campaign.Tags["deaths"] + "\n" +
+                    "{b}Restarts:{/b} " + campaign.Tags["restarts"] +
+                    "\n\n" + Loader.Credits;
         }
 
         private static CampaignStop GenerateRandomEncounter(Random rng, int removed, int level, ModEnums.EncounterType encounterType, CampaignState campaign) {
