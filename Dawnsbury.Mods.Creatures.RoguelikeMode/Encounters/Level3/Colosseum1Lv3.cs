@@ -125,45 +125,56 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
             return await battle.AskForConfirmation(battle.AllCreatures.First((creature) => creature.OwningFaction == battle.You), IllustrationName.WinningStreak, $"You've beaten round {round}! Do you wish to continue fighting for extra rewards?", "Yes", "No");
         }
 
-        private static void GrantFeatEffect(Creature creature)
+        private static void GrantFeatEffect(Creature character)
         {
-            if (creature.LongTermEffects == null)
+            if (character.LongTermEffects == null)
             {
-                creature.LongTermEffects = new();
+                character.LongTermEffects = new();
             }
 
-            var martial = creature.Proficiencies.Get(Trait.Martial) >= Proficiency.Trained;
-            var hasShieldBlock = creature.HasEffect(QEffectId.ShieldBlock);
-            var intimidation = creature.Proficiencies.Get(Trait.Intimidation) >= Proficiency.Trained;
+            var martial = character.Proficiencies.Get(Trait.Martial) >= Proficiency.Trained;
+            var hasShieldBlock = character.HasEffect(QEffectId.ShieldBlock);
+            var intimidation = character.Proficiencies.Get(Trait.Intimidation) >= Proficiency.Trained;
 
-            var effects = new List<LongTermEffect>()
+            var effects = new List<LTEs.ColosseumFeat>()
             {
-                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.KiRush], null, null)!,
-                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.Mobility], null, null)!,
-                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.NimbleDodge], null, null)!,
-                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.QuickDraw], null, null)!,
-                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.RapidResponse], null, null)!,
-                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.ShakeItOff], null, null)!
+                LTEs.ColosseumFeat.KiRush,
+                LTEs.ColosseumFeat.Mobility,
+                LTEs.ColosseumFeat.NimbleDodge,
+                LTEs.ColosseumFeat.QuickDraw,
+                LTEs.ColosseumFeat.RapidResponse,
+                LTEs.ColosseumFeat.ShakeItOff
             };
 
             if (martial)
             {
-                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.BrutalBeating], null, null)!);
-                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.GravityWeapon], null, null)!);
-                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.PowerAttack], null, null)!);
-                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.SuddenCharge], null, null)!);
+                effects.Add(LTEs.ColosseumFeat.BrutalBeating);
+                effects.Add(LTEs.ColosseumFeat.GravityWeapon);
+                effects.Add(LTEs.ColosseumFeat.PowerAttack);
+                effects.Add(LTEs.ColosseumFeat.SuddenCharge);
 
                 if (intimidation)
                 {
-                    effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.YoureNext], null, null)!);
+                    effects.Add(LTEs.ColosseumFeat.YoureNext);
                 }
             }
 
             if (hasShieldBlock)
             {
-                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.AggressiveBlock], null, null)!);
-                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.ReactiveShield], null, null)!);
+                effects.Add(LTEs.ColosseumFeat.AggressiveBlock);
+                effects.Add(LTEs.ColosseumFeat.ReactiveShield);
             }
+
+            for (int i = 0; i < effects.Count; i++)
+            {
+                if (character.HasFeat(LTEs.ColosseumFeatNames[effects[i]].Item1))
+                {
+                    effects.RemoveAt(i);
+                    i--;
+                }
+            }
+
+            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[effects[R.Next(effects.Count)]].Item2)!);
         }
     }
 }

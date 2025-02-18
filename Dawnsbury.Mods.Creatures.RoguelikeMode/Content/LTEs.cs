@@ -41,6 +41,7 @@ using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Mechanics.Rules;
+using Dawnsbury.Core.CharacterBuilder.Feats;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -65,21 +66,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             YoureNext
         }
 
-        internal static Dictionary<ColosseumFeat, string> ColosseumFeatNames = new()
+        internal static Dictionary<ColosseumFeat, Tuple<FeatName, string>> ColosseumFeatNames = new()
         {
-            { ColosseumFeat.AggressiveBlock, "Aggressive Block" },
-            { ColosseumFeat.BrutalBeating, "Brutal Beating" },
-            { ColosseumFeat.GravityWeapon, "Gravity Weapon" },
-            { ColosseumFeat.KiRush, "Ki Rush" },
-            { ColosseumFeat.Mobility, "Mobility" },
-            { ColosseumFeat.NimbleDodge, "Nimble Dodge" },
-            { ColosseumFeat.PowerAttack, "Power Attack" },
-            { ColosseumFeat.QuickDraw, "Quick Draw" },
-            { ColosseumFeat.RapidResponse, "Rapid Response" },
-            { ColosseumFeat.ReactiveShield, "Reactive Shield" },
-            { ColosseumFeat.ShakeItOff, "Shake It Off" },
-            { ColosseumFeat.SuddenCharge, "Sudden Charge" },
-            { ColosseumFeat.YoureNext, "You're Next" }
+            { ColosseumFeat.AggressiveBlock, new(FeatName.AggressiveBlock, "Aggressive Block") },
+            { ColosseumFeat.BrutalBeating, new(FeatName.BrutalBeating, "Brutal Beating") },
+            { ColosseumFeat.GravityWeapon, new(FeatName.GravityWeapon, "Gravity Weapon") },
+            { ColosseumFeat.KiRush, new(FeatName.KiRush, "Ki Rush") },
+            { ColosseumFeat.Mobility, new(FeatName.Mobility, "Mobility") },
+            { ColosseumFeat.NimbleDodge, new(FeatName.NimbleDodge, "Nimble Dodge") },
+            { ColosseumFeat.PowerAttack, new(FeatName.PowerAttack, "Power Attack") },
+            { ColosseumFeat.QuickDraw, new(FeatName.QuickDraw, "Quick Draw") },
+            { ColosseumFeat.RapidResponse, new(FeatName.RapidResponse, "Rapid Response") },
+            { ColosseumFeat.ReactiveShield, new(FeatName.ReactiveShield, "Reactive Shield") },
+            { ColosseumFeat.ShakeItOff, new(FeatName.ShakeItOff, "Shake It Off") },
+            { ColosseumFeat.SuddenCharge, new(FeatName.SuddenCharge, "Sudden Charge") },
+            { ColosseumFeat.YoureNext, new(FeatName.YoureNext, "You're Next") }
         };
 
         //public static Dictionary<CharacterSheet, List<QEffect>> PartyBoons = new Dictionary<CharacterSheet, List<QEffect>>();
@@ -265,15 +266,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             #region Martial Colosseum Feats
             
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.AggressiveBlock], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.AggressiveBlock].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 var effect = Core.StatBlocks.Monsters.L5.Doorwarden.CreateAggressiveBlock();
-                effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.AggressiveBlock])!);
+                effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.AggressiveBlock].Item2)!);
 
                 return effect;
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BrutalBeating], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BrutalBeating].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Brutal Beating", "Whenever your Strike is a critical hit and deals damage, the target is frightened 1.")
                 {
@@ -296,11 +297,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             }
                         }
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.BrutalBeating])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.BrutalBeating].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.GravityWeapon], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.GravityWeapon].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Gravity Weapon", "You gain the {i}gravity weapon{/i} warden spell and a focus pool of 1 Focus Point.")
                 {
@@ -308,11 +309,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     {
                         AddFocusSpell(effect.Owner, SpellId.GravityWeapon, Ability.Wisdom, Trait.Primal, Trait.Ranger);
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.GravityWeapon])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.GravityWeapon].Item2)!)
                 };
             });
             
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.KiRush], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.KiRush].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Ki Rush", "You gain the {i}ki rush{/i} warden spell and a focus pool of 1 Focus Point.")
                 {
@@ -320,20 +321,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     {
                         AddFocusSpell(effect.Owner, SpellId.KiRush, Ability.Wisdom, Trait.Divine, Trait.Monk);
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.KiRush])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.KiRush].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.Mobility], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.Mobility].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Mobility", "You don't provoke attacks of opportunity with short movements.")
                 {
                     Id = QEffectId.Mobility,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.Mobility])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.Mobility].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.NimbleDodge], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.NimbleDodge].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Nimble Dodge {icon:Reaction}", "You gain a +2 bonus to AC as a reaction.")
                 {
@@ -353,15 +354,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             }
                         }
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.NimbleDodge])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.NimbleDodge].Item2)!)
                 };
             });
             
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.PowerAttack], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.PowerAttack].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 var effect = new QEffect("Power Attack", "You unleash a particularly powerful attack.")
                 {
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.PowerAttack])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.PowerAttack].Item2)!)
                 };
 
                 effect.ProvideStrikeModifier = delegate (Item item)
@@ -394,16 +395,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 return effect;
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.QuickDraw], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.QuickDraw].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Quick Draw", "You draw weapons as a free action.")
                 {
                     Id = QEffectId.QuickDraw,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.QuickDraw])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.QuickDraw].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.RapidResponse], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.RapidResponse].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("Rapid Response {icon:Reaction}", "When an ally begins dying, you Stride towards them.")
                 {
@@ -434,19 +435,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             });
                         }
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.RapidResponse])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.RapidResponse].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReactiveShield], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReactiveShield].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 var effect = QEffect.ReactiveShield();
-                effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ReactiveShield])!);
+                effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ReactiveShield].Item2)!);
                 
                 return effect;
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShakeItOff], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShakeItOff].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect()
                 {
@@ -490,11 +491,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             }
                         })).WithPossibilityGroup("Remove debuff") : null;
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ShakeItOff])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ShakeItOff].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.SuddenCharge], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.SuddenCharge].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect()
                 {
@@ -515,11 +516,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             await CommonCombatActions.StrikeAdjacentCreature(self, null);
                         }
                     })),
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.SuddenCharge])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.SuddenCharge].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.YoureNext], LongTermEffectDuration.Forever, (_, _) =>
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.YoureNext].Item2, LongTermEffectDuration.Forever, (_, _) =>
             {
                 return new QEffect("You're Next {icon:Reaction}", "After you reduce an enemy to 0 HP, you can spend a reaction to Demoralize one creature. You have a +2 circumstance bonus to this check.")
                 {
@@ -542,7 +543,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             }
                         }
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.YoureNext])!)
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.YoureNext].Item2)!)
                 };
             });
 
