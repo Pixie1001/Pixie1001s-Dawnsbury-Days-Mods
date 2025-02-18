@@ -34,12 +34,53 @@ using FMOD;
 using Dawnsbury.Core.StatBlocks;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Mechanics.Rules;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class LTEs {
+
+        internal enum ColosseumFeat
+        {
+            AggressiveBlock,
+            BrutalBeating,
+            GravityWeapon,
+            KiRush,
+            Mobility,
+            NimbleDodge,
+            PowerAttack,
+            QuickDraw,
+            RapidResponse,
+            ReactiveShield,
+            ShakeItOff,
+            SuddenCharge,
+            YoureNext
+        }
+
+        internal static Dictionary<ColosseumFeat, string> ColosseumFeatNames = new()
+        {
+            { ColosseumFeat.AggressiveBlock, "Aggressive Block" },
+            { ColosseumFeat.BrutalBeating, "Brutal Beating" },
+            { ColosseumFeat.GravityWeapon, "Gravity Weapon" },
+            { ColosseumFeat.KiRush, "Ki Rush" },
+            { ColosseumFeat.Mobility, "Mobility" },
+            { ColosseumFeat.NimbleDodge, "Nimble Dodge" },
+            { ColosseumFeat.PowerAttack, "Power Attack" },
+            { ColosseumFeat.QuickDraw, "Quick Draw" },
+            { ColosseumFeat.RapidResponse, "Rapid Response" },
+            { ColosseumFeat.ReactiveShield, "Reactive Shield" },
+            { ColosseumFeat.ShakeItOff, "Shake It Off" },
+            { ColosseumFeat.SuddenCharge, "Sudden Charge" },
+            { ColosseumFeat.YoureNext, "You're Next" }
+        };
 
         //public static Dictionary<CharacterSheet, List<QEffect>> PartyBoons = new Dictionary<CharacterSheet, List<QEffect>>();
         //public static Dictionary<CharacterSheet, string> SheetToTag = new Dictionary<CharacterSheet, string>();
@@ -222,7 +263,330 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 return effect;
             });
 
+            #region Martial Colosseum Feats
+            
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.AggressiveBlock], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                var effect = Core.StatBlocks.Monsters.L5.Doorwarden.CreateAggressiveBlock();
+                effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.AggressiveBlock])!);
 
+                return effect;
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BrutalBeating], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Brutal Beating", "Whenever your Strike is a critical hit and deals damage, the target is frightened 1.")
+                {
+                    AfterYouTakeAction = async delegate (QEffect qff, CombatAction action)
+                    {
+                        if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
+                        {
+                            Creature chosenCreature3 = action.ChosenTargets.ChosenCreature;
+                            if (chosenCreature3 != null && chosenCreature3.HP >= 1)
+                            {
+                                if (chosenCreature3.IsImmuneTo(Trait.Mental))
+                                {
+                                    chosenCreature3.Battle.Log(chosenCreature3?.ToString() + " is immune to mental effects and can't be frightened.");
+                                }
+                                else
+                                {
+                                    chosenCreature3.Occupies.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
+                                    chosenCreature3.AddQEffect(QEffect.Frightened(1));
+                                }
+                            }
+                        }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.BrutalBeating])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.GravityWeapon], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Gravity Weapon", "You gain the {i}gravity weapon{/i} warden spell and a focus pool of 1 Focus Point.")
+                {
+                    StartOfCombat = async (effect) =>
+                    {
+                        AddFocusSpell(effect.Owner, SpellId.GravityWeapon, Ability.Wisdom, Trait.Primal, Trait.Ranger);
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.GravityWeapon])!)
+                };
+            });
+            
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.KiRush], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Ki Rush", "You gain the {i}ki rush{/i} warden spell and a focus pool of 1 Focus Point.")
+                {
+                    StartOfCombat = async (effect) =>
+                    {
+                        AddFocusSpell(effect.Owner, SpellId.KiRush, Ability.Wisdom, Trait.Divine, Trait.Monk);
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.KiRush])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.Mobility], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Mobility", "You don't provoke attacks of opportunity with short movements.")
+                {
+                    Id = QEffectId.Mobility,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.Mobility])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.NimbleDodge], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Nimble Dodge {icon:Reaction}", "You gain a +2 bonus to AC as a reaction.")
+                {
+                    YouAreTargeted = async delegate (QEffect qff, CombatAction attack)
+                    {
+                        CombatAction attack2 = attack;
+                        Creature rogue5 = qff.Owner;
+                        if (attack2.HasTrait(Trait.Attack) && rogue5.CanSee(attack2.Owner) && !attack2.HasTrait(Trait.AttackDoesNotTargetAC))
+                        {
+                            if (await rogue5.Battle.AskToUseReaction(rogue5, "You're targeted by " + attack2.Owner.Name + "'s " + attack2.Name + ".\nUse Nimble Dodge to gain a +2 circumstance bonus to AC?"))
+                            {
+                                rogue5.AddQEffect(new QEffect
+                                {
+                                    ExpiresAt = ExpirationCondition.EphemeralAtEndOfImmediateAction,
+                                    BonusToDefenses = (QEffect effect, CombatAction? action, Defense defense) => (defense != 0) ? null : new Bonus(2, BonusType.Circumstance, "Nimble Dodge")
+                                });
+                            }
+                        }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.NimbleDodge])!)
+                };
+            });
+            
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.PowerAttack], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                var effect = new QEffect("Power Attack", "You unleash a particularly powerful attack.")
+                {
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.PowerAttack])!)
+                };
+
+                effect.ProvideStrikeModifier = delegate (Item item)
+                {
+                    Item item5 = item;
+                    if (item5.HasTrait(Trait.Melee))
+                    {
+                        StrikeModifiers strikeModifiers3 = new StrikeModifiers
+                        {
+                            AdditionalWeaponDamageDice = 1,
+                            OnEachTarget = async delegate (Creature a, Creature d, CheckResult result)
+                            {
+                                a.Actions.AttackedThisManyTimesThisTurn++;
+                            }
+                        };
+                        CombatAction combatAction10 = effect.Owner.CreateStrike(item5, -1, strikeModifiers3);
+                        combatAction10.Name = "Power Attack";
+                        combatAction10.Illustration = new SideBySideIllustration(combatAction10.Illustration, IllustrationName.StarHit);
+                        combatAction10.ActionCost = 2;
+                        combatAction10.Description = StrikeRules.CreateBasicStrikeDescription2(combatAction10.StrikeModifiers, null, null, null, null, "Your multiple attack penalty increases twice instead of just once.");
+
+                        combatAction10.Traits.Add(Trait.Basic);
+                        combatAction10.Traits.Add(Trait.Flourish);
+                        return combatAction10;
+                    }
+
+                    return null;
+                };
+
+                return effect;
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.QuickDraw], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Quick Draw", "You draw weapons as a free action.")
+                {
+                    Id = QEffectId.QuickDraw,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.QuickDraw])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.RapidResponse], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("Rapid Response {icon:Reaction}", "When an ally begins dying, you Stride towards them.")
+                {
+                    StateCheck = delegate (QEffect qfRapidResponse)
+                    {
+                        QEffect qfRapidResponse2 = qfRapidResponse;
+                        foreach (Creature item3 in qfRapidResponse2.Owner.Battle.AllCreatures.Where((Creature cr) => cr.FriendOf(qfRapidResponse2.Owner) && cr != qfRapidResponse2.Owner))
+                        {
+                            item3.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
+                            {
+                                AfterYouTakeDamage = async delegate (QEffect qfInjuredCreature, int damageDealt, DamageKind damageKind, CombatAction? inflictingPower, bool criticalHit)
+                                {
+                                    if (qfInjuredCreature.Owner.HP <= 0)
+                                    {
+                                        Creature ally = qfInjuredCreature.Owner;
+                                        Creature medic = qfRapidResponse2.Owner;
+                                        TBattle battle = medic.Battle;
+                                        if (await battle.AskToUseReaction(medic, "An ally (" + ally?.ToString() + ") was reduced to 0 HP. Stride towards the ally?"))
+                                        {
+                                            medic.AddQEffect(new QEffect(ExpirationCondition.EphemeralAtEndOfImmediateAction)
+                                            {
+                                                BonusToAllSpeeds = (QEffect _) => new Bonus(2, BonusType.Circumstance, "Rapid Response")
+                                            });
+                                            await medic.StrideAsync("Choose where to Stride with Rapid Response (towards " + ally?.ToString() + ").", allowStep: false, maximumFiveFeet: false, ally.Occupies, allowCancel: false, allowPass: true);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.RapidResponse])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReactiveShield], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                var effect = QEffect.ReactiveShield();
+                effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ReactiveShield])!);
+                
+                return effect;
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShakeItOff], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect()
+                {
+                    ProvideContextualAction = delegate (QEffect qfSelf)
+                    {
+                        Creature owner = qfSelf.Owner;
+                        return (owner.HasEffect(QEffectId.Frightened) || owner.HasEffect(QEffectId.Sickened)) ? new ActionPossibility(new CombatAction(owner, IllustrationName.ShakeItOff, "Shake it Off", [Trait.Concentrate],
+                            "Reduce your frightened condition value by 1, and attempt a Fortitude save to recover from the sickened condition as if you had spent an action retching; you reduce your sickened condition value by 1 on a failure (but not on a critical failure), by 2 on a success, or by 3 on a critical success.", Target.Self()).WithEffectOnSelf(async delegate (CombatAction action, Creature cr)
+                        {
+                            QEffect qEffect = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Frightened);
+                            if (qEffect != null)
+                            {
+                                qEffect.Value--;
+                                if (qEffect.Value <= 0)
+                                {
+                                    qEffect.ExpiresAt = ExpirationCondition.Immediately;
+                                }
+                            }
+
+                            QEffect qEffect2 = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Sickened);
+                            if (qEffect2 != null)
+                            {
+                                int dc = (int)qEffect2.Tag;
+                                switch (CommonSpellEffects.RollSavingThrow(cr, action, Defense.Fortitude, dc))
+                                {
+                                    case CheckResult.Failure:
+                                        qEffect2.Value--;
+                                        break;
+                                    case CheckResult.Success:
+                                        qEffect2.Value -= 2;
+                                        break;
+                                    case CheckResult.CriticalSuccess:
+                                        qEffect2.Value -= 3;
+                                        break;
+                                }
+
+                                if (qEffect2.Value <= 0)
+                                {
+                                    qEffect2.ExpiresAt = ExpirationCondition.Immediately;
+                                }
+                            }
+                        })).WithPossibilityGroup("Remove debuff") : null;
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ShakeItOff])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.SuddenCharge], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect()
+                {
+                    ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.FleetStep, "Sudden Charge",
+                    [
+                        Trait.Flourish,
+                        Trait.Open,
+                        Trait.Move
+                    ], "Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy.", Target.Self()).WithActionCost(2).WithSoundEffect(SfxName.Footsteps).WithEffectOnSelf(async delegate (CombatAction action, Creature self)
+                    {
+                        if (!(await self.StrideAsync("Choose where to Stride with Sudden Charge. (1/2)", allowStep: false, maximumFiveFeet: false, null, allowCancel: true)))
+                        {
+                            action.RevertRequested = true;
+                        }
+                        else
+                        {
+                            await self.StrideAsync("Choose where to Stride with Sudden Charge. You should end your movement within melee reach of an enemy. (2/2)", allowStep: false, maximumFiveFeet: false, null, allowCancel: false, allowPass: true);
+                            await CommonCombatActions.StrikeAdjacentCreature(self, null);
+                        }
+                    })),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.SuddenCharge])!)
+                };
+            });
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.YoureNext], LongTermEffectDuration.Forever, (_, _) =>
+            {
+                return new QEffect("You're Next {icon:Reaction}", "After you reduce an enemy to 0 HP, you can spend a reaction to Demoralize one creature. You have a +2 circumstance bonus to this check.")
+                {
+                    AfterYouTakeAction = async delegate (QEffect qff, CombatAction action)
+                    {
+                        if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
+                        {
+                            Creature chosenCreature3 = action.ChosenTargets.ChosenCreature;
+                            if (chosenCreature3 != null && chosenCreature3.HP >= 1)
+                            {
+                                if (chosenCreature3.IsImmuneTo(Trait.Mental))
+                                {
+                                    chosenCreature3.Battle.Log(chosenCreature3?.ToString() + " is immune to mental effects and can't be frightened.");
+                                }
+                                else
+                                {
+                                    chosenCreature3.Occupies.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
+                                    chosenCreature3.AddQEffect(QEffect.Frightened(1));
+                                }
+                            }
+                        }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.YoureNext])!)
+                };
+            });
+
+            #endregion
+        }
+
+        private static void AddFocusSpell(Creature creature, SpellId spell, Ability ability, Trait tradition, Trait source)
+        {
+            Spellcasting? casting = new(creature);
+
+            if (creature.Spellcasting == null)
+            {
+                creature.Spellcasting = casting;
+            }
+            else
+            {
+                casting = creature.Spellcasting;
+            }
+
+            if (creature.Spellcasting.FocusPointsMaximum < 3)
+            {
+                creature.Spellcasting.FocusPointsMaximum++;
+                creature.Spellcasting.FocusPoints++;
+            }
+
+            foreach (var spellCastingSource in creature.Spellcasting.Sources)
+            {
+                if (spellCastingSource.ClassOfOrigin == source)
+                {
+                    spellCastingSource.FocusSpells.Add(AllSpells.CreateModernSpell(spell, creature, creature.MaximumSpellRank, true, new SpellInformation
+                    {
+                        ClassOfOrigin = source
+                    }).CombatActionSpell);
+
+                    return;
+                }
+            }
+
+            var newSource = new SpellcastingSource(casting, SpellcastingKind.Innate, ability, tradition, source);
+            newSource.FocusSpells.Add(AllSpells.CreateModernSpell(SpellId.GravityWeapon, creature, creature.MaximumSpellRank, true, new SpellInformation
+            {
+                ClassOfOrigin = source
+            }).CombatActionSpell);
+            creature.Spellcasting.Sources.Add(newSource);
         }
     }
 }

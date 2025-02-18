@@ -5,24 +5,24 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Campaign.LongTerm;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Core.Mechanics.Treasure;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class Colosseum1Lv2 : Level2Encounter
     {
-        private int Round;
-
         public Colosseum1Lv2(string filename) : base("Colosseum", filename)
         {
-            RewardGold = (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.8);
+            RewardGold = (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.7);
 
-            Round = 1;
+            int round = 1;
 
             ReplaceTriggerWithCinematic(TriggerName.StartOfEncounterBeforeStateCheck, async (TBattle battle) =>
             {
-                //var placeholderKobolds = battle.AllCreatures.Where((creature) => creature.Name.Contains("Kobold")).ToArray();
-
                 battle.AllCreatures.RemoveAll((creature) => creature.Name.Contains("Kobold"));
 
                 for (int i = 0; i < 4; i++)
@@ -35,10 +35,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
             ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async (TBattle battle) =>
             {
-                if (Round == 1)
+                if (round == 1)
                 {
-                    if (await AskToContinueBattle(battle, Round))
+                    if (await AskToContinueBattle(battle, round))
                     {
+                        RewardGold += (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.6);
+                        var newItemRewards = new List<Item>();
+                        CommonEncounterFuncs.SetItemRewards(newItemRewards, CharacterLevel, EncounterType.NORMAL);
+
+                        Rewards.AddRange(newItemRewards);
+
                         for (int i = 0; i < 2; i++)
                         {
                             var creature = Bodyguard.Create();
@@ -66,10 +72,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
                         await battle.EndTheGame(true, "You won the first round, and chose to leave with your winnings.");
                     }
                 }
-                else if (Round == 2)
+                else if (round == 2)
                 {
-                    if (await AskToContinueBattle(battle, Round))
+                    if (await AskToContinueBattle(battle, round))
                     {
+                        RewardGold += (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.8);
+
                         battle.SpawnCreature(RalknarTheRude.Create(), battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
@@ -87,12 +95,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
                         await battle.EndTheGame(true, "You won the second round, and chose to leave with your winnings.");
                     }
                 }
-                else if (Round == 3)
+                else if (round == 3)
                 {
+                    foreach (var creature in battle.AllCreatures.Where((c) => c.OwningFaction == battle.You))
+                    {
+                        GrantFeatEffect(creature);
+                    }
+
                     await battle.EndTheGame(true, "You beat the colosseum! For your prize, each of your characters has been trained in a martial technique.");
                 }
 
-                Round++;
+                round++;
             });
         }
 
@@ -107,6 +120,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
         private static async Task<bool> AskToContinueBattle(TBattle battle, int round)
         {
             return await battle.AskForConfirmation(battle.AllCreatures.First((creature) => creature.OwningFaction == battle.You), IllustrationName.WinningStreak, $"You've beaten round {round}! Do you wish to continue fighting for extra rewards?", "Yes", "No");
+        }
+
+        private static void GrantFeatEffect(Creature creature)
+        {
+            if (creature.LongTermEffects == null)
+            {
+                creature.LongTermEffects = new();
+            }
+
+            var martial = creature.Proficiencies.Get(Trait.Martial) >= Proficiency.Trained;
+            var hasShieldBlock = creature.HasEffect(QEffectId.ShieldBlock);
+            var intimidation = creature.Proficiencies.Get(Trait.Intimidation) >= Proficiency.Trained;
+
+            var effects = new List<LongTermEffect>()
+            {
+                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.KiRush], null, null)!,
+                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.Mobility], null, null)!,
+                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.NimbleDodge], null, null)!,
+                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.QuickDraw], null, null)!,
+                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.RapidResponse], null, null)!,
+                WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.ShakeItOff], null, null)!
+            };
+
+            if (martial)
+            {
+                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.BrutalBeating], null, null)!);
+                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.GravityWeapon], null, null)!);
+                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.PowerAttack], null, null)!);
+                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.SuddenCharge], null, null)!);
+
+                if (intimidation)
+                {
+                    effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.YoureNext], null, null)!);
+                }
+            }
+
+            if (hasShieldBlock)
+            {
+                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.AggressiveBlock], null, null)!);
+                effects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[LTEs.ColosseumFeat.ReactiveShield], null, null)!);
+            }
         }
     }
 }
