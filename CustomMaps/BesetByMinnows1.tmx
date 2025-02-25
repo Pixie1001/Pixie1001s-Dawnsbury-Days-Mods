@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="8" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription">The party's journey is interrupted by a flooded passage. An unfortunate but not altogether unexpected occurrence down in the twisting caves of the Below.
+
+With no other choice, they gather their potions of water breathing and begin to dredge down into the murky depths, wary of corrupted merfolk and other aquatic predators.
+
+Piercing and slashing weapons are less effective when fighting underwater, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.
+
+(Contributed by DingleBob)</property>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="1"/>
   <property name="EncounterName" value="Beset by Minnows"/>

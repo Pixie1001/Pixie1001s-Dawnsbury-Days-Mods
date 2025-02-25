@@ -292,7 +292,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     return false;
                 }
                 equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
-                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlacedAsSubitem);
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlaceAsSubitem);
                 Sfxs.Play(SfxName.AttachRune);
                 return false;
             }

@@ -63,7 +63,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .AddSpellcastingSource(SpellcastingKind.Prepared, ModTraits.Witch, Ability.Intelligence, Trait.Divine).WithSpells(
                 level1: new SpellId[] { SpellId.Daze, SpellId.Guidance, SpellId.GrimTendrils, SpellId.Heal, SpellId.Heal },
-                level2: new SpellId[] { SpellLoader.BrinyBolt, SpellId.HideousLaughter }).Done();
+                level2: new SpellId[] { SpellId.BrinyBolt, SpellId.HideousLaughter }).Done();
         }
     }
 }

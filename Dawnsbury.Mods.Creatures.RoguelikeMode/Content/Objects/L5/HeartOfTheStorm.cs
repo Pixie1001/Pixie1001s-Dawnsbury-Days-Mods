@@ -51,6 +51,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 //},
                 StateCheck = self => {
                     if (!self.Owner.Battle.AllCreatures.Any(cr => cr.Alive && cr.CreatureId == CreatureIds.MerfolkSeaWitch)) {
+                        foreach (Tile tile in self.Owner.Battle.Map.AllTiles) {
+                            tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
+                        }
                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                     }
                 }

@@ -172,7 +172,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 })
                 .AddSpellcastingSource(SpellcastingKind.Prepared, ModTraits.Witch, Ability.Wisdom, Trait.Primal).WithSpells(
                 [SpellId.RayOfFrost, SpellId.Shield, SpellId.NeedleDarts, SpellId.Heal, SpellId.Fear, SpellId.Fear],
-                [SpellLoader.BrinyBolt, SpellLoader.BrinyBolt ]).Done()
+                [SpellId.BrinyBolt, SpellId.BrinyBolt]).Done()
                 ;
 
             return monster;

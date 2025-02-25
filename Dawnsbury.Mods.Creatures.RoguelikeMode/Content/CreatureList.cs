@@ -231,7 +231,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowInquisitrix);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowNecromancer);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowTempleGuard);
-            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Alchemist);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Alchemist, "Alchemist");
 
             // Level 2 Creatures - Other
 

@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="14" height="14" tilewidth="256" tileheight="256" infinite="0" nextlayerid="12" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="An ice filled fallen temple"/>
+  <property name="EncounterDescription">Legend says that there was a time when dragons ruled Our Point of Light, roosting within mighty temples where they accepted offerings and held court with mortal petitioners... Until the gods are said to have struck them from the sky for their hubris, sundered their temples and sinking them deep into the bowels of the earth.
+
+Whatever the truth, the party soon realises that the temples themselves, and the corpses of the titanic creatures they were built to honour, are very real indeed...
+
+(Contributed by SudoProgramming)</property>
   <property name="EncounterGroup" value="Roguelike (Boss)"/>
   <property name="EncounterLevel" type="int" value="4"/>
   <property name="EncounterName" value="Frozen Temple"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="DlcTileset.tsx"/>
- <tileset firstgid="202" source="CustomCreatures.tsx"/>
+ <tileset firstgid="204" source="CustomCreatures.tsx"/>
  <imagelayer id="11" name="Image Layer 1">
   <image source="BG_FrozenTemple.jpg" width="2048" height="2048"/>
  </imagelayer>
@@ -33,10 +37,10 @@
  <layer id="7" name="Top layer: stones, trees, creatures..." width="14" height="14">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2227,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2229,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,2227,0,0,0,232,0,0,0,0,0,
+0,0,0,0,2229,0,0,0,234,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,

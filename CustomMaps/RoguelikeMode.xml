@@ -16,10 +16,14 @@
     <startingShopLevel>1</startingShopLevel>
     <encounters>
         <narration name="Enter the Dungeon">
-            [Background lore on why there's a randomly generated dungeon goes here.]
+            Strange tremors and calamatous visions that leave the diviners and Oracles alike waking with bone chilling screams upon their lips plague the town of Dawnsbury. The signs are clear... While the Starborn legions amass at the border, a terrible magic is being wrought beneath the very ground of Dawnsbury.
+			
+			It doesn't take long for the town's scholars to pinpoint the first lead to this strange magical disturbance as a subterranean leyline located deep down in the Below...
+			
+			With the kingdom's knights and most trusted heroes occupied with patrolling the border, and the magical disturbance much too remote for the mages of the Royal Academy to detect, it falls to Dawnsbury to assemble a small party of unlikely heroes to descend into the depths of the Below, and investigate the leylines... Before the foul intent of the ritual comes to pass.
         </narration>
         <beginChapter>Floor 1</beginChapter>
-        <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across our point of light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teaming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury... The party must seek out the source of the anomaly themselves to assess the threat..." shopLevel="1" />
+        <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across Our Point of Light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teaming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury... The party must seek out the source of the anomaly themselves to assess the threat..." shopLevel="1" />
         <encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		<encounter filename="HallOfBeginnings.tmx">
