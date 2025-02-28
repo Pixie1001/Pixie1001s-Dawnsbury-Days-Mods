@@ -67,9 +67,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     internal class ChosenOfTheKrakenLv2 : Level2Encounter
     {
         public ChosenOfTheKrakenLv2(string filename) : base("Chosen of the Kraken", filename) {
-            this.Map.Description = "The party's journey is interrupted by a flooded passage. An unfortunate but not altogether unexpected occurrence down in the twisting caves of the Below. " +
-                "With no other choice, they gather their potions of water breathing and begin to dredge down in the murky depths, wary of corrupted merfolk and other aquatic predators.\n\n" +
-                "Piercing and slashing weapons are less effective when fighting underwater, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.";
+            this.Map.Description = CommonEncounterFuncs.DefaultAquoticCombatDesc;
         }
 
         public override void ModifyCreatureSpawningIntoTheEncounter(Creature creature) {

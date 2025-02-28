@@ -56,7 +56,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         "\n\nThis movement will not path around hazards or attacks of opportunity.",
                         Target.Self((user, ai) => {
                             if (!user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && cr.Threatens(user.Occupies)) && user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && user.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Lesser && user.DistanceTo(cr) <= user.Speed * 1.5f && user.DistanceTo(cr) > 4)) {
-                                return 11.5f;
+                                return 15f;
                             }
                             return 0f;
                         })) {

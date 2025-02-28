@@ -116,21 +116,21 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 creature.AddQEffect(new QEffect("Underwater Marauder", "You are not flat-footed while underwater, and don't take the usual penalties for using a bludgeoning or slashing melee weapon in water.") {
                     YouAcquireQEffect = (self, newEffect) => {
                         if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (underwater marauder)") {
-                            return new QEffect("Aquatic Combat (underwater marauder)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.") {
+                            return new QEffect("Aquatic Combat (underwater marauder)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.\nYou have resistance 5 to acid and fire.") {
                                 Id = QEffectId.AquaticCombat,
                                 DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                                 Illustration = IllustrationName.ElementWater,
                                 Innate = false,
-                                StateCheck = (Action<QEffect>)(qfAquaticCombat =>
-                                {
+                                StateCheck = (Action<QEffect>)(qfAquaticCombat => {
+                                    qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Acid, 5).WithExpirationEphemeral());
+                                    qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, 5).WithExpirationEphemeral());
                                     if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
                                         return;
                                     qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                                         Id = QEffectId.CountsAllTerrainAsDifficultTerrain
                                     });
                                 }),
-                                PreventTakingAction = (Func<CombatAction, string>)(action =>
-                                {
+                                PreventTakingAction = (Func<CombatAction, string>)(action => {
                                     if (action.HasTrait(Trait.Impulse))
                                         return (string)null;
                                     if (action.HasTrait(Trait.Fire))

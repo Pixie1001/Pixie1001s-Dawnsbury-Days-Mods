@@ -81,7 +81,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             Tile startingPos = self.Occupies;
             Vector2 pos = self.Occupies.ToCenterVector();
             List<Option> options = new List<Option>();
-            Dictionary<string, Tile> pairs = new Dictionary<string, Tile>();
+            Dictionary<Option, Tile> pairs = new Dictionary<Option, Tile>();
 
             PathfindingDescription pathfindingDescription = new PathfindingDescription() {
                 Squares = movementStyle.MaximumSquares,
@@ -118,13 +118,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 }
 
                 // Add tile as option
-                CombatAction movement = new CombatAction(self, img, "Beast's Charge", new Trait[] { Trait.Move }, "", Target.Tile((cr, t) => t.LooksFreeTo(cr), (cr, t) => (float)int.MinValue)
+                CombatAction movement = new CombatAction(self, img, "Powerful Charge", new Trait[] { Trait.Move }, "", Target.Tile((cr, t) => t.LooksFreeTo(cr), (cr, t) => (float)int.MinValue)
                     .WithPathfindingGuidelines((cr => pathfindingDescription))
                 )
                 .WithActionCost(0)
                 ;
                 options.Add(movement.CreateUseOptionOn(tile));
-                pairs.Add(options.Last().ToString(), tile);
+                pairs.Add(options.Last(), tile);
             }
 
             // Adds a Cancel Option
@@ -145,7 +145,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     return null;
                 }
 
-                return pairs[selectedOption.ToString()];
+                return pairs[selectedOption];
             }
 
             return null;

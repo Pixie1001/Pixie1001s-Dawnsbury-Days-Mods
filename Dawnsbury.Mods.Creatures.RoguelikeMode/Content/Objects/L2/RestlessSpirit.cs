@@ -54,7 +54,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.Consecrate, "Release Spirits", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                        "Make a Religion check against DC " + qfCurrentDC.Value + 2 + "." + S.FourDegreesOfSuccess(null, "Release the spirit, destroying the hazard and gaining a +1 status bonus to attack, saving throws and strike damage for the rest of the encounter.",
+                                                        "Make a Religion check against DC " + (qfCurrentDC.Value + 2) + "." + S.FourDegreesOfSuccess(null, "Release the spirit, destroying the hazard and gaining a +1 status bonus to attack, saving throws and strike damage for the rest of the encounter.",
                                                         null, "You take 1d6 negative damage."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)

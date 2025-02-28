@@ -1532,13 +1532,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     eidolon.AddQEffect(new QEffect("Water Elemental", "Your eidolon is not flat-footed while underwater, and doesn't take the usual penalties for using a bludgeoning or slashing melee weapon in water.") {
                         YouAcquireQEffect = (self, newEffect) => {
                             if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (water elemental)") {
-                                return new QEffect("Aquatic Combat (water elemental)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.") {
+                                return new QEffect("Aquatic Combat (water elemental)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.\nYou have resistance 5 to acid and fire.") {
                                     Innate = false,
                                     Id = QEffectId.AquaticCombat,
                                     DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                                     Illustration = IllustrationName.ElementWater,
-                                    StateCheck = (Action<QEffect>)(qfAquaticCombat =>
-                                    {
+                                    StateCheck = (Action<QEffect>)(qfAquaticCombat => {
+                                        qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Acid, 5).WithExpirationEphemeral());
+                                        qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, 5).WithExpirationEphemeral());
                                         if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
                                             return;
                                         qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {

@@ -133,8 +133,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         if (target.QEffects.FirstOrDefault(qf => qf.Id == QEffectIds.Stalked && qf.Source == self.Owner) != null) {
                             return 30f;
                         }
-                        return -10f;
-                        //return 0f;
+                        return 0f;
                     }
                 })
                 .AddQEffect(CommonQEffects.Drow())

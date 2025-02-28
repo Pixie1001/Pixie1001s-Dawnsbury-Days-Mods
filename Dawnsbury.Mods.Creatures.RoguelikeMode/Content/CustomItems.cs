@@ -542,7 +542,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName VipersSpit { get; } = ModManager.RegisterNewItemIntoTheShop("VipersSpit", itemName => {
-            Item item = new Item(itemName, new DualIllustration(IllustrationName.PersistentAcid, IllustrationName.HandCrossbow), "viper's spit", 3, 25,
+            Item item = new Item(itemName, new DualIllustration(IllustrationName.AcidArrow, IllustrationName.HandCrossbow), "viper's spit", 3, 25,
                 new Trait[] { Trait.Magical, Trait.Reload1, Trait.Simple, Trait.Bow, Trait.Crossbow, Trait.RogueWeapon, Trait.Acid, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.HandCrossbow)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
@@ -883,7 +883,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 };
                                 self.Owner.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
                                     AfterYouDealDamage = async (creature, action, defender) => {
-                                        if (action.CheckResult >= CheckResult.Success || !defender.IsAdjacentTo(caster))
+                                        if (action.CheckResult < CheckResult.Success || !defender.IsAdjacentTo(caster))
                                             return;
                                         await qfSupport.Owner.FictitiousSingleTileMove(defender.Occupies);
                                         defender.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Poison));

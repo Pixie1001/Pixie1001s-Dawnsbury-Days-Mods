@@ -72,6 +72,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         }
 
                         CombatAction action = self.Owner.CreateStrike(weapon, -1, strikeModifiers);
+                        action.Traits.Add(Trait.Divine);
+                        action.Traits.Add(Trait.Spell);
+                        action.SpellLevel = 1;
                         action.ActionCost = 2;
                         action.Name = $"Channel Smite ({weapon.Name})";
                         action.Description = "You siphon the destructive energies of positive or negative energy through a melee attack and into your foe. Make a melee Strike and add the spell’s damage to the Strike’s damage. This is negative damage if you expended a harm spell or positive damage if you expended a heal spell. The spell is expended with no effect if your Strike fails or hits a creature that isn’t damaged by that energy type (such as if you hit a non-undead creature with a heal spell).";

@@ -72,23 +72,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class Boss_DriderFight : Encounter
-    {
+    internal class Boss_DriderFight : BossFightEncounter {
 
-        public Boss_DriderFight(string filename) : base("Drider Fight", filename, new List<Item>() { }, 0)
-        {
-
-            //this.CharacterLevel = 3;
-
-            //// Run setup
-            //this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-            //    CommonEncounterFuncs.ApplyEliteAdjustments(battle);
-            //});
-
-            //// Run cleanup
-            //this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-
-            //});
+        public Boss_DriderFight(string filename) : base("The Web Closes", filename) {
+            // Run setup
+            this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
+                await Cutscenes.DriderGeneralCutscene(battle);
+            });
         }
 
     }

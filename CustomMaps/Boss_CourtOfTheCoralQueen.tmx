@@ -5,7 +5,7 @@
 
 Whatever the truth of the matter, it soon becomes clear that the party must strike at the height of their squalid kingdom to stop them once and for all.
 
-The ritual site will no doubt be flooded as well. Piercing and slashing weapons are less effective when fighting underwater, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.
+The ritual site will no doubt be flooded as well. Bludgeoning and slashing weapons are less effective when fighting underwater, as well as fire and acid damage, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.
 </property>
   <property name="EncounterGroup" value="Roguelike (Boss)"/>
   <property name="EncounterLevel" type="int" value="4"/>

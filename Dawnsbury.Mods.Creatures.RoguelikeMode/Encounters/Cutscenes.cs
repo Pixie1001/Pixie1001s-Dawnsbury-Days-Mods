@@ -86,7 +86,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             guard.Subtitle = "Royal Protector of House Vextra";
 
             battle.Cinematics.EnterCutscene();
-            Sfxs.SlideIntoSong(Songname.HighTensionBegins);
+            Sfxs.BeginSong(Songname.HighTensionBegins);
             await battle.Cinematics.LineAsync(priestess, "Ah, we meet at last meddlesome adventurers! But now it is time you met a real adventuring party.", null);
             await battle.Cinematics.LineAsync(inquisitrix, "Yes! One that stands for important adventuring values, like inter-family drama, themes of dark academia and killing people for exciting loot.", null);
             await battle.Cinematics.LineAsync(mage, "And sexy, flamboyant brooding~", null);
@@ -96,12 +96,30 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             battle.Cinematics.ExitCutscene();
         }
 
+        public async static Task DriderGeneralCutscene(TBattle battle) {
+            Creature drider = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Drider");
+            drider.MainName = "General Licinia";
+            drider.Subtitle = "High Lady Commander, Chosen of the Demon Queen of Spiders";
+
+            Creature inquisitrix = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Drow Inquisitrix");
+            inquisitrix.MainName = "Strategist Fausta";
+            inquisitrix.Subtitle = "Licinia's Personal Strategist";
+
+            battle.Cinematics.EnterCutscene();
+            Sfxs.BeginSong(Songname.HighTensionBegins);
+            await battle.Cinematics.LineAsync(drider, "Welcome heroes. I've been expecting you.");
+            await battle.Cinematics.LineAsync(drider, "You've done well evading my forces to make it this far. Truly, I commend you.");
+            await battle.Cinematics.LineAsync(drider, "What a pity for you to have stumbled into my web all the same, just before the most crucial moment.");
+            await battle.Cinematics.LineAsync(drider, "Once the ritual is complete and our Queen's blessing is allowed to touch all of her faithful, the people of Dawnsbury shall toil beneath my whip. But for you, cunning heroes, I grant the mercy of a swift death.");
+            battle.Cinematics.ExitCutscene();
+        }
+
         public async static Task HandmaidenCutscene(TBattle battle) {
             Creature handmaiden = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Abyssal Handmaiden");
             handmaiden.Subtitle = "Handmaiden of the Spider Queen";
 
             battle.Cinematics.EnterCutscene();
-            Sfxs.SlideIntoSong(Songname.HighTensionBegins);
+            Sfxs.BeginSong(Songname.HighTensionBegins);
             await battle.Cinematics.LineAsync(handmaiden, "Ah, welcome adventurers. You're just in time! I was beginning to worry you'd miss the Queen's big baby shower... I spent a lot of time setting this up for her.", null);
             await battle.Cinematics.LineAsync(handmaiden, "You know it was actually in this very chamber that my Queen was born. Cast out by the Gods for daring to ask what dirty little secrets they were hiding on the Other Side.", null);
             await battle.Cinematics.LineAsync(handmaiden, "So really, it's only fitting that the first of her children should bubble up and take their revenge upon the surface world from here...", null);
@@ -121,7 +139,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             mother.Subtitle = "Mother of the Pool";
 
             battle.Cinematics.EnterCutscene();
-            Sfxs.SlideIntoSong(SoundEffects.VikingMusic);
+            Sfxs.BeginSong(SoundEffects.VikingMusic);
             await battle.Cinematics.LineAsync(mother, "Double, double toil and trouble.", null);
             await battle.Cinematics.LineAsync(maiden, "Fire burn and cauldron bubble.", null);
             await battle.Cinematics.LineAsync(crone, "For a charm of powerful trouble.", null);
@@ -152,7 +170,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             await battle.Cinematics.LineAsync(maiden, "And perhaps with the help of the linelines, even those from the world above. When the time comes.", null);
             await battle.Cinematics.LineAsync(maiden, "But you, brave souls, may rest well knowing you'll have my personal assistance in moving onto a... better place. No matter how gruesome a death I shall be forced to afflict upon you.", null);
             await battle.Cinematics.LineAsync(maiden, "I... I really am quite sorry.", null);
-            Sfxs.SlideIntoSong(Songname.HighTensionBegins);
+            Sfxs.BeginSong(Songname.HighTensionBegins);
             battle.Cinematics.ExitCutscene();
         }
 
@@ -161,7 +179,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             witch.Subtitle = "Mother of the Pool";
 
             battle.Cinematics.EnterCutscene();
-            Sfxs.SlideIntoSong(SoundEffects.MotherOfThePoolTheme);
+            Sfxs.BeginSong(SoundEffects.MotherOfThePoolTheme);
             await battle.Cinematics.LineAsync(witch, "Welcome children... Please, come. Sit. All are welcome in my church. Have you come seeking enlightenment from my waters?", null);
             await battle.Cinematics.LineAsync(witch, "No? Ah. A pity.", null);
             await battle.Cinematics.LineAsync(witch, "It would seem the false gods have sent their champions to test us, my flock.", null);
@@ -174,7 +192,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             witch.Subtitle = "Crone of the Wilds";
 
             battle.Cinematics.EnterCutscene();
-            Sfxs.SlideIntoSong(SoundEffects.VikingMusic);
+            Sfxs.BeginSong(SoundEffects.VikingMusic);
             await battle.Cinematics.LineAsync(witch, "Welcome, my pretties, to my oasis. Ah, but this place is not for the likes of you.", null);
             await battle.Cinematics.LineAsync(witch, "I would send you on your way, but the grass grows brittle, and my wolves hungry... A pity the drow and their runaways have since learned not to come this way anymore.", null);
             await battle.Cinematics.LineAsync(witch, "But you pretty little morsels will do just fine.", null);
@@ -187,7 +205,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             witch.Subtitle = "The Coral Queen";
 
             battle.Cinematics.EnterCutscene();
-            Sfxs.SlideIntoSong(Songname.HighTensionBegins);
+            Sfxs.BeginSong(Songname.HighTensionBegins);
             await battle.Cinematics.LineAsync(witch, "Ah, petitioners to my court! What a novelty! It has been ohhh so long since land dwellers visited my domain...", null);
             await battle.Cinematics.LineAsync(witch, "Are you here to witness the rousing of the deep ones after their great slumber? Oh, it will be a glorious sight indeed.", null);
             await battle.Cinematics.LineAsync(witch, "The oceans will turn red with the blood of our fickle surface cousins, who cast my people out to the sunless aquifers of the Below... Here, let me show just a taste of their ancient power!", null);

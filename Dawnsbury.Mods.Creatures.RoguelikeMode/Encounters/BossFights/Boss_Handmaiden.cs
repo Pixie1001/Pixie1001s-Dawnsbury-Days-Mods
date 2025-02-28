@@ -64,9 +64,8 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class Boss_Handmaiden : Encounter
-    {
-        public Boss_Handmaiden(string filename) : base("Handmaiden of the Spider Queen", filename, new List<Item>() { }, 0) {
+    internal class Boss_Handmaiden : BossFightEncounter {
+        public Boss_Handmaiden(string filename) : base("Handmaiden of the Spider Queen", filename) {
             // Run setup
             this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
                 await Cutscenes.HandmaidenCutscene(battle);
