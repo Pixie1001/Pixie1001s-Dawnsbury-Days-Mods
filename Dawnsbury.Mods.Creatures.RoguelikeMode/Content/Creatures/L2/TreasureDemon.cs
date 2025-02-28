@@ -42,6 +42,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
             .WithBasicCharacteristics()
             .AddQEffect(new QEffect("Treasure Hoarder",
             $"Treasure Demons hop between dimensions, often travelling through the safety of the {Loader.UnderdarkName} to endow the demon lord's mortal servants with funds for their foul schemes. Kill it before it escapes to steal its delivery for yourselves.") {

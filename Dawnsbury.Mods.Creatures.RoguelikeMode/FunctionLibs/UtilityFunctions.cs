@@ -43,6 +43,37 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return false;
         }
 
+        internal static string GetShopBanter() {
+            string? lastEliteName = null;
+            //int 
+            lastEliteName = CampaignState.Instance?.AdventurePath?.CampaignStops[CampaignState.Instance.CurrentStopIndex - 1].Name;
+
+            if (lastEliteName == null) {
+                return "";
+            }
+
+            switch (lastEliteName) {
+                case "Mother of the Pool":
+                    return "Mother Cassandra? That name sounds familiar. I think a young tiefling girl by that name grew up here. Alas, they were less tolerant times. It seems one way or another, she finally found a way to gain the affection she was so cruelly denied...";
+                case "Maiden of the Lost":
+                    return "She was building a cemetery you say? How peculiar, I've never seen the Starborn's disciples put so much care and attention towards the dignity of the dead before.";
+                case "Crone of the Wilds":
+                    return "Agatha Agarthia you say? Yes I think I've heard of her. Legend has it she used to be a wise hermit, reveered by the clergy of the Blooming Flower. Well, until they learned about the whole child eating thing anyway...";
+                case "Lair of the Drider":
+                    return "So it was like a centaur, but instead of a horse it was part spider? Do you think they used the magic from the leyline to create such a creature, or was she merely its guardian...";
+                case "Grand Staircase":
+                    return "An owlbear? How cute! But I do wonder how the drow even managed to tame a creature like that... Perhaps the Starborn granted them owl kibble from other conquered worlds? Or maybe they just gave really good chin scritches?";
+                case "Hall of Smoke":
+                    return "A lost temple you say? I wonder what god it was dedicated to... Those guardians must have been waiting down their for aoens... How tragic.";
+                case "Aqueducts":
+                    return "Those aquaducts sure do sound claustrophobic. An entire Drow city, just abandoned though? I wonder what possessed them to flee. Perhaps a cave in? Or some kind of creature decided to make the city its lairs? It makes you wonder why the Drow chose to seclude themselves down there in the first place...";
+                case "Fissure Duel":
+                    return "An entire other adventurer party composed entirely of Drow? How exciting!";
+                default:
+                    return "";
+            }
+        }
+
         internal static Creature AddNaturalWeapon(Creature creature, string naturalWeaponName, Illustration illustration, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null)
         {
             bool flag = traits.Contains(Trait.Finesse) || traits.Contains(Trait.Ranged);

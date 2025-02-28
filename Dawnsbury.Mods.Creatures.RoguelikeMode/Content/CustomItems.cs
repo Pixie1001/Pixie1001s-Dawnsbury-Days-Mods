@@ -396,7 +396,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
-                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(ModTraits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
             .WithDescription("{i}This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.{/i}\n\n" +
@@ -869,7 +869,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         .WithProficiency(Trait.UnarmoredDefense, Proficiency.Trained)
                         .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing))
                         //.WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "leg", Trait.Unarmed, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
-                        .AddQEffect(CommonQEffects.WebAttack(prof))
+                        .AddQEffect(CommonQEffects.WebAttack(10 + prof))
                         .AddQEffect(new QEffect() {
                             ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
                             "Support", [], "{i}Your spider drips poison from its stinger when you create an opening.{/i}\n\nUntil the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
@@ -975,19 +975,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     foreach (Item rune in item.Runes) {
                         dagger.WithModificationRune(rune.ItemName);
                     }
-                    dagger.Traits.Add(Trait.EncounterEphemeral);
 
                     var hammer = Items.CreateNew(LightHammer);
                     foreach (Item rune in item.Runes) {
                         hammer.WithModificationRune(rune.ItemName);
                     }
-                    hammer.Traits.Add(Trait.EncounterEphemeral);
 
                     var axe = Items.CreateNew(Hatchet);
                     foreach (Item rune in item.Runes) {
                         axe.WithModificationRune(rune.ItemName);
                     }
-                    axe.Traits.Add(Trait.EncounterEphemeral);
 
                     qfTB.Tag = new List<Item>() { dagger, hammer, axe };
                 };
@@ -1008,7 +1005,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        user.HeldItems.Add((qfTB.Tag as List<Item>)[0].Duplicate());
+                        Item item = (qfTB.Tag as List<Item>)[0].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
                     }));
 
                     menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[1].Illustration, "Draw Light Hammer", new Trait[] { Trait.Manipulate, Trait.Basic },
@@ -1017,7 +1016,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        user.HeldItems.Add((qfTB.Tag as List<Item>)[1].Duplicate());
+                        Item item = (qfTB.Tag as List<Item>)[1].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
                     }));
 
                     menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[2].Illustration, "Draw Hatchet", new Trait[] { Trait.Manipulate, Trait.Basic },
@@ -1026,7 +1027,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        user.HeldItems.Add((qfTB.Tag as List<Item>)[2].Duplicate());
+                        Item item = (qfTB.Tag as List<Item>)[2].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
                     }));
 
                     return menu;
@@ -1308,7 +1311,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithWornAt(Trait.Cloak)
             .WithDescription("{i}This haggard fur cloak is has a musky, feral smell to it and seems to pulsate warmly... as if it were not simply a cloak, but the flesh of a living, breathing thing.{/i}\n\n" +
             "You have a +2 item bonus to Demoralize check made against animals, and gain the benefits of the Intimidating Glare feat.\n\n" +
-            "Once per encounter, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn.")
+            "Once per encounter, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn. While transformed, your weapons are replaced with natural appendages related to your new form and you cannot cast spells.")
             .WithItemAction((item, user) => {
                 if (user.FindQEffect(QEffectIds.ShifterFurs) != null) {
                     return null;
@@ -1351,14 +1354,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             transform.Description = $"{user.Name} has assumed the form of a ferocious bear, capable of grappling its prey on a successful jaws attack and with a +2 item bonus to armour.";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = IllustrationName.AnimalFormBear;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack).WithAdditionalWeaponProperties(properties => {
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
                                     properties.WithOnTarget(async (strike, a, d, result) => {
                                         if (result >= CheckResult.Success)
                                             await Possibilities.Grapple(a, d, result);
                                     });
                                 });
                             };
-                            transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack);
+                            transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple);
                             transform.BonusToDefenses = (self, action, defence) => {
                                 if (defence == Defense.AC) {
                                     return new Bonus(2, BonusType.Item, "Natural Armour");
@@ -1376,7 +1379,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
                                 self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, 2 + self.Owner.Level);
                                 self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 2 + self.Owner.Level);
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison).WithAdditionalWeaponProperties(properties => {
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
                                     properties.AdditionalDamage.Add(("1d4", DamageKind.Poison));
                                 });
                                 self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
@@ -1388,7 +1391,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             transform.Name = "Wolf Form";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = IllustrationName.AnimalFormWolf;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed);
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed, Trait.WizardWeapon, Trait.Simple);
                                 if (self.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Sneak Attack") != null) {
                                     self.Owner.AddQEffect(QEffect.PackAttack(self.Owner.Name, "1d8").WithExpirationEphemeral());
                                     transform.Description = $"{user.Name} has assumed the form of a cunning wolf, granting them 1d8 pack attack damage.";

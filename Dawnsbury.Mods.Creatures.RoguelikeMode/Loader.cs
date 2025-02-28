@@ -74,6 +74,7 @@ using System.IO.Enumeration;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using HarmonyLib;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
@@ -183,6 +184,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<DrowSalavagingPartyLv1>("DrowSalvagingParty.tmx", "DrowSalvagingPartyLv1");
             ModManager.RegisterEncounter<DrowSalavagingPartyLv2>("DrowSalvagingParty.tmx");
             RegisterEncounter<DrowSalavagingPartyLv3>("DrowSalvagingParty.tmx", "DrowSalvagingPartyLv3");
+
+            // Level 4 Fights
+            ModManager.RegisterEncounter<DemonWebPits>("DemonWebPits.tmx");
+            ModManager.RegisterEncounter<DrowSentinels>("DrowSentinels.tmx");
+            ModManager.RegisterEncounter<EarthenGuardians>("EarthenGuardians.tmx");
+            ModManager.RegisterEncounter<FeedingFrenzy>("FeedingFrenzy.tmx");
+            ModManager.RegisterEncounter<GuardedPassage>("GuardedPassage.tmx");
+            ModManager.RegisterEncounter<MagesTower>("MagesTower.tmx");
+            ModManager.RegisterEncounter<RottingVigils>("RottingVigils.tmx");
+            ModManager.RegisterEncounter<SuccubusCult>("SuccubusCult.tmx");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

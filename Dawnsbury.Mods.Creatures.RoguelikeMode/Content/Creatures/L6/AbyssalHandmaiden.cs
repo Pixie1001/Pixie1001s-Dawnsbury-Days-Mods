@@ -89,8 +89,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d10", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse));
                     bite.Description = "The Abyssal Handmaiden attemps to grab and sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
                     bite.ShortDescription += " and the target becomes grabbed and exposed to abyssal rot.";
-                    bite.Description = "The Abyssal Handmaiden attemps to sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
-                    bite.ShortDescription += " and the target exposed to abyssal rot.";
+                    //bite.Description = "The Abyssal Handmaiden attemps to sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
+                    //bite.ShortDescription += " and the target exposed to abyssal rot.";
                     bite.ActionCost = 2;
                     bite.WithGoodnessAgainstEnemy((targeting, a, d) => d.FindQEffect(QEffectIds.AbyssalRot) != null ? 14 : 18f);
                     bite.EffectOnOneTarget = (Delegates.EffectOnEachTarget)Delegate.Combine(bite.EffectOnOneTarget, effect);

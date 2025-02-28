@@ -37,6 +37,7 @@ using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using System.Runtime.Intrinsics.Arm;
+using System.Text.Json;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -345,19 +346,25 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 i += 1;
             }
+        }
 
-                //Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
-                //    .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
-                //        typeof(Rectangle),
-                //        typeof(string),
-                //        typeof(Action),
-                //        typeof(Writer.TextAlignment),
-                //        typeof(BitmapFontGroup),
-                //        typeof(string),
-                //        typeof(Color),
-                //    }).Invoke(null, new object[]
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Shop), "CreateAdventurersDawn")]
+        private static void CreateAdventurersDawnPatch(Shop __instance, ref Shop __result, int level, bool unlimitedBuyAndSell) {
+            if (CampaignState.Instance?.AdventurePath?.Name != "Roguelike Mode") {
+                return;
+            }
 
-            // Patch code goes here
+            string comment = "<Comment about last elite encounter goes here>";
+            if (level == 1) {
+                comment = "Welcome adventurers!";
+            } else {
+                comment = UtilityFunctions.GetShopBanter();
+            }
+
+
+            string desc = comment + "\n\n" + (unlimitedBuyAndSell ? "The Adventurer's Dawn buys any items, and sells all items of level " + level.ToString() + " or lower. {i}(You can sell back items for a full refund before an adventure path begins.){/i}" : "The Adventurer's Dawn buys any items {b}at half price{/b}, and sells all items of level " + level.ToString() + " or lower.");
+            __result.GetType().GetProperty("Description", BindingFlags.Instance | BindingFlags.Public).SetValue(__result, desc);
         }
 
         [HarmonyPostfix]

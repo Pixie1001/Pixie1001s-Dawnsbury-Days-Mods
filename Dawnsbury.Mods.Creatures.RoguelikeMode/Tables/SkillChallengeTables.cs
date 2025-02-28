@@ -530,7 +530,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);
 
-                            await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, X's superior guile and sleight of hand makes victory an inevitability.", null);
+                            await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, {opt2.Nominee.Name}'s superior guile and sleight of hand makes victory an inevitability.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
 
@@ -548,7 +548,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} has been inflicted by the Rat Fiend's Curse, facing a 25% chance for a Giant Rat to crawl out of the corpse of any enemy they defeat until their next long rest.", null);
                             opt3.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null));
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The fiend screeches in agony before X's holy symbol - the very fabric of the tent bursting apart into swarms of grotesquely gauged rats as its sorcery is undone!", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The fiend screeches in agony before {opt2.Nominee.Name}'s holy symbol - the very fabric of the tent bursting apart into swarms of grotesquely gauged rats as its sorcery is undone!", null);
                             await battle.Cinematics.NarratorLineAsync($"With one last forlorn look towards its treasure, the demon cravenly skitters away, leaving its ill gotten horde behind for the taking.", null);
                             int gold = 30 * level;
                             await battle.Cinematics.NarratorLineAsync($"The party gains {gold} gold from the various coins and shiny trinkets in the creature's treasure hoard.", null);
@@ -606,7 +606,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             } else if (result == CheckResult.Success) {
                 colour = "Green";
             } else if (result == CheckResult.CriticalSuccess) {
-                colour = "Chartreuse";
+                colour = "Green"; //"Chartreuse";
             }
             return "{b}{" + colour + "}" + result.HumanizeTitleCase2().CapitalizeEachWord() + "!{" + colour + "/}{/b} ";
         }

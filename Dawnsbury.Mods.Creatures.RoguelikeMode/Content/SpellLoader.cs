@@ -114,6 +114,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         //    ;
         //});
 
+        public static SpellId LesserDominate = ModManager.RegisterNewSpell("Lesser Dominate", 5, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern((Illustration)IllustrationName.Dominate, "Lesser Dominate", new Trait[] {
+                        Trait.Enchantment,
+                        Trait.Incapacitation,
+                        Trait.Mental,
+                        Trait.AssumesDirectControl
+                    }, "You take command of the target, forcing it to obey your orders.", "The target makes a Will save." + S.FourDegreesOfSuccess("The target is unaffected.", "The target is stunned 1.", "You gain control of the target until the end of their next turn.", "As failure, but you maintain control for 2 turns."),
+            (Target)Target.Ranged(6)
+            .WithAdditionalConditionOnTargetCreature((Func<Creature, Creature, Usability>)((a, d) => !d.HasTrait(Trait.Minion) ? Usability.Usable : Usability.NotUsableOnThisCreature("minion"))), 5, SpellSavingThrow.Standard(Defense.Will))
+            .WithSoundEffect(SfxName.Mental)
+            .WithGoodnessAgainstEnemy((Func<Target, Creature, Creature, float>)((t, a, d) => (float)d.HP))
+            .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
+                if (result == CheckResult.Success)
+                    target.AddQEffect(QEffect.Stunned(1));
+                if (result > CheckResult.Failure)
+                    return;
+                Faction originalFaction = target.OwningFaction;
+                target.OwningFaction = caster.OwningFaction;
+                target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", result == CheckResult.CriticalFailure ? ExpirationCondition.CountsDownAtEndOfYourTurn : ExpirationCondition.ExpiresAtEndOfYourTurn, caster, (Illustration)IllustrationName.Dominate) {
+                    Value = result == CheckResult.CriticalFailure ? 2 : 0,
+                    StateCheck = (Action<QEffect>)(qf => {
+                        if (caster.Alive)
+                            return;
+                        qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                        if (qf.Owner.OwningFaction != caster.OwningFaction)
+                            return;
+                        qf.Owner.OwningFaction = originalFaction;
+                        qf.ExpiresAt = ExpirationCondition.Immediately;
+                    }),
+                    WhenExpires = self => {
+                        self.Owner.Occupies.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the domination.");
+                        if (self.Owner.OwningFaction != caster.OwningFaction)
+                            return;
+                        self.Owner.OwningFaction = originalFaction;
+                    }
+                });
+            }));
+        });
+
         internal static void LoadSpells() {
 
             //var spells = new List<SpellId>() { BrinyBolt };
