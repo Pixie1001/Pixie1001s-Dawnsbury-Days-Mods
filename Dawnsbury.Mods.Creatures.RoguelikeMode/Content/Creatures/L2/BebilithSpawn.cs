@@ -47,6 +47,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 }
             })
             .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
+            .AddQEffect(QEffect.WebSense())
             .AddQEffect(QEffect.AttackOfOpportunity())
             .AddQEffect(CommonQEffects.PreyUpon())
             .AddQEffect(CommonQEffects.AbyssalRotAttack(16, "1d8", "maw"))

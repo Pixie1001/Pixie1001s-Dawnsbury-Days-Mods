@@ -35,7 +35,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .AddQEffect(QEffect.DamageImmunity(DamageKind.Fire))
             .AddQEffect(QEffect.Swimming())
             .AddQEffect(QEffect.Flying())
-            .AddQEffect(new("Boiling Aura", "Creatures that end their turn adjacent to you take 1d4 fire damage.")
+            .AddQEffect(new("Boiling Aura", "Creatures that end their turn adjacent to you take 1d4+5 fire damage.")
             {
                 StateCheck = (effect) =>
                 {
@@ -45,11 +45,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     {
                         if (creature.BaseName != "Minnow of Mulnok" && creature.IsAdjacentTo(minnow) && creature.QEffects.FirstOrDefault((qEffect) => qEffect.Name == "Boiling") == null)
                         {
-                            creature.AddQEffect(new("Boiling", "At the end of your turn, you take 1d4 fire damage.", ExpirationCondition.Ephemeral, minnow, IllustrationName.WallOfFire)
+                            creature.AddQEffect(new("Boiling", "At the end of your turn, you take 1d4+5 fire damage.", ExpirationCondition.Ephemeral, minnow, IllustrationName.WallOfFire)
                             {
                                 EndOfYourTurnDetrimentalEffect = async (QEffect boilingEffect, Creature effectOwner) =>
                                 {
-                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d4"), effectOwner, CheckResult.Failure, DamageKind.Fire);
+                                    await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d4+5"), effectOwner, CheckResult.Failure, DamageKind.Fire);
                                 }
                             });
                         }

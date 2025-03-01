@@ -31,7 +31,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(CommonQEffects.SpiderVenomAttack(16, "fangs")) // Change to drider venom?
             .AddQEffect(CommonQEffects.WebAttack(16))
             .AddQEffect(CommonQEffects.MiniBoss())
-            .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb });
+            .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
+            .AddQEffect(QEffect.WebSense());
         }
     }
 }

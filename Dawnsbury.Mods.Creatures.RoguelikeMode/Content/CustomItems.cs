@@ -869,6 +869,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         .WithProficiency(Trait.UnarmoredDefense, Proficiency.Trained)
                         .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing))
                         //.WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "leg", Trait.Unarmed, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
+                        .AddQEffect(QEffect.Webwalk())
+                        .AddQEffect(QEffect.WebSense())
                         .AddQEffect(CommonQEffects.WebAttack(10 + prof))
                         .AddQEffect(new QEffect() {
                             ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,

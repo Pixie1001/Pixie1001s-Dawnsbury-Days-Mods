@@ -487,7 +487,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 // TODO: When DLC launches, change this to spell.SpellId.ToStringOrTechnical().
                 if (spell.HasTrait(Trait.Cantrip)) {
                     yield return new EvolutionFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-Cantrip)", spell.Name), spell.MinimumSpellLevel, "", AllSpells.CreateModernSpell(spell.SpellId, null, 1, false, spell.CombatActionSpell.SpellInformation).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), e => {
-                        e.Spellcasting.PrimarySpellcastingSource.WithSpells(new SpellId[] { spell.SpellId });
+                        e.Spellcasting.PrimarySpellcastingSource.WithSpells([spell.SpellId], (e.Level + 1) / 2);
                     }, null)
                     .WithIllustration(spell.Illustration);
                 }
@@ -1903,15 +1903,27 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
                     }),
                     BonusToSpellSaveDCs = qf => {
-                        int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
-                        int eDC = qf.Owner.ClassOrSpellDC();
-                        return new Bonus(eDC >= sDC ? eDC - sDC : sDC - eDC, BonusType.Untyped, "Summoner Spellcasting DC");
+                        if (qf.Owner.Spellcasting == null) {
+                            return null;
+                        }
+
+                        Creature summoner = GetSummoner(qf.Owner);
+
+                        int sDC = summoner.Proficiencies.Get(Trait.Spell).ToNumber(summoner.ProficiencyLevel) + summoner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                        int eDC = qf.Owner.Proficiencies.Get(Trait.Spell).ToNumber(qf.Owner.ProficiencyLevel) + qf.Owner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                        return new Bonus(sDC - eDC, BonusType.Untyped, "Summoner Spellcasting DC");
                     },
                     BonusToAttackRolls = (qf, action, target) => {
                         if (action.HasTrait(Trait.Spell)) {
-                            int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
-                            int eDC = qf.Owner.ClassOrSpellDC();
-                            return new Bonus(eDC >= sDC ? eDC - sDC : sDC - eDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
+                            if (qf.Owner.Spellcasting == null) {
+                                return null;
+                            }
+
+                            Creature summoner = GetSummoner(qf.Owner);
+
+                            int sDC = summoner.Proficiencies.Get(Trait.Spell).ToNumber(summoner.ProficiencyLevel) + summoner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                            int eDC = qf.Owner.Proficiencies.Get(Trait.Spell).ToNumber(qf.Owner.ProficiencyLevel) + qf.Owner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                            return new Bonus(sDC - eDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
                         }
                         return null;
                     },
@@ -2492,7 +2504,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             Tile startingPos = self.Occupies;
             Vector2 pos = self.Occupies.ToCenterVector();
             List<Option> options = new List<Option>();
-            Dictionary<string, Tile> pairs = new Dictionary<string, Tile>();
+            Dictionary<Option, Tile> pairs = new Dictionary<Option, Tile>();
 
             PathfindingDescription pathfindingDescription = new PathfindingDescription() {
                 Squares = movementStyle.MaximumSquares,
@@ -2533,7 +2545,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 .WithActionCost(0)
                 ;
                 options.Add(movement.CreateUseOptionOn(tile));
-                pairs.Add(options.Last().ToString(), tile);
+                pairs.Add(options.Last(), tile);
             }
 
             // Adds a Cancel Option
@@ -2552,7 +2564,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     return null;
                 }
 
-                return pairs[selectedOption.ToString()];
+                return pairs[selectedOption];
             }
 
             return null;

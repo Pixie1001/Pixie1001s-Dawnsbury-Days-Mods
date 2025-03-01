@@ -71,6 +71,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
+using static Dawnsbury.Delegates;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
@@ -460,6 +461,25 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         }
                     })
                     ;
+                }
+            };
+        }
+
+        public static QEffect SlipAway() {
+            return new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
+                AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
+                    if (action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || !action.Owner.IsAdjacentTo(self.Owner)) {
+                        return;
+                    }
+
+                    if (await self.Owner.AskToUseReaction("Use Slip Away to step and gain +1 AC until end of the current turn?")) {
+                        self.Owner.AddQEffect(new QEffect("Slip Away", "+1 circumstance bonus to AC.") {
+                            Illustration = IllustrationName.Shield,
+                            BonusToDefenses = (self, action, defence) => defence == Defense.AC ? new Bonus(1, BonusType.Circumstance, "Slip Away") : null,
+                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfAnyTurn
+                        });
+                        await self.Owner.StepAsync("Choose tile for Slip Away");
+                    }
                 }
             };
         }

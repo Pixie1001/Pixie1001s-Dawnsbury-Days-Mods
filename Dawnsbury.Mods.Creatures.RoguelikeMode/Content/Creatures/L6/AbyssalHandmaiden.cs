@@ -43,6 +43,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
             })
             .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
+            .AddQEffect(QEffect.WebSense())
             .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
                     int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
