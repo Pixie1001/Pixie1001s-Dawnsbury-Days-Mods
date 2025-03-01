@@ -43,7 +43,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         return;
                     }
 
-                    var disarm = new CombatAction(user, IllustrationName.Trip, "Disarming Flair", [], "When your Strike hits, you can attempt to disarm the target as a free action without applying or increasing your multiple attack penalty.", Target.ReachWithAnyWeapon().WithAdditionalConditionOnTargetCreature((_, target) => target.HeldItems.FirstOrDefault((Item hi) => !hi.HasTrait(Trait.Grapplee)) != null ? Usability.Usable : Usability.NotUsableOnThisCreature("no item to disarm")))
+                    var disarm = new CombatAction(user, IllustrationName.Trip, "Disarming Flair", [], "When your Strike hits, you can attempt to disarm the target as a free action without applying or increasing your multiple attack penalty.", Target.ReachWithAnyWeapon().WithAdditionalConditionOnTargetCreature((_, target2) => target2 == target && target2.HeldItems.FirstOrDefault((Item hi) => !hi.HasTrait(Trait.Grapplee)) != null ? Usability.Usable : Usability.NotUsableOnThisCreature("no item to disarm")))
                     .WithActionCost(0)
                     .WithSoundEffect(SfxName.Trip)
                     .WithActionId(ActionId.Disarm)
@@ -62,7 +62,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                             if (target.HeldItems.Count((Item hi) => !hi.HasTrait(Trait.Grapplee)) >= 2)
                             {
-                                disarmItem = ((await target.Battle.AskForConfirmation(target, IllustrationName.Disarm, "Which item would you like to disarm your target of?", target.HeldItems[0].Name, target.HeldItems[1].Name)) ? target.HeldItems[0] : target.HeldItems[1]);
+                                disarmItem = ((await user.Battle.AskForConfirmation(target, IllustrationName.Disarm, "Which item would you like to disarm your target of?", target.HeldItems[0].Name, target.HeldItems[1].Name)) ? target.HeldItems[0] : target.HeldItems[1]);
                             }
 
                             if (result == CheckResult.CriticalSuccess)
