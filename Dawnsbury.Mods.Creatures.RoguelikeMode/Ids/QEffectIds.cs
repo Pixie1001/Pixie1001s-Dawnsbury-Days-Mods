@@ -92,5 +92,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
 
         // Tile Effects IDs
         internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");
+        internal static TileQEffectId Maelstrom { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Maelstrom");
     }
 }

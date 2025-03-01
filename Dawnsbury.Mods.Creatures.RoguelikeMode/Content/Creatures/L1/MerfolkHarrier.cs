@@ -86,6 +86,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(new QEffect() {
                 Id = QEffectId.IgnoresDifficultTerrain
             })
+            .AddQEffect(new QEffect() {
+                Id = QEffectId.Flying
+            })
             .AddQEffect(new QEffect("Mobility", "When you use Stride to move half your Speed or less, your movement does not trigger reactions.") {
                 Id = QEffectId.Mobility
             })

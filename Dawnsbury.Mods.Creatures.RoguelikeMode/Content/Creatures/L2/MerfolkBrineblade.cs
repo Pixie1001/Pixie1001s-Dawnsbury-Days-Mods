@@ -69,6 +69,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .AddQEffect(CommonQEffects.UnderwaterMarauder())
                 .AddQEffect(QEffect.AttackOfOpportunity())
                 .AddQEffect(new QEffect() {
+                    Id = QEffectId.Flying
+                })
+                .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         int dc = 17 + self.Owner.Level;
 

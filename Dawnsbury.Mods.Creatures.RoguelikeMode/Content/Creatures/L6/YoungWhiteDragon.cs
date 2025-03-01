@@ -146,7 +146,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 {
                     AfterYouTakeDamageOfKind = async (qfTakeDamage, action, damageKind) =>
                     {
-                        if (action != null && await qfTakeDamage.Owner.AskToUseReaction($"{action.Owner} spilled your blood. Use Freezing Blood to deal 1d6 cold damage and slow them?"))
+                        if (action != null && action.Owner.Occupies != null && await qfTakeDamage.Owner.AskToUseReaction($"{action.Owner} spilled your blood. Use Freezing Blood to deal 1d6 cold damage and slow them?"))
                         {
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Freezing Blood"), action.Owner, CheckResult.Success, DamageKind.Cold);
                             action.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationAtEndOfOwnerTurn());

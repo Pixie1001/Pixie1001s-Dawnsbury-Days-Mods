@@ -56,11 +56,7 @@
             ICE_FONT,
             DEMONIC_PUSTULE,
             TEST_PILE,
-        }
-
-        internal enum BoonId
-        {
-            POISON_IMMUNITY,
+            Maelstrom,
         }
 
         internal enum EncounterType

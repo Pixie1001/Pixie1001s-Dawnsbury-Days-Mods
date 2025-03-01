@@ -1,4 +1,5 @@
-﻿using Dawnsbury.Auxiliary;
+﻿using Dawnsbury.Audio;
+using Dawnsbury.Auxiliary;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
@@ -6,6 +7,7 @@ using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Tiles;
@@ -13,6 +15,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.VisualBasic.FileIO;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +28,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class CommonEncounterFuncs {
+
+        public static string DefaultAquoticCombatDesc { get; } = "The party's journey is interrupted by a flooded passage. An unfortunate but not altogether unexpected occurrence down in the twisting caves of the Below. " +
+                "With no other choice, they gather their potions of water breathing and begin to dredge down in the murky depths, wary of corrupted merfolk and other aquatic predators.\n\n" +
+                "Bludgeoning and slashing weapons are less effective when fighting underwater, as well as fire and acid damage, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.";
 
         private static int GetHPAdjustment(int level, bool doubleHP) {
             int val = level > 5 ? (level <= 20 ? 20 : 30) : (level <= 0 ? 5 : (level <= 2 ? 10 : 15));
@@ -146,14 +153,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                         Tile pos = creatures[i].Occupies;
                         Faction faction = creatures[i].OwningFaction;
                         battle.RemoveCreatureFromGame(creatures[i]);
-                        battle.SpawnCreature(CreatureList.Creatures[CreatureId.DROW_ARCANIST](battle.Encounter), faction, pos);
+                        battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowArcanist](battle.Encounter), faction, pos);
                     }
                 } else if (!levelDrain && adj == QEffectId.Elite) {
                     if (creatures[i].BaseName == "Drow Arcanist") {
                         Tile pos = creatures[i].Occupies;
                         Faction faction = creatures[i].OwningFaction;
                         battle.RemoveCreatureFromGame(creatures[i]);
-                        battle.SpawnCreature(CreatureList.Creatures[CreatureId.DROW_SHADOWCASTER](battle.Encounter), faction, pos);
+                        battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowShadowcaster](battle.Encounter), faction, pos);
                     }
                 }
             }
@@ -192,6 +199,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         }
 
         public static async Task StandardEncounterSetup(TBattle battle, ModEnums.EncounterType type=ModEnums.EncounterType.NORMAL) {
+            Sfxs.BeginSong(Songname.Battle);
             if (battle.CampaignState != null) {
                 var treasureDemonEncounters = battle.CampaignState.Tags["TreasureDemonEncounters"].Split(", ");
                 bool addTD = false;
@@ -199,12 +207,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
                         Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).ToList().GetRandom();
-                        Creature td = CreatureList.Creatures[ModEnums.CreatureId.TREASURE_DEMON](battle.Encounter);
+                        Creature td = CreatureList.Creatures[CreatureIds.TreasureDemon](battle.Encounter);
                         if (battle.Encounter.CharacterLevel == 1) td.ApplyWeakAdjustments(false);
                         else if (battle.Encounter.CharacterLevel == 3) td.ApplyEliteAdjustments();
                         battle.SpawnCreature(td, enemyFaction, freeTile);
                     }
                 }
+            }
+
+            foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && (cr.HasEffect(QEffectId.Weak) || cr.HasEffect(QEffectId.Inferior)))) {
+                QEffect effect = enemy.HasEffect(QEffectId.Weak) ? enemy.FindQEffect(QEffectId.Weak) : enemy.FindQEffect(QEffectId.Inferior);
+                string name = "Weak";
+                int val = -2;
+                if (effect.Id == QEffectId.Inferior) {
+                    name = "Inferior";
+                    val = -4;
+                }
+
+                effect.Description = $"You have {val.WithPlus()} to all defenses, attacks, spell save DC, skills and Strike and cantrip damage (double to 2nd level or higher spells).";
+                effect.BonusToDamage = (effect, aggressiveAction, defender) => {
+                    if (aggressiveAction.HasTrait(Trait.Spell) && !aggressiveAction.HasTrait(Trait.Cantrip) && aggressiveAction.SpellLevel >= 2)
+                        return new Bonus(2 * val, BonusType.Untyped, name);
+                    return aggressiveAction.HasTrait(Trait.Spell) ? new Bonus(val, BonusType.Untyped, name) : (Bonus)null;
+                };
             }
 
             //if (battle.CampaignState != null && battle.CampaignState.Tags["TreasureDemonEncounters"].Split battle.CampaignState.CurrentStopIndex ==)

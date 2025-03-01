@@ -9,7 +9,7 @@
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <imagelayer id="4" name="Image Layer 1">
-  <image source="RoguelikeMapBGs/ShadowcastersSanctum.jpg" width="3840" height="3840"/>
+  <image source="ShadowcastersSanctum.jpg" width="3840" height="3840"/>
  </imagelayer>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15" opacity="0.2">
   <data encoding="csv">

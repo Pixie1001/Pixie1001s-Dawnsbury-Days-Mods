@@ -487,7 +487,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 // TODO: When DLC launches, change this to spell.SpellId.ToStringOrTechnical().
                 if (spell.HasTrait(Trait.Cantrip)) {
                     yield return new EvolutionFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-Cantrip)", spell.Name), spell.MinimumSpellLevel, "", AllSpells.CreateModernSpell(spell.SpellId, null, 1, false, spell.CombatActionSpell.SpellInformation).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), e => {
-                        e.Spellcasting.PrimarySpellcastingSource.WithSpells(new SpellId[] { spell.SpellId });
+                        e.Spellcasting.PrimarySpellcastingSource.WithSpells([spell.SpellId], (e.Level + 1) / 2);
                     }, null)
                     .WithIllustration(spell.Illustration);
                 }
@@ -710,7 +710,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                         // Damage
                                         foreach (Creature creature in qf.Owner.Battle.AllCreatures) {
                                             if (creature.DistanceTo(target) <= 2) {
-                                                await qf.Owner.DealDirectDamage(action, DiceFormula.FromText(damage), creature, CheckResult.Success, type);
+                                                await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(damage), creature, CheckResult.Success, type);
                                             }
                                         }
                                         // Resolve target
@@ -1523,7 +1523,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             if (eidolon.HP < summoner.HP) {
                                 eidolon.Heal($"{summoner.HP - eidolon.HP}", shareHP.CA);
                             } else if (eidolon.HP > summoner.HP) {
-                                await summoner.DealDirectDamage(shareHP.CA, DiceFormula.FromText($"{eidolon.HP - summoner.HP}"), eidolon, CheckResult.Success, DamageKind.Untyped);
+                                await CommonSpellEffects.DealDirectSplashDamage(shareHP.CA, DiceFormula.FromText($"{eidolon.HP - summoner.HP}"), eidolon, DamageKind.Untyped);
                             }
                             await eidolon.Battle.GameLoop.StateCheck();
                             await PartnerActs(summoner, eidolon, true, null);
@@ -1903,15 +1903,27 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
                     }),
                     BonusToSpellSaveDCs = qf => {
-                        int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
-                        int eDC = qf.Owner.ClassOrSpellDC();
-                        return new Bonus(eDC >= sDC ? eDC - sDC : sDC - eDC, BonusType.Untyped, "Summoner Spellcasting DC");
+                        if (qf.Owner.Spellcasting == null) {
+                            return null;
+                        }
+
+                        Creature summoner = GetSummoner(qf.Owner);
+
+                        int sDC = summoner.Proficiencies.Get(Trait.Spell).ToNumber(summoner.ProficiencyLevel) + summoner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                        int eDC = qf.Owner.Proficiencies.Get(Trait.Spell).ToNumber(qf.Owner.ProficiencyLevel) + qf.Owner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                        return new Bonus(sDC - eDC, BonusType.Untyped, "Summoner Spellcasting DC");
                     },
                     BonusToAttackRolls = (qf, action, target) => {
                         if (action.HasTrait(Trait.Spell)) {
-                            int sDC = GetSummoner(qf.Owner).ClassOrSpellDC();
-                            int eDC = qf.Owner.ClassOrSpellDC();
-                            return new Bonus(eDC >= sDC ? eDC - sDC : sDC - eDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
+                            if (qf.Owner.Spellcasting == null) {
+                                return null;
+                            }
+
+                            Creature summoner = GetSummoner(qf.Owner);
+
+                            int sDC = summoner.Proficiencies.Get(Trait.Spell).ToNumber(summoner.ProficiencyLevel) + summoner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                            int eDC = qf.Owner.Proficiencies.Get(Trait.Spell).ToNumber(qf.Owner.ProficiencyLevel) + qf.Owner.Spellcasting.PrimarySpellcastingSource.SpellcastingAbilityModifier;
+                            return new Bonus(sDC - eDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
                         }
                         return null;
                     },
@@ -2168,10 +2180,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (aoeCheck == SummonerClassEnums.EffectKind.HARM) {
                         if (totalHPPartner < totalHPSelf) {
                             int damage = totalHPSelf - totalHPPartner;
-                            await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, CheckResult.Success, DamageKind.Untyped);
+                            await CommonSpellEffects.DealDirectSplashDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, DamageKind.Untyped);
                         } else if (totalHPPartner > totalHPSelf) {
                             int damage = totalHPPartner - totalHPSelf;
-                            await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, CheckResult.Success, DamageKind.Untyped);
+                            await CommonSpellEffects.DealDirectSplashDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, DamageKind.Untyped);
                         }
                     } else if (aoeCheck == SummonerClassEnums.EffectKind.HEAL) {
                         if (partner.HP < self.HP) {
@@ -2192,7 +2204,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
 
                         int damage = (partnerLog.HP + partnerLog.TempHP) - totalHPPartner;
-                        await partner.DealDirectDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, CheckResult.Success, DamageKind.Untyped);
+                        await CommonSpellEffects.DealDirectSplashDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, DamageKind.Untyped);
 
                         selfShareHP.UpdateLogs(damage, log);
                         partnerShareHP.UpdateLogs(-healing, log);
@@ -2204,7 +2216,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         partnerLog.Processed = true;
 
                         int damage = (log.HP + log.TempHP) - totalHPSelf;
-                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, CheckResult.Success, DamageKind.Untyped);
+                        await CommonSpellEffects.DealDirectSplashDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, DamageKind.Untyped);
 
                         int healing = partner.HP - partnerLog.HP;
                         self.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
@@ -2217,7 +2229,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (log.HealOrHarm(self) == SummonerClassEnums.EffectKind.HARM) {
                         //int damage = totalHPPartner - totalHPSelf;
                         int damage = (log.HP + log.TempHP) - totalHPSelf;
-                        await self.DealDirectDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, CheckResult.Success, DamageKind.Untyped);
+                        await CommonSpellEffects.DealDirectSplashDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, DamageKind.Untyped);
                         selfShareHP.UpdateLogs(damage, log);
                     } else if (log.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
                         int healing = self.HP - log.HP;
@@ -2492,7 +2504,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             Tile startingPos = self.Occupies;
             Vector2 pos = self.Occupies.ToCenterVector();
             List<Option> options = new List<Option>();
-            Dictionary<string, Tile> pairs = new Dictionary<string, Tile>();
+            Dictionary<Option, Tile> pairs = new Dictionary<Option, Tile>();
 
             PathfindingDescription pathfindingDescription = new PathfindingDescription() {
                 Squares = movementStyle.MaximumSquares,
@@ -2533,7 +2545,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 .WithActionCost(0)
                 ;
                 options.Add(movement.CreateUseOptionOn(tile));
-                pairs.Add(options.Last().ToString(), tile);
+                pairs.Add(options.Last(), tile);
             }
 
             // Adds a Cancel Option
@@ -2552,7 +2564,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     return null;
                 }
 
-                return pairs[selectedOption.ToString()];
+                return pairs[selectedOption];
             }
 
             return null;

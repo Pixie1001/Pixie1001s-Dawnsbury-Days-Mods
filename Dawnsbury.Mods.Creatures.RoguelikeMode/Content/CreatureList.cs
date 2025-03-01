@@ -79,7 +79,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class CreatureList {
-        internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
+        internal static Dictionary<CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<CreatureId, Func<Encounter?, Creature>>();
         internal static Dictionary<ObjectId, Func<Encounter?, Creature>> Objects = new Dictionary<ObjectId, Func<Encounter?, Creature>>();
 
 
@@ -88,78 +88,80 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// </summary>
         internal static Creature GetCreature<TEnum>(TEnum id) where TEnum : Enum {
             switch (id) {
-                case ModEnums.CreatureId.UNSEEN_GUARDIAN:
+                case var v when v.Equals(CreatureIds.UnseenGuardian):
                     return UnseenGuardian.Create();
-                case ModEnums.CreatureId.DROW_ASSASSIN:
+                case var v when v.Equals(CreatureIds.DrowAssassin):
                     return DrowAssassin.Create();
-                case ModEnums.CreatureId.DROW_FIGHTER:
+                case var v when v.Equals(CreatureIds.DrowFighter):
                     return DrowFighter.Create();
-                case ModEnums.CreatureId.DROW_SHOOTIST:
+                case var v when v.Equals(CreatureIds.DrowShootist):
                     return DrowShootist.Create();
-                case ModEnums.CreatureId.DROW_SNIPER:
+                case var v when v.Equals(CreatureIds.DrowSniper):
                     return DrowSniper.Create();
-                case ModEnums.CreatureId.DROW_PRIESTESS:
+                case var v when v.Equals(CreatureIds.DrowPriestess):
                     return DrowPriestess.Create();
-                case ModEnums.CreatureId.DROW_TEMPLEGUARD:
+                case var v when v.Equals(CreatureIds.DrowTempleGuard):
                     return DrowTempleGuard.Create();
-                case ModEnums.CreatureId.HUNTING_SPIDER:
+                case var v when v.Equals(CreatureIds.HuntingSpider):
                     return HuntingSpider.Create();
-                case ModEnums.CreatureId.DRIDER:
+                case var v when v.Equals(CreatureIds.Drider):
                     return Drider.Create();
-                case ModEnums.CreatureId.DROW_ARCANIST:
+                case var v when v.Equals(CreatureIds.DrowArcanist):
                     return DrowArcanist.Create();
-                case ModEnums.CreatureId.DROW_SHADOWCASTER:
+                case var v when v.Equals(CreatureIds.DrowShadowcaster):
                     return DrowShadowcaster.Create();
-                case ModEnums.CreatureId.DROW_INQUISITRIX:
+                case var v when v.Equals(CreatureIds.DrowInquisitrix):
                     return DrowInquisitrix.Create();
-                case ModEnums.CreatureId.TREASURE_DEMON:
+                case var v when v.Equals(CreatureIds.TreasureDemon):
                     return TreasureDemon.Create();
-                case ModEnums.CreatureId.DROW_RENEGADE:
+                case var v when v.Equals(CreatureIds.DrowRenegade):
                     return DrowRenegade.Create();
-                case ModEnums.CreatureId.WITCH_CRONE:
+                case var v when v.Equals(CreatureIds.WitchCrone):
                     return WitchCrone.Create();
-                case ModEnums.CreatureId.WITCH_MOTHER:
+                case var v when v.Equals(CreatureIds.WitchMother):
                     return WitchMother.Create();
-                case ModEnums.CreatureId.WITCH_MAIDEN:
+                case var v when v.Equals(CreatureIds.WitchMaiden):
                     return WitchMaiden.Create();
-                case ModEnums.CreatureId.RAVENOUS_RAT:
+                case var v when v.Equals(CreatureIds.RavenousRat):
                     return RavenousRat.Create();
-                case ModEnums.CreatureId.WITCH_CULTIST:
+                case var v when v.Equals(CreatureIds.DevotedCultist):
                     return DevotedCultist.Create();
-                case ModEnums.CreatureId.NUGLUB:
+                case var v when v.Equals(CreatureIds.Nuglub):
                     return Nuglub.Create();
-                case ModEnums.CreatureId.HOMUNCULUS:
+                case var v when v.Equals(CreatureIds.Homunculus):
                     return Homunculus.Create();
-                case ModEnums.CreatureId.ABYSSAL_HANDMAIDEN:
+                case var v when v.Equals(CreatureIds.AbyssalHandmaiden):
                     return AbyssalHandmaiden.Create();
-                case ModEnums.CreatureId.CRAWLING_HAND:
+                case var v when v.Equals(CreatureIds.CrawlingHand):
                     return CrawlingHand.Create();
-                case ModEnums.CreatureId.ANIMATED_STATUE:
+                case var v when v.Equals(CreatureIds.AnimatedStatue):
                     return AnimatedStatue.Create();
-                case ModEnums.CreatureId.BEBILITH_SPAWN:
+                case var v when v.Equals(CreatureIds.BebilithSpawn):
                     return BebilithSpawn.Create();
-                case ModEnums.CreatureId.DROW_NECROMANCER:
+                case var v when v.Equals(CreatureIds.DrowNecromancer):
                     return DrowNecromancer.Create();
-                case ModEnums.CreatureId.OWL_BEAR:
+                case var v when v.Equals(CreatureIds.OwlBear):
                     return OwlBear.Create();
-                case ModEnums.CreatureId.YOUNG_WHITE_DRAGON:
+                case var v when v.Equals(CreatureIds.YoungWhiteDragon):
                     return YoungWhiteDragon.Create();
-                case ModEnums.CreatureId.MERFOLK_HARRIER:
+                case var v when v.Equals(CreatureIds.MerfolkHarrier):
                     return MerfolkHarrier.Create();
-                case ModEnums.CreatureId.HUNTING_SHARK:
+                case var v when v.Equals(CreatureIds.HuntingShark):
                     return HuntingShark.Create();
-                case ModEnums.CreatureId.MERFOLK_BRINEBLADE:
+                case var v when v.Equals(CreatureIds.MerfolkBrineBlade):
                     return MerfolkBrineblade.Create();
-                case ModEnums.CreatureId.MERFOLK_KRAKENBORN:
+                case var v when v.Equals(CreatureIds.MerfolkKrakenBorn):
                     return MerfolkKrakenborn.Create();
-                case ModEnums.CreatureId.UNICORN_FOAL:
+                case var v when v.Equals(CreatureIds.UnicornFoal):
                     return UnicornFoal.Create();
-                case ModEnums.CreatureId.MINNOW_OF_MULNOK:
+                case var v when v.Equals(CreatureIds.MinnowOfMulnok):
                     return MinnowOfMulnok.Create();
-                case ModEnums.CreatureId.ALCHEMIST:
+                case var v when v.Equals(CreatureIds.Alchemist):
                     return Alchemist.Create();
-                case ModEnums.CreatureId.BODYGUARD:
+                case var v when v.Equals(CreatureIds.Bodyguard):
                     return Bodyguard.Create();
+                case var v when v.Equals(CreatureIds.MerfolkSeaWitch):
+                    return MerfolkSeaWitch.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -194,73 +196,73 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// Registers the creatures through the ModManager then adds the creature to the running creature list
         /// </summary>
         internal static void RegisterAndAddCreatureToDictonary<TEnum>(Dictionary<TEnum, Func<Encounter?, Creature>> creatures, TEnum id, string? overridenCreatureName = null) where TEnum : Enum {
-            Func<Encounter?, Creature> creatureFunction = encounter => (typeof(TEnum) == typeof(ModEnums.CreatureId)) ? GetCreature(id) : GetObject(id);
+            Func<Encounter?, Creature> creatureFunction = encounter => (typeof(TEnum) == typeof(CreatureId)) ? GetCreature(id) : GetObject(id);
             ModManager.RegisterNewCreature(overridenCreatureName ?? creatureFunction(null).Name, creatureFunction);
             creatures.Add(id, creatureFunction);
         }
 
         internal static void LoadCreatures() {
-            // TODO: Setup to teleport to random spot and be hidden at start of combat, so logic can be removed from encounter.
-
             // Level -1 Creatures
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.RAVENOUS_RAT);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.CRAWLING_HAND);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.RavenousRat);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CrawlingHand);
 
             // Level 0 Creatures
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.BODYGUARD);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HOMUNCULUS);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MINNOW_OF_MULNOK);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Bodyguard);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Homunculus);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MinnowOfMulnok);
 
             // Level 1 Creatures - Drow
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_ASSASSIN);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_FIGHTER);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_SHOOTIST);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_SNIPER);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_ARCANIST);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowArcanist);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowAssassin);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowFighter);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowShootist);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowSniper);
 
             // Level 1 Creatures - Allies
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_RENEGADE);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.UNICORN_FOAL);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowRenegade);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.UnicornFoal);
 
             // Level 1 Creatures - Other
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HUNTING_SPIDER);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MERFOLK_HARRIER);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_CULTIST);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DevotedCultist);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkHarrier);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.HuntingSpider);
 
             // Level 2 Creatures - Drow
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_TEMPLEGUARD);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_INQUISITRIX);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_NECROMANCER);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowInquisitrix);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowNecromancer);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowTempleGuard);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Alchemist, "Alchemist");
 
             // Level 2 Creatures - Other
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ALCHEMIST);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.UNSEEN_GUARDIAN);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.TREASURE_DEMON);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.NUGLUB);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.BEBILITH_SPAWN);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.HUNTING_SHARK);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MERFOLK_BRINEBLADE);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.MERFOLK_KRAKENBORN);
+
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.BebilithSpawn);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.HuntingShark);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkBrineBlade);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkKrakenBorn);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Nuglub);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.TreasureDemon);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.UnseenGuardian);
 
             // Level 3 Creatures - Drow
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_PRIESTESS);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DROW_SHADOWCASTER);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Drider);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowPriestess);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowShadowcaster);
 
             // Level 3 Creatures - Other
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.DRIDER);
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_CRONE, "Witch Crone");
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MOTHER, "Witch Mother");
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.WITCH_MAIDEN, "Witch Maiden");
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ANIMATED_STATUE);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AnimatedStatue);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WitchCrone, "Witch Crone");
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WitchMother, "Witch Mother");
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WitchMaiden, "Witch Maiden");
 
             // Level 4 Creatures
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.OWL_BEAR);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.OwlBear);
+
+            // Level 5 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkSeaWitch);
 
             // Level 6 Creatures - Demons
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.ABYSSAL_HANDMAIDEN);
-
-            // Level 7 Creatures
-            RegisterAndAddCreatureToDictonary(Creatures, ModEnums.CreatureId.YOUNG_WHITE_DRAGON);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.YoungWhiteDragon);
         }
 
         internal static void LoadObjects() {

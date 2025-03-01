@@ -29,6 +29,7 @@
 	<li>DuelingSpear.png</li>
 	<li>RobesofTheWarWizard.png</li>
 	<li>DeathDrinkerAmulet.png (modified)</li>
+	<li>SpideryHalberd.png</li>
 </ul>
 
 ### Rexard
@@ -86,6 +87,13 @@
 	<li>Owlbear.png</li>
 	<li>MerfolkKrakenborn.png</li>
 	<li>SceptreOfTheSpider.png</li>
+	<li>Unicorn.png</li>
+	<li>AlicornPike.png</li>
+	<li>AlicornDagger.png</li>
+	<li>MinnowOfMulnok.png</li>
+	<li>DrowAlchemist.png</li>
+	<li>MerfolkSeaWitch.png</li>
+	<li>FailedRun.png</li>
 </ul>
 
 ## Volunteer Contributions

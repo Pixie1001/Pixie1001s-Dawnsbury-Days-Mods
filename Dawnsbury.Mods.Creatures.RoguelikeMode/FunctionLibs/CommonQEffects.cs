@@ -71,6 +71,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
+using static Dawnsbury.Delegates;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
@@ -118,7 +119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         }
 
         public static QEffect Hazard() {
-            return new QEffect("Hazard", "This is a potentially hazardous terrain feature that may be attacked, but does not need to be destroyed in order to complete the encounter.") {
+            QEffect effect = new QEffect("Hazard", "This is a potentially hazardous terrain feature that may be attacked, but does not need to be destroyed in order to complete the encounter.") {
                 Id = QEffectIds.Hazard,
                 StateCheck = self => {
                     if (!self.Owner.Battle.AllCreatures.Any(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard))) {
@@ -126,7 +127,46 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 }
             };
+            effect.AddGrantingOfTechnical(cr => cr.OwningFaction.IsEnemy, qfDeathCheck => {
+                qfDeathCheck.WhenCreatureDiesAtStateCheckAsync = async self => {
+                    // If there are only living hazard left, loop through all hazard and destroy them
+                    if (!self.Owner.Battle.AllCreatures.Any(cr => cr.OwningFaction.IsEnemy && cr.Alive && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard))) {
+                        Creature[] hazards = new Creature[self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy).Count()];
+                        self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy).ToList().CopyTo(hazards);
+                        foreach (Creature hazard in hazards) {
+                            self.Owner.Battle.RemoveCreatureFromGame(hazard);
+                        }
+                    }
+                };
+            });
+            return effect;
         }
+
+        //public static QEffect AdjustWeakTemplate() {
+        //    return new QEffect() {
+        //        YouAcquireQEffect = (self, nEffect) => {
+        //            if (nEffect.Id == QEffectId.Weak || nEffect.Id == QEffectId.Inferior) {
+        //                string name = "Weak";
+        //                int val = -2;
+        //                if (nEffect.Id == QEffectId.Inferior) {
+        //                    name = "Inferior";
+        //                    val = -4;
+        //                }
+        //                return new QEffect(name, $"You have {val.WithPlus()} to all defenses, attacks, spell save DC, skills and Strike and cantrip damage (double to 2nd level or higher spells).") {
+        //                    Id = QEffectId.Weak,
+        //                    BonusToAttackRolls = (effect, action, defender) => action.HasTrait(Trait.Attack) ? new Bonus(val, BonusType.Untyped, name) : (Bonus)null,
+        //                    BonusToSpellSaveDCs = effect => new Bonus(val, BonusType.Untyped, name),
+        //                    BonusToDamage = (effect, aggressiveAction, defender) => {
+        //                        if (aggressiveAction.HasTrait(Trait.Spell) && !aggressiveAction.HasTrait(Trait.Cantrip) && aggressiveAction.SpellLevel >= 2)
+        //                            return new Bonus(2 * val, BonusType.Untyped, name);
+        //                        return aggressiveAction.HasTrait(Trait.Spell) ? new Bonus(val, BonusType.Untyped, name) : (Bonus)null;
+        //                    }
+        //                };
+        //            }
+        //            return nEffect;
+        //        }
+        //    };
+        //}
 
         //public static QEffect BlocksLoS() {
         //    return new QEffect() {
@@ -387,9 +427,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 Tag = false,
                 ProvideMainAction = self => {
                     return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Attack },
-                        "{b}Range.{/b} 30-feet\n\nOn a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action to free themselves.",
+                        "{b}Range.{/b} 30-feet\n\nOn a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape (DC " + (int)(baseDC + self.Owner.Level) + ") action to free themselves.",
                         Target.Ranged(6)) {
-                        ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape action to free themselves."
+                        ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape (DC " + (int)(baseDC + self.Owner.Level) + ") action to free themselves."
                     }
                     .WithProjectileCone(IllustrationName.Web, 5, ProjectileKind.Cone)
                     .WithSoundEffect(SfxName.AeroBlade)
@@ -473,16 +513,37 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect SlipAway() {
+            return new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
+                AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
+                    if (action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || !action.Owner.IsAdjacentTo(self.Owner)) {
+                        return;
+                    }
+
+                    if (await self.Owner.AskToUseReaction("Use Slip Away to step and gain +1 AC until end of the current turn?")) {
+                        self.Owner.AddQEffect(new QEffect("Slip Away", "+1 circumstance bonus to AC.") {
+                            Illustration = IllustrationName.Shield,
+                            BonusToDefenses = (self, action, defence) => defence == Defense.AC ? new Bonus(1, BonusType.Circumstance, "Slip Away") : null,
+                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfAnyTurn
+                        });
+                        await self.Owner.StepAsync("Choose tile for Slip Away");
+                    }
+                }
+            };
+        }
+
         public static QEffect UnderwaterMarauder() {
             return new QEffect("Underwater Marauder", "You are not flat-footed while underwater, and don't take the usual penalties for using a bludgeoning or slashing melee weapon in water.") {
                 YouAcquireQEffect = (self, newEffect) => {
                     if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (underwater marauder)") {
-                        return new QEffect("Aquatic Combat (underwater marauder)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.") {
+                        return new QEffect("Aquatic Combat (underwater marauder)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.\nYou have resistance 5 to acid and fire.") {
                             Id = QEffectId.AquaticCombat,
                             DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                             Illustration = IllustrationName.ElementWater,
                             Innate = false,
                             StateCheck = (Action<QEffect>)(qfAquaticCombat => {
+                                qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Acid, 5).WithExpirationEphemeral());
+                                qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, 5).WithExpirationEphemeral());
                                 if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
                                     return;
                                 qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
@@ -666,6 +727,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     })
                     ;
                 }
+            };
+        }
+
+        public static TileQEffect Maelstrom(int dc, Tile owner, Creature source) {
+            return new TileQEffect(owner) {
+                TileQEffectId = QEffectIds.Maelstrom,
+                AfterCreatureEntersHere = async creature => {
+                    if (!(creature.OwningFaction.IsPlayer || creature.OwningFaction.IsGaiaFriends)) {
+                        return;
+                    }
+
+                    CombatAction ca = new CombatAction(source, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
+                    .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
+                    .WithSoundEffect(SfxName.ElementalBlastWater)
+                    .WithEffectOnEachTarget(async (spell, user, d, result) => {
+                        await CommonSpellEffects.DealBasicDamage(spell, user, d, result, DiceFormula.FromText($"1d8", "Maelstrom"), DamageKind.Bludgeoning);
+                    });
+
+                    ca.ChosenTargets.ChosenCreatures.Add(creature);
+                    ca.ChosenTargets.ChosenCreature = creature;
+                    await ca.AllExecute();
+                },
+                TransformsTileIntoHazardousTerrain = true
             };
         }
 

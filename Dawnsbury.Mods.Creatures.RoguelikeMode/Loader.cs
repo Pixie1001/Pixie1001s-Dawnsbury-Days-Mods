@@ -74,11 +74,9 @@ using System.IO.Enumeration;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using HarmonyLib;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode
-{
-
-    // TODO: Add modular AI functions to making adding new enemies easier and lcean up creature list
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class Loader
@@ -94,7 +92,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             "{b}Additional programming: {/b} SudoProgramming, Dinglebob\n" +
             "{b}Playtesting: {/b} Petr, Beets, SudoProgramming";
 
-        internal static Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<ModEnums.CreatureId, Func<Encounter?, Creature>>();
+        internal static Dictionary<CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<CreatureId, Func<Encounter?, Creature>>();
 
         [DawnsburyDaysModMainMethod]
         public static void LoadMod()
@@ -162,7 +160,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             RegisterEncounter<MysteriousRoom_ArtRoomL2>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL2");
             RegisterEncounter<MysteriousRoom_ArtRoomL3>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL3");
             RegisterEncounter<HatcheryLv1>("Hatchery.tmx", "HatcheryLv1");
-            RegisterEncounter<HatcheryLv2>("Hatchery.tmx", "HatcheryLv2");
+            ModManager.RegisterEncounter<HatcheryLv2>("Hatchery.tmx");
             RegisterEncounter<HatcheryLv3>("Hatchery.tmx", "HatcheryLv3");
             RegisterEncounter<GraveEncounterLv1>("GraveEncounter.tmx", "GraveEncounterLv1");
             RegisterEncounter<GraveEncounterLv2>("GraveEncounter.tmx", "GraveEncounterLv2");
@@ -185,6 +183,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             ModManager.RegisterEncounter<BesetByMinnowsLv1>("BesetByMinnows1.tmx");
             ModManager.RegisterEncounter<BesetByMinnowsLv2>("BesetByMinnows2.tmx");
             ModManager.RegisterEncounter<BesetByMinnowsLv3>("BesetByMinnows3.tmx");
+            RegisterEncounter<DrowSalavagingPartyLv1>("DrowSalvagingParty.tmx", "DrowSalvagingPartyLv1");
+            ModManager.RegisterEncounter<DrowSalavagingPartyLv2>("DrowSalvagingParty.tmx");
+            RegisterEncounter<DrowSalavagingPartyLv3>("DrowSalvagingParty.tmx", "DrowSalvagingPartyLv3");
+
+            // Level 4 Fights
+            ModManager.RegisterEncounter<DemonWebPits>("DemonWebPits.tmx");
+            ModManager.RegisterEncounter<DrowSentinels>("DrowSentinels.tmx");
+            ModManager.RegisterEncounter<EarthenGuardians>("EarthenGuardians.tmx");
+            ModManager.RegisterEncounter<FeedingFrenzy>("FeedingFrenzy.tmx");
+            ModManager.RegisterEncounter<GuardedPassage>("GuardedPassage.tmx");
+            ModManager.RegisterEncounter<MagesTower>("MagesTower.tmx");
+            ModManager.RegisterEncounter<RottingVigils>("RottingVigils.tmx");
+            ModManager.RegisterEncounter<SuccubusCult>("SuccubusCult.tmx");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
@@ -217,6 +228,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
             ModManager.RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx");
             ModManager.RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx");
             ModManager.RegisterEncounter<Boss_FrozenTemple>("FrozenTemple.tmx");
+            ModManager.RegisterEncounter<Boss_CoralCourt>("Boss_CourtOfTheCoralQueen.tmx");
 
             // Skill Challenges
             RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");
@@ -235,13 +247,3 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
     }
 }
-
-
-// TODO: Add this to class and skill feats for roguelike specific unlocks
-            //.WithPrerequisite(sheet => {
-            //     if (CampaignState.Instance?.AdventurePath?.Name == "Roguelike Mode") {
-            //         return true;
-            //     } else {
-            //         return false;
-            //     }
-            // }, "Roguelike mode check");

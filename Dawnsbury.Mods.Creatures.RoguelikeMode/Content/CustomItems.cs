@@ -70,6 +70,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
 using System.Xml.Linq;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -78,6 +79,124 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
     internal static class CustomItems {
 
         //public static List<ItemName> items = new List<ItemName>();
+
+        public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
+            var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
+                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, ModTraits.Roguelike)
+            .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
+            .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
+                .WithAdditionalDamage("1d4", DamageKind.Good)
+            );
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect("Regeneration", "You heal for 4 at the beginning of each turn, while holding the Alicorn Pike", ExpirationCondition.Ephemeral, wielder, IllustrationName.PositiveAttunement) {
+                    Value = 4,
+                    StartOfYourPrimaryTurn = async (self, owner) => {
+                        await owner.HealAsync("4", CombatAction.CreateSimple(owner, "Regeneration"));
+                    }
+                });
+            };
+
+            return item;
+        });
+
+        public static ItemName AlicornDagger { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornDagger", itemName => {
+            var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 35, 3,
+                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
+            .WithMainTrait(Trait.Dagger)
+            .WithDescription("{i}An illustrious dagger, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this dagger, you gain Regeneration 4.")
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)
+                .WithAdditionalDamage("1d4", DamageKind.Good)
+            );
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect("Regeneration", "You heal for 4 at the beginning of each turn, while holding the Alicorn Dagger", ExpirationCondition.Ephemeral, wielder, IllustrationName.PositiveAttunement) {
+                    Value = 4,
+                    StartOfYourPrimaryTurn = async (self, owner) => {
+                        await owner.HealAsync("4", CombatAction.CreateSimple(owner, "Regeneration"));
+                    }
+                });
+            };
+
+            return item;
+        });
+
+        public static ItemName SpideryHalberd { get; } = ModManager.RegisterNewItemIntoTheShop("SpideryHalberd", itemName => {
+            var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 35, 3,
+                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, ModTraits.Roguelike)
+            .WithMainTrait(Trait.Halberd)
+            .WithDescription("{i}This jagged halberd's haft is adorned with spidery webs for added grip.{/i}\n\nThe spiderdy halberd deals +1d4 poison damage, and can be used to fire pinning webs at your enemies, with an escape DC equal to the higher of your class or spell DC.")
+            .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
+                .WithAdditionalDamage("1d4", DamageKind.Poison)
+            );
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    ProvideStrikeModifier = (item) => {
+                        if (item != weapon || weapon.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
+                            return null;
+                        }
+
+                        return new CombatAction(wielder, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Attack },
+                        "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy\n\nMake a ranged attack roll against the target. On a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape (DC " + (int)(wielder.ClassOrSpellDC()) + ") action to free themselves.",
+                        Target.Ranged(6)) {
+                            ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape (DC " + (int)(wielder.ClassOrSpellDC()) + ") action to free themselves."
+                        }
+                        .WithProjectileCone(IllustrationName.Web, 5, ProjectileKind.Cone)
+                        .WithSoundEffect(SfxName.AeroBlade)
+                        .WithActionCost(1)
+                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(new Item(IllustrationName.Web, "Web", new Trait[] { Trait.Attack, Trait.Unarmed, Trait.Finesse, Trait.Ranged })), Checks.DefenseDC(Defense.AC)))
+                        .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {
+                            if (checkResult >= CheckResult.Success) {
+                                QEffect webbed = new QEffect($"Webbed (DC {caster.ClassOrSpellDC()})", "You cannot use any action with the move trait, until you break free of the webs.") {
+                                    Id = QEffectId.Immobilized,
+                                    Source = caster,
+                                    PreventTakingAction = (ca) => !ca.HasTrait(Trait.Move) ? null : "You're immobilized.",
+                                    Illustration = IllustrationName.Web,
+                                    ProvideContextualAction = self => {
+                                        CombatAction combatAction = new CombatAction(self.Owner, (Illustration)IllustrationName.Escape, "Escape from " + caster?.ToString() + "'s webs.", new Trait[] {
+                                            Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({(caster != null ? caster.ClassOrSpellDC() : 0)}) of the webs.",
+                                            Target.Self((_, ai) => ai.EscapeFrom(caster))) {
+                                            ActionId = ActionId.Escape
+                                        };
+
+                                        ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
+                                            new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(caster.ClassOrSpellDC())),
+                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Athletics), Checks.FlatDC(caster.ClassOrSpellDC())),
+                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(caster.ClassOrSpellDC()))
+                                        }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
+
+                                        return (ActionPossibility)combatAction
+                                        .WithActiveRollSpecification(activeRollSpecification)
+                                        .WithSoundEffect(combatAction.Owner.HasTrait(Trait.Female) ? SfxName.TripFemale : combatAction.Owner.HasTrait(Trait.Male) ? SfxName.TripMale : SfxName.BeastRoar)
+                                        .WithEffectOnEachTarget(async (spell, a, d, cr) => {
+                                            switch (cr) {
+                                                case CheckResult.CriticalFailure:
+                                                    a.AddQEffect(new QEffect("Cannot escape", "You can't Escape until your next turn.", ExpirationCondition.ExpiresAtStartOfYourTurn, a) {
+                                                        PreventTakingAction = ca => !ca.Name.StartsWith("Escape") ? null : "You already tried to escape and rolled a critical failure."
+                                                    });
+                                                    break;
+                                                case CheckResult.Success:
+                                                    self.ExpiresAt = ExpirationCondition.Immediately;
+                                                    break;
+                                                case CheckResult.CriticalSuccess:
+                                                    self.ExpiresAt = ExpirationCondition.Immediately;
+                                                    int num = await self.Owner.StrideAsync("You escape and you may Stride 5 feet.", maximumFiveFeet: true, allowPass: true) ? 1 : 0;
+                                                    break;
+                                            }
+                                        });
+                                    }
+                                };
+                                target.AddQEffect(webbed);
+                            }
+                        });
+                    }
+                });
+            };
+
+            return item;
+        });
 
         public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
             Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
@@ -136,9 +255,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
 
                         return new CombatAction(wielder, IllustrationName.Web, "Shoot Web", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Attack },
-                        "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy\n\nMake a ranged attack roll against the target. On a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action to free themselves.",
+                        "{b}Frequency{/b} once per encounter\n{b}Range{/b} 30 feet\n{b}Target{/b} 1 enemy\n\nMake a ranged attack roll against the target. On a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape (DC " + (int)(wielder.Level + baseDC) + ") action to free themselves.",
                         Target.Ranged(6)) {
-                            ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape action to free themselves."
+                            ShortDescription = "On a hit, the target is immobilized by a web trap, until they use the Escape (DC " + (int)(wielder.Level + baseDC) + ") action to free themselves."
                         }
                         .WithProjectileCone(IllustrationName.Web, 5, ProjectileKind.Cone)
                         .WithSoundEffect(SfxName.AeroBlade)
@@ -277,7 +396,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
-                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(ModTraits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
             .WithDescription("{i}This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.{/i}\n\n" +
@@ -383,7 +502,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
 
                         CombatAction action = new CombatAction(wielder, weapon.Illustration, $"Activate {weapon.Name.CapitalizeEachWord()}", new Trait[] { Trait.Concentrate, Trait.Manipulate, Trait.Magical, Trait.Electricity, Trait.Evocation },
-                            "{b}Range{/b} 30-foot line\n{b}Saving Throw{/b} Basic Reflex save\n\nEach creature in the line suffers 2d6 electricity damage, mitigated by a basic Reflex saving throw against the wielder's class or spell save DC.", Target.ThirtyFootLine()) {
+                            "{b}Frequency{/b} once per encounter\n{b}Range{/b} 30-foot line\n{b}Saving Throw{/b} Basic Reflex save\n\nEach creature in the line suffers 2d6 electricity damage, mitigated by a basic Reflex saving throw against the wielder's class or spell save DC.", Target.ThirtyFootLine()) {
                             ShortDescription = $"[30-foot line] {wielder.ClassOrSpellDC()} vs. basic Reflex save; 2d6 electricity damage."
                         }
                         .WithSavingThrow(new SavingThrow(Defense.Reflex, caster => caster != null ? caster.ClassOrSpellDC() : 0))
@@ -422,6 +541,68 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return item;
         });
 
+        public static ItemName VipersSpit { get; } = ModManager.RegisterNewItemIntoTheShop("VipersSpit", itemName => {
+            Item item = new Item(itemName, new DualIllustration(IllustrationName.AcidArrow, IllustrationName.HandCrossbow), "viper's spit", 3, 25,
+                new Trait[] { Trait.Magical, Trait.Reload1, Trait.Simple, Trait.Bow, Trait.Crossbow, Trait.RogueWeapon, Trait.Acid, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+            .WithMainTrait(Trait.HandCrossbow)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
+            .WithRangeIncrement(24))
+            .WithDescription("{i}This viper shaped handcrossbow hisses and sizzles against the air.{/i}\n\nAny hit with this crossbow deals 1 extra acid damage.\n\n" +
+            "You can use a special action while holding the crossbow to cause it to launch great splattering globlets of acid.\n\n{b}Activate {icon:Action}.{/b} concentrate, manipulate; {b}Effect.{/b} The weapon gains 1d6 acid splash damage until the end of your turn.\n\n" +
+            "After you use this action, you can't use it again until the end of the encounter.");
+            item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Acid));
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                    ProvideStrikeModifierAsPossibility = item => {
+                        if (item != weapon || item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null || wielder.PersistentCharacterSheet == null || weapon.EphemeralItemProperties.NeedsReload) {
+                            return null;
+                        }
+
+                        CombatAction action = new CombatAction(wielder, weapon.Illustration, $"Activate {weapon.Name.CapitalizeEachWord()}", new Trait[] { Trait.Concentrate, Trait.Manipulate, Trait.Acid, Trait.Evocation },
+                            "{b}Frequency{/b} once per encounter\nUntil the end of your turn, attacks made with the Viper's Spit gain +1d6 splash damage.", Target.ThirtyFootLine()) {
+                            ShortDescription = $"{weapon.Name.CapitalizeEachWord()} gains an 1d6 acid splash damage until the end of your turn."
+                        }
+                        .WithActionCost(1)
+                        .WithSoundEffect(SfxName.AcidSplash)
+                        .WithEffectOnSelf(user => {
+                            // Effect
+                            weapon.WeaponProperties.AdditionalSplashDamageFormula = "1d6";
+                            weapon.WeaponProperties.AdditionalSplashDamageKind = DamageKind.Acid;
+                            weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+
+                            // Show effect
+                            user.AddQEffect(new QEffect($"{weapon.Name.CapitalizeEachWord()} Activated", $"{weapon.Name.CapitalizeEachWord()} deals an extra 1d6 acid splash damage.") {
+                                ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
+                                Tag = weapon,
+                                WhenExpires = (self) => {
+                                    Item weapon = self.Tag as Item;
+                                    weapon.WeaponProperties.AdditionalSplashDamageFormula = null;
+                                }
+                            });
+                            // Run end of combat cleanup
+                            user.AddQEffect(new QEffect() {
+                                Tag = weapon,
+                                EndOfCombat = async (self, won) => {
+                                    weapon.WeaponProperties.AdditionalSplashDamageFormula = null;
+                                    ItemModification used = weapon.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay);
+                                    if (used != null) {
+                                        weapon.ItemModifications.Remove(used);
+                                    }
+                                }
+                            });
+                        });
+
+                        action.Item = weapon;
+
+                        return (ActionPossibility)action;
+                    }
+                });
+            };
+
+            return item;
+        });
+
         public static ItemName SpiderChopper { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Chopper", itemName => {
             Item item = new Item(itemName, Illustrations.SpiderChopper, "spider chopper", 3, 25,
                                new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
@@ -438,7 +619,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
 
                         if (d.HasTrait(ModTraits.Spider) || d.Name.ToLower().Contains("spider")) {
-                            return new KindedDamage(DiceFormula.FromText("1d4"), DamageKind.Slashing);
+                            return new KindedDamage(DiceFormula.FromText("1d6"), DamageKind.Slashing);
                         }
                         return null;
                     }
@@ -605,7 +786,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return new Item(itemName, Illustrations.SpellbanePlate, "spellbane plate", 3, 70,
                 new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
-            .WithDescription("{i}This suit of armour is forged from a strange, mercurial alloy - perhaps a lost relic forged by dwarven smithes during the height of the Starborn invasion.{/i}"+
+            .WithDescription("{i}This suit of armour is forged from a strange, mercurial alloy - perhaps a lost relic forged by dwarven smithes during the height of the starborn invasion.{/i}"+
             "\n\nWhile wearing this suit of armour, you gain a +1 item bonus to all spell saving throws, but cannot cast spells of your own.");
         });
 
@@ -658,6 +839,132 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
         });
 
+        public static ItemName SpiderHatchling { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Hatchling", itemName => {
+            return new Item(itemName, Illustrations.HuntingSpider, "spider hatchling", 2, 30,
+                new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithWornAt(Trait.AnimalCompanion)
+            .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
+            "If you do not already have a battle ready animal companion, you gain a unique Spider Hatchling to fight at your side, that otherwise functional identically to the Animal Companion class feat.\n\nIf the spider hatchling dies in battle, it cannot aid the party until it has time to heal during their next long rest.")
+            .WithPermanentQEffectWhenWorn((qfMoC, item) => {
+                qfMoC.Tag = false;
+                qfMoC.Innate = false;
+                qfMoC.StartOfCombat = async self => {
+                    Creature? companion = self.Owner.Battle.AllCreatures.FirstOrDefault(cr => cr.FindQEffect(QEffectId.RangersCompanion)?.Source == self.Owner);
+                    if (companion != null) {
+                        //companion.RemoveAllQEffects(qf => qf.Id == QEffectId.RangersCompanion);
+                        //companion.Battle.RemoveCreatureFromGame(companion);
+                        self.Tag = true;
+                        return;
+                    }
+                    if (item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
+                        self.Owner.Occupies.Overhead("no companion", Color.Green, "The spider hatchling is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
+                    } else {
+                        // TODO: Replace with proper animal companion stats
+                        int lvl = self.Owner.Level;
+                        int prof = self.Owner.Level + 2;
+                        Creature animalCompanion = new Creature(Illustrations.SpiderHatchling, "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
+                            new Abilities(3, 3, 1, -4, 1, 0), new Skills(stealth: 3 + prof, acrobatics: 3 + prof, athletics: 3 + prof))
+                        .WithProficiency(Trait.Unarmed, Proficiency.Trained)
+                        .WithEntersInitiativeOrder(false)
+                        .WithProficiency(Trait.UnarmoredDefense, Proficiency.Trained)
+                        .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing))
+                        //.WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "leg", Trait.Unarmed, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
+                        .AddQEffect(QEffect.Webwalk())
+                        .AddQEffect(QEffect.WebSense())
+                        .AddQEffect(CommonQEffects.WebAttack(10 + prof))
+                        .AddQEffect(new QEffect() {
+                            ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
+                            "Support", [], "{i}Your spider drips poison from its stinger when you create an opening.{/i}\n\nUntil the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
+                            Target.Self()
+                            .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
+                                ShortDescription = "Until the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage."
+                            }.WithEffectOnSelf(caster => {
+                                QEffect qEffect = new QEffect("Support", "Until the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, self.Owner, qfSupport.Owner.Illustration) {
+                                    DoNotShowUpOverhead = true,
+                                    PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
+                                };
+                                self.Owner.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
+                                    AfterYouDealDamage = async (creature, action, defender) => {
+                                        if (action.CheckResult < CheckResult.Success || !defender.IsAdjacentTo(caster))
+                                            return;
+                                        await qfSupport.Owner.FictitiousSingleTileMove(defender.Occupies);
+                                        defender.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Poison));
+                                        await qfSupport.Owner.FictitiousSingleTileMove(qfSupport.Owner.Occupies);
+                                    }
+                                });
+                                caster.AddQEffect(qEffect);
+                            })
+                        })
+                        .AddQEffect(new QEffect() {
+                            StateCheck = sc => {
+                                if (sc.Owner.HasEffect(QEffectId.Dying) || !sc.Owner.Battle.InitiativeOrder.Contains(sc.Owner))
+                                    return;
+                                Creature owner = sc.Owner;
+                                int index = (owner.Battle.InitiativeOrder.IndexOf(owner) + 1) % owner.Battle.InitiativeOrder.Count;
+                                Creature creature = owner.Battle.InitiativeOrder[index];
+                                owner.Actions.HasDelayedYieldingTo = creature;
+                                if (owner.Battle.CreatureControllingInitiative == owner)
+                                    owner.Battle.CreatureControllingInitiative = creature;
+                                owner.Battle.InitiativeOrder.Remove(sc.Owner);
+                            }
+                        })
+                        
+                        ;
+                        animalCompanion.MainName = self.Owner.Name + "'s " + animalCompanion.MainName;
+                        animalCompanion.InitiativeControlledBy = self.Owner;
+                        animalCompanion.AddQEffect(new QEffect() {
+                            Id = QEffectId.RangersCompanion,
+                            Source = self.Owner,
+                            WhenMonsterDies = qfCompanion => item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay))
+                        });
+                        Action<Creature, Creature> benefitsToCompanion = self.Owner.PersistentCharacterSheet?.Calculated.RangerBenefitsToCompanion;
+                        if (benefitsToCompanion != null)
+                            benefitsToCompanion(animalCompanion, self.Owner);
+                        self.Owner.Battle.SpawnCreature(animalCompanion, self.Owner.OwningFaction, self.Owner.Occupies);
+                    }
+                };
+
+                qfMoC.StateCheck = self => {
+                    if (self.Tag is true) {
+                        return;
+                    }
+
+                    Creature owner = self.Owner;
+                    Creature animalCompanion = Ranger.GetAnimalCompanion(owner);
+                    bool flag = owner.HasEffect(QEffectId.MatureAnimalCompanion);
+                    if (animalCompanion == null || !animalCompanion.Actions.CanTakeActions())
+                        return;
+                    ActionPossibility fullCommand = new ActionPossibility(new CombatAction(owner, flag ? (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.Action) : animalCompanion.Illustration, "Command your Animal Companion",
+                    [Trait.Auditory], "Take 2 actions as your animal companion.\n\nYou can only command your animal companion once per turn.", (Target)Target.Self().WithAdditionalRestriction((Func<Creature, string>)(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null))) {
+                        ShortDescription = "Take 2 actions as your animal companion."
+                    }.WithEffectOnSelf(async action => {
+                        self.UsedThisTurn = true;
+                        await CommonSpellEffects.YourMinionActs(animalCompanion);
+                    }), flag ? PossibilitySize.Half : PossibilitySize.Full);
+                    owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                        ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)fullCommand)
+                    });
+                    if (!flag)
+                        return;
+                    owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                        ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)new ActionPossibility(new CombatAction(owner, (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.FreeAction), "Move on your own",
+                        [Trait.Basic], "{i}You leave your mature animal companion to its own devices. It will do what's right.{/i}\n\nTake 1 action as your animal companion. You can only spend this action to move or to make a Strike.\n\nYou can't command your animal companion and leave it to move in its own in the same turn.",
+                        (Target)Target.Self()
+                        .WithAdditionalRestriction((Func<Creature, string>)(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null)))
+                        .WithActionCost(0)
+                        .WithEffectOnSelf((Func<Creature, Task>)(async caster => {
+                            self.UsedThisTurn = true;
+                            animalCompanion.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
+                                Id = QEffectId.MoveOnYourOwn,
+                                PreventTakingAction = (Func<CombatAction, string>)(ca => !ca.HasTrait(Trait.Move) && !ca.HasTrait(Trait.Strike) && ca.ActionId != ActionId.EndTurn ? "You can only move or make a Strike." : (string)null)
+                            });
+                            await CommonSpellEffects.YourMinionActs(animalCompanion);
+                        })), PossibilitySize.Half))
+                    });
+                };
+            });
+        });
+
         public static ItemName ThrowersBandolier { get; } = ModManager.RegisterNewItemIntoTheShop("Thrower's Bandolier", itemName => {
             return new Item(itemName, Illustrations.ThrowersBandolier, "thrower's bandolier", 3, 35,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Worn, Trait.Conjuration, ModTraits.Roguelike })
@@ -670,19 +977,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     foreach (Item rune in item.Runes) {
                         dagger.WithModificationRune(rune.ItemName);
                     }
-                    dagger.Traits.Add(Trait.EncounterEphemeral);
 
                     var hammer = Items.CreateNew(LightHammer);
                     foreach (Item rune in item.Runes) {
                         hammer.WithModificationRune(rune.ItemName);
                     }
-                    hammer.Traits.Add(Trait.EncounterEphemeral);
 
                     var axe = Items.CreateNew(Hatchet);
                     foreach (Item rune in item.Runes) {
                         axe.WithModificationRune(rune.ItemName);
                     }
-                    axe.Traits.Add(Trait.EncounterEphemeral);
 
                     qfTB.Tag = new List<Item>() { dagger, hammer, axe };
                 };
@@ -703,7 +1007,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        user.HeldItems.Add((qfTB.Tag as List<Item>)[0].Duplicate());
+                        Item item = (qfTB.Tag as List<Item>)[0].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
                     }));
 
                     menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[1].Illustration, "Draw Light Hammer", new Trait[] { Trait.Manipulate, Trait.Basic },
@@ -712,7 +1018,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        user.HeldItems.Add((qfTB.Tag as List<Item>)[1].Duplicate());
+                        Item item = (qfTB.Tag as List<Item>)[1].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
                     }));
 
                     menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[2].Illustration, "Draw Hatchet", new Trait[] { Trait.Manipulate, Trait.Basic },
@@ -721,7 +1029,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        user.HeldItems.Add((qfTB.Tag as List<Item>)[2].Duplicate());
+                        Item item = (qfTB.Tag as List<Item>)[2].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
                     }));
 
                     return menu;
@@ -1003,13 +1313,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithWornAt(Trait.Cloak)
             .WithDescription("{i}This haggard fur cloak is has a musky, feral smell to it and seems to pulsate warmly... as if it were not simply a cloak, but the flesh of a living, breathing thing.{/i}\n\n" +
             "You have a +2 item bonus to Demoralize check made against animals, and gain the benefits of the Intimidating Glare feat.\n\n" +
-            "Once per day, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn.")
+            "Once per encounter, as a {icon:FreeAction} action, you may invoke the cloak's magic to assume a random animal form until the start of your next turn. While transformed, your weapons are replaced with natural appendages related to your new form and you cannot cast spells.")
             .WithItemAction((item, user) => {
                 if (user.FindQEffect(QEffectIds.ShifterFurs) != null) {
                     return null;
                 }
 
-                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Frequency{/b} once per day\n\n{b}Target{/b} Self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
+                return new CombatAction(user, Illustrations.ShifterFurs, "Activate Shifter Furs", new Trait[] { Trait.Transmutation, Trait.Magical }, "{b}Frequency{/b} once per encounter\n\n{b}Target{/b} self\n\nYou assume the form of a random enhanced animal form until the start of your next turn.", Target.Self())
                 .WithActionCost(0)
                 .WithSoundEffect(SfxName.BeastRoar)
                 .WithEffectOnSelf(caster => {
@@ -1046,14 +1356,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             transform.Description = $"{user.Name} has assumed the form of a ferocious bear, capable of grappling its prey on a successful jaws attack and with a +2 item bonus to armour.";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = IllustrationName.AnimalFormBear;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack).WithAdditionalWeaponProperties(properties => {
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
                                     properties.WithOnTarget(async (strike, a, d, result) => {
                                         if (result >= CheckResult.Success)
                                             await Possibilities.Grapple(a, d, result);
                                     });
                                 });
                             };
-                            transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack);
+                            transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple);
                             transform.BonusToDefenses = (self, action, defence) => {
                                 if (defence == Defense.AC) {
                                     return new Bonus(2, BonusType.Item, "Natural Armour");
@@ -1071,7 +1381,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
                                 self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, 2 + self.Owner.Level);
                                 self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 2 + self.Owner.Level);
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison).WithAdditionalWeaponProperties(properties => {
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
                                     properties.AdditionalDamage.Add(("1d4", DamageKind.Poison));
                                 });
                                 self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
@@ -1083,7 +1393,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             transform.Name = "Wolf Form";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = IllustrationName.AnimalFormWolf;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed);
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed, Trait.WizardWeapon, Trait.Simple);
                                 if (self.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Sneak Attack") != null) {
                                     self.Owner.AddQEffect(QEffect.PackAttack(self.Owner.Name, "1d8").WithExpirationEphemeral());
                                     transform.Description = $"{user.Name} has assumed the form of a cunning wolf, granting them 1d8 pack attack damage.";
@@ -1094,7 +1404,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             };
                             goto case 10;
                         case 10:
-                            transform.Description += " Whilst transformed, they cannot cast spells.";
+                            transform.Description += " Whilst transformed, you cannot cast spells.";
                             user.AddQEffect(transform);
                             break;
                         default:
@@ -1110,6 +1420,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
                 qfCoA.BonusToSkillChecks = (skill, action, d) => action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "shifter furs") : null;
                 qfCoA.Id = QEffectId.IntimidatingGlare;
+                qfCoA.EndOfCombat = async (self, won) => {
+                    ItemModification used = item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay);
+                    if (used != null) {
+                        item.ItemModifications.Remove(used);
+                    }
+                };
             });
         });
 
@@ -1176,7 +1492,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -1190,7 +1506,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             CreateWand(SpellId.TrueStrike, null);
             CreateWand(SpellId.AcidArrow, null);
             CreateWand(SpellId.Barkskin, null);
-            CreateWand(SpellId.MageArmor, null);
+            CreateWand(SpellId.ObscuringMist, null);
             CreateWand(SpellId.Bane, null);
             CreateWand(SpellId.Grease, null);
             CreateWand(SpellId.MagicWeapon, null);

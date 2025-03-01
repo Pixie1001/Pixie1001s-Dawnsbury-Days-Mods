@@ -9,6 +9,7 @@ using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Phases.Menus;
+using Dawnsbury.Phases.Menus.StoryMode;
 using HarmonyLib;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.Mechanics.Treasure;
@@ -34,6 +35,9 @@ using Dawnsbury.Phases.Popups;
 using System.Reflection;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using System.Runtime.Intrinsics.Arm;
+using System.Text.Json;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -70,9 +74,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //    //}
 
         //}
-
-        // TODO: Detect deaths and restarts
-        // If 
 
         //[HarmonyPostfix]
         //[HarmonyPatch(typeof(BattlePhase), "Draw")]
@@ -151,7 +152,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                             if (Int32.TryParse(battle.CampaignState.Tags["restarts"], out int restarts)) {
                                 restarts++;
                                 battle.CampaignState.Tags["restarts"] = $"{restarts}";
-                                // TODO: Check if this uses item and resources from start of battle for save
                                 CampaignState.Autosave();
                             }
                         })));
@@ -292,26 +292,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
                     return false;
                 }
-
-                //int num = equipment.Runes.Count((Item itm) => itm.RuneProperties.RuneKind == runestone.RuneProperties.RuneKind);
-                //if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
-                //    if (equipment.Runes.Any(r => r.RuneProperties.RuneKind == RuneKind.WeaponPotency)) {
-                //        __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only +1, +2 or +3 weapons can be enchanted with weapon property runes.");
-                //        return false;
-                //    }
-
-                //    // TODO: Figure out what this means and add it
-                //    //if (num >= equipment.WeaponProperties.ItemBonus) {
-                //    //    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, $"A +{equipment.WeaponProperties.ItemBonus} weapon can only be enchanted with {equipment.WeaponProperties.ItemBonus} property runes.");
-                //    //    return false;
-                //    //}
-                //} else if (num > 0) {
-                //    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, equipment.Name + " already has a " + runestone.RuneProperties.RuneKind.HumanizeTitleCase2().WithIndefiniteArticle() + " rune.");
-                //    return false;
-                //}
                 equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
-                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlacedAsSubitem);
-                Sfxs.Play(SfxName.AttachRune);
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlaceAsSubitem, null, delegate {
+                    //equipment.WithModification(new ItemModification(ItemModificationKind.Rune) {
+                    //    ItemName = runestone.ItemName
+                    //});
+                    Sfxs.Play(SfxName.AttachRune);
+                });
                 return false;
             }
             
@@ -343,10 +330,65 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch("ChooseProfilePhase", "Draw")]
+        private static void ChooseProfilePhaseDrawPatch(object __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            Savegame?[] profiles = (Savegame?[]) Type.GetType("Dawnsbury.Phases.Menus.StoryMode.ChooseProfilePhase, Dawnsbury Days").GetProperty("Profiles").GetValue(__instance);
+
+            if (profiles == null) {
+                return;
+            }
+
+            int i = 0;
+            foreach (Savegame? save in profiles) {
+                if (save != null && UtilityFunctions.DiedThisRun(save.CampaignState)) {
+                    int h = 200;
+                    int w = 200;
+                    int padding = 10;
+                    Illustrations.FailedRun.DrawImage(new Rectangle(1860 - padding - w, 500 + i * 210, w, h), null, true, false, null);
+                }
+
+                i += 1;
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Shop), "CreateAdventurersDawn")]
+        private static void CreateAdventurersDawnPatch(Shop __instance, ref Shop __result, int level, bool unlimitedBuyAndSell) {
+            if (CampaignState.Instance?.AdventurePath?.Name != "Roguelike Mode") {
+                return;
+            }
+
+            string comment = "<Comment about last elite encounter goes here>";
+            if (level == 1) {
+                comment = "Welcome adventurers!";
+            } else {
+                comment = UtilityFunctions.GetShopBanter();
+            }
+
+
+            string desc = comment + "\n\n" + (unlimitedBuyAndSell ? "The Adventurer's Dawn buys any items, and sells all items of level " + level.ToString() + " or lower. {i}(You can sell back items for a full refund before an adventure path begins.){/i}" : "The Adventurer's Dawn buys any items {b}at half price{/b}, and sells all items of level " + level.ToString() + " or lower.");
+            __result.GetType().GetProperty("Description", BindingFlags.Instance | BindingFlags.Public).SetValue(__result, desc);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CampaignMenuPhase), "Draw")]
+        private static void CampaignMenuPhaseDrawPatch(CampaignMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            CampaignState state = CampaignState.Instance;
+
+            if (state.AdventurePath.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
+                // && (state.Tags.TryGetValue("deaths", ) != "0" || state.Tags["restarts"] != "0")
+                int h = 250;
+                int w = 250;
+                int padding = 10;
+                Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+            }
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(typeof(CampaignMenuPhase), "CreateViews")]
-        private static void CreateViewsPatch(CampaignMenuPhase __instance) {
-            CampaignState state = __instance.CurrentCampaignState;
+        private static void CreateViewsPatch() {
+            CampaignState state = CampaignState.Instance;
 
             if (state.AdventurePath.CampaignStops[2].Name == "Random Encounter" || state.Tags.ContainsKey("new run")) {
                 GenerateRun(state);
@@ -374,6 +416,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
                 campaign.Tags.Add("restarts", "0");
                 campaign.Tags.Add("deaths", "0");
+                foreach (AdventurePathHero hero in campaign.Heroes) {
+                    hero.CharacterSheet.SelectedFeats.Remove("Power of the Rat Fiend");
+                }
             }
 
             if (!Int32.TryParse(campaign.Tags["seed"], out int result)) {
@@ -429,24 +474,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 }
             }
 
-            // TODO: Override the .Description property of DawnsburyStop to instead show my credits if city name matches one from this adventure path.
-            //(path.Last() as DawnsburyStop).Description = Loader.Credits;
-            
-            
-            
-            var stop = path[path.Count - 1];
-
-            var t1 = (string)typeof(DawnsburyStop).GetField("flavorText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
-            var t2 = (int)typeof(DawnsburyStop).GetField("dawnsburyStopIndex", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
-            var t3 = (int)typeof(DawnsburyStop).GetField("<ShopLevel>k__BackingField", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stop);
-
-            path[path.Count - 1] = new CustomLastStop(path[path.Count - 1] as DawnsburyStop, path[path.Count - 1].Index, campaign);
-
-
-            //path.Remove(path.Last());
-            //path.Add(new DawnsburyStop("You won! Congrats!", path.Last().Index + 1, level, false, "Post Init"));
-
-            var test = 3;
+            (path[path.Count - 1] as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+                    "{b}Stats{/b}\n" +
+                    "{b}Deaths:{/b} " + campaign.Tags["deaths"] + "\n" +
+                    "{b}Restarts:{/b} " + campaign.Tags["restarts"] +
+                    "\n\n" + Loader.Credits;
         }
 
         private static CampaignStop GenerateRandomEncounter(Random rng, int removed, int level, ModEnums.EncounterType encounterType, CampaignState campaign) {
@@ -461,9 +493,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 stop = EncounterTables.encounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}Encounters"]) - removed)];
                 EncounterTables.encounters[level - 1].Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.ELITE) {
-                // TODO: Rework removed to be a seperate count for elite and regular encounters if I add optional mid-run elite fights.
                 stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]) - (level - 1))];
-                //EncounterTables.eliteEncounters[level - 1].Remove(stop);
                 if (level == 1) {
                     EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
                     EncounterTables.eliteEncounters[level + 1].RemoveAll(en => en.Name == stop.Name);

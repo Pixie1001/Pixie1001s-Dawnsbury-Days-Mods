@@ -10,7 +10,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     {
         public BesetByMinnowsLv2(string filename) : base("Beset by Minnows", filename, null, 0)
         {
-
+            this.Map.Description = CommonEncounterFuncs.DefaultAquoticCombatDesc;
             this.CharacterLevel = 2;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0)

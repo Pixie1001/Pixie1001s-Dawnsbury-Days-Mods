@@ -26,6 +26,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithCharacteristics(false, true)
             .WithUnarmedStrike(new Item(IllustrationName.Jaws, "fangs", new Trait[] { Trait.Melee, Trait.Finesse, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
             .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
+            .AddQEffect(QEffect.WebSense())
             .AddQEffect(CommonQEffects.SpiderVenomAttack(16, "fangs"))
             .AddQEffect(CommonQEffects.WebAttack(16));
         }

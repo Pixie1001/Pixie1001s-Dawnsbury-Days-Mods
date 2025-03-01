@@ -67,9 +67,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
     internal class MerfolkHuntingPartyLv3 : Level3Encounter
     {
         public MerfolkHuntingPartyLv3(string filename) : base("Merfolk Hunting Party", filename) {
-            this.Map.Description = "The party's journey is interrupted by a flooded passage. An unfortunate but not altogether unexpected occurrence down in the twisting caves of the Below. " +
-                "With no other choice, they gather their potions of water breathing and begin to dredge down in the murky depths, wary of corrupted merfolk and other aquatic predators.\n\n" +
-                "Piercing and slashing weapons are less effective when fighting underwater, and creatures within out swim speed are permanantly flat footed and move at half speed. The party would be wise to equip themselves accordingly.";
+            this.Map.Description = CommonEncounterFuncs.DefaultAquoticCombatDesc;
         }
 
         public override void ModifyCreatureSpawningIntoTheEncounter(Creature creature) {

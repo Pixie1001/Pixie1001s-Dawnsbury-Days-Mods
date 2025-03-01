@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="12" height="22" tilewidth="256" tileheight="256" infinite="0" nextlayerid="12" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="A grand staircase leading somewhere new"/>
-  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterDescription">The party's quest soon takes them to a far flung fortress, constructed during some bygone subterranean war before being abandoned to condemn the significance of what it was built over to secrecy.
+
+Yet as the party explores its ancient halls, the discreet shuffling of archers amongst the parapets and a shrill owl-like shriek echoing along its halls reveals that despite its disuse, the structure is not unguarded...
+
+(Contributed by SudoProgramming)</property>
+  <property name="EncounterGroup" value="Roguelike (Elite)"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="A Grand Staircase"/>
   <property name="IsDark" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="DlcTileset.tsx"/>
- <tileset firstgid="200" source="CustomCreatures.tsx"/>
+ <tileset firstgid="204" source="CustomCreatures.tsx"/>
  <imagelayer id="11" name="Image Layer 1">
   <image source="BG_GrandStaircase.jpg" width="1117" height="2048"/>
  </imagelayer>
@@ -43,10 +47,10 @@
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,229,0,0,0,0,0,
+0,0,0,0,0,0,233,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,221,0,0,0,0,0,0,221,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,217,0,0,0,0,0,0,217,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -71,7 +75,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,28,28,28,28,0,0,0,0,
-0,0,108,0,28,28,28,28,0,108,0,0,
+0,0,115,0,28,28,28,28,0,115,0,0,
 0,0,0,0,28,28,28,28,0,0,0,0,
 0,0,0,0,28,28,28,28,0,0,0,0,
 0,0,0,0,28,28,28,28,0,0,0,0,

@@ -71,6 +71,7 @@ using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
+using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -80,6 +81,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static FeatName RatMonarchDedication { get; } = ModManager.RegisterFeatName("Rat Monarch Dedication");
         public static FeatName PlagueRats { get; } = ModManager.RegisterFeatName("Plague Rats");
         public static FeatName SwarmLord { get; } = ModManager.RegisterFeatName("Swarm Lord");
+        public static FeatName PowerOfTheRatFiend { get; } = ModManager.RegisterFeatName("Power of the Rat Fiend");
 
         internal static void LoadFeats() {
             AddFeats(CreateFeats());
@@ -99,7 +101,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
             });
 
-            yield return new TrueFeat(RatMonarchDedication, 2, "...", "...", new Trait[] { ModTraits.Archetype, ModTraits.Dedication, ModTraits.Event, ModTraits.Roguelike }.Concat(classTraits).ToArray(), null)
+            yield return new Feat(PowerOfTheRatFiend, null, "", [], null);
+
+            yield return new TrueFeat(RatMonarchDedication, 2, "The Rat Monarch lords over their flock of rodents, that emerge from the most neglected corners of the abyss to fulfill their master's will.",
+                "You gain the following actions, allowing to summon forth and direct a swarm of vicious rats:\n\n" +
+                "{b}Call Rats {icon:TwoActions}.{/b}\n" +
+                "{b}Range{/b} self\n\nSpawn 3 friendly rat familiars into the nearest unoccupied space available to you." +
+                "Your familiars have the base statistics of a Giant Rat, but their level is equal to your own -2, adjusting their defences and attack bonuses and increasing their max HP by 3 per level.\n\n" +
+                "{b}Command Swarm {icon:Action}.{/b}\n" +
+                "{b}Range{/b} 30 feet\n{b}Target{/b} 1 enemy creature\n\n" +
+                "You mark the target creature with a demonic curse, attracting your rat familiars to them. While marked, your familiars gain a +1 status bonus to attack, and a +2 damage bonus against the target and are more likely to attack them.",
+                new Trait[] { ModTraits.Archetype, ModTraits.Dedication, ModTraits.Event, ModTraits.Roguelike }.Concat(classTraits).ToArray(), null)
             .WithOnCreature((sheet, creature) => {
                 creature.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
@@ -124,7 +136,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 creature.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         var action = (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Command, "Command Swarm", new Trait[] { Trait.Manipulate },
-                            "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy creature\n\n" +
+                            "{b}Range{/b} 30 feet\n{b}Target{/b} 1 enemy creature\n\n" +
                             "You mark the target creature with a demonic curse, attracting your rat familiars to them. While marked, your familiars gain a +1 status bonus to attack, and a +2 damage bonus against the target and are more likely to attack them.", Target.Ranged(6)) {
                             ShortDescription = "Command your rat familiars to attack the target creature, granting them a +1 status bonus to attack rolls, and a +2 bonus to damage against them until you move the mark."
                         }
@@ -149,7 +161,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 });
             })
             .WithPrerequisite(sheet => {
-                if (CampaignState.Instance?.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Heroes.First(h => h.CharacterSheet == sheet.Sheet).LongTermEffects.Effects.Any(lte => lte.Id.ToStringOrTechnical() == "Power of the Rat Fiend")) {
+                //if (CampaignState.Instance?.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Heroes.First(h => h.CharacterSheet == sheet.Sheet).LongTermEffects.Effects.Any(lte => lte.Id.ToStringOrTechnical() == "Power of the Rat Fiend")) {
+                if (sheet.Sheet.SelectedFeats.TryGetValue("Power of the Rat Fiend", out SelectedChoice val)) {
                     return true;
                 } else {
                     return false;

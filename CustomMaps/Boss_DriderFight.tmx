@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
   <property name="EncounterDescription" value="As the party delves back into the below once more, they cannot help but feel that whoever is responsible for the ritual is... Waiting for them. Sure enough, as they near their goal the silhouette of a looming eight legged figure begins to descend from the ceiling, as drow slink out from the shadows to join the ambush!"/>
   <property name="EncounterGroup" value="Roguelike (Boss)"/>
   <property name="EncounterLevel" type="int" value="4"/>
-  <property name="EncounterName" value="Drider Boss Fight"/>
+  <property name="EncounterName" value="The Web Closes"/>
+  <property name="IsDark" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15">
+ <imagelayer id="4" name="Image Layer 1">
+  <image source="Boss_DriderFight.jpg" width="3840" height="3840"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15" visible="0">
   <data encoding="csv">
 22,22,22,22,22,22,22,21,22,22,22,22,22,22,22,
 22,22,22,22,21,21,21,21,21,21,21,22,22,22,22,
@@ -55,7 +59,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,108,0,0,0,0,0,0,
 0,0,0,0,0,0,0,108,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

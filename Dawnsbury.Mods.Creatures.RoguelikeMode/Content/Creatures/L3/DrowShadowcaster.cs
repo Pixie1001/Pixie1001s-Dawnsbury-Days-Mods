@@ -36,22 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithBasicCharacteristics()
             .AddHeldItem(Items.CreateNew(ItemName.RepeatingHandCrossbow))
             .AddQEffect(CommonQEffects.Drow())
-            .AddQEffect(new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
-                AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (!(action.HasTrait(Trait.Melee) || action.Owner != null && action.Owner.IsAdjacentTo(self.Owner))) {
-                        return;
-                    }
-
-                    if (await self.Owner.AskToUseReaction("Use Slip Away to step and gain +1 AC until end of the current turn?")) {
-                        self.Owner.AddQEffect(new QEffect("Slip Away", "+1 circumstance bonus to AC.") {
-                            Illustration = IllustrationName.Shield,
-                            BonusToDefenses = (self, action, defence) => defence == Defense.AC ? new Bonus(1, BonusType.Circumstance, "Slip Away") : null,
-                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfAnyTurn
-                        });
-                        await self.Owner.StepAsync("Choose tile for Slip Away");
-                    }
-                }
-            })
+            .AddQEffect(CommonQEffects.SlipAway())
             .AddQEffect(new QEffect("Dark Arts", "The drow shadwcaster excels at causing pain with their black practice. Their non-cantrip spells gain a +4 status bonus to damage.") {
                 BonusToDamage = (qfSelf, spell, target) => {
                     return spell.HasTrait(Trait.Spell) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus) && spell.CastFromScroll == null ? new Bonus(4, BonusType.Status, "Dark Arts") : null;

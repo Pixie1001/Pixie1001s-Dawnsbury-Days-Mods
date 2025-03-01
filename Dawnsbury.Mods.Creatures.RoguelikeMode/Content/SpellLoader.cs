@@ -76,47 +76,86 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         //public static List<ItemName> items = new List<ItemName>();
 
-        public static SpellId BrinyBolt = ModManager.RegisterNewSpell("RL_BrinyBolt", 1, (id, spellcaster, spellLevel, inCombat, spellInformation) => {
-            return Spells.CreateModern(Illustrations.BrinyBolt, "Briny Bolt", new Trait[] { Trait.Attack, Trait.Evocation, Trait.Water, Trait.Primal, Trait.Arcane, ModTraits.Roguelike }, "You hurl a bolt of saltwater from your extended hand.",
-                "Make a ranged spell attack against a target within range." +
-                S.FourDegreesOfSuccess("The creature takes " + S.HeightenedVariable(spellLevel * 2 + 2, 4) + "d6 bludgeoning damage and is blinded for 1 round and dazzled for 1 minute as saltwater sprays into its eyes. The creature can spend an Interact action to rub its eyes and end the blinded condition, but not the dazzled condition.",
-                "The creature takes " + S.HeightenedVariable(spellLevel * 2, 2) + "d6 bludgeoning damage and is blinded for 1 round. The creature can spend an Interact action wiping the salt water from its eyes to end the blinded condition.", null, null), Target.Ranged(12), spellLevel, null)
-            .WithHeighteningNumerical(spellLevel, 1, inCombat, 1, "The damage increases by 2d6.")
-            .WithActionCost(2)
-            .WithProjectileCone(Illustrations.BrinyBolt, 7, ProjectileKind.Cone)
-            .WithSoundEffect(SfxName.ElementalBlastWater)
-            .WithSpellAttackRoll()
-            .WithGoodnessAgainstEnemy((targeting, a, d) => {
-                float score = 3.5f * targeting.OwnerAction.SpellLevel;
-                if (!d.HasEffect(QEffectId.Blinded)) {
-                    score += 1.5f * d.Level;
-                }
-                if (!d.HasEffect(QEffectId.Dazzled)) {
-                    score += 0.5f * d.Level;
-                }
-                return score;
-            })
-            .WithEffectOnEachTarget(async (spell, caster, d, result) => {
-                if (result >= CheckResult.Success) {
-                    string dmg = (result == CheckResult.CriticalSuccess ? (spellLevel * 2 + 2).ToString() : spellLevel * 2) + "d6";
-                    await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText(dmg, "Briny Bolt"), d, result, DamageKind.Bludgeoning);
+        //public static SpellId BrinyBolt = ModManager.RegisterNewSpell("RL_BrinyBolt", 1, (id, spellcaster, spellLevel, inCombat, spellInformation) => {
+        //    return Spells.CreateModern(Illustrations.BrinyBolt, "Briny Bolt", new Trait[] { Trait.Attack, Trait.Evocation, Trait.Water, Trait.Primal, Trait.Arcane, ModTraits.Roguelike }, "You hurl a bolt of saltwater from your extended hand.",
+        //        "Make a ranged spell attack against a target within range." +
+        //        S.FourDegreesOfSuccess("The creature takes " + S.HeightenedVariable(spellLevel * 2 + 2, 4) + "d6 bludgeoning damage and is blinded for 1 round and dazzled for 1 minute as saltwater sprays into its eyes. The creature can spend an Interact action to rub its eyes and end the blinded condition, but not the dazzled condition.",
+        //        "The creature takes " + S.HeightenedVariable(spellLevel * 2, 2) + "d6 bludgeoning damage and is blinded for 1 round. The creature can spend an Interact action wiping the salt water from its eyes to end the blinded condition.", null, null), Target.Ranged(12), spellLevel, null)
+        //    .WithHeighteningNumerical(spellLevel, 1, inCombat, 1, "The damage increases by 2d6.")
+        //    .WithActionCost(2)
+        //    .WithProjectileCone(Illustrations.BrinyBolt, 7, ProjectileKind.Cone)
+        //    .WithSoundEffect(SfxName.ElementalBlastWater)
+        //    .WithSpellAttackRoll()
+        //    .WithGoodnessAgainstEnemy((targeting, a, d) => {
+        //        float score = 3.5f * targeting.OwnerAction.SpellLevel;
+        //        if (!d.HasEffect(QEffectId.Blinded)) {
+        //            score += 1.5f * d.Level;
+        //        }
+        //        if (!d.HasEffect(QEffectId.Dazzled)) {
+        //            score += 0.5f * d.Level;
+        //        }
+        //        return score;
+        //    })
+        //    .WithEffectOnEachTarget(async (spell, caster, d, result) => {
+        //        if (result >= CheckResult.Success) {
+        //            string dmg = (result == CheckResult.CriticalSuccess ? (spellLevel * 2 + 2).ToString() : spellLevel * 2) + "d6";
+        //            await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText(dmg, "Briny Bolt"), d, result, DamageKind.Bludgeoning);
 
-                    QEffect quenchableBlindness = QEffect.Blinded().WithExpirationAtStartOfSourcesTurn(caster, 1);
-                    quenchableBlindness.ProvideContextualAction = (Func<QEffect, Possibility>)(qfBlindness => new ActionPossibility(new CombatAction(qfBlindness.Owner, (Illustration)IllustrationName.RubEyes, "Rub eyes", new Trait[1] { Trait.Manipulate },
-                    "End the blinded condition affecting you because of {i}briny bolt{/i}.", (Target)Target.Self((Func<Creature, AI, float>)((cr, ai) => ai.AlwaysIfSmartAndTakingCareOfSelf))).WithActionCost(1).WithEffectOnSelf((Action<Creature>)(rubber => quenchableBlindness.ExpiresAt = ExpirationCondition.Immediately))).WithPossibilityGroup("Remove debuff"));
-                    d.AddQEffect(quenchableBlindness);
-                }
+        //            QEffect quenchableBlindness = QEffect.Blinded().WithExpirationAtStartOfSourcesTurn(caster, 1);
+        //            quenchableBlindness.ProvideContextualAction = (Func<QEffect, Possibility>)(qfBlindness => new ActionPossibility(new CombatAction(qfBlindness.Owner, (Illustration)IllustrationName.RubEyes, "Rub eyes", new Trait[1] { Trait.Manipulate },
+        //            "End the blinded condition affecting you because of {i}briny bolt{/i}.", (Target)Target.Self((Func<Creature, AI, float>)((cr, ai) => ai.AlwaysIfSmartAndTakingCareOfSelf))).WithActionCost(1).WithEffectOnSelf((Action<Creature>)(rubber => quenchableBlindness.ExpiresAt = ExpirationCondition.Immediately))).WithPossibilityGroup("Remove debuff"));
+        //            d.AddQEffect(quenchableBlindness);
+        //        }
 
-                if (result == CheckResult.CriticalSuccess) {
-                    d.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(caster, 10));
-                }
-            })
-            ;
+        //        if (result == CheckResult.CriticalSuccess) {
+        //            d.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(caster, 10));
+        //        }
+        //    })
+        //    ;
+        //});
+
+        public static SpellId LesserDominate = ModManager.RegisterNewSpell("Lesser Dominate", 5, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern((Illustration)IllustrationName.Dominate, "Lesser Dominate", new Trait[] {
+                        Trait.Enchantment,
+                        Trait.Incapacitation,
+                        Trait.Mental,
+                        Trait.AssumesDirectControl
+                    }, "You take command of the target, forcing it to obey your orders.", "The target makes a Will save." + S.FourDegreesOfSuccess("The target is unaffected.", "The target is stunned 1.", "You gain control of the target until the end of their next turn.", "As failure, but you maintain control for 2 turns."),
+            (Target)Target.Ranged(6)
+            .WithAdditionalConditionOnTargetCreature((Func<Creature, Creature, Usability>)((a, d) => !d.HasTrait(Trait.Minion) ? Usability.Usable : Usability.NotUsableOnThisCreature("minion"))), 5, SpellSavingThrow.Standard(Defense.Will))
+            .WithSoundEffect(SfxName.Mental)
+            .WithGoodnessAgainstEnemy((Func<Target, Creature, Creature, float>)((t, a, d) => (float)d.HP))
+            .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
+                if (result == CheckResult.Success)
+                    target.AddQEffect(QEffect.Stunned(1));
+                if (result > CheckResult.Failure)
+                    return;
+                Faction originalFaction = target.OwningFaction;
+                target.OwningFaction = caster.OwningFaction;
+                target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", result == CheckResult.CriticalFailure ? ExpirationCondition.CountsDownAtEndOfYourTurn : ExpirationCondition.ExpiresAtEndOfYourTurn, caster, (Illustration)IllustrationName.Dominate) {
+                    Value = result == CheckResult.CriticalFailure ? 2 : 0,
+                    StateCheck = (Action<QEffect>)(qf => {
+                        if (caster.Alive)
+                            return;
+                        qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                        if (qf.Owner.OwningFaction != caster.OwningFaction)
+                            return;
+                        qf.Owner.OwningFaction = originalFaction;
+                        qf.ExpiresAt = ExpirationCondition.Immediately;
+                    }),
+                    WhenExpires = self => {
+                        self.Owner.Occupies.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the domination.");
+                        if (self.Owner.OwningFaction != caster.OwningFaction)
+                            return;
+                        self.Owner.OwningFaction = originalFaction;
+                    }
+                });
+            }));
         });
 
         internal static void LoadSpells() {
 
-            var spells = new List<SpellId>() { BrinyBolt };
+            //var spells = new List<SpellId>() { BrinyBolt };
 
             ModManager.RegisterActionOnEachSpell(spell => {
                 if (spell.SpellId == SpellId.BoneSpray) {

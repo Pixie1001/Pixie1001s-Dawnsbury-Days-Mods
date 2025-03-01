@@ -55,8 +55,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         "Stride up to twice your speed in a direct line, then strike. If you moved at least 20-feet, the strike deals +1d6 damage." +
                         "\n\nThis movement will not path around hazards or attacks of opportunity.",
                         Target.Self((user, ai) => {
-                            if (!user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && cr.Threatens(user.Occupies)) && user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && user.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Lesser && user.DistanceTo(cr) <= user.Speed * 1.5f && user.DistanceTo(cr) > 4)) {
-                                return 11.5f;
+                            if (!user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && cr.Threatens(user.Occupies)) && user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && !cr.DetectionStatus.IsUndetectedTo(user) && user.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Lesser && user.DistanceTo(cr) <= user.Speed * (user.HasEffect(QEffectId.AquaticCombat) ? 0.75f : 1.5f) && user.DistanceTo(cr) > 4)) {
+                                return 15f;
                             }
                             return 0f;
                         })) {
@@ -65,7 +65,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     .WithActionCost(2)
                     .WithSoundEffect(SfxName.Footsteps)
                     .WithEffectOnSelf(async (action, self) => {
-                        self.AddQEffect(new QEffect() { Key = "Powerful Charge" });
+                        self.AddQEffect(new QEffect() {
+                            Key = "Powerful Charge",
+                            AdditionalGoodness = (self, action, d) => d.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction) ? 100f : 0f
+                        });
 
                         MovementStyle movementStyle = new MovementStyle() {
                             MaximumSquares = self.Speed * 2,

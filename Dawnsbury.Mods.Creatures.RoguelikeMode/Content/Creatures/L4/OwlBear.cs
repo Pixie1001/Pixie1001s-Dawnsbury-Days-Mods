@@ -167,9 +167,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         private static CombatAction GetBloodcurdlingScreechAction(Creature self)
         {
             return new CombatAction(self, IllustrationName.Demoralize, "Bloodcurdling Screech", [Trait.Auditory, Trait.Emotion, Trait.Fear, Trait.Mental],
-                "Each creature in an 80-foot emanation must attempt a DC 20 Will save.Regardless of the result, creatures are temporarily immune for 1 minute.\n\n{b}Critical Success{/b} The creature is unaffected.\n{b}Success{/b} The creature is frightened 1.\n{b}Failure{/b} The creature is frightened 2.\n{b}Critical Failure{/b} The creature is fleeing for 1 round and frightened 3.", Target.SelfExcludingEmanation(16))
+                "Each creature in an 80-foot emanation must attempt a DC 20 Will save. Regardless of the result, creatures are temporarily immune for 1 minute.\n\n{b}Critical Success{/b} The creature is unaffected.\n{b}Success{/b} The creature is frightened 1.\n{b}Failure{/b} The creature is frightened 2.\n{b}Critical Failure{/b} The creature is fleeing for 1 round and frightened 3.", Target.SelfExcludingEmanation(16)) {
+                ShortDescription = "The Owlbear charges forward, before forcing each enemy within an 80-foot radius to make a DC 20 will save, as per the {i}Fear{/i} spell. They are then immune until the end of the encounter."
+            }
                 .WithActionCost(1)
-                .WithGoodness((t, a, d) => a.Battle.AllCreatures.Any(creature => !a.FriendOf(d) && !d.HasEffect(QEffectIds.BloodcurdlingScreechImmunity)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
+                .WithGoodness((t, a, d) => a.Battle.RoundNumber == 1 ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER) //a.Battle.AllCreatures.Any(creature => !a.FriendOf(d) && !d.HasEffect(QEffectIds.BloodcurdlingScreechImmunity)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
                 .WithEffectOnEachTarget(async (bloodcurdlingScreech, attacker, defender, result) =>
                 {
                     BloodcurdlingScreechAgainstCreature(attacker, defender);

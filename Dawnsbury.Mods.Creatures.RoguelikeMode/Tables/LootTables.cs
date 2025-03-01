@@ -105,6 +105,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             items.Add(Items.CreateNew(CustomItems.FlashingRapier).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.Widowmaker).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.HungeringBlade).WithModificationPlusOneStriking());
+            items.Add(Items.CreateNew(CustomItems.VipersSpit).WithModificationPlusOne());
+            items.Add(Items.CreateNew(CustomItems.VipersSpit).WithModificationPlusOneStriking());
             items.Add(Items.CreateNew(CustomItems.MaskOfConsumption));
             items.Add(Items.CreateNew(CustomItems.WebwalkerArmour));
             items.Add(Items.CreateNew(CustomItems.DreadPlate));
@@ -165,7 +167,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             List<Item> itemList = Items.ShopItems.Concat(CreateSpecialItems()).Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
 
-            List<Item> weaponTable = itemList.Where(item => (item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || item.Name.Contains("handwraps of mighty blows")) && levelRange(item.Level)).ToList();
+            List<Item> weaponTable = itemList.Where(item => (item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || (item.Name.Contains("handwraps of mighty blows") && item.Runes.Count > 0)) && levelRange(item.Level)).ToList();
             // Add extra basic scaling runes
             if (weaponTable.FirstOrDefault(item => item.ItemName == ItemName.WeaponPotencyRunestone) != null) {
                 weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
@@ -174,7 +176,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 weaponTable.Add(Items.CreateNew(ItemName.StrikingRunestone));
             }
 
-            if (new string[] { "ranger", "fighter", "thaumaturge", "investigator", "inventor", "rogue", "commander", "guardian" }.Contains(className)) {
+            if (new string[] { "ranger", "fighter", "thaumaturge", "investigator", "inventor", "rogue", "commander", "guardian", "runesmith", "exemplar" }.Contains(className)) {
                 // Ranged or melee
                 if (character.Abilities.Dexterity > character.Abilities.Strength) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
@@ -200,7 +202,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 } else {
                     weaponTable = weaponTable.Concat(itemList.Where(item => (item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
-            } else if (new string[] { "psychic", "witch", "bard", "sorcerer", "wizard", "cleric", "druid", "oracle" }.Contains(className)) {
+            } else if (new string[] { "psychic", "witch", "bard", "sorcerer", "wizard", "cleric", "druid", "oracle", "necromancer", "animist" }.Contains(className)) {
                 // Full caster
                 weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon)).ToList();
                 weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
@@ -229,7 +231,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 }
             }
 
-            var sfGuns = Items.ShopItems.Where(item => item.Name.Contains("stellar canon") || item.Name.Contains("rotolaser") || item.Name.Contains("laser pistol") || item.Name.Contains("flame pistol") || item.Name.Contains("scattergun"));
+            var sfGuns = Items.ShopItems.Where(item => item.Name.ToLower().Contains("stellar canon") || item.Name.ToLower().Contains("rotolaser") || item.Name.ToLower().Contains("laser pistol") || item.Name.ToLower().Contains("flame pistol") || item.Name.ToLower().Contains("scattergun"));
             if (!new string[] { "envoy", "soldier" }.Contains(className)) {
                 weaponTable.RemoveAll(item => sfGuns.Contains(item));
             }

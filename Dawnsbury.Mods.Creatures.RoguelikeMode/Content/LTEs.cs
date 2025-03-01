@@ -42,6 +42,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.Creatures.Parts;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -148,7 +149,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")),
                     StartOfCombat = async self => {
-                        Creature companion = CreatureList.Creatures[CreatureId.UNICORN_FOAL](self.Owner.Battle.Encounter);
+                        Creature companion = CreatureList.Creatures[CreatureIds.UnicornFoal](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
                         companion.AddQEffect(new QEffect() {
                             Source = self.Owner,
@@ -170,12 +171,33 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
+            LongTermEffects.EasyRegister("Curse of the Rat Fiend", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Curse of the Rat Fiend", "Each enemy you defeat has a 25% chance of spawning a Giant Rat from its corpse.") {
+                    AfterYouDealDamage = async (owner, action, defender) => {
+                        if (defender.HP <= 0 && defender.OwningFaction.EnemyFactionOf(owner.OwningFaction) && defender.BaseName != "Giant Rat") {
+                            if (R.NextD20() <= 15) {
+                                return;
+                            }
+                            var rat = MonsterStatBlocks.CreateGiantRat();
+                            if (owner.Level == 2) {
+                                rat = rat.ApplyEliteAdjustments();
+                            } else if (owner.Level == 3) {
+                                rat = rat.ApplyEliteAdjustments(true);
+                            }
+                            owner.Battle.SpawnCreature(rat, defender.OwningFaction, defender.Occupies);
+                            owner.Occupies.Overhead("Curse of the Rat Fiend!", Color.Red, $"A giant rat crawls up out of {defender.Name}'s corpse, thanks to the curse of the Rat Fiend.");
+                        }
+                    },
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")),
+                };
+            });
+
             LongTermEffects.EasyRegister("Drow Renegade Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Drow Renegade Companion", "You've acquired the aid of a Drow Renegade. She will fight besides you until dying or the party returns to town.") {
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")),
                     StartOfCombat = async self => {
-                        Creature companion = CreatureList.Creatures[CreatureId.DROW_RENEGADE](self.Owner.Battle.Encounter);
+                        Creature companion = CreatureList.Creatures[CreatureIds.DrowRenegade](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
                         companion.AddQEffect(new QEffect() {
                             Source = self.Owner,
@@ -194,6 +216,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.MaxHP);
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, val))
+                };
+            });
+
+            LongTermEffects.EasyRegister("Unicorn's Curse", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Unicorn's Curse", $"You've been cursed by a unicorn for attempting to poach it, reducing your max HP by 5 and your saves by 1 until you take a long rest.") {
+                    StateCheck = self => {
+                        self.Owner.DrainedMaxHPDecrease += 5;
+                    },
+                    BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(-1, BonusType.Untyped, "Unicorn's Curse") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null))
+                };
+            });
+
+            LongTermEffects.EasyRegister("Unicorn's Blessing", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Unicorn's Blessing", $"You've been blessed by a unicorn using the last of its dying strength, increasing your max HP by 5 and your saves by +1 until you take a long rest.") {
+                    StartOfCombat = async self => self.Owner.MaxHP += 5,
+                    BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(1, BonusType.Untyped, "Unicorn's Blessing") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null))
                 };
             });
 

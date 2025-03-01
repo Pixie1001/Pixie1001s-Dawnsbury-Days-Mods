@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="24" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="12" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="A myseterious room"/>
+  <property name="EncounterDescription">Stumbling through the tangled stone hewn corridors of the Below, the party soon find themselves before a mysterious door. Unable to pass up the possibility of hidden clues or an off shooting passageway leading to the leyline, they reluctantly prepare themselves for whatever may lie behind it.
+
+(Contributed by SudoProgramming)</property>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Mysterious Room"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="DlcTileset.tsx"/>
- <tileset firstgid="200" source="CustomCreatures.tsx"/>
+ <tileset firstgid="204" source="CustomCreatures.tsx"/>
  <imagelayer id="11" name="Image Layer 1">
   <image source="BG_MyseteriousRoom_Homunculus.jpg" width="2048" height="1536"/>
  </imagelayer>
@@ -42,11 +44,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,206,0,0,0,0,0,0,0,225,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,210,0,0,0,0,0,0,0,229,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,225,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,229,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,225,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,229,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,74,74,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -75,7 +77,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="10" name="Topmost layer: Metadata" width="24" height="18">

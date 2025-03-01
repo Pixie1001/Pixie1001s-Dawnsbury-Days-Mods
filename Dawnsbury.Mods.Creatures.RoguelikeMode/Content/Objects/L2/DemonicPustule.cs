@@ -26,8 +26,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DemonicPustule {
         public static Creature Create() {
-            Creature hazard = new Creature(Illustrations.DemonicPustule, "Demonic Pustule", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Object, Trait.Demon }, 2, 0, 0, new Defenses(10, 10, 0, 0), 30, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            Creature hazard = new Creature(Illustrations.DemonicPustule, "Demonic Pustule", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Object, Trait.Demon, Trait.Fiend, Trait.Mindless }, 2, 0, 0, new Defenses(10, 10, 0, 0), 30, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
             .WithTactics(Tactic.DoNothing)
+            .AddQEffect(QEffect.TraitImmunity(Trait.Mental))
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
             .AddQEffect(new QEffect() {
                 StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
             })
