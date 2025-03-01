@@ -45,7 +45,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
     internal static class ModTraits {
         internal static Trait Wand { get; } = ModManager.RegisterTrait("RL_Wand", new TraitProperties("Wand", true, "Wands allow a creature capable of casting their spell to do so once per day.", false));
         internal static Trait CasterWeapon { get; } = ModManager.RegisterTrait("RL_Caster Weapon", new TraitProperties("Caster Weapon", false));
-        internal static Trait CannotHavePropertyRune { get; } = ModManager.RegisterTrait("RL_CannotHavePropertyRune", new TraitProperties("Specific Magic Weapon", true, "This weapon cannot be attached with property runes.", false));
+        internal static Trait CannotHavePropertyRune { get; } = ModManager.RegisterTrait("RL_CannotHavePropertyRune", new TraitProperties("Specific Magic Weapon", true, "This weapon cannot be attached with property runes or new materials.", false));
         internal static Trait LegendaryItem { get; } = ModManager.RegisterTrait("RL_LegendaryItem", new TraitProperties("Legendary Weapon", true, "This weapon cannot be attached with runes of any kind.", false));
         internal static Trait BoostedWeapon { get; } = ModManager.RegisterTrait("RL_BoostedWeapon", new TraitProperties("Boosted Weapon", false));
         internal static Trait Spider { get; } = ModManager.RegisterTrait("RL_Spider", new TraitProperties("Spider", true));

@@ -2,6 +2,7 @@
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
@@ -82,7 +83,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         if (self.Self.QEffects.Any(qf => qf.Key == "temporaryBloodCurdling"))
                         {
                             //AiFuncs.PositionalGoodness(monster, options, (pos, you, step, them) => pos.DistanceTo(them.Occupies) <= 2 && pos.HasLineOfEffectToIgnoreLesser(them.Occupies) <= CoverKind.Standard, 4, false);
-                            return options.MinBy(opt => opt.AiUsefulness.DistanceFromClosestEnemy);
+                            //return options.MinBy(opt => opt.AiUsefulness.DistanceFromClosestEnemy);
+
+                            Creature target = monster.Battle.AllCreatures.MinBy(c => c.OwningFaction.EnemyFactionOf(monster.OwningFaction) ? c.DistanceTo(monster) : 1000);
+
+                            if (target != null) {
+                                var path = Pathfinding.GetPath(monster, target.Occupies, monster.Battle, new PathfindingDescription() {
+                                    Squares = 100,
+                                    Style = new MovementStyle() {
+                                        ForcedMovement = false,
+                                        MaximumSquares = 100,
+                                        IgnoresUnevenTerrain = false,
+                                        PermitsStep = true,
+                                        Shifting = false
+                                    }
+                                });
+
+                                if (path != null && path.Count > 0 && monster.Speed > 0) {
+                                    return options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll<TileOption>(opt => (TileOption)opt).MinBy(opt => opt.Tile.DistanceTo(path[Math.Min(monster.Speed - 1, path.Count - 1)]));
+
+                                }
+                            }
+
                         }
 
                         return null;
@@ -146,10 +168,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 creature.AddQEffect(new QEffect("Immunity to Bloodcurdling Screech", "You are no longer affected by Bloodcurdling Screen.")
                 {
                     Source = self,
-                    ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
+                    ExpiresAt = ExpirationCondition.Never,
                     Id = QEffectIds.BloodcurdlingScreechImmunity,
                     Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, IllustrationName.Demoralize),
-                    Value = 10
+                    //Value = 10
                 });
 
                 if (result <= CheckResult.CriticalSuccess)
@@ -168,10 +190,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             return new CombatAction(self, IllustrationName.Demoralize, "Bloodcurdling Screech", [Trait.Auditory, Trait.Emotion, Trait.Fear, Trait.Mental],
                 "Each creature in an 80-foot emanation must attempt a DC 20 Will save. Regardless of the result, creatures are temporarily immune for 1 minute.\n\n{b}Critical Success{/b} The creature is unaffected.\n{b}Success{/b} The creature is frightened 1.\n{b}Failure{/b} The creature is frightened 2.\n{b}Critical Failure{/b} The creature is fleeing for 1 round and frightened 3.", Target.SelfExcludingEmanation(16)) {
-                ShortDescription = "The Owlbear charges forward, before forcing each enemy within an 80-foot radius to make a DC 20 will save, as per the {i}Fear{/i} spell. They are then immune until the end of the encounter."
+                ShortDescription = "The Owlbear forces each enemy within an 80-foot radius to make a DC 20 will save, as per the {i}Fear{/i} spell. They are then immune until the end of the encounter."
             }
                 .WithActionCost(1)
-                .WithGoodness((t, a, d) => a.Battle.RoundNumber == 1 ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER) //a.Battle.AllCreatures.Any(creature => !a.FriendOf(d) && !d.HasEffect(QEffectIds.BloodcurdlingScreechImmunity)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
+                .WithGoodness((t, a, d) => a.Battle.AllCreatures.Any(cr => cr.DistanceTo(a) <= 16 && !a.FriendOf(cr) && !cr.HasEffect(QEffectIds.BloodcurdlingScreechImmunity)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
                 .WithEffectOnEachTarget(async (bloodcurdlingScreech, attacker, defender, result) =>
                 {
                     BloodcurdlingScreechAgainstCreature(attacker, defender);

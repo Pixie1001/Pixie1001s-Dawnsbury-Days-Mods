@@ -69,9 +69,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                     StrikeModifiers strikeModifiers = new StrikeModifiers() {
                         AdditionalBonusesToAttackRoll = new List<Bonus>() { new Bonus(1, BonusType.Circumstance, "Skewer") },
-                        OnEachTarget = async (a, d, result) => {
-                            d.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Bleed));
-                        }
+                        //OnEachTarget = async (a, d, result) => {
+                        //    if (result >= CheckResult.Success) {
+                        //        d.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Bleed));
+                        //    }
+                        //}
                     };
                     CombatAction action = self.Owner.CreateStrike(rapier, -1, strikeModifiers);
                     action.ActionCost = 2;
@@ -84,6 +86,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     });
 
                     return (ActionPossibility)action;
+                },
+                AfterYouDealDamage = async (a, action, d) => {
+                    if (action.Name == "Skewer") {
+                        d.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Bleed));
+                    }
                 }
             })
             .AddQEffect(new QEffect("Lethargy Poison", "Enemies damaged by the drow fighter's hand crossbow attack, are afflicted by lethargy poison. {b}Stage 1{/b} slowed 1; {b}Stage 2{/b} slowed 1 for rest of encounter") {

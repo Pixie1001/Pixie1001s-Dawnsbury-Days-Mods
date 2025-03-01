@@ -82,7 +82,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
             var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
-                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
                 .WithAdditionalDamage("1d4", DamageKind.Good)
@@ -102,7 +102,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName AlicornDagger { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornDagger", itemName => {
             var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 35, 3,
-                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Dagger)
             .WithDescription("{i}An illustrious dagger, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this dagger, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)
@@ -123,7 +123,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName SpideryHalberd { get; } = ModManager.RegisterNewItemIntoTheShop("SpideryHalberd", itemName => {
             var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 35, 3,
-                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, ModTraits.Roguelike)
+                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Halberd)
             .WithDescription("{i}This jagged halberd's haft is adorned with spidery webs for added grip.{/i}\n\nThe spiderdy halberd deals +1d4 poison damage, and can be used to fire pinning webs at your enemies, with an escape DC equal to the higher of your class or spell DC.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
@@ -238,7 +238,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName SceptreOfTheSpider { get; } = ModManager.RegisterNewItemIntoTheShop("SceptreOfTheSpider", itemName => {
             Item item = new Item(itemName, Illustrations.SceptreOfTheSpider, "sceptre of the spider", 2, 35,
-                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
             .WithDescription("{i}This esoteric sceptre appears to have been forged from within the demonic lair of the spider queen herself.{/i}\n\n" +
             "While wielding the sceptre, you can use the 'Shoot Web' action once per encounter.\n\n" +
@@ -840,7 +840,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName SpiderHatchling { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Hatchling", itemName => {
-            return new Item(itemName, Illustrations.HuntingSpider, "spider hatchling", 2, 30,
+            return new Item(itemName, Illustrations.HuntingSpider, "spider hatchling", 3, 45,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.AnimalCompanion)
             .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
@@ -1462,9 +1462,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithWornAt(Trait.Necklace)
             // TODO: Add description
             .WithDescription("These matching amulets link the lifeforce of those who wear them, allowing them to freely claw away the vitality of the paired wearer for themselves.\n\n" +
-            "{b}Life Transfer {icon:Action}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
+            "{b}Life Transfer {icon:FreeAction}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
             .WithItemAction((item, user) => {
-                return new CombatAction(user, IllustrationName.BloodVendetta, "Life Transfer", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
+                return new CombatAction(user, IllustrationName.BloodVendetta, "Siphon Life", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
                 .WithAdditionalConditionOnTargetCreature(new FriendCreatureTargetingRequirement())
                 .WithAdditionalConditionOnTargetCreature((a, d) => {
                     if (d.CarriedItems.Any(i => i.ItemName == BloodBondAmulet && i.IsWorn == true)) {
@@ -1473,7 +1473,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         return Usability.NotUsableOnThisCreature("No matching amulet");
                     }
                 }))
-                .WithActionCost(1)
+                .WithActionCost(0)
                 .WithSoundEffect(SfxName.ElementalBlastWater)
                 .WithProjectileCone(IllustrationName.VampiricExsanguination, 7, ProjectileKind.Ray)
                 .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {

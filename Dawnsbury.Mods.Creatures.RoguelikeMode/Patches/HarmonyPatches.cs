@@ -292,6 +292,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
                     return false;
                 }
+
                 equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlaceAsSubitem, null, delegate {
                     //equipment.WithModification(new ItemModification(ItemModificationKind.Rune) {
@@ -306,10 +307,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 return true;
             }
 
-            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
+            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be inscribed with property runes.");
                 return false;
             }
+
+            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponMaterial)) {
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be reforged with weapon materials.");
+                return false;
+            }
+
             if (equipment != null && equipment.HasTrait(ModTraits.LegendaryItem)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Legendary magic items cannot be inscribed with runes."); ;
                 return false;
