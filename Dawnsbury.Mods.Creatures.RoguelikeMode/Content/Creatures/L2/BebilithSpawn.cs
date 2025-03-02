@@ -27,7 +27,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithCharacteristics(false, true)
             .WithUnarmedStrike(new Item(IllustrationName.Jaws, "maw", new Trait[] { Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)))
             .WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Agile, Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
-            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 3))
             .AddQEffect(new QEffect() {
                 StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
             })

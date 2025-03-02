@@ -447,6 +447,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 }
             }
 
+            if (!campaign.Tags.ContainsKey($"Lv4Encounters")) {
+                campaign.Tags.Add($"Lv4Encounters", EncounterTables.encounters[3].Count.ToString());
+            }
+
             if (!campaign.Tags.ContainsKey($"Bosses")) {
                 campaign.Tags.Add($"Bosses", EncounterTables.bossFights.Count.ToString());
             }
@@ -464,7 +468,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 if (path[i] is EncounterCampaignStop) {
                     fightNum += 1;
-                    ModEnums.EncounterType encounterType = level == 4 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
+                    ModEnums.EncounterType encounterType = level == 4 && fightNum == 3 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 || level == 4 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
                     if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.Next(0, 8) <= 3) {
                         campaign.Tags["TreasureDemonEncounters"] += $"{i}, ";
                     }

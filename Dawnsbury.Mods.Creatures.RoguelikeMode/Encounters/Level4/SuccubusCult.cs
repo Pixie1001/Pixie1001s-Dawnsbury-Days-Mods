@@ -41,13 +41,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
                 await CommonEncounterFuncs.StandardEncounterSetup(battle);
                 Creature succubus = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Succubus");
                 succubus.Spellcasting.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Dominate);
-                // succubus.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.Fear], 3);
-
-                //lesserDominate.SpellcastingSource = succubus.Spellcasting.PrimarySpellcastingSource;
-                CombatAction ca = AllSpells.CreateSpellInCombat(SpellLoader.LesserDominate, succubus, 5, Trait.Demon);
-                ca.SpellcastingSource = succubus.Spellcasting.PrimarySpellcastingSource;
-                succubus.Spellcasting.PrimarySpellcastingSource.Spells.Add(ca);
-                succubus.Spellcasting.PrimarySpellcastingSource.Spells.Add(ca);
+                //ca.SpellcastingSource = succubus.Spellcasting.PrimarySpellcastingSource;
+                succubus.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellLoader.LesserDominate], 5);
+                succubus.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellLoader.LesserDominate], 5);
             });
 
             // Run cleanup

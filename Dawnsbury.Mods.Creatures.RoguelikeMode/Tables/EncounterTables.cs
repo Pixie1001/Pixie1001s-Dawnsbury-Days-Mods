@@ -5,6 +5,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class EncounterTables {
-        public static List<EncounterCampaignStop>[] encounters = new List<EncounterCampaignStop>[3];
+        public static List<EncounterCampaignStop>[] encounters = new List<EncounterCampaignStop>[4];
         public static List<EncounterCampaignStop>[] eliteEncounters = new List<EncounterCampaignStop>[3];
         public static List<EncounterCampaignStop> bossFights = new List<EncounterCampaignStop>();
 
@@ -100,6 +101,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<DrowSalavagingPartyLv3>());
+
+            // level4Encounters
+            encounters[3].Add(new TypedEncounterCampaignStop<DemonWebPits>());
+            encounters[3].Add(new TypedEncounterCampaignStop<DrowSentinels>());
+            encounters[3].Add(new TypedEncounterCampaignStop<EarthenGuardians>());
+            encounters[3].Add(new TypedEncounterCampaignStop<FeedingFrenzy>());
+            encounters[3].Add(new TypedEncounterCampaignStop<GuardedPassage>());
+            encounters[3].Add(new TypedEncounterCampaignStop<MagesTower>());
+            encounters[3].Add(new TypedEncounterCampaignStop<RottingVigils>());
+            encounters[3].Add(new TypedEncounterCampaignStop<RuinedHamlet>());
+            encounters[3].Add(new TypedEncounterCampaignStop<SuccubusCult>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());

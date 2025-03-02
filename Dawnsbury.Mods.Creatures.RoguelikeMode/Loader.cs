@@ -193,6 +193,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<GuardedPassage>("GuardedPassage.tmx");
             ModManager.RegisterEncounter<MagesTower>("MagesTower.tmx");
             ModManager.RegisterEncounter<RottingVigils>("RottingVigils.tmx");
+            ModManager.RegisterEncounter<RuinedHamlet>("RuinedHamlet.tmx");
             ModManager.RegisterEncounter<SuccubusCult>("SuccubusCult.tmx");
 
             // Elite Fights

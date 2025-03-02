@@ -28,9 +28,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class FeedingFrenzy : Level4Encounter {
-
-
         public FeedingFrenzy(string filename) : base("Feeding Frenzy", filename) {
+            this.Map.Description = CommonEncounterFuncs.DefaultAquoticCombatDesc;
             this.CharacterLevel = 4;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0) {

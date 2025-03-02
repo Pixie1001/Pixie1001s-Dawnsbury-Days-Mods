@@ -68,9 +68,10 @@
 		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
 		<dawnsbury flavorText="The time has finally come. With these latest readings, the location of the subterranean ritual has finally been revealed, and not a moment too soon. The results are clear - magical energy is being drawn from the leylines at an exponential rate. Rest and resupply now, for in the morning, the party must set out into the Below one last time to disrupt the ritual once and for all." shopLevel="4"  />
 		
-		
-		<encounter filename="HallOfBeginnings.tmx">
-		</encounter>
+		<encounter filename="HallOfBeginnings.tmx"></encounter>
+		<encounter filename="HallOfBeginnings.tmx"></encounter>
+		<longRest flavorText="The party takes a moment to rest before the final confrontation... Tomorrow, they put a stop to the ritual once and for all... or die in the attempt." />
+		<encounter filename="HallOfBeginnings.tmx"></encounter>
 		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="4"  />
     </encounters>
 </adventurePath>
