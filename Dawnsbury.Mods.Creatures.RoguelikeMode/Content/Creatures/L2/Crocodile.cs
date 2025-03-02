@@ -5,7 +5,6 @@ using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Audio;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Intelligence;
@@ -35,7 +34,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 return new CombatAction(creature, IllustrationName.Jaws, "Death Roll", [], "The crocodile must have a creature grabbed; Effect The crocodile tucks its legs and rolls rapidly, twisting its victim. It makes a jaws Strike with a +2 circumstance bonus to the attack roll against the grabbed creature. If it hits, it also knocks the creature prone. If it fails, it releases the creature.",
                     Target.ReachWithAnyWeapon().WithAdditionalConditionOnTargetCreature((Creature user, Creature target) =>
                     {
-                        //target.QEffects.Where((effect) => effect.Id == QEffectId.Restrained || effect.Id == QEffectId.Grabbed)
                         return target.QEffects.Any((effect) => effect.Id == QEffectId.Grappled && effect.Source == user) ? Usability.Usable : Usability.NotUsableOnThisCreature("not grappling");
                     }))
                 .WithActionCost(1)
@@ -43,8 +41,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult _) =>
                 {
                     //The unarmed strike is replaced by the first natural weapon added
-                    user.AddQEffect(new(ExpirationCondition.Ephemeral)
+                    user.AddQEffect(new(ExpirationCondition.ExpiresAtEndOfAnyTurn)
                     {
+                        Tag = user,
                         BonusToAttackRolls = (_, _, _) => new Bonus(2, BonusType.Circumstance, "Death Roll", true)
                     });
 
@@ -56,8 +55,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     }
                     else
                     {
-                        target.RemoveAllQEffects((effect) => effect.Id == QEffectId.Grappled && effect.Source == user ? true : false);
+                        target.RemoveAllQEffects((effect) => effect.Id == QEffectId.Grappled && effect.Source == user);
                     }
+
+                    user.RemoveAllQEffects((effect) => effect.Tag == user);
                 });
             })
             .Done();

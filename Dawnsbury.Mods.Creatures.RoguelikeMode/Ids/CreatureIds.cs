@@ -50,5 +50,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static CreatureId MinnowOfMulnok { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_MinnowOfMulnok");
         internal static CreatureId Bodyguard { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Bodyguard");
         internal static CreatureId Alchemist { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Alchemist");
+        internal static CreatureId Crocodile { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Crocodile");
+        internal static CreatureId Pikeman { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Pikeman");
+        internal static CreatureId Ardamok { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Ardamok");
     }
 }

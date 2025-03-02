@@ -45,16 +45,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
                         Rewards.AddRange(newItemRewards);
 
-                        for (int i = 0; i < 2; i++)
+                        for (int i = 0; i < 3; i++)
                         {
-                            var creature = Bodyguard.Create();
-                            creature.MainName = "Gladiator";
-                            battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
-                        }
-
-                        for (int i = 0; i < 2; i++)
-                        {
-                            battle.SpawnCreature(Pikeman.Create(), battle.Enemy, 6 + i % 2, 2);
+                            var creature = Ardamok.Create();
+                            battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 2 + ((i / 2) % 2));
                         }
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))

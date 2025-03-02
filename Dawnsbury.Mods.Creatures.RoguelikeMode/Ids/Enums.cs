@@ -4,7 +4,7 @@
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class ModEnums
     {
-        internal enum CreatureId
+        /*internal enum CreatureId
         {
             UNSEEN_GUARDIAN,
             HUNTING_SPIDER,
@@ -44,7 +44,7 @@
             BODYGUARD,
             ALCHEMIST,
             Chest
-        }
+        }*/
 
         internal enum ObjectId
         {

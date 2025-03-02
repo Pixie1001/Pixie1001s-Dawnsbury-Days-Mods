@@ -162,6 +162,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Bodyguard.Create();
                 case var v when v.Equals(CreatureIds.MerfolkSeaWitch):
                     return MerfolkSeaWitch.Create();
+                case var v when v.Equals(CreatureIds.Crocodile):
+                    return Crocodile.Create();
+                case var v when v.Equals(CreatureIds.Pikeman):
+                    return Pikeman.Create();
+                case var v when v.Equals(CreatureIds.Ardamok):
+                    return Ardamok.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
