@@ -9,13 +9,9 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using static System.Net.Mime.MediaTypeNames;
 using Dawnsbury.Audio;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Auxiliary;
-using System;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -128,28 +124,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     strike.ActionCost = 0;
 
                     await user.Battle.GameLoop.FullCast(strike);
-
-                    /*Item? beak = null;
-
-                    foreach (var ItemEffect in user.QEffects.Where((effect) => effect.AdditionalUnarmedStrike != null))
-                    {
-                        if (ItemEffect.AdditionalUnarmedStrike!.Name == "beak")
-                        {
-                            beak = ItemEffect.AdditionalUnarmedStrike!;
-                        }
-                    }
-
-                    if(user.DistanceTo(target) > 1)
-                    {
-                        var potentialTargets = user.Battle.AllCreatures.Where((creature) => user.EnemyOf(creature) && user.DistanceTo(creature) == 1).ToArray();
-
-                        target = potentialTargets[R.Next(potentialTargets.Length)];
-                    }
-
-                    if (beak != null)
-                    {
-                        await user.MakeStrike(target, beak, -1);
-                    }*/
 
                     user.RemoveAllQEffects((QEffect effect) => effect.Tag == user);
                 });
