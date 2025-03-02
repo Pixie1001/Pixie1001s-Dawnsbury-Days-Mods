@@ -560,7 +560,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
 
                         CombatAction action = new CombatAction(wielder, weapon.Illustration, $"Activate {weapon.Name.CapitalizeEachWord()}", new Trait[] { Trait.Concentrate, Trait.Manipulate, Trait.Acid, Trait.Evocation },
-                            "{b}Frequency{/b} once per encounter\nUntil the end of your turn, attacks made with the Viper's Spit gain +1d6 splash damage.", Target.ThirtyFootLine()) {
+                            "{b}Frequency{/b} once per encounter\nUntil the end of your turn, attacks made with the Viper's Spit gain +1d6 splash damage.", Target.Self()) {
                             ShortDescription = $"{weapon.Name.CapitalizeEachWord()} gains an 1d6 acid splash damage until the end of your turn."
                         }
                         .WithActionCost(1)
@@ -1361,6 +1361,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                         if (result >= CheckResult.Success)
                                             await Possibilities.Grapple(a, d, result);
                                     });
+                                    properties.DamageDieCount = user.Level >= 4 ? 2 : 1;
+                                    properties.ItemBonus = user.Level >= 2 ? 1 : 0;
                                 });
                             };
                             transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple);
@@ -1383,6 +1385,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 2 + self.Owner.Level);
                                 self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
                                     properties.AdditionalDamage.Add(("1d4", DamageKind.Poison));
+                                    properties.DamageDieCount = user.Level >= 4 ? 2 : 1;
+                                    properties.ItemBonus = user.Level >= 2 ? 1 : 0;
                                 });
                                 self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
                             };
@@ -1393,7 +1397,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             transform.Name = "Wolf Form";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = IllustrationName.AnimalFormWolf;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed, Trait.WizardWeapon, Trait.Simple);
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
+                                    properties.DamageDieCount = user.Level >= 4 ? 2 : 1;
+                                    properties.ItemBonus = user.Level >= 2 ? 1 : 0;
+                                }); ;
                                 if (self.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Sneak Attack") != null) {
                                     self.Owner.AddQEffect(QEffect.PackAttack(self.Owner.Name, "1d8").WithExpirationEphemeral());
                                     transform.Description = $"{user.Name} has assumed the form of a cunning wolf, granting them 1d8 pack attack damage.";
