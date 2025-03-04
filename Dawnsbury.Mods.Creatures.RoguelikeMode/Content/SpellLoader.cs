@@ -240,6 +240,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                 }
 
+                if (spell.SpellId == SpellId.BrinyBolt) {
+                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                        float score = 3.5f * t.OwnerAction.SpellLevel;
+                        if (!d.HasEffect(QEffectId.Blinded)) {
+                            score += 1.5f * d.Level;
+                        }
+                        if (!d.HasEffect(QEffectId.Dazzled)) {
+                            score += 0.5f * d.Level;
+                        }
+                        return score;
+                    });
+                }
+
                 if (spell.SpellId == SpellId.Soothe) {
                     spell.WithGoodness((t, a, d) => {
                         float score = spell.SpellLevel * 9.5f + (d.QEffects.Any(qf => qf.Name == "Soothe") ? 0 : 1);

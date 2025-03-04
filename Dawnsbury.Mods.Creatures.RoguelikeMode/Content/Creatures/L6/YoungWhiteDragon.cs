@@ -22,6 +22,7 @@ using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Microsoft.Xna.Framework;
 using System.Runtime.CompilerServices;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
@@ -38,7 +39,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .AddQEffect(QEffect.TraitImmunity(Trait.Cold))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Paralyzed))
                 .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 5))
-                .AddQEffect(QEffect.BreathWeapon("icey breath", Target.Cone(6), Defense.Reflex, 24, DamageKind.Cold, DiceFormula.FromText("7d6", "icey breath"), SfxName.RayOfFrost))
+                .AddQEffect(QEffect.BreathWeapon("icy breath", Target.Cone(6), Defense.Reflex, 24, DamageKind.Cold, DiceFormula.FromText("7d6", "icy breath"), SfxName.RayOfFrost))
                 .AddQEffect(QEffect.FrightfulPresence(18, 20))
                 .AddQEffect(new QEffect()
                 {
@@ -142,12 +143,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         }
                     }
                 })
-                .AddQEffect(new QEffect("Freezing Blood {icon:Reaction}", "After a creature deals piercing or slashing damage to you, you can as a reaction deal 1d6 cold damage to that creature and make them slowed 1 for 1 round.")
+                .AddQEffect(new QEffect("Freezing Blood {icon:Reaction}", "After an adjacent creature deals piercing or slashing damage to you, you can as a reaction deal 1d6 cold damage to that creature and make them slowed 1 for 1 round.")
                 {
                     AfterYouTakeDamageOfKind = async (qfTakeDamage, action, damageKind) =>
                     {
-                        if (action != null && action.Owner.Occupies != null && await qfTakeDamage.Owner.AskToUseReaction($"{action.Owner} spilled your blood. Use Freezing Blood to deal 1d6 cold damage and slow them?"))
+                        if (damageKind != DamageKind.Piercing && damageKind != DamageKind.Slashing)
+                            return;
+
+                        if (action != null && action.Owner.Occupies != null && action.Owner.IsAdjacentTo(qfTakeDamage.Owner) && await qfTakeDamage.Owner.AskToUseReaction($"{action.Owner} spilled your blood. Use Freezing Blood to deal 1d6 cold damage and slow them?"))
                         {
+                            qfTakeDamage.Owner.Occupies.Overhead("Freezing Blood", Color.LightSkyBlue, $"{qfTakeDamage.Owner.Name}'s Freezing Blood spills out, slowing and chilling {action.Owner.Name}.");
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Freezing Blood"), action.Owner, CheckResult.Success, DamageKind.Cold);
                             action.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationAtEndOfOwnerTurn());
                         }

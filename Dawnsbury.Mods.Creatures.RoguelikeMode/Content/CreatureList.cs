@@ -179,6 +179,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return ExplosiveMushroom.Create();
                 case ModEnums.ObjectId.ICE_FONT:
                     return IceFont.Create();
+                case ModEnums.ObjectId.SPIDER_FONT:
+                    return SpiderFont.Create();
                 case ModEnums.ObjectId.SPIDER_QUEEN_SHRINE:
                     return SpiderQueenShrine.Create();
                 case ModEnums.ObjectId.RESTLESS_SPIRIT:
@@ -268,6 +270,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         internal static void LoadObjects() {
             // Level 1 Hazards
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.ICE_FONT, "Scaling Font of Ice");
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.SPIDER_FONT, "Spider Font");
 
             // Level 2 Hazards
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.CHOKING_MUSHROOM);

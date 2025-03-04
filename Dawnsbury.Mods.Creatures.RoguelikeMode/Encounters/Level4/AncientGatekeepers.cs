@@ -27,8 +27,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class GuardedPassage : Level4Encounter {
-
-
         public GuardedPassage(string filename) : base("Ancient Gatekeepers", filename) {
             this.CharacterLevel = 4;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);

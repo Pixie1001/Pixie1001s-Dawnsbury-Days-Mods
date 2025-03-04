@@ -64,7 +64,6 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

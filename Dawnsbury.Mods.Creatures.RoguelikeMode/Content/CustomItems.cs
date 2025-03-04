@@ -80,6 +80,44 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         //public static List<ItemName> items = new List<ItemName>();
 
+        public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
+            Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
+
+        public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
+            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
+
+        public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
+            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
+
+        public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
+            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithMainTrait(Trait.Whip)
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
+                ItemBonus = 1,
+            }
+            .WithAdditionalDamage("1d6", DamageKind.Mental))
+            .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
+            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    BonusToAttackRolls = (self, action, d) => {
+                        int bonus = self.Owner.Abilities.Wisdom - int.Max(self.Owner.Abilities.Strength, self.Owner.Abilities.Dexterity);
+                        if (action != null && action.Item != null && action.Item == weapon && bonus > 0) {
+                            return new Bonus(bonus, BonusType.Untyped, "Wisdom");
+                        }
+                        return null;
+                    }
+                });
+            };
+            return item;
+        });
+
         public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
             var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
                 Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
@@ -198,47 +236,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return item;
         });
 
-        public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
-            Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
-        .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
-
-        public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
-            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
-        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
-
-        public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
-        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
-
-        public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
-            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
-                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
-            .WithMainTrait(Trait.Whip)
-            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
-                ItemBonus = 1,
-            }
-            .WithAdditionalDamage("1d6", DamageKind.Mental))
-            .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
-            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
-
-            item.StateCheckWhenWielded = (wielder, weapon) => {
-                wielder.AddQEffect(new QEffect() {
-                    ExpiresAt = ExpirationCondition.Ephemeral,
-                    BonusToAttackRolls = (self, action, d) => {
-                        int bonus = self.Owner.Abilities.Wisdom - int.Max(self.Owner.Abilities.Strength, self.Owner.Abilities.Dexterity);
-                        if (action != null && action.Item != null && action.Item == weapon && bonus > 0) {
-                            return new Bonus(bonus, BonusType.Untyped, "Wisdom");
-                        }
-                        return null;
-                    }
-                });
-            };
-            return item;
-        });
-
         public static ItemName SceptreOfTheSpider { get; } = ModManager.RegisterNewItemIntoTheShop("SceptreOfTheSpider", itemName => {
             Item item = new Item(itemName, Illustrations.SceptreOfTheSpider, "sceptre of the spider", 2, 35,
-                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.WizardWeapon, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
             .WithDescription("{i}This esoteric sceptre appears to have been forged from within the demonic lair of the spider queen herself.{/i}\n\n" +
             "While wielding the sceptre, you can use the 'Shoot Web' action once per encounter.\n\n" +
@@ -314,6 +314,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     EndOfCombat = async (self, won) => {
                         item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
                     }
+                });
+            };
+            return item;
+        });
+
+        public static ItemName StaffOfSpellPenetration { get; } = ModManager.RegisterNewItemIntoTheShop("Staff of Spell Penetration", itemName => {
+            Item item = new Item(itemName, Illustrations.StaffOfSpellPenetration, "staff of spell penetration", 2, 40,
+                new Trait[] { Trait.Magical, Trait.Club, Trait.Simple, Trait.WizardWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.CasterWeapon, ModTraits.Roguelike })
+            .WithMainTrait(Trait.Staff)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning))
+            .WithDescription("{i}These ancient staves were said to be forged by surface elves during their schism with the Drow, allowing their great wizards to overcome their dark cousin's shadowy tolerance to spellwork.{/i}\n\n" +
+            "While wielding this staff, your spells ignore spell resistance and the bonus to saves against mental spells possessed by Drow.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    Id = QEffectId.SpellPenetration
                 });
             };
             return item;
@@ -1095,13 +1112,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return new Item(itemName, Illustrations.DemonBoundRing, "demon bound ring", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
-            "While wearing this ring, the wear gains a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
+            "While wearing this ring, you gain a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, Illustrations.DemonBoundRing, "Unleash Demon", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate },
                     "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own.\n\n" +
                     "At the start of your turn, there's a 25% chance that the demon will go slip from your control, turning against the party." +
                     "\n\nImmediately when you cast this spell and then once each turn when you Sustain this spell, you can take two actions as " +
-                    "the summoner creature. If you don't Sustain this spell during a turn, the summoner creature will go away." +
+                    "the summoner creature. If you don't Sustain this spell during a turn, the summoned creature will go away." +
                     "\n\nOnce rogue however, the demon can no longer be banished in this way and will persist even after you fall unconscious.",
                     Target.RangedEmptyTileForSummoning(6))
                 .WithActionCost(3)

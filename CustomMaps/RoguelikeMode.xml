@@ -23,7 +23,7 @@
 			With the kingdom's knights and most trusted heroes occupied with patrolling the border, and the magical disturbance much too remote for the mages of the Royal Academy to detect, it falls to Dawnsbury to assemble a small party of unlikely heroes to descend into the depths of the Below, and investigate the leylines... Before the foul intent of the ritual comes to pass.
         </narration>
 		
-        <beginChapter>Floor 1</beginChapter>
+        <beginChapter>Expedition 1</beginChapter>
 		
         <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across Our Point of Light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teaming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury... The party must seek out the source of the anomaly themselves to assess the threat..." shopLevel="1" />
         <encounter filename="HallOfBeginnings.tmx">
@@ -35,7 +35,7 @@
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		
-		<beginChapter>Floor 2</beginChapter>
+		<beginChapter>Expedition 2</beginChapter>
 		
 		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
 		<dawnsbury flavorText="It is as they feared – the leyline is only one part of a larger underground reservoir of power... The taint of demonic sorcery an ominous indicator of whatever foul ritual is tapping into it. After studying their findings, the location of the next node in the leylines is revealed to them... Now all that iseft to do is rest and resupply before once again braving the Below..."  shopLevel="2"  />
@@ -49,7 +49,7 @@
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		
-		<beginChapter>Floor 3</beginChapter>
+		<beginChapter>Expedition 3</beginChapter>
 		
 		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
 		<dawnsbury flavorText="With the readings of the second leyline, the diviners in Dawnsbury are finally able to ascertain the location of the final node that will lead to the ritual site. The last legs of their journey draw near..."  shopLevel="3"  />
@@ -63,7 +63,7 @@
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		
-		<beginChapter>Final Boss</beginChapter>
+		<beginChapter>Final Expedition</beginChapter>
 		
 		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
 		<dawnsbury flavorText="The time has finally come. With these latest readings, the location of the subterranean ritual has finally been revealed, and not a moment too soon. The results are clear - magical energy is being drawn from the leylines at an exponential rate. Rest and resupply now, for in the morning, the party must set out into the Below one last time to disrupt the ritual once and for all." shopLevel="4"  />

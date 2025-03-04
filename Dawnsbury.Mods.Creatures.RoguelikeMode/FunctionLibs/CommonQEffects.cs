@@ -84,11 +84,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         return null;
                     }
 
-                    if (action.HasTrait(Trait.Mental) && defence != Defense.AC) {
+                    if (action.HasTrait(Trait.Mental) && !(action.SpellId != SpellId.None && action.Owner.HeldItems.Any(item => item.ItemName == CustomItems.StaffOfSpellPenetration)) && defence != Defense.AC) {
                         return new Bonus(2, BonusType.Status, self.Name);
                     }
 
-                    if (action.SpellId != SpellId.None && defence != Defense.AC) {
+                    if (action.SpellId != SpellId.None && !action.Owner.HasEffect(QEffectId.SpellPenetration) && defence != Defense.AC) {
                         return new Bonus(1, BonusType.Status, self.Name);
                     }
 
@@ -335,7 +335,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         public static QEffect PreyUpon() {
             return new QEffect("Prey Upon", "Creatures without any allies within 10 feet of them are considered flat-footed against you, unless they're also flanking you.") {
                 StateCheck = self => {
-                    foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends)) {
+                    foreach (Creature enemy in self.Owner.Battle.AllCreatures.Where(cr => cr.Alive && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends))) {
                         if (UtilityFunctions.IsFlanking(enemy, self.Owner)) {
                             continue;
                         }
@@ -347,7 +347,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         //    continue;
                         //}
 
-                        int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(enemy) <= 2).Count();
+                        int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != enemy && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.Alive && cr.DistanceTo(enemy) <= 2).Count();
                         if (closeAllies == 0) {
                             enemy.AddQEffect(new QEffect() {
                                 Source = self.Owner,
@@ -365,7 +365,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     if (defender.IsFlatFootedTo(self.Owner, action)) {
                         return 0;
                     }
-                    int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != defender && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.DistanceTo(defender) <= 2).Count();
+                    int closeAllies = self.Owner.Battle.AllCreatures.Where(cr => cr != defender && (cr.OwningFaction.IsPlayer || cr.OwningFaction.IsGaiaFriends) && cr.Alive && cr.DistanceTo(defender) <= 2).Count();
                     if (closeAllies == 0) {
                         return 4;
                     }

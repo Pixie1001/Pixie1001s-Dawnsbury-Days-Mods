@@ -98,7 +98,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         public static void LoadMod()
         {
             var harmony = new Harmony("Dawnsbury.Mods.GameModes.RoguelikeMode");
-            Harmony.DEBUG = true;
+            Harmony.DEBUG = false;
             harmony.PatchAll();
 
             CustomItems.LoadItems();
@@ -137,7 +137,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<TempleOfTheSpiderQueenLv2>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv2");
             RegisterEncounter<TempleOfTheSpiderQueenLv3>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv3");
             RegisterEncounter<AbandonedTempleLv1>("AbandonedTemple.tmx", "AbandonedTempleLv1");
-            RegisterEncounter<AbandonedTempleLv2>("AbandonedTemple.tmx", "AbandonedTempleLv2");
+            ModManager.RegisterEncounter<AbandonedTempleLv2>("AbandonedTemple.tmx");
             RegisterEncounter<AbandonedTempleLv3>("AbandonedTemple.tmx", "AbandonedTempleLv3");
             RegisterEncounter<FungalForestlv1>("FungalForest.tmx", "FungalForestLv1");
             RegisterEncounter<FungalForestlv2>("FungalForest.tmx", "FungalForestLv2");

@@ -38,12 +38,17 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Tiles;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     [HarmonyLib.HarmonyPatch]
     public class HarmonyPatches {
+
+
 
         // TODO: Create a patch for Shop.cs -> CreateAdventurersDawnForTrueShopping that will check if the town is a custom type, and then replace the shop keeper portrait, and possibly add unique items to the store like wands and anti-drow rings
 
@@ -376,6 +381,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
             string desc = comment + "\n\n" + (unlimitedBuyAndSell ? "The Adventurer's Dawn buys any items, and sells all items of level " + level.ToString() + " or lower. {i}(You can sell back items for a full refund before an adventure path begins.){/i}" : "The Adventurer's Dawn buys any items {b}at half price{/b}, and sells all items of level " + level.ToString() + " or lower.");
             __result.GetType().GetProperty("Description", BindingFlags.Instance | BindingFlags.Public).SetValue(__result, desc);
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Shop), "Carries")]
+        private static void ShopCarriesPatch(Shop __instance, ref bool __result, Item item) {
+            if (CampaignState.Instance?.AdventurePath?.Name != "Roguelike Mode") {
+                return;
+            }
+
+            if (item.ItemName == CustomItems.StaffOfSpellPenetration) {
+                Func<Item, bool> carried = (Func<Item, bool>)__instance.GetType().GetProperty("Carried", BindingFlags.Instance | BindingFlags.Public).GetValue(__instance);
+                __result = carried(item);
+            }
         }
 
         [HarmonyPostfix]

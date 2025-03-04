@@ -97,7 +97,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     StartOfCombat = async self => {
                         self.Owner.AddQEffect(new QEffect() {
                             Id = QEffectId.Slowed,
-                            Value = 1
+                            Value = 1,
+                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfAnyTurn
                         });
                         await self.Owner.Battle.GameLoop.Turn(self.Owner, false);
                     },

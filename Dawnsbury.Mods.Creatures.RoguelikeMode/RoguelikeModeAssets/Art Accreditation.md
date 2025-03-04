@@ -30,6 +30,7 @@
 	<li>RobesofTheWarWizard.png</li>
 	<li>DeathDrinkerAmulet.png (modified)</li>
 	<li>SpideryHalberd.png</li>
+	<li>StaffOfSpellPenetration.png</li>
 </ul>
 
 ### Rexard

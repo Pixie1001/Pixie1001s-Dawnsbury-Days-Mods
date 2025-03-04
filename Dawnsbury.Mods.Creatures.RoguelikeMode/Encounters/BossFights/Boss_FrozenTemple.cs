@@ -12,7 +12,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class Boss_FrozenTemple : BossFightEncounter {
-        public Boss_FrozenTemple(string filename) : base("Fozen Temple", filename)
+        public Boss_FrozenTemple(string filename) : base("Frozen Temple", filename)
         {
             // Run setup
             this.AddTrigger(TriggerName.StartOfEncounter, async battle => {

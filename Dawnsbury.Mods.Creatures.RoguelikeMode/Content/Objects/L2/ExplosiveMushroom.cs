@@ -27,14 +27,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     .WithEntersInitiativeOrder(false)
                     .AddQEffect(CommonQEffects.Hazard())
                     .AddQEffect(new QEffect("Combustible Spores",
-                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 17 Basic reflex save to each creature within a 10 foot radius.") {
+                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 19 Basic reflex save to each creature within a 10 foot radius.") {
                         AfterYouTakeDamageOfKind = async (self, action, kind) => {
                             string name = self.Owner.Name;
 
                             if (!self.UsedThisTurn && (kind == DamageKind.Fire || kind == DamageKind.Electricity || (action != null && (action.HasTrait(Trait.Fire) || action.HasTrait(Trait.Electricity))))) {
                                 CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire }, "", Target.SelfExcludingEmanation(2))
                                 .WithSoundEffect(SfxName.Fireball)
-                                .WithSavingThrow(new SavingThrow(Defense.Reflex, 17))
+                                .WithSavingThrow(new SavingThrow(Defense.Reflex, 19))
                                 .WithProjectileCone(IllustrationName.Fireball, 15, ProjectileKind.Cone)
                                 .WithEffectOnEachTarget(async (spell, a, d, r) => {
                                     await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText("4d6", "Combustible Spores"), DamageKind.Fire);

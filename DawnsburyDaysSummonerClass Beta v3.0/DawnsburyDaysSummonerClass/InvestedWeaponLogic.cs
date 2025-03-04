@@ -131,9 +131,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     Item naturalWeapon1 = action.Owner.UnarmedStrike;
-                    Item naturalWeapon2 = action.Owner.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike;
+                    Item naturalWeapon2 = action.Owner.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee)?.AdditionalUnarmedStrike;
 
-                    Trait[] traits = naturalWeapon1.Traits.Concat(naturalWeapon2.Traits).ToArray();
+                    Trait[] traits = naturalWeapon2 == null ? naturalWeapon1.Traits.ToArray() : naturalWeapon1.Traits.Concat(naturalWeapon2.Traits).ToArray();
 
                     bool applies = false;
 

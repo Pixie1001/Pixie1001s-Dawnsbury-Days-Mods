@@ -53,6 +53,7 @@
             SPIDER_QUEEN_SHRINE,
             RESTLESS_SPIRIT,
             ICE_FONT,
+            SPIDER_FONT,
             DEMONIC_PUSTULE,
             TEST_PILE,
             Maelstrom,

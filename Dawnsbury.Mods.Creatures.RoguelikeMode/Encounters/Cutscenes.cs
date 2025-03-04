@@ -47,6 +47,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             }
         }
 
+        public async static Task AbandonedTempleCutscene(TBattle battle) {
+            Creature hero1 = battle.Heroes[0].ToCreature(battle.Encounter.CharacterLevel);
+            Creature hero2 = battle.Heroes[1].ToCreature(battle.Encounter.CharacterLevel);
+            battle.Cinematics.EnterCutscene();
+            await battle.Cinematics.LineAsync(hero1, "Something about the shrine in this temple is different. I think it might be what's drawing all these spiders to this place.", null);
+            await battle.Cinematics.LineAsync(hero2, "You're right. We'd better destroy it before it draws in any more...", null);
+            battle.Cinematics.ExitCutscene();
+        }
+
         public async static Task HatcheryCutscene2(TBattle battle) {
             if (battle.RoundNumber > 1) {
                 if (battle.RoundNumber == 4) {
