@@ -72,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
                     {
                         RewardGold += (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.8);
 
-                        battle.SpawnCreature(R.Coin() ? RalknarTheRude.Create() : SorantonTheSkilled.Create(), battle.Enemy, 7, 2);
+                        battle.SpawnCreature(R.Coin() ? YoungChimera.Create() : FlailSnail.Create(), battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {
@@ -96,7 +96,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
                         GrantFeatEffect(creature);
                     }
 
-                    await battle.EndTheGame(true, "You beat the colosseum! For your prize, each of your characters has been trained in a martial technique.");
+                    await battle.EndTheGame(true, "You beat the colosseum! For your prize, each of your characters has been trained in a magical technique.");
                 }
 
                 round++;

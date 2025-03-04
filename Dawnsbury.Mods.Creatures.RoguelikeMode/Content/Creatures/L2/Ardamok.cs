@@ -39,18 +39,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     {
                         var nearestEnemyDistance = -1;
 
-                        foreach (var enemy in user.Battle.AllCreatures)
+                        foreach (var enemy in user.Battle.AllCreatures.Where((enemy) => enemy.HP > 0 && enemy.EnemyOf(user)))
                         {
-                            if (enemy.EnemyOf(user))
-                            {
-                                var distance = user.DistanceTo(enemy);
+                            var distance = user.DistanceTo(enemy);
 
-                                if (nearestEnemyDistance == -1 || distance < nearestEnemyDistance)
-                                {
-                                    nearestEnemyDistance = distance;
-                                }
+                            if (nearestEnemyDistance == -1 || distance < nearestEnemyDistance)
+                            {
+                                nearestEnemyDistance = distance;
                             }
                         }
+
                         return !user.QEffects.Any((ef) => ef.Name == "Retracted") && (user.Actions.AttackedThisManyTimesThisTurn >= 1 || nearestEnemyDistance > 3) ? ai.GainBonusToAC(3) : AIConstants.NEVER;
                     }))
                 .WithActionCost(2)
