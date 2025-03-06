@@ -108,6 +108,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return creature;
         }
 
+        public static Creature AddManufacturedWeapon(Creature creature, ItemName manufacturedWeapon, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null, Action<Item>? additionalWeaponActions = null)
+        {
+            Item item = Items.CreateNew(manufacturedWeapon);
+            var itemTraits = item.Traits.Where((trait) => trait == Trait.Weapon || trait == Trait.Ranged || trait == Trait.Melee || trait == Trait.Simple || trait == Trait.Martial || trait == Trait.Advanced);
+            item.Traits.Clear();
+            item.Traits.AddRange(itemTraits);
+            item.Traits.AddRange(traits);
+            item.Traits.Add(Trait.EncounterEphemeral);
+
+            if (creature.Proficiencies.Get(Trait.Weapon) == Proficiency.Untrained)
+            {
+                bool flag = traits.Contains(Trait.Finesse);
+                int num = creature.Abilities.Strength;
+                if (flag)
+                {
+                    num = Math.Max(num, creature.Abilities.Dexterity);
+                }
+
+                int proficiencyLevel = creature.ProficiencyLevel;
+                creature.WithProficiency(Trait.Weapon, (Proficiency)(attackBonus - proficiencyLevel - num));
+            }
+
+            item.WithWeaponProperties(new WeaponProperties("1d1", damageKind));
+
+            MediumDiceFormula mediumDiceFormula = DiceFormula.ParseMediumFormula(damage, item.Name, item.Name);
+            item.WeaponProperties!.DamageDieSize = (int)mediumDiceFormula.DieSize;
+            item.WeaponProperties.DamageDieCount = mediumDiceFormula.DiceCount;
+            int additionalFlatBonus = mediumDiceFormula.FlatBonus - (item.HasTrait(Trait.Melee) ? creature.Abilities.Strength : 0);
+            item.WeaponProperties.AdditionalFlatBonus = additionalFlatBonus;
+            if (additionalWeaponPropertyActions != null)
+            {
+                item.WithAdditionalWeaponProperties(additionalWeaponPropertyActions);
+            }
+
+            additionalWeaponActions?.Invoke(item);
+            creature.AddHeldItem(item);
+            return creature;
+        }
+
         internal static async Task<Tile?> GetChargeTiles(Creature self, MovementStyle movementStyle, int minimumDistance, string msg, Illustration img) {
             Tile startingPos = self.Occupies;
             Vector2 pos = self.Occupies.ToCenterVector();

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="14" tilewidth="256" tileheight="256" infinite="0" nextlayerid="9" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription">In search of supplies, the party finds themselves following up on a tip given to them by a helpful gnome during their journey. Yet the smugglers awaiting them at the drop point are not jovial gnome merchants, but a cabal of cunning Drow and their thugs...
+  <property name="EncounterDescription">In search of supplies, the party finds themselves following up on a tip given to them by a helpful gnome. Yet the smugglers awaiting them at the drop point are not jovial gnome merchants, but a cabal of cunning drow and their thugs...
 
-(Contributed by DingleBob)</property>
+(Contributed by Dinglebob)</property>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Alchemical Ambush"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <tileset firstgid="116" source="CustomCreatures.tsx"/>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="17" height="14">
   <data encoding="csv">
 22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,
@@ -33,12 +33,12 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,22,22,22,22,22,22,22,22,22,22,22,0,0,0,0,
 0,0,22,45,0,22,0,0,0,0,0,0,22,22,0,0,0,
-0,0,22,0,0,22,0,0,0,0,2159,2158,0,22,22,0,0,
+0,0,22,0,0,22,0,0,0,0,2150,2149,0,22,22,0,0,
 0,0,22,22,74,22,0,0,0,0,0,0,0,0,22,0,0,
 0,0,22,0,0,0,0,0,0,0,0,0,0,0,22,0,0,
-0,0,22,0,0,0,2159,0,0,0,0,0,0,0,22,0,0,
+0,0,22,0,0,0,2150,0,0,0,0,0,0,0,22,0,0,
 0,0,22,0,0,0,0,0,0,0,0,0,0,0,22,0,0,
-0,0,22,0,0,0,0,0,2158,0,0,2158,0,0,22,0,0,
+0,0,22,0,0,0,0,0,2149,0,0,2149,0,0,22,0,0,
 0,0,22,22,22,22,22,22,22,0,0,22,22,22,22,22,22,
 22,22,22,22,22,22,22,22,22,36,37,22,22,22,22,22,22,
 0,0,0,0,0,0,0,0,0,38,39,0,0,0,0,0,0,
