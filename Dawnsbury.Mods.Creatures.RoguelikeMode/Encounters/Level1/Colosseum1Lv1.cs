@@ -28,7 +28,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 
                 for (int i = 0; i < 4; i++)
                 {
-                    var creature = Bodyguard.Create().ApplyWeakAdjustments(false);
+                    var creature = Bodyguard.Create();
                     creature.MainName = "Gladiator";
                     battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 2 + ((i / 2) % 2));
                 }

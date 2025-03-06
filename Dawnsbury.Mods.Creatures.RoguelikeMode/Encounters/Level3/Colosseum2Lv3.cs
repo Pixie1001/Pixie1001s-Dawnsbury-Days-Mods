@@ -51,7 +51,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
 
                         for (int i = 0; i < 3; i++)
                         {
-                            var creature = Ardamok.Create();
+                            var creature = Ardamok.Create().ApplyEliteAdjustments();
                             battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 2 + ((i / 2) % 2));
                         }
 
@@ -76,7 +76,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
                     {
                         RewardGold += (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.8);
 
-                        battle.SpawnCreature(R.Coin() ? YoungChimera.Create() : FlailSnail.Create(), battle.Enemy, 7, 2);
+                        battle.SpawnCreature(R.Coin() ? YoungChimera.Create().ApplyEliteAdjustments() : FlailSnail.Create().ApplyEliteAdjustments(), battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {
