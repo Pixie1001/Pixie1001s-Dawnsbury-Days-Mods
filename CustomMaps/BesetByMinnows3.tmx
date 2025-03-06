@@ -7,13 +7,13 @@ With no other choice, they gather their potions of water breathing and begin to 
 
 Piercing and slashing weapons are less effective when fighting underwater, and creatures without a swim speed are permanently flat footed and move at half speed. The party would be wise to equip themselves accordingly.
 
-(Contributed by DingleBob)</property>
+(Contributed by Dinglebob)</property>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="3"/>
   <property name="EncounterName" value="Beset by Minnows"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <tileset firstgid="116" source="CustomCreatures.tsx"/>
  <imagelayer id="7" name="Image Layer 1">
   <image source="ChosenOfTheKraken.jpg" width="4352" height="4608"/>
  </imagelayer>
@@ -42,8 +42,8 @@ Piercing and slashing weapons are less effective when fighting underwater, and c
  <layer id="2" name="Top layer: stones, trees, creatures..." width="17" height="18">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,2157,2157,0,0,0,0,0,0,0,0,8,0,
-0,0,0,0,0,2157,2157,8,0,0,0,0,8,0,0,0,0,
+0,0,0,0,0,2148,2148,0,0,0,0,0,0,0,0,8,0,
+0,0,0,0,0,2148,2148,8,0,0,0,0,8,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -56,8 +56,8 @@ Piercing and slashing weapons are less effective when fighting underwater, and c
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,
-0,0,8,0,0,0,0,0,0,0,2157,2157,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,2157,2157,8,0,0,0,0,
+0,0,8,0,0,0,0,0,0,0,2148,2148,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,2148,2148,8,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>

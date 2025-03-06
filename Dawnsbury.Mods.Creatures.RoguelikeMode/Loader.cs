@@ -114,8 +114,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         private static void LoadEncounters()
         {
-            //ModManager.RegisterEncounter<MerfolkHuntingPartyLv2>("MerfolkHuntingParty.tmx");
-
             ModManager.RegisterEncounter<HallOfBeginnings>("HallOfBeginnings.tmx");
 
             RegisterEncounter<AlchemicalAmbushLv1>("AlchemicalAmbush.tmx", "AlchemicalAmbushLv1");
@@ -124,6 +122,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<DrowAmbushLv1>("DrowAmbush.tmx", "DrowAmbushLv1");
             RegisterEncounter<DrowAmbushLv2>("DrowAmbush.tmx", "DrowAmbushLv2");
             RegisterEncounter<DrowAmbushLv3>("DrowAmbush.tmx", "DrowAmbushLv3");
+            RegisterEncounter<Colosseum1Lv1>("Colosseum.tmx", "Colosseum1Lv1");
+            RegisterEncounter<Colosseum1Lv2>("Colosseum.tmx", "Colosseum1Lv2");
+            RegisterEncounter<Colosseum1Lv3>("Colosseum.tmx", "Colosseum1Lv3");
+            RegisterEncounter<Colosseum2Lv1>("Colosseum.tmx", "Colosseum2Lv1");
+            ModManager.RegisterEncounter<Colosseum2Lv2>("Colosseum.tmx");
+            RegisterEncounter<Colosseum2Lv3>("Colosseum.tmx", "Colosseum2Lv3");
             RegisterEncounter<InquisitrixTrapLv1>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv1");
             RegisterEncounter<InquisitrixTrapLv2>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv2");
             RegisterEncounter<InquisitrixTrapLv3>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv3");
