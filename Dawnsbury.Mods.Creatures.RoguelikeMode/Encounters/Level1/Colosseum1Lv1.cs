@@ -48,14 +48,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 
                         for (int i = 0; i < 2; i++)
                         {
-                            var creature = Bodyguard.Create();
+                            var creature = Bodyguard.Create().ApplyWeakAdjustments(false);
                             creature.MainName = "Gladiator";
                             battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
                         }
 
                         for (int i = 0; i < 2; i++)
                         {
-                            battle.SpawnCreature(Pikeman.Create(), battle.Enemy, 6 + i % 2, 2);
+                            battle.SpawnCreature(Pikeman.Create().ApplyWeakAdjustments(false), battle.Enemy, 6 + i % 2, 2);
                         }
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
@@ -81,7 +81,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 
                         var champion = R.Coin() ? RalknarTheRude.Create() : SorantonTheSkilled.Create();
 
-                        battle.SpawnCreature(champion, battle.Enemy, 7, 2);
+                        battle.SpawnCreature(champion.ApplyWeakAdjustments(false), battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {
