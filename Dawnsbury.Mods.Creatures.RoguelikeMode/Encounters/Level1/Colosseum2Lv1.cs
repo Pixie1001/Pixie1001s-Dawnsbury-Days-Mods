@@ -10,12 +10,12 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Auxiliary;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class Colosseum2Lv2 : Level2Encounter
+    internal class Colosseum2Lv1 : Level1Encounter
     {
-        public Colosseum2Lv2(string filename) : base("Colosseum", filename)
+        public Colosseum2Lv1(string filename) : base("Colosseum", filename)
         {
             RewardGold = (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.7);
 

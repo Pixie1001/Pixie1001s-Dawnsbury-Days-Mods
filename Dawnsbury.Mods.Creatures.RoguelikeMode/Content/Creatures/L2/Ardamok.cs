@@ -85,7 +85,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             })
             .AddMainAction((creature) =>
             {
-                return new CombatAction(creature, new SideBySideIllustration(IllustrationName.Action, IllustrationName.StarHit), "Sudden Lunge", [], "{b}Requirement{/b} You are retracted. {b}Effect{/b} You extends your limbs and chargs. You lose the benefits of Retract, then you Stride twice and make a beak Strike. If this Strike hits, it deals an additional 1d6 damage.",
+                return new CombatAction(creature, new SideBySideIllustration(IllustrationName.Action, IllustrationName.StarHit), "Sudden Lunge", [], "{b}Requirement{/b} You are retracted. {b}Effect{/b} You extend your limbs and charge. You lose the benefits of Retract, then you Stride twice and make a beak Strike. If this Strike hits, it deals an additional 1d6 damage.",
                     Target.Ranged(creature.Speed * 2 + 1, (Target _, Creature user, Creature target) =>
                     {
                         var action = user.CreateStrike("beak");

@@ -33,6 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[0].Add(new TypedEncounterCampaignStop<AlchemicalAmbushLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<BesetByMinnowsLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<Colosseum1Lv1>());
+            encounters[2].Add(new TypedEncounterCampaignStop<Colosseum2Lv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<DrowAmbushLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<RatSwarmLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv1>());
@@ -84,6 +85,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<AlchemicalAmbushLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<BesetByMinnowsLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<Colosseum1Lv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<Colosseum2Lv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<DrowAmbushLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<RatSwarmLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<InquisitrixTrapLv3>());

@@ -45,7 +45,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         {
                             return new Bonus(5, BonusType.Circumstance, "snail mucin", true);
                         }
-                        else if (action.ActionId == ActionId.Stride || action.ActionId == ActionId.Step || action.ActionId == ActionId.StepByStepStride)
+                        else if (action.Name == "Grease")
                         {
                             return new Bonus(40, BonusType.Untyped, "snail mucin", true);
                         }
@@ -53,41 +53,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                     return null;
                 },
-                BonusToAttackRolls = (QEffect _, CombatAction action, Creature? _) => action.Name == "Balance" ? new Bonus(100, BonusType.Untyped, "snail mucin", true) : null,
-                StartOfCombat = async (QEffect effect) =>
+                StartOfYourEveryTurn = async (QEffect _, Creature user) =>
                 {
-                    var user = effect.Owner;
-
-                    foreach (var tile in user.Battle.Map.AllTiles)
+                    user.Actions.PassedBalanceCheckThisTurn = true;
+                },
+                StateCheck = (QEffect effect) =>
+                {
+                    if (!effect.Owner.Occupies.QEffects.Any((tileEffect) => tileEffect.BalanceDC != 0 && tileEffect.BalanceDC >= GetDC(effect.Owner)))
                     {
-                        var tileEffect = new TileQEffect(tile);
+                        var tileEffect = new TileQEffect(effect.Owner.Occupies);
 
-                        tileEffect.AfterCreatureEntersHere = async (Creature creature) =>
-                        {
-                            if (creature == user)
-                            {
-                                tileEffect.AfterCreatureEntersHere = null;
+                        tileEffect.BalanceDC = GetDC(effect.Owner);
+                        tileEffect.BalanceAllowsReflexSave = true;
+                        tileEffect.Illustration = IllustrationName.GreaseTile;
+                        tileEffect.VisibleDescription = "{b}Grease.{/b} A creature that enters here must make an Acrobatics check or stop moving or even fall prone.";
+                        tileEffect.TransformsTileIntoHazardousTerrain = true;
 
-                                tileEffect.BalanceDC = GetDC(creature);
-                                tileEffect.BalanceAllowsReflexSave = true;
-                                tileEffect.Illustration = IllustrationName.GreaseTile;
-                                tileEffect.VisibleDescription = "{b}Grease.{/b} A creature that enters here must make an Acrobatics check or stop moving or even fall prone.";
-                                tileEffect.TransformsTileIntoHazardousTerrain = true;
-                            }
-                        };
-
-                        tile.AddQEffect(tileEffect);
+                        effect.Owner.Occupies.AddQEffect(tileEffect);
                     }
-
-                    user.Occupies.AddQEffect(new()
-                    {
-                        AfterCreatureEntersHere = null,
-                        BalanceDC = GetDC(user),
-                        BalanceAllowsReflexSave = true,
-                        Illustration = IllustrationName.GreaseTile,
-                        VisibleDescription = "{b}Grease.{/b} A creature that enters here must make an Acrobatics check or stop moving or even fall prone.",
-                        TransformsTileIntoHazardousTerrain = true
-                    });
                 }
             })
             .AddQEffect(new("Warp Magic", "Spells that target you have a 50% chance to bounce off of your shell.")
@@ -118,6 +101,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         .WithActionCost(0)
                         .WithGoodness((_, _, _) => AIConstants.ALWAYS)
                         .WithSavingThrow(new(Defense.Fortitude, GetDC(user)))
+                        .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.MagicMissile))
                         .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                         {
                             await CommonSpellEffects.DealBasicDamage(action, user, target, result, "2d8", DamageKind.Force);
@@ -143,6 +127,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         .WithActionCost(0)
                         .WithGoodness((_, _, _) => AIConstants.ALWAYS)
                         .WithSavingThrow(new(Defense.Will, GetDC(user)))
+                        .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.MagicMissile))
                         .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                         {
                             await CommonSpellEffects.DealBasicDamage(action, user, target, result, "3d8", DamageKind.Mental);
