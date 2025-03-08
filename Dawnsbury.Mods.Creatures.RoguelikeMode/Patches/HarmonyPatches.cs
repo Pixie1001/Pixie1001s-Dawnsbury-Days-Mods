@@ -41,6 +41,7 @@ using System.Text.Json;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Tiles;
+using Dawnsbury.IO;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -95,7 +96,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //    }
         //}
 
-
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(TBattle), "SpawnCreature", [typeof(Creature), typeof(Faction), typeof(Tile)])]
+        //private static void ArchanophobiaPatch(TBattle __instance, Creature creature, Faction controller, Tile where) {
+        //    if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_ArachnophobiaMode")) {
+        //        UtilityFunctions.ReplaceSpiderSprite(creature);
+        //    }
+        //}
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TBattle), "EndTheGame")]

@@ -21,6 +21,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             return new Creature(Illustrations.HuntingSpider, "Hunting Spider", new List<Trait>() { Trait.Animal, ModTraits.Spider }, 1, 7, 5, new Defenses(17, 6, 9, 5), 16,
             new Abilities(2, 4, 1, -5, 2, -2), new Skills(acrobatics: 7, stealth: 7, athletics: 5))
+            .WithCreatureId(CreatureIds.HuntingSpider)
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Trained)
             .WithCharacteristics(false, true)

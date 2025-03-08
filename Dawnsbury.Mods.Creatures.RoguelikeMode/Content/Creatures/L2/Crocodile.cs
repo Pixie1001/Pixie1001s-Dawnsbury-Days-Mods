@@ -17,7 +17,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            var creature = new Creature(IllustrationName.AnimalFormWolf,
+            var creature = new Creature(Illustrations.Crocodile,
                 "Crocodile",
                 [Trait.Animal],
                 2, 7, 4,

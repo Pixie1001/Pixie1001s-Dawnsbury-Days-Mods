@@ -34,7 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
             var chosenBreathWeapon = breathWeaponList[R.Next(breathWeaponList.Count)];
 
-            var creature = new Creature(IllustrationName.Wolf256,
+            var creature = new Creature(Illustrations.Chimera,
                 "Young Chimera",
                 [Trait.Beast, Trait.Evil, Trait.Chaotic],
                 5, 12, 8,

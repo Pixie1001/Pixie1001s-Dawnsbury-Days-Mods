@@ -11,7 +11,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            return new Creature(IllustrationName.GhostMage,
+            return new Creature(Illustrations.AngerPhantom,
                 "Anger Phantasm",
                 [Trait.Incorporeal, Trait.Undead, Trait.Chaotic, Trait.Evil],
                 0, 6, 3,

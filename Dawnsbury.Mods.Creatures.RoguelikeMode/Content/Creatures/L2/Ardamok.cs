@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            var creature = new Creature(IllustrationName.ArmorInEarth,
+            var creature = new Creature(Illustrations.Ardamok,
                 "Ardamok",
                 [Trait.Animal],
                 2, 6, 5,

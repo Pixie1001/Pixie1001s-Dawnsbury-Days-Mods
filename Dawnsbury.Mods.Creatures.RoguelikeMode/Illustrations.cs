@@ -60,6 +60,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration DrowAlchemist = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowAlchemist.png");
         internal static ModdedIllustration MerfolkSeaWitch = new ModdedIllustration("RoguelikeModeAssets/Enemies/MerfolkSeaWitch.png");
         internal static ModdedIllustration SpiderHatchling = new ModdedIllustration("RoguelikeModeAssets/Enemies/SpiderHatchling.png");
+        internal static ModdedIllustration Ardamok = new ModdedIllustration("RoguelikeModeAssets/Enemies/Ardamok.png");
+        internal static ModdedIllustration Chimera = new ModdedIllustration("RoguelikeModeAssets/Enemies/Chimera.png");
+        internal static ModdedIllustration Crocodile = new ModdedIllustration("RoguelikeModeAssets/Enemies/Crocodile.png");
+        internal static ModdedIllustration AngerPhantom = new ModdedIllustration("RoguelikeModeAssets/Enemies/AngerPhantom.png");
+        internal static ModdedIllustration FlailSnail = new ModdedIllustration("RoguelikeModeAssets/Enemies/FlailSnail.png");
+
+        // Bears for Archanophobia Mode
+        internal static ModdedIllustration Bear1 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
+        internal static ModdedIllustration Bear2 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear2.png");
+        internal static ModdedIllustration Bear3 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear3.png");
+        internal static ModdedIllustration Bear4 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear4.png");
+        internal static ModdedIllustration Bear5 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear5.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");
