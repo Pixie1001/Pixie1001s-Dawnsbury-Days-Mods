@@ -30,11 +30,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
                     var creature = Crocodile.Create();
                     battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
                 }
-
-                foreach (var creature in battle.AllCreatures.Where((c) => c.OwningFaction == battle.You))
-                {
-                    GrantFeatEffect(creature);
-                }
             });
 
             ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async (TBattle battle) =>
