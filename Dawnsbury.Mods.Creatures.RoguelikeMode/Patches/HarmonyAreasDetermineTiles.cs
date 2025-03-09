@@ -64,7 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
         [HarmonyPostfix]
         //[HarmonyPatch("Areas", "DetermineTiles", new Type[] { typeof(CloseAreaTarget), typeof(Tile), typeof(Vector2) })]
         private static void AreasDetermineTilesPatch(ref AreaSelection __result, CloseAreaTarget closeAreaTarget, Tile originTile, Vector2 targetPoint) {
-            if (closeAreaTarget.OwnerAction.Owner.CreatureId == CreatureIds.MerfolkBrineBlade && closeAreaTarget is LineAreaTarget) {
+            if (closeAreaTarget?.OwnerAction?.Owner?.CreatureId == CreatureIds.MerfolkBrineBlade && closeAreaTarget is LineAreaTarget) {
                 Creature user = closeAreaTarget.OwnerAction.Owner;
                 List<Tile> tiles = __result.TargetedTiles.ToList().OrderBy(t => t.DistanceTo(user.Occupies)).ToList();
                 List<Tile> keptTiles = new List<Tile>();
