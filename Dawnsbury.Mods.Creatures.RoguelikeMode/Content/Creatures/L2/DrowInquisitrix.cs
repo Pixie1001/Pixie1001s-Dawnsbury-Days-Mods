@@ -121,6 +121,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return;
                     }
 
+                    if (self.Owner.DistanceTo(action.Owner) > 3) {
+                        return;
+                    }
+
                     if (await self.Owner.AskToUseReaction($"{action.Owner.Name} dares to strike you! Do you wish to use your iron command to demand they kneel at your feet in supplication?")) {
                         if (await action.Owner.Battle.AskForConfirmation(action.Owner, self.Owner.Illustration,
                         $"{self.Owner.Name} uses Iron Command, urging you to kneel before your betters. Do you wish to drop prone in supplication, or refuse and suffer " + icDmg +

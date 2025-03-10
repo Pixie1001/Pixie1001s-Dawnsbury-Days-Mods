@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
     internal class EarthenGuardians : Level4Encounter {
 
 
-        public EarthenGuardians(string filename) : base("Succubus Cult", filename) {
+        public EarthenGuardians(string filename) : base("Earthen Guardians", filename) {
             this.CharacterLevel = 4;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0) {

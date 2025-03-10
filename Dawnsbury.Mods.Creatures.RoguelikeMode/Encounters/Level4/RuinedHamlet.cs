@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
     internal class RuinedHamlet : Level4Encounter {
 
 
-        public RuinedHamlet(string filename) : base("Succubus Cult", filename) {
+        public RuinedHamlet(string filename) : base("Ruined Hamlet", filename) {
             this.CharacterLevel = 4;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0) {

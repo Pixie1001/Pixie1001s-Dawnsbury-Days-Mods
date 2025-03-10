@@ -857,7 +857,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName SpiderHatchling { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Hatchling", itemName => {
-            return new Item(itemName, Illustrations.HuntingSpider, "spider hatchling", 3, 45,
+            return new Item(itemName, new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "spider hatchling", 3, 45,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.AnimalCompanion)
             .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
@@ -879,7 +879,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         // TODO: Replace with proper animal companion stats
                         int lvl = self.Owner.Level;
                         int prof = self.Owner.Level + 2;
-                        Creature animalCompanion = new Creature(Illustrations.SpiderHatchling, "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
+                        Creature animalCompanion = new Creature(new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
                             new Abilities(3, 3, 1, -4, 1, 0), new Skills(stealth: 3 + prof, acrobatics: 3 + prof, athletics: 3 + prof))
                         .WithProficiency(Trait.Unarmed, Proficiency.Trained)
                         .WithEntersInitiativeOrder(false)
@@ -1251,6 +1251,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         CombatAction summon = new CombatAction(caster, Illustrations.HornOfTheHunt, "Summon Hunting Hound", new Trait[] { }, "", Target.RangedEmptyTileForSummoning(100))
                         .WithEffectOnEachTile(async (_, _, subtiles) => {
                             Creature wolf = MonsterStatBlocks.CreateWolf();
+                            wolf.AddQEffect(CommonQEffects.CantOpenDoors());
                             wolf.AddQEffect(new QEffect("Call of the Hunt", $"This creature is compelled to attack {d.Name} and will vanish after its task is complete.", ExpirationCondition.Never, d, Illustrations.HornOfTheHunt) {
                                 StateCheck = self => {
                                     if (!self.Source.AliveOrUnconscious || !self.Owner.Alive) {
@@ -1362,7 +1363,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                     caster.HeldItems.Add(obj);
                                 }
                             }
-                        }
+                        },
+                        EndOfCombat = async (self, victory) => {
+                            if (victory != true) {
+                                return;
+                            }
+                            self.WhenExpires(self);
+                        },
                     };
 
                     int roll = R.Next(1, 4);

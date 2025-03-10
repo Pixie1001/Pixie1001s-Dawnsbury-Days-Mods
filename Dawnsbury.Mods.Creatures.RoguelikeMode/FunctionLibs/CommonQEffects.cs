@@ -214,17 +214,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect CantOpenDoors() {
+            return new QEffect() {
+                PreventTakingAction = (action) => action.ActionId == ActionId.OpenADoor ? "No opposable thumbs." : null
+            };
+        }
+
         public static QEffect AbyssalRotAttack(int baseDC, string dmg, string weapon) {
             Affliction abyssalRot = new Affliction(QEffectIds.AbyssalRot, "Abyssal Rot", 0,
                 "The drained condition from Abyssal rot is cumulative, to a maximum of drained 4; {b}Stage 1{/b} " + dmg + " negative damage; {b}Stage 2{/b} " + dmg + " negative damage and drained 1 {b}Stage 3{/b} " + dmg + " negative damage and drained 2", 3, stage => null, null);
             abyssalRot.EnterStage = async (self, action) => {
                 await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(dmg), self.Owner, CheckResult.Failure, DamageKind.Negative);
                 if (self.Value >= 2) {
-                    int stacks = self.Owner.GetQEffectValue(QEffectId.Drained) + 1;
+                    int stacks = 1;
                     if (self.Value >= 3) {
                         stacks += 1;
                     }
-                    self.Owner.AddQEffect(QEffect.Drained(stacks));
+                    CommonSpellEffects.CumulativeDrain(self.Owner, stacks);
                 }
             };
 

@@ -110,6 +110,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         int dc = 17 + self.Owner.Level;
                         int radius = 3;
 
+                        var hots = self.Owner.Battle.AllCreatures.First(cr => cr.BaseName == "Heart of the Storm");
+
+                        int oldScore = 100;
+                        foreach (Creature pm in self.Owner.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer)) {
+                            if (hots.DistanceTo(pm) <= radius) {
+                                oldScore += 5;
+                            }
+                            oldScore -= hots.DistanceTo(pm);
+                        }
+
                         return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.TidalHands, "Direct Maelstrom", new Trait[] { Trait.Evocation, Trait.Manipulate, Trait.Flourish },
                         $"The Merfolk Sea Witch moves her maelstrom up to 10ft.",
                         new TileTarget(delegate (Creature caster, Tile tile) {
@@ -120,18 +130,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 }
                             }
                             return false;
-                        },
-                            (caster, tile) => {
-                                var hots = self.Owner.Battle.AllCreatures.First(cr => cr.BaseName == "Heart of the Storm");
-                                // Get old score
-                                int oldScore = 100;
-                                foreach (Creature pm in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer)) {
-                                    if (hots.DistanceTo(pm) <= radius) {
-                                        oldScore += 5;
-                                    }
-                                    oldScore -= hots.DistanceTo(pm);
-                                }
-
+                        }, (caster, tile) => {
                                 // Get new score
                                 int nScore = 100;
                                 foreach (Creature pm in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.IsPlayer)) {

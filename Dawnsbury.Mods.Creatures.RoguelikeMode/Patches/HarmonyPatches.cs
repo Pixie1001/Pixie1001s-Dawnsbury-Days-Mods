@@ -42,6 +42,10 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.IO;
+using Dawnsbury.Phases.Menus.CampaignViews;
+using System.IO;
+using Dawnsbury.Display.Controls.Listbox;
+using Dawnsbury.Display.Controls;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -110,6 +114,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             if (__instance.CampaignState == null || __instance.CampaignState.AdventurePath.Id != "RoguelikeMode") {
                 return;
             }
+
+            (__instance.CampaignState.AdventurePath.CampaignStops.Last() as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+            "{b}Stats{/b}\n" +
+            "{b}Deaths:{/b} " + __instance.CampaignState.Tags["deaths"] + "\n" +
+            "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] +
+            "\n\n" + Loader.Credits;
 
             if (!victory) {
                 if (Int32.TryParse(__instance.CampaignState.Tags["deaths"], out int deaths)) {
@@ -404,16 +414,43 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterInventoryControl), "DrawSlot")]
+        private static void CharacterInventoryControl_DrawSlot_Patch(Shop __instance, Rectangle rectangle, InventoryItemSlot itemSlot, string textIfEmpty) {
+            if (itemSlot.Item == null || !itemSlot.Item.HasTrait(ModTraits.Wand) || !itemSlot.Item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
+                return;
+            }
+
+            Rectangle rectangle1 = new Rectangle(rectangle.X + 1, rectangle.Y + 2, rectangle.Width - 2, rectangle.Height - 40 - 2);
+
+            int height = rectangle1.Height / 4;
+            Rectangle rectangle6 = new Rectangle(rectangle1.X, rectangle1.Bottom - height - height, rectangle1.Width, height);
+            Primitives.FillRectangleNative(rectangle6, Color.Red.Alpha(200));
+            Writer.DrawStringNative("{b}used up{/b}", rectangle6, new Color?(Color.White), alignment: Writer.TextAlignment.Middle);
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(CampaignMenuPhase), "Draw")]
         private static void CampaignMenuPhaseDrawPatch(CampaignMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
             CampaignState state = CampaignState.Instance;
 
-            if (state.AdventurePath.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
+            if (state?.AdventurePath?.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
                 // && (state.Tags.TryGetValue("deaths", ) != "0" || state.Tags["restarts"] != "0")
                 int h = 250;
                 int w = 250;
                 int padding = 10;
-                Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+
+                if (__instance.CurrentView is PartyView) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle(padding, padding, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is LevelUpStop) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is DawnsburyStop) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is ShopView) {
+                    return;
+                } else {
+                    Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
+                    // Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+                }
             }
         }
 
