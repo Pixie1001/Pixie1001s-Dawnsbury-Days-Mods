@@ -154,7 +154,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                                                                 foreach (Creature ally in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.AlliedFactionOf(caster.OwningFaction) && cr.DistanceTo(caster) <= 1)) {
                                                                     options.Add(new CreatureOption(ally, $"Heal {ally.Name} with pollen.", async() => {
-                                                                        await ally.HealAsync(DiceFormula.FromText($"{(result == CheckResult.Success ? "2" : "3")}d6", "Harvest Mushroom"), CombatAction.CreateSimple(target));
+                                                                        await ally.HealAsync(DiceFormula.FromText($"{(result == CheckResult.Success ? "2" : "3")}d6", "Harvest Mushroom"), CombatAction.CreateSimple(target, "Harvest Mushroom"));
                                                                         ally.Occupies.Overhead("*healed*", Color.Green, $"{ally.Name} was healed by {caster.Name} using healing pollen.");
                                                                         ally.AddQEffect(new QEffect("Inoculating Spores", "You're inoculated against the effects of the choking spores.", ExpirationCondition.Never, self.Owner, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.ChokingMushroom)) {
                                                                             Id = QEffectIds.MushroomInoculation

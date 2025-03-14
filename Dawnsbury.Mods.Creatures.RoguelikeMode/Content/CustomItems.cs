@@ -120,7 +120,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
             var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
-                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.Forceful, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
                 .WithAdditionalDamage("1d4", DamageKind.Good)

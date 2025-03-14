@@ -106,7 +106,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             yield return new TrueFeat(RatMonarchDedication, 2, "The Rat Monarch lords over their flock of rodents, that emerge from the most neglected corners of the abyss to fulfill their master's will.",
                 "You gain the following actions, allowing to summon forth and direct a swarm of vicious rats:\n\n" +
                 "{b}Call Rats {icon:TwoActions}.{/b}\n" +
-                "{b}Range{/b} self\n\nSpawn 3 friendly rat familiars into the nearest unoccupied space available to you." +
+                "{b}Range{/b} self\n\nSpawn 2 friendly rat familiars into the nearest unoccupied space available to you." +
                 "Your familiars have the base statistics of a Giant Rat, but their level is equal to your own -2, adjusting their defences and attack bonuses and increasing their max HP by 3 per level.\n\n" +
                 "{b}Command Swarm {icon:Action}.{/b}\n" +
                 "{b}Range{/b} 30 feet\n{b}Target{/b} 1 enemy creature\n\n" +
@@ -116,7 +116,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 creature.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         var action = (ActionPossibility)new CombatAction(self.Owner, IllustrationName.SummonAnimal, "Call Rats", new Trait[] { Trait.Conjuration, Trait.Manipulate },
-                            "{b}Range{/b} self\n\nSpawn 3 friendly rat familiars into the nearest unoccupied space available to you.\n\n" +
+                            "{b}Range{/b} self\n\nSpawn 2 friendly rat familiars into the nearest unoccupied space available to you.\n\n" +
                             "Your familiars have the base statistics of a Giant Rat, but their level is equal to your own -2, adjusting their defences and attack bonuses and increasing their max HP by 3 per level.", Target.Self()) {
                             ShortDescription = "Summoner 3 familirs into nearby unoccupied spaces."
                         }

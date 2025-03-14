@@ -169,12 +169,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 if (spell.SpellId == SpellId.TrueStrike) {
                     // Gain goodness based on strike possiblities and their goodness?
                     spell.Target = Target.Self((cr, ai) => {
+                        bool hasRangedAttack = false;
+                        Creature nearestEnemy = cr.Battle.AllCreatures.MinBy(enemy => enemy.EnemyOf(cr) ? (float)enemy.DistanceTo(cr) : 1000f);
+                        cr.RegeneratePossibilities();
+                        foreach (PossibilitySection section in cr.Possibilities.Sections) {
+                            if (section.Possibilities.Any(pos => pos is ActionPossibility
+                            && (pos as ActionPossibility).CombatAction.HasTrait(Trait.Attack)
+                            && ((pos as ActionPossibility)?.CombatAction.Target as CreatureTarget)?.RangeKind == RangeKind.Ranged
+                            && ((pos as ActionPossibility)?.CombatAction.Target as CreatureTarget).CreatureTargetingRequirements.Any(r => r is MaximumRangeCreatureTargetingRequirement && cr.DistanceTo(nearestEnemy) <= (r as MaximumRangeCreatureTargetingRequirement).Range))) {
+                                hasRangedAttack = true;
+                            }
+                        }
+
+                        if (!hasRangedAttack && !cr.Battle.AllCreatures.Any(enemy => enemy.EnemyOf(cr) && enemy.IsAdjacentTo(cr))) {
+                            return int.MinValue;
+                        }
+
                         if (cr.Actions.AttackedThisManyTimesThisTurn > 0 || cr.FindQEffect(QEffectId.TrueStrike) != null) {
                             return int.MinValue;
                         } else if (cr.Actions.ActionsLeft <= 1) {
                             return int.MinValue;
                         }
-                        return 10f;
+                        return 5f;
                     });
 
 

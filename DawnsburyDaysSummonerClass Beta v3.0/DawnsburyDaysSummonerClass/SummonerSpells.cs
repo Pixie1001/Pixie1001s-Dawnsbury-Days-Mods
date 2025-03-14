@@ -243,16 +243,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             spellList.Add(SummonerSpellId.LifelinkSurge, ModManager.RegisterNewSpell("LifelinkSurgeSpell", 2, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illLifeLink, "Lifelink Surge", new[] { Enums.tSummoner, Trait.Focus, Trait.Healing, Trait.Positive, Trait.Necromancy, Trait.Uncommon },
                         "You make a quick gesture, tracing the link between yourself and your eidolon and drawing on your connection to slowly strengthen your shared life force.",
-                        "Your eidolon gains fast healing 4 for 4 rounds, which causes it to heal 4 HP at the start of each of its turns.",
+                        $"Your eidolon gains fast healing {spellLevel * 2} for 4 rounds, which causes it to heal {spellLevel * 2} HP at the start of each of its turns.",
                         Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Healing)
+                    .WithHeighteningNumerical(spellLevel, 2, inCombat, 1, "The fast healing increases by 2.")
                     .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
-                        target.AddQEffect(new QEffect("Lifelink Boost", "You gain Fast Healing 4.") {
+                        target.AddQEffect(new QEffect("Lifelink Boost", $"You gain Fast Healing {spellLevel * 2}.") {
                             Value = 4,
                             Source = caster,
                             Illustration = Enums.illLifeLink,
                             StartOfYourTurn = (async (qf, self) => {
-                                await self.HealAsync("4", spell);
+                                await self.HealAsync($"{spellLevel * 2}", spell);
                             }),
                             ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
                         });

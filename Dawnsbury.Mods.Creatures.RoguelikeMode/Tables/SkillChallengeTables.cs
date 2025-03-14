@@ -431,7 +431,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The party watches on guiltily as {opt3.Nominee.Name} sets about carving up the majestic creature and inscribing the forbidden runes required to forge the poached spoils into a righteous Alicorn armament.", null);
                             var chosenWeapon = await CommonQuestions.OfferDialogueChoice(opt3.Nominee, GetNarrator(),
                                 $"{opt3.Nominee} uses the unicorn's carcass to forge...",
-                                "An easily handled Alicorn Dagger.", "A warding Alicorn Pike"
+                                "An easily handled Alicorn Dagger.", "A stout Alicorn Pike for the martially inclined."
                             );
                             await battle.Cinematics.NarratorLineAsync($"The party gains an Alicorn {(chosenWeapon.Index == 0 ? "Dagger" : "Pike")}, but {opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until they return to turn.", null);
                             Item AlicornWeapon;

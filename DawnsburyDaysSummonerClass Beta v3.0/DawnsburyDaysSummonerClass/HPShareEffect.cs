@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         private void Init(Creature owner) {
             Logs = new List<HPShareLogEntry>();
-            this.ca = new CombatAction(owner, (Illustration)IllustrationName.ElementWater, "SummonerClass: Share HP", new Trait[0], "", new UncastableTarget("Not a real ability"));
+            this.ca = new CombatAction(owner, (Illustration)IllustrationName.ElementWater, "SummonerClass: Share HP", [Trait.IsNotHostile], "", new UncastableTarget("Not a real ability"));
         }
 
         public void Reset() {

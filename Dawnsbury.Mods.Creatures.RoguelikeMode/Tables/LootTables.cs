@@ -120,7 +120,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             items.Add(Items.CreateNew(CustomItems.SpellbanePlate));
             items.Add(Items.CreateNew(CustomItems.ThrowersBandolier).WithModificationRune(ItemName.WeaponPotencyRunestone));
             items.Add(Items.CreateNew(CustomItems.ThrowersBandolier).WithModificationRune(ItemName.WeaponPotencyRunestone).WithModificationRune(ItemName.StrikingRunestone));
-            items.Add(Items.CreateNew(CustomItems.StaffOfSpellPenetration));
 
             return items;
         }

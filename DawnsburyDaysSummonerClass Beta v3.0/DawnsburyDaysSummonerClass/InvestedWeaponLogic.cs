@@ -71,8 +71,6 @@ using System.Text.RegularExpressions;
 using System.Data;
 using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 
-// TODO: Setup to remove handwrap transfer entirely, in case a future patch breaks them, and instead just add runes based on invested weapon
-
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class InvestedWeaponLogic {
@@ -93,6 +91,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             weapon.WeaponProperties.DamageDieCount = 1;
                             weapon.WeaponProperties.ItemBonus = 0;
                         }
+
+                        ResetWeapons(summoner, investedWeapon, unarmedAttacks);
 
                         HandleRune(summoner, investedWeapon, unarmedAttacks, RuneKind.WeaponPotency);
                         HandleRune(summoner, investedWeapon, unarmedAttacks, RuneKind.WeaponStriking);
@@ -159,18 +159,33 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             };
         }
 
+        private static void ResetWeapons(Creature summoner, Item investedWeapon, List<Item> unarmedAttacks) {
+            // Remove this rune slot
+            foreach (Item attack in unarmedAttacks) {
+                attack.Runes.RemoveAll(rune => rune.RuneProperties != null);
+                attack.WeaponProperties = GenerateDefaultWeaponProperties(attack);
+            }
+        }
+
         private static void HandleRune(Creature summoner, Item investedWeapon, List<Item> unarmedAttacks, RuneKind type) {
             Item? propertyRune = investedWeapon.Runes.FirstOrDefault(rune => rune.RuneProperties != null && rune.RuneProperties.RuneKind == type);
 
-            if (propertyRune == null || (!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows) || (unarmedAttacks[0].Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type) != null && propertyRune.BaseItemName != unarmedAttacks[0].Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type).BaseItemName)) {
-                foreach (Item attack in unarmedAttacks) {
-                    Item? grantedRune = attack.Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type);
-                    attack.Runes.Remove(grantedRune);
-                    if (grantedRune != null) {
-                        attack.WeaponProperties = GenerateDefaultWeaponProperties(attack, type);
-                    }
-                }
-            }
+            //if (propertyRune == null || (!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows) || (unarmedAttacks[0].Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type) != null && propertyRune.BaseItemName != unarmedAttacks[0].Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type).BaseItemName)) {
+            //    foreach (Item attack in unarmedAttacks) {
+            //        Item? grantedRune = attack.Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type);
+            //        attack.Runes.Remove(grantedRune);
+            //        if (grantedRune != null) {
+            //            attack.WeaponProperties = GenerateDefaultWeaponProperties(attack, type);
+            //        }
+            //    }
+            //}
+
+            // TODO: Rework this whole system to strip the weapon down, then add each rune again each state check
+
+            // Remove this rune slot
+
+
+            // Re-add this rune slot
             if (propertyRune != null && !(!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows)) {
                 foreach (Item attack in unarmedAttacks) {
                     attack.Runes.Add(propertyRune);
@@ -179,6 +194,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
         }
 
+        // TODO: Why doesn't this work properly?
         private static WeaponProperties GenerateDefaultWeaponProperties(Item attack, RuneKind kind) {
             Item baseItem = new Item(attack.Illustration, attack.Name, attack.Traits.ToArray()).WithWeaponProperties(new WeaponProperties($"1d{attack.WeaponProperties.DamageDieSize}", attack.WeaponProperties.DamageKind));
 
@@ -187,6 +203,16 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
             foreach (Item rune in attack.Runes.Where(r => r.RuneProperties.RuneKind != kind)) {
                 rune.RuneProperties.ModifyItem(attack);
+            }
+
+            return baseItem.WeaponProperties;
+        }
+
+        private static WeaponProperties GenerateDefaultWeaponProperties(Item attack) {
+            Item baseItem = new Item(attack.Illustration, attack.Name, attack.Traits.ToArray()).WithWeaponProperties(new WeaponProperties($"1d{attack.WeaponProperties.DamageDieSize}", attack.WeaponProperties.DamageKind));
+
+            if (attack.WeaponProperties.RangeIncrement > 0) {
+                baseItem.WeaponProperties.WithRangeIncrement(attack.WeaponProperties.RangeIncrement);
             }
 
             return baseItem.WeaponProperties;

@@ -662,6 +662,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 qf.YouAreDealtDamage = async (qfAlly, attacker, damageStuff, defender) => {
                     if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 3 || effect.Owner.DistanceTo(defender) > 3)
                         return null;
+
+                    if (!effect.Owner.CreateStrike(effect.Owner.PrimaryWeapon).CanBeginToUse(attacker)) {
+                        return null;
+                    }
+
                     if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker?.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + reduction.ToString() + " of that damage?"))
                         return null;
 

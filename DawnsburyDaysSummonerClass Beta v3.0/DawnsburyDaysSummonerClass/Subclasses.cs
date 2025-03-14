@@ -983,7 +983,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         new Trait[] { Trait.Divine, Trait.Concentrate, Trait.Emotion, Trait.Mental, Trait.Auditory },
                         "{b}Range{/b} 30 feet\n\nYour eidolon inspires an ally with a display of heavenly artistry, or heart warming encouragment.\n\n" +
                         "Target ally gains temporary HP equal to your level, and a +1 status bonus to attack rolls and skill checks until the start of your next turn.\n\n" +
-                        "The target is then immune to this ability for the rest of the encounter.", Target.RangedFriend(6))
+                        "The target is then immune to this ability for the rest of the encounter.", Target.RangedFriend(6)) {
+                        ShortDescription = "[Range 30] Grant target ally temp HP equal to your level, and a +1 bonus to attack rolls and skill checks unil the end of your next turn. Can only be used on each ally once per encounter."
+                    }
                     .WithProjectileCone(IllustrationName.AngelicHalo, 10, ProjectileKind.Cone)
                     .WithActionId(acCelestialPassion)
                     .WithActionCost(1)
@@ -1484,7 +1486,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             switch (element) {
                 case Trait.Earth:
-                    // TODO: Match desc with feat
                     eidolon.AddQEffect(new QEffect("Earth Elemental", "Your eidolon gains a +2 circumstance bonus to their save DCs against attempts to Shove or Trip them, and is immune to forced movement.") {
                         BonusToDefenses = (self, action, defence) => {
                             List<SpellId> shoveSpells = new List<SpellId>() { SpellId.PummelingRubble, SpellId.HydraulicPush, SpellId.KineticRam, SpellId.TelekineticManeuver, SpellId.Grease };

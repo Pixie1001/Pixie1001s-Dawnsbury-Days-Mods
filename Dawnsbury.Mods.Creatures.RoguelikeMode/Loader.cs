@@ -90,7 +90,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             "{b}Additional design: {/b} SudoProgramming, DINGLEBOB\n" +
             "{b}Additional writers: {/b} ...\n" +
             "{b}Additional programming: {/b} SudoProgramming, DINGLEBOB\n" +
-            "{b}Playtesting: {/b} Petr, Beets, SudoProgramming";
+            "{b}Playtesting: {/b} Petr, Beets, SudoProgramming, L-star, RussischerZar, Vinicius Medeiros, FlamingQaz";
 
         internal static Dictionary<CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<CreatureId, Func<Encounter?, Creature>>();
 
@@ -159,7 +159,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<MysteriousRoom_FeyL2>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL2");
             RegisterEncounter<MysteriousRoom_FeyL3>("MysteriousRoom_Fey.tmx", "MysteriousRoom_FeyL3");
             RegisterEncounter<MysteriousRoom_HomunculusL1>("MysteriousRoom_Homunculus.tmx", "MysteriousRoom_HomunculusL1");
-            RegisterEncounter<MysteriousRoom_HomunculusL2>("MysteriousRoom_Homunculus.tmx", "MysteriousRoom_HomunculusL2");
+            ModManager.RegisterEncounter<MysteriousRoom_HomunculusL2>("MysteriousRoom_Homunculus.tmx");
             RegisterEncounter<MysteriousRoom_HomunculusL3>("MysteriousRoom_Homunculus.tmx", "MysteriousRoom_HomunculusL3");
             RegisterEncounter<MysteriousRoom_ArtRoomL1>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL1");
             RegisterEncounter<MysteriousRoom_ArtRoomL2>("MysteriousRoom_ArtRoom.tmx", "MysteriousRoom_ArtRoomL2");
