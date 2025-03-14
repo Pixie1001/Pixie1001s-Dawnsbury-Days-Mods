@@ -29,9 +29,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             Creature hazard = new Creature(Illustrations.DemonicPustule, "Demonic Pustule", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Object, Trait.Demon, Trait.Fiend, Trait.Mindless }, 2, 0, 0, new Defenses(10, 10, 0, 0), 30, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
             .WithTactics(Tactic.DoNothing)
             .AddQEffect(QEffect.TraitImmunity(Trait.Mental))
-            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 3))
             .AddQEffect(new QEffect() {
-                StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
+                StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 3)
             })
             .AddQEffect(new QEffect("Incubator",
             "The pustule is incubating a nascent demon, ready to emergy into our point of light. Destroy it before this condition reaches 0 and the demon emerges.", ExpirationCondition.CountsDownAtEndOfYourTurn, null, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.DemonicPustule)) {

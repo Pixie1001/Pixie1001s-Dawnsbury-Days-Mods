@@ -80,9 +80,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         //public static List<ItemName> items = new List<ItemName>();
 
+        public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
+            Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
+
+        public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
+            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
+
+        public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
+            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
+
+        public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
+            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithMainTrait(Trait.Whip)
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
+                ItemBonus = 1,
+            }
+            .WithAdditionalDamage("1d6", DamageKind.Mental))
+            .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
+            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    BonusToAttackRolls = (self, action, d) => {
+                        int bonus = self.Owner.Abilities.Wisdom - int.Max(self.Owner.Abilities.Strength, self.Owner.Abilities.Dexterity);
+                        if (action != null && action.Item != null && action.Item == weapon && bonus > 0) {
+                            return new Bonus(bonus, BonusType.Untyped, "Wisdom");
+                        }
+                        return null;
+                    }
+                });
+            };
+            return item;
+        });
+
         public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
             var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
-                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
                 .WithAdditionalDamage("1d4", DamageKind.Good)
@@ -102,7 +140,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName AlicornDagger { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornDagger", itemName => {
             var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 35, 3,
-                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Dagger)
             .WithDescription("{i}An illustrious dagger, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this dagger, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)
@@ -123,7 +161,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName SpideryHalberd { get; } = ModManager.RegisterNewItemIntoTheShop("SpideryHalberd", itemName => {
             var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 35, 3,
-                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, ModTraits.Roguelike)
+                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Halberd)
             .WithDescription("{i}This jagged halberd's haft is adorned with spidery webs for added grip.{/i}\n\nThe spiderdy halberd deals +1d4 poison damage, and can be used to fire pinning webs at your enemies, with an escape DC equal to the higher of your class or spell DC.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
@@ -198,47 +236,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return item;
         });
 
-        public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
-            Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
-        .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
-
-        public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
-            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
-        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
-
-        public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
-        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
-
-        public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
-            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
-                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
-            .WithMainTrait(Trait.Whip)
-            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
-                ItemBonus = 1,
-            }
-            .WithAdditionalDamage("1d6", DamageKind.Mental))
-            .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
-            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
-
-            item.StateCheckWhenWielded = (wielder, weapon) => {
-                wielder.AddQEffect(new QEffect() {
-                    ExpiresAt = ExpirationCondition.Ephemeral,
-                    BonusToAttackRolls = (self, action, d) => {
-                        int bonus = self.Owner.Abilities.Wisdom - int.Max(self.Owner.Abilities.Strength, self.Owner.Abilities.Dexterity);
-                        if (action != null && action.Item != null && action.Item == weapon && bonus > 0) {
-                            return new Bonus(bonus, BonusType.Untyped, "Wisdom");
-                        }
-                        return null;
-                    }
-                });
-            };
-            return item;
-        });
-
         public static ItemName SceptreOfTheSpider { get; } = ModManager.RegisterNewItemIntoTheShop("SceptreOfTheSpider", itemName => {
             Item item = new Item(itemName, Illustrations.SceptreOfTheSpider, "sceptre of the spider", 2, 35,
-                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.WizardWeapon, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
             .WithDescription("{i}This esoteric sceptre appears to have been forged from within the demonic lair of the spider queen herself.{/i}\n\n" +
             "While wielding the sceptre, you can use the 'Shoot Web' action once per encounter.\n\n" +
@@ -314,6 +314,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     EndOfCombat = async (self, won) => {
                         item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
                     }
+                });
+            };
+            return item;
+        });
+
+        public static ItemName StaffOfSpellPenetration { get; } = ModManager.RegisterNewItemIntoTheShop("Staff of Spell Penetration", itemName => {
+            Item item = new Item(itemName, Illustrations.StaffOfSpellPenetration, "staff of spell penetration", 2, 40,
+                new Trait[] { Trait.Magical, Trait.Club, Trait.Simple, Trait.WizardWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.CasterWeapon, ModTraits.Roguelike })
+            .WithMainTrait(Trait.Staff)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning))
+            .WithDescription("{i}These ancient staves were said to be forged by surface elves during their schism with the Drow, allowing their great wizards to overcome their dark cousin's shadowy tolerance to spellwork.{/i}\n\n" +
+            "While wielding this staff, your spells ignore spell resistance and the bonus to saves against mental spells possessed by Drow.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    Id = QEffectId.SpellPenetration
                 });
             };
             return item;
@@ -560,7 +577,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
 
                         CombatAction action = new CombatAction(wielder, weapon.Illustration, $"Activate {weapon.Name.CapitalizeEachWord()}", new Trait[] { Trait.Concentrate, Trait.Manipulate, Trait.Acid, Trait.Evocation },
-                            "{b}Frequency{/b} once per encounter\nUntil the end of your turn, attacks made with the Viper's Spit gain +1d6 splash damage.", Target.ThirtyFootLine()) {
+                            "{b}Frequency{/b} once per encounter\nUntil the end of your turn, attacks made with the Viper's Spit gain +1d6 splash damage.", Target.Self()) {
                             ShortDescription = $"{weapon.Name.CapitalizeEachWord()} gains an 1d6 acid splash damage until the end of your turn."
                         }
                         .WithActionCost(1)
@@ -840,7 +857,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName SpiderHatchling { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Hatchling", itemName => {
-            return new Item(itemName, Illustrations.HuntingSpider, "spider hatchling", 2, 30,
+            return new Item(itemName, new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "spider hatchling", 3, 45,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.AnimalCompanion)
             .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
@@ -862,7 +879,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         // TODO: Replace with proper animal companion stats
                         int lvl = self.Owner.Level;
                         int prof = self.Owner.Level + 2;
-                        Creature animalCompanion = new Creature(Illustrations.SpiderHatchling, "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
+                        Creature animalCompanion = new Creature(new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
                             new Abilities(3, 3, 1, -4, 1, 0), new Skills(stealth: 3 + prof, acrobatics: 3 + prof, athletics: 3 + prof))
                         .WithProficiency(Trait.Unarmed, Proficiency.Trained)
                         .WithEntersInitiativeOrder(false)
@@ -1095,13 +1112,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return new Item(itemName, Illustrations.DemonBoundRing, "demon bound ring", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
-            "While wearing this ring, the wear gains a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
+            "While wearing this ring, you gain a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, Illustrations.DemonBoundRing, "Unleash Demon", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate },
                     "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own.\n\n" +
                     "At the start of your turn, there's a 25% chance that the demon will go slip from your control, turning against the party." +
                     "\n\nImmediately when you cast this spell and then once each turn when you Sustain this spell, you can take two actions as " +
-                    "the summoner creature. If you don't Sustain this spell during a turn, the summoner creature will go away." +
+                    "the summoner creature. If you don't Sustain this spell during a turn, the summoned creature will go away." +
                     "\n\nOnce rogue however, the demon can no longer be banished in this way and will persist even after you fall unconscious.",
                     Target.RangedEmptyTileForSummoning(6))
                 .WithActionCost(3)
@@ -1234,6 +1251,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         CombatAction summon = new CombatAction(caster, Illustrations.HornOfTheHunt, "Summon Hunting Hound", new Trait[] { }, "", Target.RangedEmptyTileForSummoning(100))
                         .WithEffectOnEachTile(async (_, _, subtiles) => {
                             Creature wolf = MonsterStatBlocks.CreateWolf();
+                            wolf.AddQEffect(CommonQEffects.CantOpenDoors());
                             wolf.AddQEffect(new QEffect("Call of the Hunt", $"This creature is compelled to attack {d.Name} and will vanish after its task is complete.", ExpirationCondition.Never, d, Illustrations.HornOfTheHunt) {
                                 StateCheck = self => {
                                     if (!self.Source.AliveOrUnconscious || !self.Owner.Alive) {
@@ -1345,7 +1363,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                     caster.HeldItems.Add(obj);
                                 }
                             }
-                        }
+                        },
+                        EndOfCombat = async (self, victory) => {
+                            if (victory != true) {
+                                return;
+                            }
+                            self.WhenExpires(self);
+                        },
                     };
 
                     int roll = R.Next(1, 4);
@@ -1361,6 +1385,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                         if (result >= CheckResult.Success)
                                             await Possibilities.Grapple(a, d, result);
                                     });
+                                    properties.DamageDieCount = user.Level >= 4 ? 2 : 1;
+                                    properties.ItemBonus = user.Level >= 2 ? 1 : 0;
                                 });
                             };
                             transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple);
@@ -1383,6 +1409,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, 2 + self.Owner.Level);
                                 self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing, Trait.BattleformAttack, Trait.AddsInjuryPoison, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
                                     properties.AdditionalDamage.Add(("1d4", DamageKind.Poison));
+                                    properties.DamageDieCount = user.Level >= 4 ? 2 : 1;
+                                    properties.ItemBonus = user.Level >= 2 ? 1 : 0;
                                 });
                                 self.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral());
                             };
@@ -1393,7 +1421,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             transform.Name = "Wolf Form";
                             transform.StateCheck = self => {
                                 self.Owner.ReplacementIllustration = IllustrationName.AnimalFormWolf;
-                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed, Trait.WizardWeapon, Trait.Simple);
+                                self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d10", DamageKind.Piercing, Trait.BattleformAttack, Trait.Unarmed, Trait.WizardWeapon, Trait.Simple).WithAdditionalWeaponProperties(properties => {
+                                    properties.DamageDieCount = user.Level >= 4 ? 2 : 1;
+                                    properties.ItemBonus = user.Level >= 2 ? 1 : 0;
+                                }); ;
                                 if (self.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Sneak Attack") != null) {
                                     self.Owner.AddQEffect(QEffect.PackAttack(self.Owner.Name, "1d8").WithExpirationEphemeral());
                                     transform.Description = $"{user.Name} has assumed the form of a cunning wolf, granting them 1d8 pack attack damage.";
@@ -1462,9 +1493,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithWornAt(Trait.Necklace)
             // TODO: Add description
             .WithDescription("These matching amulets link the lifeforce of those who wear them, allowing them to freely claw away the vitality of the paired wearer for themselves.\n\n" +
-            "{b}Life Transfer {icon:Action}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
+            "{b}Life Transfer {icon:FreeAction}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
             .WithItemAction((item, user) => {
-                return new CombatAction(user, IllustrationName.BloodVendetta, "Life Transfer", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
+                return new CombatAction(user, IllustrationName.BloodVendetta, "Siphon Life", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
                 .WithAdditionalConditionOnTargetCreature(new FriendCreatureTargetingRequirement())
                 .WithAdditionalConditionOnTargetCreature((a, d) => {
                     if (d.CarriedItems.Any(i => i.ItemName == BloodBondAmulet && i.IsWorn == true)) {
@@ -1473,7 +1504,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         return Usability.NotUsableOnThisCreature("No matching amulet");
                     }
                 }))
-                .WithActionCost(1)
+                .WithActionCost(0)
                 .WithSoundEffect(SfxName.ElementalBlastWater)
                 .WithProjectileCone(IllustrationName.VampiricExsanguination, 7, ProjectileKind.Ray)
                 .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {

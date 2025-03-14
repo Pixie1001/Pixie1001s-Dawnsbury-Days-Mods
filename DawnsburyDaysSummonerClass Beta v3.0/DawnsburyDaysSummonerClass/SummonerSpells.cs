@@ -73,7 +73,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             spellList.Add(SummonerSpellId.EvolutionSurge, ModManager.RegisterNewSpell("EvolutionSurge", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illEvolutionSurge, "Evolution Surge", new[] { Enums.tSummoner, Trait.Focus, Trait.Morph, Trait.Transmutation, Trait.Uncommon },
-                        "You flood your eidolon with power, creating a temporary evolution in your eidolon's capabilities.",
+                        "{b}Duration{/b} Until end of encounter.\n\nYou flood your eidolon with power, creating a temporary evolution in your eidolon's capabilities.",
                         "Your eidolon gains one the following adeptations for the rest of the encounter\n• Your eidolon gains a swim speed.\n• Your eidolom gains a +20-foot status bonus to its speed.",
                         Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Abjuration)
@@ -138,7 +138,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             spellList.Add(SummonerSpellId.EidolonBoost, ModManager.RegisterNewSpell("EidolonBoost", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illEidolonBoost, "Eidolon Boost", new[] { Enums.tSummoner, Trait.Cantrip, Trait.Evocation, Trait.Uncommon },
-                        "You focus deeply on the link between you and your eidolon and boost the power of its attacks.",
+                        "{b}Duration{/b} 1 round\n\nYou focus deeply on the link between you and your eidolon and boost the power of its attacks.",
                         "Your eidolon gains a +2 status bonus to damage rolls with its strikes.\n\n{b}Special.{/b} If your eidolon's Strikes deal more than one weapon damage die, the status bonus increases to 2 per weapon damage die, to a maximum of +8 with four weapon damage dice.",
                         Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Abjuration)
@@ -194,7 +194,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             spellList.Add(SummonerSpellId.ReinforceEidolon, ModManager.RegisterNewSpell("ReinforceEidolon", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illReinforceEidolon, "Reinforce Eidolon", new[] { Enums.tSummoner, Trait.Cantrip, Trait.Abjuration, Trait.Uncommon },
-                        "You focus deeply on the link between you and your eidolon and reinforce your eidolon's defenses.",
+                        "{b}Duration{/b} 1 round\n\nYou focus deeply on the link between you and your eidolon and reinforce your eidolon's defenses.",
                         "Your eidolon gains a +1 status bonus to AC and saving throws, plus resistance to all damage equal to half the spell's level.\n\n{b}Special.{/b} Your eidolon can benefit from either boost eidolon or reinforce eidolon, but not both; if you cast one of these spells during the other's duration, the newer spell replaces the older one.",
                         Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Abjuration)

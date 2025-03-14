@@ -122,7 +122,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         Trait.AssumesDirectControl
                     }, "You take command of the target, forcing it to obey your orders.", "The target makes a Will save." + S.FourDegreesOfSuccess("The target is unaffected.", "The target is stunned 1.", "You gain control of the target until the end of their next turn.", "As failure, but you maintain control for 2 turns."),
             (Target)Target.Ranged(6)
-            .WithAdditionalConditionOnTargetCreature((Func<Creature, Creature, Usability>)((a, d) => !d.HasTrait(Trait.Minion) ? Usability.Usable : Usability.NotUsableOnThisCreature("minion"))), 5, SpellSavingThrow.Standard(Defense.Will))
+            .WithAdditionalConditionOnTargetCreature((Func<Creature, Creature, Usability>)((a, d) => !d.HasTrait(Trait.Minion) && !d.Traits.Any(tr => tr.HumanizeLowerCase2() == "eidolon") ? Usability.Usable : Usability.NotUsableOnThisCreature("minion"))), 5, SpellSavingThrow.Standard(Defense.Will))
             .WithSoundEffect(SfxName.Mental)
             .WithGoodnessAgainstEnemy((Func<Target, Creature, Creature, float>)((t, a, d) => (float)d.HP))
             .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
@@ -235,6 +235,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             "amulet's abeyance", "weapon", "amulet", "bell" };
                         if (d.QEffects.Any(qf => reactions.Any(str => qf.Name.ToLower().StartsWith(str)))) {
                             score += 3 * a.Level;
+                        }
+                        return score;
+                    });
+                }
+
+                if (spell.SpellId == SpellId.BrinyBolt) {
+                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                        float score = 3.5f * t.OwnerAction.SpellLevel;
+                        if (!d.HasEffect(QEffectId.Blinded)) {
+                            score += 1.5f * d.Level;
+                        }
+                        if (!d.HasEffect(QEffectId.Dazzled)) {
+                            score += 0.5f * d.Level;
                         }
                         return score;
                     });

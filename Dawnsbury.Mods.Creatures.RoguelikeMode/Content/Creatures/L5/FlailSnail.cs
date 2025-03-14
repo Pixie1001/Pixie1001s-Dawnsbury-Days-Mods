@@ -26,7 +26,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            var creature = new Creature(IllustrationName.Wolf256,
+            var creature = new Creature(Illustrations.FlailSnail,
                 "Flail Snail",
                 [Trait.Animal],
                 5, 15, 3,

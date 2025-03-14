@@ -38,12 +38,22 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.IO;
+using Dawnsbury.Phases.Menus.CampaignViews;
+using System.IO;
+using Dawnsbury.Display.Controls.Listbox;
+using Dawnsbury.Display.Controls;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     [HarmonyLib.HarmonyPatch]
     public class HarmonyPatches {
+
+
 
         // TODO: Create a patch for Shop.cs -> CreateAdventurersDawnForTrueShopping that will check if the town is a custom type, and then replace the shop keeper portrait, and possibly add unique items to the store like wands and anti-drow rings
 
@@ -90,7 +100,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //    }
         //}
 
-
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(TBattle), "SpawnCreature", [typeof(Creature), typeof(Faction), typeof(Tile)])]
+        //private static void ArchanophobiaPatch(TBattle __instance, Creature creature, Faction controller, Tile where) {
+        //    if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_ArachnophobiaMode")) {
+        //        UtilityFunctions.ReplaceSpiderSprite(creature);
+        //    }
+        //}
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TBattle), "EndTheGame")]
@@ -98,6 +114,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             if (__instance.CampaignState == null || __instance.CampaignState.AdventurePath.Id != "RoguelikeMode") {
                 return;
             }
+
+            (__instance.CampaignState.AdventurePath.CampaignStops.Last() as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+            "{b}Stats{/b}\n" +
+            "{b}Deaths:{/b} " + __instance.CampaignState.Tags["deaths"] + "\n" +
+            "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] +
+            "\n\n" + Loader.Credits;
 
             if (!victory) {
                 if (Int32.TryParse(__instance.CampaignState.Tags["deaths"], out int deaths)) {
@@ -292,6 +314,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
                     return false;
                 }
+
                 equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlaceAsSubitem, null, delegate {
                     //equipment.WithModification(new ItemModification(ItemModificationKind.Rune) {
@@ -306,10 +329,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 return true;
             }
 
-            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty) {
+            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be inscribed with property runes.");
                 return false;
             }
+
+            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponMaterial)) {
+                __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be reforged with weapon materials.");
+                return false;
+            }
+
             if (equipment != null && equipment.HasTrait(ModTraits.LegendaryItem)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Legendary magic items cannot be inscribed with runes."); ;
                 return false;
@@ -372,16 +401,56 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(Shop), "Carries")]
+        private static void ShopCarriesPatch(Shop __instance, ref bool __result, Item item) {
+            if (CampaignState.Instance?.AdventurePath?.Name != "Roguelike Mode") {
+                return;
+            }
+
+            if (item.ItemName == CustomItems.StaffOfSpellPenetration) {
+                Func<Item, bool> carried = (Func<Item, bool>)__instance.GetType().GetProperty("Carried", BindingFlags.Instance | BindingFlags.Public).GetValue(__instance);
+                __result = carried(item);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(CharacterInventoryControl), "DrawSlot")]
+        private static void CharacterInventoryControl_DrawSlot_Patch(Shop __instance, Rectangle rectangle, InventoryItemSlot itemSlot, string textIfEmpty) {
+            if (itemSlot.Item == null || !itemSlot.Item.HasTrait(ModTraits.Wand) || !itemSlot.Item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
+                return;
+            }
+
+            Rectangle rectangle1 = new Rectangle(rectangle.X + 1, rectangle.Y + 2, rectangle.Width - 2, rectangle.Height - 40 - 2);
+
+            int height = rectangle1.Height / 4;
+            Rectangle rectangle6 = new Rectangle(rectangle1.X, rectangle1.Bottom - height - height, rectangle1.Width, height);
+            Primitives.FillRectangleNative(rectangle6, Color.Red.Alpha(200));
+            Writer.DrawStringNative("{b}used up{/b}", rectangle6, new Color?(Color.White), alignment: Writer.TextAlignment.Middle);
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(CampaignMenuPhase), "Draw")]
         private static void CampaignMenuPhaseDrawPatch(CampaignMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
             CampaignState state = CampaignState.Instance;
 
-            if (state.AdventurePath.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
+            if (state?.AdventurePath?.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
                 // && (state.Tags.TryGetValue("deaths", ) != "0" || state.Tags["restarts"] != "0")
                 int h = 250;
                 int w = 250;
                 int padding = 10;
-                Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+
+                if (__instance.CurrentView is PartyView) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle(padding, padding, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is LevelUpStop) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is DawnsburyStop) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is ShopView) {
+                    return;
+                } else {
+                    Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
+                    // Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+                }
             }
         }
 
@@ -440,6 +509,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 }
             }
 
+            if (!campaign.Tags.ContainsKey($"Lv4Encounters")) {
+                campaign.Tags.Add($"Lv4Encounters", EncounterTables.encounters[3].Count.ToString());
+            }
+
             if (!campaign.Tags.ContainsKey($"Bosses")) {
                 campaign.Tags.Add($"Bosses", EncounterTables.bossFights.Count.ToString());
             }
@@ -457,7 +530,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 if (path[i] is EncounterCampaignStop) {
                     fightNum += 1;
-                    ModEnums.EncounterType encounterType = level == 4 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
+                    ModEnums.EncounterType encounterType = level == 4 && fightNum == 3 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 || level == 4 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
                     if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.Next(0, 8) <= 3) {
                         campaign.Tags["TreasureDemonEncounters"] += $"{i}, ";
                     }

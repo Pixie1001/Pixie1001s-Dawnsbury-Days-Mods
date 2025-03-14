@@ -33,6 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithTactics(Tactic.DoNothing)
             .WithEntersInitiativeOrder(false)
             .AddQEffect(CommonQEffects.Hazard())
+            .AddQEffect(QEffect.ArmorBreak(2))
             .AddQEffect(qfCurrentDC)
             .WithHardness(7)
             ;

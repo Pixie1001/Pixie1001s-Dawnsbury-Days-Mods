@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="18" height="8" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="As the party descends one last time, the denizens of the Below gather to bar their path in greater numbers than ever before. Push through to the ritual chamber!"/>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="4"/>
   <property name="EncounterName" value="Guarded passage"/>
@@ -38,24 +38,24 @@
  <layer id="2" name="Top layer: stones, trees, creatures..." width="18" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-91,91,0,14,0,0,0,28,0,0,0,14,91,91,91,0,0,0,
+91,91,0,14,0,0,0,28,0,0,126,14,91,91,91,0,0,0,
 91,0,0,0,0,0,0,0,153,0,0,0,0,91,0,0,0,0,
 38,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,138,0,
-37,39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,138,0,
+37,39,0,0,0,0,0,0,0,0,132,0,0,0,0,0,138,0,
 0,28,0,0,0,0,0,0,153,0,0,0,0,0,0,28,0,0,
-0,0,0,14,0,0,0,0,0,0,0,14,0,0,0,0,0,91,
+0,0,0,14,0,0,0,0,0,0,126,14,0,0,0,0,0,91,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="3" name="Topmost layer: Metadata" width="18" height="8">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,108,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,108,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,108,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>

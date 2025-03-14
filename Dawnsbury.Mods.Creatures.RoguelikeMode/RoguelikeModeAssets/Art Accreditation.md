@@ -30,6 +30,7 @@
 	<li>RobesofTheWarWizard.png</li>
 	<li>DeathDrinkerAmulet.png (modified)</li>
 	<li>SpideryHalberd.png</li>
+	<li>StaffOfSpellPenetration.png</li>
 </ul>
 
 ### Rexard
@@ -39,12 +40,19 @@
 	<li>CrawlingHand.png (Modified)</li>
 	<li>BrinyBolt.png (Modified)</li>
 	<li>KrakenMail.png (Modified)</li>
+	<li>FlailSnail.png (Modified)</li>
+	<li>AngerPhantom.png (Modified)</li>
 </ul>
 
 ## Creative Commons Artwork
 <ul>
 	<li>SkillChallengeBG.png By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=22488172</li>
 	<li>WhiteDragon.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:Scale-adult-preview.png</li>
+	<li>Bear1.png (Modified) By Arturo de Frias Marques - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Polar_Bear_AdF.jpg</li>
+	<li>Bear2.png (Modified) By Francis C. Franklin - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:European_Brown_Bear.jpg</li>
+	<li>Bear3.png (Modified) By LadyofHats - Released into public domain by author, https://commons.wikimedia.org/wiki/File:Closeup_kodiak_bear_hamburg.JPG</li>
+	<li>Bear4.png (Modified) By Yathin S Krishnappa - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg</li>
+	<li>Bear5.png (Modified) By Charles J. Sharp - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Eurasian_brown_bear_(Ursus_arctos_arctos)_female_1.jpg</li>
 </ul>
 
 ## Modified Base Game Assets
@@ -94,6 +102,9 @@
 	<li>DrowAlchemist.png</li>
 	<li>MerfolkSeaWitch.png</li>
 	<li>FailedRun.png</li>
+	<li>Ardamok.png</li>
+	<li>Chimera.png</li>
+	<li>Crocodile.png</li>
 </ul>
 
 ## Volunteer Contributions

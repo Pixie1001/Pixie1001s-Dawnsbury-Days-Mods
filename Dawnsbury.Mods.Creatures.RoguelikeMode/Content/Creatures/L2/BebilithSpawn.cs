@@ -13,6 +13,7 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
@@ -20,14 +21,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class BebilithSpawn {
         public static Creature Create() {
-            return new Creature(Illustrations.BebilithSpawn, "Bebilith Spawn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 2, 5, 6, new Defenses(17, 11, 8, 8), 40,
+            return new Creature(new SpiderIllustration(Illustrations.BebilithSpawn, Illustrations.Bear2), "Bebilith Spawn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 2, 5, 6, new Defenses(17, 11, 8, 8), 40,
             new Abilities(4, 3, 3, 0, 2, 0), new Skills(acrobatics: 7, stealth: 7, athletics: 8))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Trained)
             .WithCharacteristics(false, true)
             .WithUnarmedStrike(new Item(IllustrationName.Jaws, "maw", new Trait[] { Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)))
-            .WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Agile, Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
-            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
+            .WithAdditionalUnarmedStrike(new Item(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), "stabbing appendage", new Trait[] { Trait.Agile, Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 3))
             .AddQEffect(new QEffect() {
                 StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
             })

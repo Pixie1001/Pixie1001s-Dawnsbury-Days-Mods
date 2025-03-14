@@ -385,13 +385,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             yield return new TrueFeat(ModManager.RegisterFeatName("LifelinkSurgeFeat", "Lifelink Surge"), 4, "", "You learn the lifelink surge link spell. Increase the number of Focus Points in your focus pool by 1.", new Trait[] { tSummoner }, null).WithOnSheet(sheet => {
                 sheet.AddFocusSpellAndFocusPoint(tSummoner, Ability.Charisma, spells[SummonerSpellId.LifelinkSurge]);
             })
-            .WithRulesBlockForSpell(spells[SummonerSpellId.LifelinkSurge], tSummoner);
+            .WithRulesBlockForSpell(spells[SummonerSpellId.LifelinkSurge], tSummoner)
+            .WithIllustration(Enums.illLifeLink);
 
             yield return new TrueFeat(ModManager.RegisterFeatName("ExtendBoostFeat", "Extend Boost"), 1, "You can increase the duration of your eidolon's boosts.", "You learn the extend boost link spell. Increase the number of Focus Points in your focus pool by 1.",
                 new Trait[] { tSummoner }, null).WithOnSheet(sheet => {
                     sheet.AddFocusSpellAndFocusPoint(tSummoner, Ability.Charisma, spells[SummonerSpellId.ExtendBoost]);
                 })
-            .WithRulesBlockForSpell(spells[SummonerSpellId.ExtendBoost], tSummoner);
+            .WithRulesBlockForSpell(spells[SummonerSpellId.ExtendBoost], tSummoner)
+            .WithIllustration(Enums.illExtendBoost);
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Alacritous Action"), 2, "Your eidolon moves more quickly.", "Your eidolon gains a +10-foot status bonus to its Speed.", new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect {
                 BonusToAllSpeeds = (qf => {
@@ -782,7 +784,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
                 sheet.SpellRepertoires[tSummoner].SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(spells[SummonerSpellId.ReinforceEidolon], tSummoner, sheet.MaximumSpellLevel));
             })
-            .WithRulesBlockForSpell(spells[SummonerSpellId.ReinforceEidolon], tSummoner);
+            .WithRulesBlockForSpell(spells[SummonerSpellId.ReinforceEidolon], tSummoner)
+            .WithIllustration(Enums.illReinforceEidolon); ;
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Energy Heart"), 1, "Your eidolon's heart beats with energy.",
                 "Choose an energy damage type other than force. One of your eidolon's unarmed attacks changes its damage type to the chosen type, and it gains resistance to that type equal to half your level (minimum 1).",

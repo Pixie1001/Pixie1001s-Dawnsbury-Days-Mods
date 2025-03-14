@@ -72,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         .WithSoundEffect(SfxName.ElementalBlastWater)
                         .WithEffectOnEachTarget(async (spell, user, d, result) => {
                             await CommonSpellEffects.DealBasicDamage(spell, user, d, result, DiceFormula.FromText($"2d6", "Maelstrom"), DamageKind.Bludgeoning);
-                            if (result >= CheckResult.Success) {
+                            if (result < CheckResult.Success) {
                                 d.AddQEffect(QEffect.Prone());
                             }
                         });

@@ -27,12 +27,19 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Campaign.Path;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.IO;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class UtilityFunctions {
 
         internal static bool DiedThisRun(CampaignState save) {
+            if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_HideDeathIcon")) {
+                return false;
+            }
+            
             if (!save.Tags.TryGetValue("deaths", out string deaths) || !save.Tags.TryGetValue("restarts", out string restarts)) {
                 return false;
             }
@@ -42,6 +49,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             }
             return false;
         }
+
+        //internal static void ReplaceSpiderSprite(Creature monster) {
+        //    if (monster.Illustration == Illustrations.HuntingSpider) {
+        //        monster.Illustration = Illustrations.Bear1;
+        //    } else if (monster.Illustration == Illustrations.SpiderHatchling) {
+        //        monster.Illustration = IllustrationName.Bear256;
+        //    } else if (monster.Illustration == Illustrations.BebilithSpawn) {
+        //        monster.Illustration = Illustrations.Bear2;
+        //    } else if (monster.Illustration == Illustrations.AbyssalHandmaiden) {
+        //        monster.Illustration = IllustrationName.Succubus;
+        //    } else if (monster.Illustration == IllustrationName.LengSpider) {
+        //        monster.Illustration = Illustrations.Bear3;
+        //    } else if (monster.Illustration == IllustrationName.GiantSpider) {
+        //        monster.Illustration = Illustrations.Bear4;
+        //    } else if (monster.Illustration == IllustrationName.DemonWebspinner256) {
+        //        monster.Illustration = Illustrations.Bear5;
+        //    }
+        //}
 
         internal static string GetShopBanter() {
             string? lastEliteName = null;

@@ -65,6 +65,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class AbandonedTempleLv2 : Level2Encounter
     {
-        public AbandonedTempleLv2(string filename) : base("Abandoned Temple", filename) { }
+        public AbandonedTempleLv2(string filename) : base("Abandoned Temple", filename) {
+            // Run setup
+            this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
+                await Cutscenes.AbandonedTempleCutscene(battle);
+            });
+        }
     }
 }

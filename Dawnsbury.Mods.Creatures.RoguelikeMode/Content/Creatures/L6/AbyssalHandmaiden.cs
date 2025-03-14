@@ -30,9 +30,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             // CREATURE - Abyssal Handmaiden
             int radius = 1;
-            Item legAtk = new Item(Illustrations.StabbingAppendage, "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6 }).WithWeaponProperties(new WeaponProperties("2d6", DamageKind.Piercing));
+            Item legAtk = new Item(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6 }).WithWeaponProperties(new WeaponProperties("2d6", DamageKind.Piercing));
 
-            Creature monster = new Creature(Illustrations.AbyssalHandmaiden, "Abyssal Handmaiden", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 6, 6, 5, new Defenses(22, 11, 17, 14), 95,
+            Creature monster = new Creature(new SpiderIllustration(Illustrations.AbyssalHandmaiden, Illustrations.Bear3), "Abyssal Handmaiden", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 6, 6, 5, new Defenses(22, 11, 17, 14), 95,
             new Abilities(5, 5, 4, 2, 2, 4), new Skills(acrobatics: 15, athletics: 14, intimidation: 14, religion: 10, arcana: 10))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
@@ -47,7 +47,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
                     int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
-                    return (ActionPossibility)new CombatAction(self.Owner, new SideBySideIllustration(Illustrations.StabbingAppendage, new SideBySideIllustration(Illustrations.StabbingAppendage, Illustrations.StabbingAppendage)),
+                    return (ActionPossibility)new CombatAction(self.Owner, new SideBySideIllustration(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), new SideBySideIllustration(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws))),
                         "Flurry of Limbs", Array.Empty<Trait>(),
                         "The Abyssal Handmaiden makes up to three stabbing appendage Strikes against different targets. These attacks count toward the Abyssal Handmaiden's multiple attack penalty, but the penalty doesn't increase until after all the attacks have been made.",
                         // Target.MultipleCreatureTargets(Target.AdjacentCreature(), Target.AdjacentCreature(), Target.AdjacentCreature())

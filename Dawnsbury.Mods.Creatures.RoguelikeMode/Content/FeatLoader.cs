@@ -217,6 +217,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             rat.Initiative += master.Level - 1;
             rat.ProficiencyLevel += master.Level - 1;
             rat.AddQEffect(new QEffect("Familiar", "This creature is permanantly slowed 1.") { Id = QEffectId.Slowed, Value = 1 });
+            rat.AddQEffect(CommonQEffects.CantOpenDoors());
             rat.AddQEffect(new QEffect() {
                 Id = QEffectIds.RatFamiliar,
                 Source = master,

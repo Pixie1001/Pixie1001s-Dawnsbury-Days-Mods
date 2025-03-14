@@ -87,9 +87,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
             "{b}Lead design, writing, direction and programming: {/b} Pixie1001\n" +
             "{b}Artists: {/b} Pixie1001\n" +
-            "{b}Additional design: {/b} SudoProgramming, Dinglebob\n" +
+            "{b}Additional design: {/b} SudoProgramming, DINGLEBOB\n" +
             "{b}Additional writers: {/b} ...\n" +
-            "{b}Additional programming: {/b} SudoProgramming, Dinglebob\n" +
+            "{b}Additional programming: {/b} SudoProgramming, DINGLEBOB\n" +
             "{b}Playtesting: {/b} Petr, Beets, SudoProgramming";
 
         internal static Dictionary<CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<CreatureId, Func<Encounter?, Creature>>();
@@ -110,6 +110,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             SpellLoader.LoadSpells();
             FeatLoader.LoadFeats();
             LoadEncounters();
+
+            ModManager.RegisterBooleanSettingsOption("RL_HideDeathIcon", "Roguelike Mode: Hide failed run icons.",
+                "By default saves files with at least one death or restart will be marked by a scary green skull icon. Enable this if you want play the Roguelike mode like a regular randomly generated adventure path, without worrying about how many times you died or restarted an encounter.", false);
         }
 
         private static void LoadEncounters()
@@ -141,7 +144,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<TempleOfTheSpiderQueenLv2>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv2");
             RegisterEncounter<TempleOfTheSpiderQueenLv3>("TempleOfTheSpiderQueen.tmx", "TempleOfTheSpiderQueenLv3");
             RegisterEncounter<AbandonedTempleLv1>("AbandonedTemple.tmx", "AbandonedTempleLv1");
-            RegisterEncounter<AbandonedTempleLv2>("AbandonedTemple.tmx", "AbandonedTempleLv2");
+            ModManager.RegisterEncounter<AbandonedTempleLv2>("AbandonedTemple.tmx");
             RegisterEncounter<AbandonedTempleLv3>("AbandonedTemple.tmx", "AbandonedTempleLv3");
             RegisterEncounter<FungalForestlv1>("FungalForest.tmx", "FungalForestLv1");
             RegisterEncounter<FungalForestlv2>("FungalForest.tmx", "FungalForestLv2");
@@ -197,6 +200,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<GuardedPassage>("GuardedPassage.tmx");
             ModManager.RegisterEncounter<MagesTower>("MagesTower.tmx");
             ModManager.RegisterEncounter<RottingVigils>("RottingVigils.tmx");
+            ModManager.RegisterEncounter<RuinedHamlet>("RuinedHamlet.tmx");
             ModManager.RegisterEncounter<SuccubusCult>("SuccubusCult.tmx");
 
             // Elite Fights
