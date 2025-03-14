@@ -62,7 +62,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                             if (target.HeldItems.Count((Item hi) => !hi.HasTrait(Trait.Grapplee)) >= 2)
                             {
-                                disarmItem = ((await user.Battle.AskForConfirmation(target, IllustrationName.Disarm, "Which item would you like to disarm your target of?", target.HeldItems[0].Name, target.HeldItems[1].Name)) ? target.HeldItems[0] : target.HeldItems[1]);
+                                disarmItem = ((await user.Battle.AskForConfirmation(user, IllustrationName.Disarm, "Which item would you like to disarm your target of?", target.HeldItems[0].Name, target.HeldItems[1].Name)) ? target.HeldItems[0] : target.HeldItems[1]);
                             }
 
                             if (result == CheckResult.CriticalSuccess)
