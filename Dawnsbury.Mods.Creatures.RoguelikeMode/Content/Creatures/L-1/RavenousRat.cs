@@ -25,6 +25,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             monster.MainName = "Ravenous Rat";
             monster.AddQEffect(QEffect.PackAttack("ravenous rat", "1d4"));
             monster.WithTactics(Tactic.PackAttack);
+            monster.CreatureId = CreatureIds.RavenousRat;
             return monster;
         }
     }

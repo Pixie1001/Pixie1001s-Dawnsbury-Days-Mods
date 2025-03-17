@@ -160,7 +160,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
         private static void BloodcurdlingScreechAgainstCreature(Creature self, Creature creature)
         {
-            if (!creature.HasEffect(QEffectIds.BloodcurdlingScreechImmunity) && !creature.HasTrait(Trait.Indestructible))
+            if (!creature.HasEffect(QEffectIds.BloodcurdlingScreechImmunity) && !creature.HasTrait(Trait.Indestructible) && !creature.IsImmuneTo(Trait.Mental))
             {
                 CombatAction bloodcurlingScreech = GetBloodcurdlingScreechAction(self);
                 CheckResult result = CommonSpellEffects.RollSavingThrow(creature, bloodcurlingScreech, Defense.Will, 20);

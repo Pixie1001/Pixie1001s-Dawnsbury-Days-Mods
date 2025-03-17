@@ -196,8 +196,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                     if (victim.IsImmuneTo(Trait.Poison) || victim.WeaknessAndResistance.Immunities.Contains(DamageKind.Poison) || victim.FindQEffect(QEffectIds.MushroomInoculation) != null) {
                                         return;
                                     }
-                                    CheckResult result = CommonSpellEffects.RollSavingThrow(victim, CombatAction.DefaultCombatAction, Defense.Fortitude, 17);
-                                    await CommonSpellEffects.DealBasicDamage(CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison), hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d4", "Choking Spores"), DamageKind.Poison));
+                                    var ca = CombatAction.CreateSimple(hazard, "Choking Spores", Trait.Poison);
+                                    CheckResult result = CommonSpellEffects.RollSavingThrow(victim, ca, Defense.Fortitude, 17);
+                                    await CommonSpellEffects.DealBasicDamage(ca, hazard, victim, result, new KindedDamage(DiceFormula.FromText("1d4", "Choking Spores"), DamageKind.Poison));
                                     if (result == CheckResult.CriticalFailure) {
                                         victim.AddQEffect(QEffect.Sickened(1, 17));
                                     }
