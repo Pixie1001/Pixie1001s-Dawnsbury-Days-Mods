@@ -70,6 +70,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
                 List<Tile> keptTiles = new List<Tile>();
                 int i = 0;
                 for (; i < tiles.Count; i++) {
+                    if (user.FindQEffect(QEffectId.AquaticCombat) == null && tiles[i].Kind != TileKind.Water && tiles[i].Kind != TileKind.ShallowWater) {
+                        break;
+                    }
                     keptTiles.Add(tiles[i]);
                     if (tiles[i].PrimaryOccupant is Creature) {
                         break;

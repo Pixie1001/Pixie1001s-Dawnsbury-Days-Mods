@@ -25,7 +25,9 @@
 		
         <beginChapter>Expedition 1</beginChapter>
 		
-        <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across Our Point of Light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teaming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury... The party must seek out the source of the anomaly themselves to assess the threat..." shopLevel="1" />
+        <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across Our Point of Light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teeming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury.
+		
+		To assess the threat, the party must seek out the source of this anomaly themselves." shopLevel="1" />
         <encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		<encounter filename="HallOfBeginnings.tmx">

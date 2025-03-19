@@ -570,6 +570,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect OceanFlight() {
+            return new QEffect() {
+                Id = QEffectId.Swimming,
+                StateCheck = self => {
+                    if (self.Owner.FindQEffect(QEffectId.AquaticCombat) != null) {
+                        self.Owner.AddQEffect(QEffect.Flying().WithExpirationEphemeral());
+                    }
+                }
+            };
+        }
+
         public static QEffect CruelTaskmistress(string damage) {
             QEffect effect = new QEffect("Cruel Taskmistress {icon:Reaction}", $"After a non-mindless ally within reach fails a strike attack, you may strike them for {damage} mental damage in order to allow them to reroll it with a +1 bonus, taking the best of their two rolls.") {
                 Innate = true,

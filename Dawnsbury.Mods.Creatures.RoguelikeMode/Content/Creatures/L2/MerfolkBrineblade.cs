@@ -65,15 +65,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     };
                 })
                 .WithCreatureId(CreatureIds.MerfolkBrineBlade)
-                .WithProficiency(Trait.Weapon, Proficiency.Expert)
+                .WithProficiency(Trait.Simple, Proficiency.Expert)
+                .WithProficiency(Trait.Unarmed, Proficiency.Trained)
                 .WithProficiency(Trait.Spell, Proficiency.Trained)
                 .WithBasicCharacteristics()
                 .AddHeldItem(Items.CreateNew(ItemName.Dagger))
                 .AddQEffect(CommonQEffects.UnderwaterMarauder())
                 .AddQEffect(QEffect.AttackOfOpportunity())
-                .AddQEffect(new QEffect() {
-                    Id = QEffectId.Flying
-                })
+                .AddQEffect(CommonQEffects.OceanFlight())
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         int dc = 17 + self.Owner.Level;

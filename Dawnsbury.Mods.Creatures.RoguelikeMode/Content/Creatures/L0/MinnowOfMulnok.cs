@@ -34,7 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Good, 3))
             .AddQEffect(QEffect.DamageImmunity(DamageKind.Fire))
             .AddQEffect(QEffect.Swimming())
-            .AddQEffect(QEffect.Flying())
+            .AddQEffect(CommonQEffects.OceanFlight())
             .AddQEffect(new("Boiling Aura", "Creatures that end their turn adjacent to you take 1d4+5 fire damage.")
             {
                 StateCheck = (effect) =>

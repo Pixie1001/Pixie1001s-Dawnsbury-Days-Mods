@@ -41,8 +41,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .WithBasicCharacteristics()
                 .AddHeldItem(Items.CreateNew(ItemName.Trident))
                 .AddQEffect(CommonQEffects.UnderwaterMarauder())
+                .AddQEffect(CommonQEffects.OceanFlight())
                 .AddQEffect(new QEffect() {
-                    Id = QEffectId.Flying,
                     ProvideMainAction = self => {
                         if (self.Owner.Battle.AllCreatures.Any(cr => cr.BaseName == "Heart of the Storm")) {
                             return null;

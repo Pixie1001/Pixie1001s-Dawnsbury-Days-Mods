@@ -94,8 +94,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
             });
 
             this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-                var eidolon = battle.AllCreatures.FirstOrDefault(cr => cr.Name == "test summoner's Eidolon");
-                eidolon.AddQEffect(QEffect.Quickened(a => true));
+                //var eidolon = battle.AllCreatures.FirstOrDefault(cr => cr.Name == "test summoner's Eidolon");
+                //eidolon.AddQEffect(QEffect.Quickened(a => true));
 
                 battle.Cinematics.EnterCutscene();
 
