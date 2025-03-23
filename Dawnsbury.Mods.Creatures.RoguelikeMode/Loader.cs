@@ -131,6 +131,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<Colosseum2Lv1>("Colosseum.tmx", "Colosseum2Lv1");
             ModManager.RegisterEncounter<Colosseum2Lv2>("Colosseum.tmx");
             RegisterEncounter<Colosseum2Lv3>("Colosseum.tmx", "Colosseum2Lv3");
+            RegisterEncounter<CorruptedSwampLv1>("CorruptedSwamp.tmx", "CorruptedSwampLv1");
+            ModManager.RegisterEncounter<CorruptedSwampLv2>("CorruptedSwamp.tmx");
+            RegisterEncounter<CorruptedSwampLv3>("CorruptedSwamp.tmx", "CorruptedSwampLv3");
             RegisterEncounter<InquisitrixTrapLv1>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv1");
             RegisterEncounter<InquisitrixTrapLv2>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv2");
             RegisterEncounter<InquisitrixTrapLv3>("InquisitrixTrapLv2.tmx", "InquisitrixTrapLv3");
