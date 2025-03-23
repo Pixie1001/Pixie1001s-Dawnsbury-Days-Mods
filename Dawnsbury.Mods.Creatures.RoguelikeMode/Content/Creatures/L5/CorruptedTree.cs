@@ -94,9 +94,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .AddQEffect(QEffect.DamageResistance(DamageKind.Piercing, 3))
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Slashing, 3))
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 3))
-            .AddQEffect(QEffect.MonsterKnockdown())
-            .Builder
-            .Done();
+            .AddQEffect(QEffect.MonsterKnockdown());
 
             creature.UnarmedStrike = null;
 
@@ -111,43 +109,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 creature.ApplyEliteAdjustments();
             }
 
+            owner.AddQEffect(new()
+            {
+                WhenMonsterDies = (_) =>
+                {
+                    creature.DieFastAndWithoutAnimation();
+                }
+            });
+
             return creature;
         }
-
-        #region Methods
-
-        public static int GetDC(Creature creature)
-        {
-            if (creature.Level <= 4)
-            {
-                return 20;
-            }
-            else if (creature.Level == 5)
-            {
-                return 22;
-            }
-            else
-            {
-                return 24;
-            }
-        }
-
-        public static string ModifyDamageString(Creature creature, string damage)
-        {
-            if (creature.Level <= 4)
-            {
-                return damage + "+-4";
-            }
-            else if (creature.Level == 5)
-            {
-                return damage;
-            }
-            else
-            {
-                return damage + "+4";
-            }
-        }
-
-        #endregion
     }
 }
