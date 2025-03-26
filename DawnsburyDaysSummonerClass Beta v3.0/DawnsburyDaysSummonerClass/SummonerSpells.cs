@@ -243,7 +243,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             spellList.Add(SummonerSpellId.LifelinkSurge, ModManager.RegisterNewSpell("LifelinkSurgeSpell", 2, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illLifeLink, "Lifelink Surge", new[] { Enums.tSummoner, Trait.Focus, Trait.Healing, Trait.Positive, Trait.Necromancy, Trait.Uncommon },
                         "You make a quick gesture, tracing the link between yourself and your eidolon and drawing on your connection to slowly strengthen your shared life force.",
-                        $"Your eidolon gains fast healing {spellLevel * 2} for 4 rounds, which causes it to heal {spellLevel * 2} HP at the start of each of its turns.",
+                        $"Your eidolon gains fast healing {S.HeightenedVariable(spellLevel * 2, 4)} for 4 rounds, which causes it to heal {S.HeightenedVariable(spellLevel * 2, 4)} HP at the start of each of its turns.",
                         Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Healing)
                     .WithHeighteningNumerical(spellLevel, 2, inCombat, 1, "The fast healing increases by 2.")
@@ -252,7 +252,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Value = 4,
                             Source = caster,
                             Illustration = Enums.illLifeLink,
-                            StartOfYourTurn = (async (qf, self) => {
+                            StartOfYourPrimaryTurn = (async (qf, self) => {
                                 await self.HealAsync($"{spellLevel * 2}", spell);
                             }),
                             ExpiresAt = ExpirationCondition.CountsDownAtStartOfSourcesTurn,
@@ -304,21 +304,21 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             spellList.Add(SummonerSpellId.EidolonsWrath, ModManager.RegisterNewSpell("EidolonsWrath", 3, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(IllustrationName.DivineWrath, "Eidolon's Wrath", new[] { Enums.tSummoner, Trait.Focus, Trait.Evocation, Trait.Uncommon },
                         "",
-                        "Your eidolon releases a powerful energy attack that deals 5d6 " +
+                        $"Your eidolon releases a powerful energy attack that deals {S.HeightenedVariable(spellLevel * 2 - 1, 5)}d6 " +
                         (spellcaster != null && spellcaster.HasEffect(Enums.qfEidolonsWrath) ? HumanizeDamageKind((DamageKind)spellcaster.FindQEffect(Enums.qfEidolonsWrath).Tag) + " damage" : "damage of the type chosen when you took the Eidolon's Wrath feat") + ".",
                         new EmanationTarget(4, false), spellLevel, SpellSavingThrow.Basic(Defense.Reflex))
-                .WithNoSaveFor((a, c) => c.Destroyed ? true : true )
-                //.WithSavingThrow(new SavingThrow(Defense.Reflex, caster => spellcaster != null && spellcaster.HasEffect(qfEidolonsWrath) ? GetSummoner(caster).ClassOrSpellDC() : 0))    
+                .WithNoSaveFor((a, c) => c.Destroyed ? true : true )    
                 .WithSoundEffect(SfxName.Fireball)
-                    .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, _) => {
-                        if (caster == null || spellcaster.HasEffect(Enums.qfEidolonsWrath) == false) {
-                            return;
-                        }
-                        CheckResult result = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Fortitude, GetSummoner(caster).ClassOrSpellDC());
-                        DamageKind dk = (DamageKind)caster.FindQEffect(Enums.qfEidolonsWrath).Tag;
-                        await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, DiceFormula.FromText($"{2 * spellLevel - 1}d6"), dk);
-                    }))
-                    .WithActionCost(2);
+                .WithHeighteningOfDamageEveryLevel(spellLevel, 3, inCombat, "2d6")
+                .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, _) => {
+                    if (caster == null || spellcaster.HasEffect(Enums.qfEidolonsWrath) == false) {
+                        return;
+                    }
+                    CheckResult result = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Fortitude, GetSummoner(caster).ClassOrSpellDC());
+                    DamageKind dk = (DamageKind)caster.FindQEffect(Enums.qfEidolonsWrath).Tag;
+                    await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, DiceFormula.FromText($"{2 * spellLevel - 1}d6"), dk);
+                }))
+                .WithActionCost(2);
             }));
 
             // Add new spells HERE

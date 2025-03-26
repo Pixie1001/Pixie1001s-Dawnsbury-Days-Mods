@@ -724,7 +724,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             Item item = new Item(itemName, Illustrations.HungeringBlade, "hungering blade", 3, 25,
                 new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Greatsword)
-            .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
+            .WithWeaponProperties(new WeaponProperties("1d12", DamageKind.Slashing))
             .WithDescription("{i}A sinister greatsword made from cruel black steel and an inhospitable grip dotted by jagged spines. No matter how many times the blade is cleaned, it continues to ooze forth a constant trickle of blood.{/i}\n\n" +
             "The hungering blade causes its wielder to suffer 1d8 persistent bleed damage at the start of each turn, but deals an additional 1d4 negative damage on a hit. In addition, after felling an enemy with the blade, the wielder gains 5 temporary hit points.");
 

@@ -11,7 +11,7 @@
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="DlcTileset.tsx"/>
  <tileset firstgid="206" source="CustomCreatures.tsx"/>
- <tileset firstgid="2243" source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures.tsx"/>
+ <tileset firstgid="2243" source="CustomCreatures.tsx"/>
  <imagelayer id="11" name="Image Layer 1">
   <image source="BG_MyseteriousRoom_Homunculus.jpg" width="2048" height="1536"/>
  </imagelayer>

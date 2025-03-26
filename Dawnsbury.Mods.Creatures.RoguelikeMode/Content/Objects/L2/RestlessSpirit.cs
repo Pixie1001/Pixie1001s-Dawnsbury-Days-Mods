@@ -51,96 +51,96 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             ProvideContextualAction = qfContextActions => {
                                 return new SubmenuPossibility(Illustrations.RestlessSpirit, "Interactions") {
                                     Subsections = {
-                                                new PossibilitySection(hazard.Name) {
-                                                    Possibilities = {
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.Consecrate, "Release Spirits", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                        "Make a Religion check against DC " + (qfCurrentDC.Value + 2) + "." + S.FourDegreesOfSuccess(null, "Release the spirit, destroying the hazard and gaining a +1 status bonus to attack, saving throws and strike damage for the rest of the encounter.",
-                                                        null, "You take 1d6 negative damage."),
-                                                        Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
-                                                        .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value + 2)))
-                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
-                                                            if (result == CheckResult.CriticalFailure) {
-                                                                Sfxs.Play(SfxName.Necromancy, 0.7f);
-                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
-                                                            }
-                                                            if (result >= CheckResult.Success) {
-                                                                Sfxs.Play(SfxName.HolyWard);
-                                                                caster.AddQEffect(new QEffect("Spirit Boon", "The spirits of the dead aid in gratitude for helping them find peace. You gain a +1 status bonus to all attack, save and strike damage rolls until the end of the encounter.", ExpirationCondition.Never, null, IllustrationName.Consecrate) {
-                                                                    BonusToDefenses = (qf, action, defence) => defence != Defense.AC ? new Bonus(1, BonusType.Status, "Inspired") : null,
-                                                                    BonusToAttackRolls = (_, _, _) => new Bonus(1, BonusType.Status, "Inspired"),
-                                                                    BonusToDamage = (qf, action, target) => action.HasTrait(Trait.Strike) ? new Bonus(1, BonusType.Status, "Inspired") : null,
-                                                                });
-                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
-                                                            }
-                                                        }),
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
-                                                        "{b}Range{/b} 20 feet\n{b}Target{/b} 1 living creature\n{b}Saving throw{/b} Will\n\nYou direct the spirit to haunt an enemy, using your Occultism DC." + S.FourDegreesOfSuccess(
-                                                        "You take 1d6 negative damage and become frightened 2.",
-                                                        "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
-                                                        "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),
-                                                        Target.Ranged(4).WithAdditionalConditionOnTargetCreature(new LivingCreatureTargetingRequirement()))
-                                                        .WithSpellInformation((qfContextActions.Owner.Level + 1) / 2, null, null)
-                                                        .WithActionCost(2)
-                                                        .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster.Skills.Get(Skill.Occultism) + 10))
-                                                        .WithSoundEffect(SfxName.MajorNegative)
-                                                        .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
-                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
-                                                            if (result == CheckResult.CriticalSuccess) {
-                                                                Sfxs.Play(SfxName.Necromancy, 0.7f);
-                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
-                                                                caster.AddQEffect(QEffect.Frightened(2));
-                                                            } else if (result == CheckResult.Success) {
-                                                                target.AddQEffect(QEffect.Frightened(1));
-                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
-                                                            } else if (result == CheckResult.Failure) {
-                                                                target.AddQEffect(QEffect.Frightened(2));
-                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
-                                                            } else if (result == CheckResult.CriticalFailure) {
-                                                                Faction originalFaction = target.OwningFaction;
-                                                                target.OwningFaction = caster.OwningFaction;
-                                                                target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
-                                                                    CountsAsADebuff = true,
-                                                                    Value = 1,
-                                                                    Id = QEffectId.Slowed,
-                                                                    WhenExpires = qf => {
-                                                                        qf.Owner.OwningFaction = originalFaction;
-                                                                    },
-                                                                    StateCheck = qf => {
-                                                                        if (caster.Alive)
-                                                                            return;
-                                                                        qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
-                                                                        if (qf.Owner.OwningFaction != caster.OwningFaction)
-                                                                            return;
-                                                                        qf.Owner.OwningFaction = originalFaction;
-                                                                        qf.ExpiresAt = ExpirationCondition.Immediately;
-                                                                    }
-                                                                });
-                                                                caster.Battle.RemoveCreatureFromGame(self.Owner);
-                                                            }
-                                                        }),
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Soothe Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic },
-                                                        "Make a Diplomacy check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.",
-                                                        "Reduce all DCs on this hazard by 2.", null, "You take 1d6 negative damage and increase all DCs on this hazard by 1."),
-                                                        Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
-                                                        .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(qfCurrentDC.Value - 2)))
-                                                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
-                                                            if (result == CheckResult.CriticalFailure) {
-                                                                Sfxs.Play(SfxName.Necromancy, 0.7f);
-                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
-                                                                qfCurrentDC.Value += 1;
-                                                            }
-                                                            if (result == CheckResult.Success) {
-                                                                qfCurrentDC.Value -= 2;
-                                                            }
-                                                            if (result == CheckResult.CriticalSuccess) {
-                                                                qfCurrentDC.Value -= 3;
-                                                            }
-                                                        }),
+                                        new PossibilitySection(hazard.Name) {
+                                            Possibilities = {
+                                                (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.Consecrate, "Release Spirits", new Trait[] { Trait.Manipulate, Trait.Basic },
+                                                "Make a Religion check against DC " + (qfCurrentDC.Value + 2) + "." + S.FourDegreesOfSuccess(null, "Release the spirit, destroying the hazard and gaining a +1 status bonus to attack, saving throws and strike damage for the rest of the encounter.",
+                                                null, "You take 1d6 negative damage."),
+                                                Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                .WithActionCost(1)
+                                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value + 2)))
+                                                .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                    if (result == CheckResult.CriticalFailure) {
+                                                        Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                                        await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
                                                     }
-                                                }
+                                                    if (result >= CheckResult.Success) {
+                                                        Sfxs.Play(SfxName.HolyWard);
+                                                        caster.AddQEffect(new QEffect("Spirit Boon", "The spirits of the dead aid in gratitude for helping them find peace. You gain a +1 status bonus to all attack, save and strike damage rolls until the end of the encounter.", ExpirationCondition.Never, null, IllustrationName.Consecrate) {
+                                                            BonusToDefenses = (qf, action, defence) => defence != Defense.AC ? new Bonus(1, BonusType.Status, "Inspired") : null,
+                                                            BonusToAttackRolls = (_, _, _) => new Bonus(1, BonusType.Status, "Inspired"),
+                                                            BonusToDamage = (qf, action, target) => action.HasTrait(Trait.Strike) ? new Bonus(1, BonusType.Status, "Inspired") : null,
+                                                        });
+                                                        caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                    }
+                                                }),
+                                                (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
+                                                "{b}Range{/b} 20 feet\n{b}Target{/b} 1 living creature\n{b}Saving throw{/b} Will\n\nYou direct the spirit to haunt an enemy, using your Occultism DC." + S.FourDegreesOfSuccess(
+                                                "You take 1d6 negative damage and become frightened 2.",
+                                                "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
+                                                "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),
+                                                Target.Ranged(4).WithAdditionalConditionOnTargetCreature(new LivingCreatureTargetingRequirement()))
+                                                .WithSpellInformation((qfContextActions.Owner.Level + 1) / 2, null, null)
+                                                .WithActionCost(2)
+                                                .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster.Skills.Get(Skill.Occultism) + 10))
+                                                .WithSoundEffect(SfxName.MajorNegative)
+                                                .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
+                                                .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                    if (result == CheckResult.CriticalSuccess) {
+                                                        Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                                        await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
+                                                        caster.AddQEffect(QEffect.Frightened(2));
+                                                    } else if (result == CheckResult.Success) {
+                                                        target.AddQEffect(QEffect.Frightened(1));
+                                                        caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                    } else if (result == CheckResult.Failure) {
+                                                        target.AddQEffect(QEffect.Frightened(2));
+                                                        caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                    } else if (result == CheckResult.CriticalFailure) {
+                                                        Faction originalFaction = target.OwningFaction;
+                                                        target.OwningFaction = caster.OwningFaction;
+                                                        target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
+                                                            CountsAsADebuff = true,
+                                                            Value = 1,
+                                                            Id = QEffectId.Slowed,
+                                                            WhenExpires = qf => {
+                                                                qf.Owner.OwningFaction = originalFaction;
+                                                            },
+                                                            StateCheck = qf => {
+                                                                if (caster.Alive)
+                                                                    return;
+                                                                qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                                                                if (qf.Owner.OwningFaction != caster.OwningFaction)
+                                                                    return;
+                                                                qf.Owner.OwningFaction = originalFaction;
+                                                                qf.ExpiresAt = ExpirationCondition.Immediately;
+                                                            }
+                                                        });
+                                                        caster.Battle.RemoveCreatureFromGame(self.Owner);
+                                                    }
+                                                }),
+                                                (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Soothe Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic },
+                                                "Make a Diplomacy check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.",
+                                                "Reduce all DCs on this hazard by 2.", null, "You take 1d6 negative damage and increase all DCs on this hazard by 1."),
+                                                Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
+                                                .WithActionCost(1)
+                                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(qfCurrentDC.Value - 2)))
+                                                .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                                    if (result == CheckResult.CriticalFailure) {
+                                                        Sfxs.Play(SfxName.Necromancy, 0.7f);
+                                                        await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
+                                                        qfCurrentDC.Value += 1;
+                                                    }
+                                                    if (result == CheckResult.Success) {
+                                                        qfCurrentDC.Value -= 2;
+                                                    }
+                                                    if (result == CheckResult.CriticalSuccess) {
+                                                        qfCurrentDC.Value -= 3;
+                                                    }
+                                                }),
                                             }
+                                        }
+                                    }
                                 };
                             }
                         });

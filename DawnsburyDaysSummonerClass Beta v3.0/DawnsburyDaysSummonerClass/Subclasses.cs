@@ -1274,6 +1274,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         StrikeModifiers modifiers = new StrikeModifiers() {
                             OnEachTarget = async (a, d, strikeResult) => {
+                                if (strikeResult < CheckResult.Success)
+                                    return;
+
                                 CheckResult saveResult = CommonSpellEffects.RollSavingThrow(d, action, Defense.Fortitude, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC());
                                 if (strikeResult == CheckResult.CriticalSuccess && saveResult != CheckResult.CriticalFailure) {
                                     saveResult -= 1;

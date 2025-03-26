@@ -228,7 +228,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPortrait", "Eidolon Portrait", 1, ft => ft.HasTrait(tPortraitCategory)));
                 sheet.AddSelectionOption((SelectionOption)new SingleFeatSelectionOption("EvolutionFeat", "Evolution Feat", 1, (Func<Feat, bool>)(ft => ft.HasTrait(tEvolution) && ft.HasTrait(tSummoner))));
                 sheet.AddAtLevel(3, _ => _.SetProficiency(Trait.Perception, Proficiency.Expert));
-                sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI), 4)));
+                //sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI), 4)));
                 sheet.AddAtLevel(9, _ => _.SetProficiency(Trait.Spell, Proficiency.Expert));
                 sheet.AddAtLevel(9, _ => _.SetProficiency(Trait.Reflex, Proficiency.Expert));
                 sheet.AddAtLevel(11, _ => _.SetProficiency(Trait.Fortitude, Proficiency.Master));
@@ -242,9 +242,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             // Init eidolon ability boosts
             yield return new Feat(ftStrengthBoost, "Your eidolon grows stronger.",
                 "Your eidolon increases its strength modifier by +1.\n\nIf your eidolon already has strength modifier of +4, this has no effect.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Strength);
-            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? != Ability.Strength, "You cannot raise an ability score above +4.");
+            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? == Ability.Strength, "You cannot raise an ability score above +4.");
             yield return new Feat(ftDexterityBoost, "Your eidolon grows fasters.",
                 "Your eidolon increases its dexterity modifier by +1.\n\nIf your eidolon already has dexterity modifier of +4, this has no effect.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Dexterity);
+            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? == Ability.Dexterity, "You cannot raise an ability score above +4.");
             yield return new Feat(ftConstitutionBoost, "Your eidolon becomes sturdier.",
                 "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Constitution); ;
             yield return new Feat(ftIntelligenceBoost, "Your eidolon grows more cunning.",
@@ -452,7 +453,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Feat dmgTypeFeat = GetSummoner(e).PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEidolonsWrathType));
                     if (dmgTypeFeat != null) {
                         e.AddQEffect(new QEffect() { Id = qfEidolonsWrath, Tag = TraitToDamage(dmgTypeFeat.Traits[0]) });
-                        e.Spellcasting.PrimarySpellcastingSource.FocusSpells.Add(AllSpells.CreateSpellInCombat(spells[SummonerSpellId.EidolonsWrath], e, 3, tSummoner));
+                        e.Spellcasting.PrimarySpellcastingSource.FocusSpells.Add(AllSpells.CreateSpellInCombat(spells[SummonerSpellId.EidolonsWrath], e, e.Level / 2 + 1, tSummoner));
                     }
                 }, ewSubFeats)
             .WithOnSheet(sheet => {
@@ -541,7 +542,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("Eidolon2ndLevelSpell", "Level 2 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl2) && ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList), 1));
                     sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("Eidolon1stLevelSpell", "Level 1 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl1) && ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList), 1));
                 }
-            });
+            })
+            .WithPrerequisite(sheet => sheet.HasFeat(ftMagicalUnderstudy), "Must have the Magical Understudy feat");
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Eidolon's Opportunity {icon:Reaction}"), 6,
                 "Your eidolon makes a melee Strike against the triggering creature.", "If the attack is a critical hit and the trigger was a manipulate action, " +
@@ -549,7 +551,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 new Trait[] { tSummoner }, e => e.AddQEffect(QEffect.AttackOfOpportunity("Eidolon's Opportunity", "Can make attacks of opportunity, and disrupt actions on a critical hit.", null, false)), null);
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Constricting Hold {icon:Action}"), 8,
-                "Your eidolon develops a long serpentine appendage, or a powerful choking grip, perfect for constricting the life out of its victims.", "Your eidolon constricts the creature, dealing bludgeoning damage equal to your eidolon's level plus its Strength modifier, with a basic Fortitude save against your spell DC.",
+                "Your eidolon develops a long serpentine appendage, or a powerful choking grip, perfect for constricting the life out of its victims.", "{b}Target{/b} 1 creature that is grappled or restrained by your eidolon\n\nYour eidolon constricts the creature, dealing bludgeoning damage equal to your eidolon's level plus its Strength modifier, with a basic Fortitude save against your spell DC.",
                 new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect("Constricting Hold", "Your eidolon can crush grabbed opponents.") {
                     ProvideContextualAction = qf => {
                         List<Creature> grappledCreatures = qf.Owner.Battle.AllCreatures.Where(c => c.OwningFaction != e.OwningFaction && c.HasEffect(QEffectId.Grappled) && c.FindQEffect(QEffectId.Grappled).Source == e).ToList();
@@ -655,31 +657,33 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         output = (ActionPossibility)new CombatAction(qf.Owner, illOstentatiousArrival, "Ostentatious Arrival", new Trait[] { tSummoner, Trait.Concentrate, Trait.Metamagic, Trait.Manipulate },
                             "If the next action you take is to Manifest your Eidolon as a three-action activity, or to Cast a three-action summoning Spell, the creature appears in an explosion. " +
                             "All creatures in a 10-foot emanation around the creature you summoned or manifested take 1d4 fire damage per spell level for a summoning spell, or 1d4 damage per 2 levels for Manifesting your Eidolon. " +
-                            "If your eidolon has an elemental trait, they deal that damage type instead.", Target.Self())
+                            "If your eidolon has an elemental trait, they deal that damage type instead.", Target.Self()) {
+                            ShortDescription = "Your next summon spell deals 1d4 damage per spell level to each creature within 10 feet of where it's cast, other than you."
+                        }
                         .WithSoundEffect(SfxName.Abjuration)
                         .WithActionCost(0)
                         .WithEffectOnSelf(self => {
                             self.AddQEffect(new QEffect("Ostentatious Arrival Toggled", "Your next summoning spell will create a 10-foot burst, dealing 1d4 fire damage to all creatures caught inside.") {
                                 Id = qfOstentatiousArrival,
                                 PreventTakingAction = action => {
-                                    if (action.Name == "Cancel Ostentatious Arrival" || action.Name == "Manifest Eidolon" || action.Name.StartsWith("Summon ") || action.Name == "Animate Dead") {
+                                    if (action.Name == "Cancel Ostentatious Arrival" || action.Name == "Manifest Eidolon" || action.Name == "Dismiss Eidolon" || action.Name.StartsWith("Summon ") || action.Name == "Animate Dead") {
                                         return null;
                                     }
 
-                                    return "Ostentatious Arrival can only be used with summon spells, or the manifest eidolon action.";
+                                    return "Ostentatious Arrival can only be used with summon spells or the manifest or dismiss eidolon actions.";
                                 },
                                 YouBeginAction = async (qf, action) => {
                                     // Check if summon spell
-                                    if ((action.SpellId == SpellId.None || !(action.Name.StartsWith("Summon ") || action.Name == "Animate Dead")) && action.Name != "Manifest Eidolon") {
+                                    if ((action.SpellId == SpellId.None || !(action.Name.StartsWith("Summon ") || action.Name == "Animate Dead")) && action.Name != "Manifest Eidolon" && action.Name != "Dismiss Eidolon") {
                                         return;
                                     }
 
-                                    Tile target = action.ChosenTargets.ChosenTile;
+                                    Tile? target = action.Name != "Dismiss Eidolon" ? action.ChosenTargets?.ChosenTile : action.ChosenTargets?.ChosenCreature?.Occupies;
                                     if (target != null) {
                                         string damage = "";
                                         DamageKind type = DamageKind.Fire;
                                         Trait? element = action.Traits.FirstOrDefault(t => TraitToDamage(t) != DamageKind.Untyped);
-                                        if (action.Name == "Manifest Eidolon") {
+                                        if (action.Name == "Manifest Eidolon" || action.Name == "Dismiss Eidolon") {
                                             damage = $"{(qf.Owner.Level + 1) / 2}d4";
                                             Feat energyHeart = qf.Owner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage));
                                             if (energyHeart != null) {
@@ -705,7 +709,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                             }
                                         }
                                         // Damage
-                                        foreach (Creature creature in qf.Owner.Battle.AllCreatures) {
+                                        foreach (Creature creature in qf.Owner.Battle.AllCreatures.Where(cr => cr != self)) {
                                             if (creature.DistanceTo(target) <= 2) {
                                                 await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(damage), creature, CheckResult.Success, type);
                                             }
@@ -1139,13 +1143,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         internal static Feat CreateEidolonFeat(FeatName featName, string flavorText, string? abilityText, string? actionText, int[] abilityScores, int ac, int dexCap) {
             return new Feat(featName, flavorText, "Your eidolon has the following characteristics at level 1:\n\n" + PrintEidolonStatBlock(featName, abilityText, actionText, abilityScores, ac, dexCap), new List<Trait>() { tEidolonArray }, (List<Feat>)null)
-            //.WithOnSheet(sheet => {
-            //    if (abilityScores[0] == 4) {
-            //        sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
-            //    } else {
-            //        sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
-            //    }
-            //})
+            .WithOnSheet(sheet => {
+                if (abilityScores[0] == 4) {
+                    sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
+                } else {
+                    sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonDexASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
+                }
+            })
             .WithOnCreature((Action<CalculatedCharacterSheetValues, Creature>)((sheet, summoner) => summoner
             .AddQEffect(new ActionShareEffect() {
                 Id = qfSharedActions,
@@ -1202,9 +1206,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return;
                     }
                     eidolon.TurnInformation.ThisTurnIsPrimary = true;
-                    await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step1_Upkeep", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
-                    eidolon.Battle.GameLoop.GetType().GetMethod("Step2_Refresh", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
-                    await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step3_StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+                    //await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step1_Upkeep", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+                    //eidolon.Battle.GameLoop.GetType().GetMethod("Step2_Refresh", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
+                    //await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step3_StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
 
                     // Share eidolon quickened with summoner
                     if (eidolon.Actions.QuickenedForActions != null) {
@@ -1310,14 +1314,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }),
                 EndOfYourTurnBeneficialEffect = (Func<QEffect, Creature, Task>)(async (qfEndOfTurn, summoner) => {
                     Creature eidolon = GetEidolon(summoner);
-
-                    // Handle stunned
-                    QEffect? eStunned = eidolon.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Stunned);
-                    QEffect? sStunned = summoner.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Stunned);
-
-                    if (eStunned != null && (sStunned == null || sStunned.Value < eStunned.Value)) {
-                        summoner.AddQEffect(QEffect.Stunned(eStunned.Value));
-                    }
 
                     eidolon.Actions.ForgetAllTurnCounters();
                     summoner.Battle.ActiveCreature = eidolon;
@@ -1469,7 +1465,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (action.Traits.Contains(Trait.Attack)) {
                         eidolon.Actions.AttackedThisManyTimesThisTurn = summoner.Actions.AttackedThisManyTimesThisTurn;
                     }
-                })
+                }),
+                AfterYouAcquireEffect = async (self, nQf) => {
+                    if (nQf.Id == QEffectId.Stunned) {
+                        Creature eidolon = GetEidolon(self.Owner);
+                        eidolon.AddQEffect(nQf);
+                    }
+                }
             })
             .AddQEffect(InvestedWeaponLogic.SummonerInvestedWeaponQEffect())
             .AddQEffect(new QEffect() {
@@ -1788,6 +1790,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
             traits = traits.Concat(subclass.eidolonTraits).ToList();
             traits.Add(tEidolon);
+
+            if (summoner.Battle.Encounter.Name == "24. Living Spell") {
+                traits.Remove(Trait.Evil);
+            }
+
             int perception = wisdom + (int)summoner.Proficiencies.Get(Trait.Perception) + level;
             int speed1 = 5;
             Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + (level >= 11 ? expert : trained), constitution + (level >= 11 ? master : expert), dexterity + (level >= 9 ? expert : trained), wisdom + (level >= 15 ? master : expert));
@@ -2019,7 +2026,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         if (summoner != null && action.Traits.Contains(Trait.Attack)) {
                             summoner.Actions.AttackedThisManyTimesThisTurn = eidolon.Actions.AttackedThisManyTimesThisTurn;
                         }
-                    })
+                    }),
+                    AfterYouAcquireEffect = async (self, nQf) => {
+                        if (nQf.Id == QEffectId.Stunned) {
+                            Creature summoner = GetSummoner(self.Owner);
+                            summoner.AddQEffect(nQf);
+                        }
+                    }
                 });
         }
 

@@ -227,7 +227,9 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                             "{b}Frequency{/b} once per encounter\n\nStare at a creature within 30 feet. The target must attempt a Will save against the higher of your class DC or spell DC.\n\n{b}Success{/b} The target is unaffected.\n{b}Failure{/b} On its turn, the target must " +
                             "spend its first action to approach you. It can't Delay or take reactions until it has done so.\n{b}Critical Failure{/b} The target must use all its actions on its next turn to approach you. It can't Delay or take any " +
                             "reactions until it has reached a space that's adjacent to you (or as close to you as possible if it reaches an impassable barrier).",
-                            Target.Ranged(6))
+                            Target.Ranged(6)) {
+                            ShortDescription = "30 foot range; Will save; On a failured save, command target creature to move towards you on its next turn as per the {i}command{/i} spell."
+                        }
                         .WithSoundEffect(SfxName.SnakeHiss)
                         .WithActionCost(2)
                         .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.ClassOrSpellDC()))
