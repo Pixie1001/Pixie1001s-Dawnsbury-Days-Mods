@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="14" height="28" tilewidth="256" tileheight="256" infinite="0" nextlayerid="10" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription">The party's path takes them through a swamp said to be a nexus of dark magics. Wary of ambush, the party stays alert as they trudge through the muck. Their paranoia is well-placed, as they notics a black energy suffusing a gnarled tree in the distance.
+  <property name="EncounterDescription">The party's path takes them through a swamp said to be a nexus of dark magics. Wary of ambush, the party stays alert as they trudge through the muck. Their paranoia is well-placed, as they notice a black energy suffusing a gnarled tree in the distance.
 
 It's not the animals that are dangerous here. It's the trees themselves!</property>
   <property name="EncounterGroup" value="Roguelike"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Corrupted Swamp"/>
  </properties>
- <tileset firstgid="1" source="../../../../../../../Program Files (x86)/Steam/steamapps/common/Dawnsbury Days/CustomMaps/BasicTileset.tsx"/>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="14" height="28">
   <data encoding="csv">

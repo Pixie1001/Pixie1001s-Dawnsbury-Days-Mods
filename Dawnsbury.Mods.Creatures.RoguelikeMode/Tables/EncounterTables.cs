@@ -121,6 +121,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[3].Add(new TypedEncounterCampaignStop<RottingVigils>());
             encounters[3].Add(new TypedEncounterCampaignStop<RuinedHamlet>());
             encounters[3].Add(new TypedEncounterCampaignStop<SuccubusCult>());
+            encounters[3].Add(new TypedEncounterCampaignStop<SplitTheParty>());
 
             // level1EliteEncounters
             eliteEncounters[0].Add(new TypedEncounterCampaignStop<HallOfSmokeLv1>());

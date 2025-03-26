@@ -205,6 +205,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<RottingVigils>("RottingVigils.tmx");
             ModManager.RegisterEncounter<RuinedHamlet>("RuinedHamlet.tmx");
             ModManager.RegisterEncounter<SuccubusCult>("SuccubusCult.tmx");
+            ModManager.RegisterEncounter<SplitTheParty>("SplittheParty.tmx");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

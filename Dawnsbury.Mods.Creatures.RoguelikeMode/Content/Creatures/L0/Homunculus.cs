@@ -130,6 +130,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 homunculus.Traits.Add(alignment);
             }
+            homunculus.MainName = master.Name + "'s " + homunculus.BaseName;
         }
     }
 }

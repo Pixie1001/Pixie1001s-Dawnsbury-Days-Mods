@@ -1,6 +1,10 @@
 ﻿using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using System.Diagnostics.Metrics;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 {
@@ -11,10 +15,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
         {
             // Run setup
             this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
-                Creature? master = battle.AllCreatures.FirstOrDefault(creature => creature.OwningFaction.IsEnemy && creature.BaseName != "Homunculus");
-                foreach (Creature homunculus in battle.AllCreatures.Where(creature => creature.BaseName == "Homunculus"))
-                {
-                    if (master != null) Homunculus.AddMasterEffect(homunculus, master);
+                var masters = battle.AllCreatures.Where(creature => creature.OwningFaction.IsEnemy && creature.HasTrait(ModTraits.Drow)).ToList();
+                var homunculus = battle.AllCreatures.Where(creature => creature.OwningFaction.IsEnemy && creature.BaseName == "Homunculus").ToList();
+
+                for (int i = 0; i < masters.Count(); i++) {
+                    Homunculus.AddMasterEffect(homunculus[i], masters[i]);
                 }
             });
         }

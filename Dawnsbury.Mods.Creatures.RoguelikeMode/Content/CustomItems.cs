@@ -93,7 +93,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
-            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 100,
+            Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 60,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithMainTrait(Trait.Whip)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
@@ -119,7 +119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
-            var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 35, 3,
+            var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 4, 30,
                 Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.Forceful, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
@@ -131,6 +131,63 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Value = 4,
                     StartOfYourPrimaryTurn = async (self, owner) => {
                         await owner.HealAsync("4", CombatAction.CreateSimple(owner, "Regeneration"));
+                    },
+                    ProvideActionIntoPossibilitySection = (self, section) => {
+                        if (section.PossibilitySectionId != PossibilitySectionId.ItemActions)
+                            return null;
+
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Haste, "Powerful Charge", new Trait[] { Trait.Move },
+                            "Stride up to twice your speed in a direct line, then strike. If you moved at least 20-feet, the strike deals +1d6 damage." +
+                            "\n\nThis movement will not path around hazards or attacks of opportunity.",
+                            Target.Self((user, ai) => {
+                                if (!user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && cr.Threatens(user.Occupies)) && user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && !cr.DetectionStatus.IsUndetectedTo(user) && user.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Lesser && user.DistanceTo(cr) <= user.Speed * (user.HasEffect(QEffectId.AquaticCombat) ? 0.75f : 1.5f) && user.DistanceTo(cr) > 4)) {
+                                    return 15f;
+                                }
+                                return 0f;
+                            })) {
+                                ShortDescription = "Stride up to twice your speed, then strike. If you travelled at least 20-feet and only in a straight line, the strike deals +1d6 damage."
+                            }
+                        .WithActionCost(2)
+                        .WithSoundEffect(SfxName.Footsteps)
+                        .WithEffectOnSelf(async (action, self) => {
+                            self.AddQEffect(new QEffect() {
+                                Key = "Powerful Charge",
+                                AdditionalGoodness = (self, action, d) => d.OwningFaction.EnemyFactionOf(self.Owner.OwningFaction) ? 100f : 0f
+                            });
+
+                            MovementStyle movementStyle = new MovementStyle() {
+                                MaximumSquares = self.Speed * 2,
+                                ShortestPath = false,
+                                PermitsStep = false,
+                                IgnoresUnevenTerrain = false,
+                            };
+
+                            Tile startingTile = self.Occupies;
+                            Tile? destTile = await UtilityFunctions.GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Beast's Charge or right-click to cancel", IllustrationName.Haste);
+
+                            if (destTile == null) {
+                                action.RevertRequested = true;
+                            } else {
+                                movementStyle.Shifting = self.HasEffect(QEffectId.Mobility) && destTile.InIteration.RequiresProvokingAttackOfOpportunity;
+                                await self.MoveTo(destTile, action, movementStyle);
+                                QEffect? chargeBonus = null;
+                                if (self.DistanceTo(startingTile) >= 4) {
+                                    self.AddQEffect(chargeBonus = new QEffect("Charge Bonus", "+1d6 damage on your next strike action.") {
+                                        AddExtraStrikeDamage = (action, user) => {
+                                            return (DiceFormula.FromText("1d6", "Powerful Charge"), DamageKind.Piercing);
+                                        },
+                                        Illustration = IllustrationName.Horn,
+                                    });
+                                }
+
+                                self.RemoveAllQEffects(qf => qf.Key == "Powerful Charge");
+
+                                await CommonCombatActions.StrikeAdjacentCreature(self);
+                                if (chargeBonus != null) {
+                                    chargeBonus.ExpiresAt = ExpirationCondition.Immediately;
+                                }
+                            }
+                        });
                     }
                 });
             };
@@ -139,7 +196,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName AlicornDagger { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornDagger", itemName => {
-            var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 35, 3,
+            var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 4, 30,
                 Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Dagger)
             .WithDescription("{i}An illustrious dagger, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this dagger, you gain Regeneration 4.")
@@ -160,7 +217,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName SpideryHalberd { get; } = ModManager.RegisterNewItemIntoTheShop("SpideryHalberd", itemName => {
-            var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 35, 3,
+            var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 3, 40,
                 Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Halberd)
             .WithDescription("{i}This jagged halberd's haft is adorned with spidery webs for added grip.{/i}\n\nThe spiderdy halberd deals +1d4 poison damage, and can be used to fire pinning webs at your enemies, with an escape DC equal to the higher of your class or spell DC.")
