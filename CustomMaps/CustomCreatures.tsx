@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="44" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="45" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -209,7 +209,7 @@
   <properties>
    <property name="Id" value="Merfolk Harrier"/>
   </properties>
-  <image source="CustomCreatures/Shortlist/DarkMerfolk256.png" width="256" height="256"/>
+  <image source="CustomCreatures/Shortlist/DarkMerfolk256.png"/>
  </tile>
  <tile id="2027">
   <properties>
@@ -221,7 +221,7 @@
   <properties>
    <property name="Id" value="Merfolk Brineblade"/>
   </properties>
-  <image source="Creatures/DarkPoet256.png" width="256" height="256"/>
+  <image source="Creatures/DarkPoet256.png"/>
  </tile>
  <tile id="2030">
   <properties>
@@ -245,7 +245,7 @@
   <properties>
    <property name="Id" value="Bodyguard"/>
   </properties>
-  <image source="Creatures/OrcBrute256.png" width="256" height="256"/>
+  <image source="Creatures/OrcBrute256.png"/>
  </tile>
  <tile id="2034">
   <properties>
@@ -263,6 +263,12 @@
   <properties>
    <property name="Id" value="Spider Font"/>
   </properties>
-  <image source="Creatures/StatueOfDeath.png" width="256" height="256"/>
+  <image source="Creatures/StatueOfDeath.png"/>
+ </tile>
+ <tile id="2037">
+  <properties>
+   <property name="Id" value="Corrupted Tree"/>
+  </properties>
+  <image source="CustomCreatures/Witch_Maiden.png" width="256" height="256"/>
  </tile>
 </tileset>

@@ -168,6 +168,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Pikeman.Create();
                 case var v when v.Equals(CreatureIds.Ardamok):
                     return Ardamok.Create();
+                case var v when v.Equals(CreatureIds.CorruptedTree):
+                    return CorruptedTree.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -266,6 +268,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.OwlBear);
 
             // Level 5 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CorruptedTree);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkSeaWitch);
 
             // Level 6 Creatures - Demons
