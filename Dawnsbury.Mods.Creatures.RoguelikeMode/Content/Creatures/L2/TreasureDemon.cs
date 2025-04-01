@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class TreasureDemon {
         public static Creature Create() {
-            return new Creature(Illustrations.TreasureDemon, "Treasure Demon", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Fiend, Trait.Demon, Trait.NoPhysicalUnarmedAttack }, 2, 8, 5, new Defenses(17, 5, 8, 11), 25,
+            return new Creature(Illustrations.TreasureDemon, "Treasure Demon", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Fiend, Trait.Demon, Trait.NoPhysicalUnarmedAttack, Trait.NonSummonable }, 2, 8, 5, new Defenses(17, 5, 8, 11), 25,
             new Abilities(-1, 4, 0, 3, 1, -1), new Skills(acrobatics: 8, thievery: 10))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

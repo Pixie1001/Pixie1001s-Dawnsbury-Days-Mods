@@ -23,6 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             Creature monster = MonsterStatBlocks.CreateGiantRat();
             monster.MainName = "Ravenous Rat";
+            monster.Traits.Add(Trait.NonSummonable);
             monster.AddQEffect(QEffect.PackAttack("ravenous rat", "1d4"));
             monster.WithTactics(Tactic.PackAttack);
             monster.CreatureId = CreatureIds.RavenousRat;

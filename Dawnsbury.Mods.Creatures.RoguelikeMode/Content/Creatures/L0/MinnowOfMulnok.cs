@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.MInnowOfMulnok,
                 "Minnow of Mulnok",
-                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil],
+                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.NonSummonable],
                 0, 6, 7,
                 new Defenses(15, 6, 8, 3),
                 15,
