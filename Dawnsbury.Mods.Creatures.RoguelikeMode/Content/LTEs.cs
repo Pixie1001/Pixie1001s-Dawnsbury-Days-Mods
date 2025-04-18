@@ -159,8 +159,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
+            LongTermEffects.EasyRegister("Heavenly Favour", LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Heavenly Favour", "The gods bless your cause, imparting a +1 bonus to your attack, save DCs, spell DC and AC.") {
+                    HideFromPortrait = true,
+                    Illustration = IllustrationName.AngelicWings,
+                    ExpiresAt = ExpirationCondition.Never,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour")),
+                    BonusToAttackRolls = (self, action, target) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
+                    BonusToDefenses = (self, action, def) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
+                    BonusToSpellSaveDCs = (self) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
+                };
+            });
+
             LongTermEffects.EasyRegister("Unicorn Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
                 return new QEffect("Unicorn Companion", "You've acquired the aid of a unicorn. They will fight besides you until dying or the party returns to town.") {
+                    HideFromPortrait = true,
+                    Illustration = Illustrations.Unicorn,
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")),
                     StartOfCombat = async self => {

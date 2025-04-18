@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowNecromancer {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowNecromancer, "Drow Necromancer", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 2, 8, 6, new Defenses(16, 5, 8, 11), 25,
+            return new Creature(Illustrations.DrowNecromancer, "Drow Necromancer", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.SpellcasterMutator }, 2, 8, 6, new Defenses(16, 5, 8, 11), 25,
             new Abilities(1, 3, 0, 4, 1, 2), new Skills(acrobatics: 10, intimidation: 11, occultism: 13, deception: 11))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -34,6 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .WithCreatureId(CreatureIds.DrowNecromancer)
             .WithProficiency(Trait.Melee, Proficiency.Trained)
             .WithProficiency(Trait.Occult, Proficiency.Expert)
             .WithBasicCharacteristics()

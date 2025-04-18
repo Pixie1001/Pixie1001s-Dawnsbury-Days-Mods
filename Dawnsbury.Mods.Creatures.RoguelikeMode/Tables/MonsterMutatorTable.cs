@@ -1,0 +1,284 @@
+﻿using Dawnsbury.Audio;
+using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Path.CampaignStops;
+using Dawnsbury.Core;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Dawnsbury.Display;
+using Dawnsbury.Campaign.LongTerm;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using FMOD;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.Roller;
+using Microsoft.Xna.Framework;
+using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.AuraAnimations;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Campaign.Path;
+using Dawnsbury.Display.Illustrations;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.StatBlocks.Monsters.L5;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Tiles;
+
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    internal static class MonsterMutatorTable {
+        //public static List<SkillChallenge> events = new List<SkillChallenge>();
+        //public static Dictionary<int, SkillChallenge> chosenEvents = new Dictionary<int, SkillChallenge>();
+        private static List<MonsterArchetype> mutators = new List<MonsterArchetype>();
+
+        public static bool RollForMutator(Creature creature) {
+            int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
+            seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;
+
+            Random rand = new Random(seed);
+
+            List<MonsterArchetype> viableResults = GetFilteredList(creature);
+
+            if (viableResults.Count <= 0)
+                return false;
+
+            viableResults[rand.Next(0, viableResults.Count)].Apply(creature);
+            return true;
+        }
+
+        public static List<MonsterArchetype> GetFilteredList(Creature creature) {
+            return mutators.Where(m => m.CheckIfValid(creature)).ToList();
+        }
+
+        public static void LoadMutators() {
+            mutators.Clear();
+
+            mutators.Add(new MonsterArchetype("Vampiric", [ModTraits.MeleeMutator], creature => {
+                QEffect effect = new QEffect("Vampiric", "This creature heals for an amount of damage equal to that which it deals on a melee strike.") {
+                    AdditionalGoodness = (self, action, target) => {
+                        if (action != null && action.HasTrait(Trait.Strike) && action.HasTrait(Trait.Melee) && target.IsLivingCreature && self.Owner.Damage >= 0) {
+                            return 5;
+                        }
+                        return 0;
+                    }
+                };
+                effect.AddGrantingOfTechnical(cr => cr.IsLivingCreature, qfTechnical => {
+                    qfTechnical.AfterYouTakeAmountOfDamageOfKind = async (self, strike, damage, kind) => {
+                        if (strike != null && strike.Owner == creature && strike.HasTrait(Trait.Strike) && strike.HasTrait(Trait.Melee) && self.Owner.IsLivingCreature) {
+                            await creature.HealAsync(DiceFormula.FromText($"{damage}", "Vampiric"), strike);
+                        }
+                    };
+                });
+
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Analytical", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Analytical", "Enemy creatures damaged by this creature gain the 'analysed' condition, causing them to take 1d6 additional damage when damaged by an ally of this creature.") {
+                    AfterYouDealDamage = async (you, action, target) => {
+                        if (target?.Occupies == null) {
+                            return;
+                        }
+
+                        target.AddQEffect(new QEffect("Analysed", $"You suffer an additional 1d6 precision damage from attacks made by enemy creatures other than {action.Owner.Name}.", ExpirationCondition.CountsDownAtStartOfSourcesTurn, you, IllustrationName.HuntPrey) {
+                            Value = 1
+                        });
+                    }
+                };
+                effect.AddGrantingOfTechnical(cr => cr.FriendOfAndNotSelf(effect.Owner), qfTechnical => {
+                    qfTechnical.AfterYouDealDamage = async (you, action, target) => {
+                        if (target.EnemyOf(you) && target.QEffects.Any(qf => qf.Name == "Analysed" && qf.Source != you)) {
+                            await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(you.Battle.Pseudocreature, "Analysed", Trait.PrecisionDamage), DiceFormula.FromText("1d6", "Analysed Bonus Damage"), target, DamageKind.Untyped);
+                        }
+                    };
+                    qfTechnical.AdditionalGoodness = (self, action, target) => {
+                        if (target.EnemyOf(self.Owner) && target.QEffects.Any(qf => qf.Name == "Analysed" && qf.Source != self.Owner)) {
+                            return 3.5f;
+                        }
+                        return 0;
+                    };
+                });
+
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Berserking", [ModTraits.MeleeMutator], creature => {
+                QEffect effect = new QEffect("Berserking", "This creature is consumed by a reckless, berserkers rage, granting them additional temporary hit points, a +4 bonus to damage and a +5 bonus to speed, at the expense of a -2 penalty to their AC and Will save DC. They cannot use Concentrate actions.") {
+                    BonusToDamage = (self, action, target) => !action.HasTrait(Trait.Spell) ? new Bonus(4, BonusType.Untyped, "Berserking") : null,
+                    BonusToDefenses = (self, action, def) => def == Defense.AC || def == Defense.Will ? new Bonus(-2, BonusType.Untyped, "Berserking") : null,
+                    BonusToAllSpeeds = (self) => new Bonus(1, BonusType.Untyped, "Berserking"),
+                    PreventTakingAction = action => action.HasTrait(Trait.Concentrate) && !action.HasTrait(Trait.Rage) ? "Cannot use concentrate actions" : null,
+                };
+                creature.GainTemporaryHP(creature.Level * 2);
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Mirrored", [ModTraits.UniversalMutator], creature => {
+                creature.AddQEffect(Level2Spells.CreateMirrorImageEffect(creature));
+            }));
+
+            mutators.Add(new MonsterArchetype("Volatile", [ModTraits.MeleeMutator], creature => {
+                int dc = SkillChallengeTables.GetDCByLevel(creature.Level) + 2;
+                string dmg = (1 + Math.Max(1, creature.Level / 2)) + "d6";
+                creature.AddQEffect(new QEffect("Volatile", $"This creature explodes on death, dealing {dmg} force damage vs. a basic Reflex save (DC {dc}) against each creature within 10 feet of them.") {
+                    Illustration = IllustrationName.Fireball,
+                    YouAreDealtDamageEvent = async (self, dmgEvent) => {
+                        Tile location = self.Owner.Occupies;
+
+                        CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Volatile Explosion", new Trait[] { Trait.Force, Trait.UsableEvenWhenUnconsciousOrParalyzed }, "", Target.SelfExcludingEmanation(2))
+                        .WithActionCost(0)
+                        .WithSoundEffect(SfxName.Fireball)
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, dc))
+                        .WithProjectileCone(IllustrationName.AcidSplash, 15, ProjectileKind.Cone)
+                        .WithEffectOnEachTarget(async (spell, a, d, r) => {
+                            await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText(dmg, "Volatile Explosion"), DamageKind.Force);
+                        })
+                        ;
+                        self.Owner.Battle.AllCreatures.Where(cr => cr != self.Owner && cr.DistanceTo(location) <= 2 && cr.HasLineOfEffectTo(location) < CoverKind.Blocked).ForEach(cr => explosion.ChosenTargets.ChosenCreatures.Add(cr));
+                        self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(location) <= 2 && t.DistanceTo(location) > 0).ForEach(t => explosion.ChosenTargets.ChosenTiles.Add(t));
+                        //await CommonAnimations.CreateConeAnimation(self.Owner.Battle, self.Owner.Occupies.ToCenterVector(), self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(self.Owner.Occupies) <= 2).ToList(), 15, ProjectileKind.Cone, IllustrationName.Fireball);
+                        self.UsedThisTurn = true;
+                        await explosion.AllExecute();
+                        self.ExpiresAt = ExpirationCondition.Immediately;
+                    }
+                });
+            }));
+
+            //mutators.Add(new MonsterArchetype("Oozing", [], creature => {
+            //    creature.WithImmunityToCriticalHits();
+            //    creature.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious));
+            //    creature.AddQEffect(QEffect.TraitImmunity(Trait.Visual));
+            //    creature.AddQEffect(QEffect.TraitImmunity(Trait.PrecisionDamage));
+            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Acid));
+            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Electricity));
+            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Piercing));
+            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Slashing));
+            //    creature.AddQEffect(MonsterQEffects.Split());
+            //}));
+
+            mutators.Add(new MonsterArchetype("Studious", [ModTraits.SpellcasterMutator], creature => {
+                QEffect effect = new QEffect("Studious", "This creature is capable of casting powerful high level spells.");
+                creature.AddQEffect(effect);
+                switch (creature.CreatureId) {
+                    case var v when v.Equals(CreatureIds.DrowArcanist):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.AcidArrow], 2);
+                        break;
+                    case var v when v.Equals(CreatureIds.DrowShadowcaster):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.Fear], 3);
+                        break;
+                    case var v when v.Equals(CreatureIds.DrowNecromancer):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.AnimateDead], 3);
+                        break;
+                    case var v when v.Equals(CreatureIds.DrowPriestess):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.SuddenBlight], 3);
+                        break;
+                    case var v when v.Equals(CreatureIds.MerfolkBrineBlade):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 2);
+                        break;
+                    case var v when v.Equals(CreatureIds.DevotedCultist):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 1);
+                        break;
+                    case var v when v.Equals(CreatureIds.DrowInquisitrix):
+                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        break;
+                }
+            }));
+
+            mutators.Add(GenerateElementalArchetype("Stormheart", DamageKind.Electricity, Trait.Electricity));
+            mutators.Add(GenerateElementalArchetype("Pyreheart", DamageKind.Fire, Trait.Fire, DamageKind.Cold));
+            mutators.Add(GenerateElementalArchetype("Steelheart", DamageKind.Slashing, Trait.Metal, DamageKind.Electricity));
+            mutators.Add(GenerateElementalArchetype("Terraheart", DamageKind.Bludgeoning, Trait.Earth));
+            mutators.Add(GenerateElementalArchetype("Venomheart", DamageKind.Poison, Trait.Poison));
+            mutators.Add(GenerateElementalArchetype("Windheart", DamageKind.Slashing, Trait.Air));
+            mutators.Add(GenerateElementalArchetype("Coldheart", DamageKind.Cold, Trait.Cold, DamageKind.Fire));
+        }
+
+        private static MonsterArchetype GenerateElementalArchetype(string name, DamageKind element, Trait elementTrait, DamageKind weakness=DamageKind.Untyped) {
+            Color colour = Color.White;
+            switch (elementTrait) {
+                case Trait.Fire:
+                    colour = Color.OrangeRed;
+                    break;
+                case Trait.Earth:
+                    colour = Color.Sienna;
+                    break;
+                case Trait.Air:
+                    colour = Color.Beige;
+                    break;
+                case Trait.Electricity:
+                    colour = Color.DeepSkyBlue;
+                    break;
+                case Trait.Metal:
+                    colour = Color.DarkSlateGray;
+                    break;
+                case Trait.Poison:
+                    colour = Color.Olive;
+                    break;
+                case Trait.Cold:
+                    colour = Color.PaleTurquoise;
+                    break;
+            }
+
+            bool physical = element == DamageKind.Bludgeoning || element == DamageKind.Slashing || element == DamageKind.Piercing ? true : false;
+            bool hasWeakness = weakness != DamageKind.Untyped;
+
+            return new MonsterArchetype(name, [ModTraits.UniversalMutator], creature => {
+                creature.AnimationData.AddAuraAnimation(new MagicCircleAuraAnimation(Illustrations.KinestistCircleWhite, colour, 2));
+                creature.AnimationData.AuraAnimations.Last().MaximumOpacity = 0.7f;
+                QEffect effect = new QEffect(name, $"This creature is empowered by the element of {elementTrait.HumanizeTitleCase2()}," +
+                    $" gaining immunity to {elementTrait.HumanizeTitleCase2()} and {(physical ? "resistance 5 to" : "")} {element.HumanizeTitleCase2()} damage{(hasWeakness ? $", as well as weakness 5 to {weakness.HumanizeTitleCase2()} damage" : "")}." +
+                    $" It also gains an aura that deals 1d6+{creature.Level} {element.HumanizeTitleCase2()} " +
+                    $"damage (Basic fort vs. DC {SkillChallengeTables.GetDCByLevel(creature.Level) + 2}) to enemy creatures who end their turn within 10ft of it. In addition, their spells deal +2 {element.HumanizeTitleCase2()} damage.") {
+                    StateCheck = self => {
+                        if (hasWeakness) {
+                            self.Owner.WeaknessAndResistance.AddWeakness(weakness, 5);
+                        }
+
+                        if (physical) {
+                            self.Owner.WeaknessAndResistance.AddResistance(element, 5);
+                            return;
+                        }
+                        self.Owner.WeaknessAndResistance.AddImmunity(element);
+                    },
+                    ImmuneToTrait = elementTrait,
+                    AfterYouDealDamage = async (caster, action, target) => {
+                        if (action.HasTrait(Trait.Spell)) {
+                            await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(caster, action.Name), DiceFormula.FromText("2", name), target, element);
+                        }
+                    }
+                };
+                effect.AddGrantingOfTechnical(cr => cr.EnemyOf(creature) && !cr.IsImmuneTo(elementTrait), qfTechnical => {
+                    qfTechnical.EndOfYourTurnBeneficialEffect = async (self, you) => {
+                        if (you.DistanceTo(effect.Owner) <= 2) {
+                            var ca = CombatAction.CreateSimple(creature, name + " aura");
+                            var result = CommonSpellEffects.RollSavingThrow(you, ca, Defense.Fortitude, SkillChallengeTables.GetDCByLevel(creature.Level) + 2);
+                            await CommonSpellEffects.DealBasicDamage(ca, creature, you, result, DiceFormula.FromText($"1d6+{creature.Level}", ca.Name), element);
+                        }
+                    };
+                });
+                creature.AddQEffect(effect);
+            });
+        }
+    }
+}

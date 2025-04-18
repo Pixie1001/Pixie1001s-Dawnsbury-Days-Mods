@@ -78,7 +78,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         };
 
                         Tile startingTile = self.Occupies;
-                        Tile? destTile = await UtilityFunctions.GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Beast's Charge or right-click to cancel", IllustrationName.Haste);
+                        Tile? destTile = await UtilityFunctions.GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Powerful Charge or right-click to cancel", IllustrationName.Haste);
 
                         if (destTile == null) {
                             action.RevertRequested = true;

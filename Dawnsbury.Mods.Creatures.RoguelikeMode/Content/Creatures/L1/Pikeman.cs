@@ -4,6 +4,7 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -14,7 +15,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.OrcShaman256,
                 "Pikeman",
-                [Trait.Orc, Trait.Humanoid, Trait.Lawful],
+                [Trait.Orc, Trait.Humanoid, Trait.Lawful, ModTraits.MeleeMutator],
                 1, 10, 5,
                 new Defenses(16, 10, 7, 4),
                 20,

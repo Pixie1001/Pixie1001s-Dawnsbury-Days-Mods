@@ -43,6 +43,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static Trait tSummonerSubclass = ModManager.RegisterTrait("SummonerEidolonBond", new TraitProperties("Eidolon", false));
         internal static Trait tMetalElementalAtkType = ModManager.RegisterTrait("SummonerMetalElementalAttackType", new TraitProperties("", false));
         internal static Trait tEidolonArray = ModManager.RegisterTrait("eidolonabilityscorearray", new TraitProperties("Eidolon Ability Score Array", false));
+        internal static Trait tSkilledPartnerFeat = ModManager.RegisterTrait("SkilledPartnerFeat", new TraitProperties("Skill", false));
+        internal static Trait tSinType = ModManager.RegisterTrait("EidolonSinType", new TraitProperties("Sin", false));
 
         // Feat names
         internal static FeatName classSummoner = ModManager.RegisterFeatName("SummonerClass", "Summoner");
@@ -97,6 +99,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName scElementalEidolonPrimordial = ModManager.RegisterFeatName("Primordial Elemental");
         internal static FeatName scElementalEidolonAdaptable = ModManager.RegisterFeatName("Adaptable Elemental");
 
+        internal static FeatName scDemonEidolon = ModManager.RegisterFeatName("Demon Eidolon");
+        internal static FeatName scDemonEidolonTempter = ModManager.RegisterFeatName("Tempter Demon");
+        internal static FeatName scDemonEidolonWrecker = ModManager.RegisterFeatName("Wrecker Demon");
+
         // Class Feat names
         internal static FeatName ftAbundantSpellcasting1 = ModManager.RegisterFeatName("AbundantSpellCastingSummoner1", "Abundant Spellcasting");
         internal static FeatName ftAbundantSpellcasting4 = ModManager.RegisterFeatName("AbundantSpellCastingSummoner4", "Abundant Spellcasting 2");
@@ -104,6 +110,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public static FeatName ftMagicalUnderstudy = ModManager.RegisterFeatName("SummonerMagicalUnderstudy", "Magical Understudy");
         public static FeatName ftMagicalAdept = ModManager.RegisterFeatName("SummonerMagicalAdept", "Magical Adept");
         public static FeatName ftAirbornForm = ModManager.RegisterFeatName("Airborn Form");
+        public static FeatName ftPDemonicStrikes = ModManager.RegisterFeatName("Demon_PrimaryUnarmedAttack", "Primary Unarmed Attack");
+        public static FeatName ftSDemonicStrikes = ModManager.RegisterFeatName("Demon_SecondaryUnarmedAttack", "Secondary Unarmed Attack");
 
         // Primary Weapon Feat Names
         internal static FeatName ftPSword = ModManager.RegisterFeatName("P_Sword", "Sword");
@@ -168,14 +176,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static QEffectId qfReactiveStrikeCheck = ModManager.RegisterEnumMember<QEffectId>("Reactive Strike Check");
         internal static QEffectId qfParrying = ModManager.RegisterEnumMember<QEffectId>("Eidolon Parry");
         internal static QEffectId qfInvestedWeapon = ModManager.RegisterEnumMember<QEffectId>("Invested Weapon");
-        internal static QEffectId qfDrainedMirror = ModManager.RegisterEnumMember<QEffectId>("Drained (Mirror)");
-        internal static QEffectId qfMummyRotMirror = ModManager.RegisterEnumMember<QEffectId>("Mummy Rot (Mirror)");
+        //internal static QEffectId qfDrainedMirror = ModManager.RegisterEnumMember<QEffectId>("Drained (Mirror)");
+        //internal static QEffectId qfMummyRotMirror = ModManager.RegisterEnumMember<QEffectId>("Mummy Rot (Mirror)");
         internal static QEffectId qfEidolonsWrath = ModManager.RegisterEnumMember<QEffectId>("Eidolon's Wrath QF");
         internal static QEffectId qfOstentatiousArrival = ModManager.RegisterEnumMember<QEffectId>("Ostentatious Arrival Toggled");
         internal static QEffectId qfWhimsicalAura = ModManager.RegisterEnumMember<QEffectId>("Whimsical Aura");
         internal static QEffectId qfSeethingFrenzy = ModManager.RegisterEnumMember<QEffectId>("Seething Frenzy");
         internal static QEffectId qfSoulSiphon = ModManager.RegisterEnumMember<QEffectId>("Soul Siphon");
         internal static QEffectId qfElementalBurst = ModManager.RegisterEnumMember<QEffectId>("Elemental Burst");
+        internal static QEffectId qfVisionsOfSin = ModManager.RegisterEnumMember<QEffectId>("Visions of Sin");
 
         // Actions
         internal static ActionId acCelestialPassion = ModManager.RegisterEnumMember<ActionId>("CelestialPassion");

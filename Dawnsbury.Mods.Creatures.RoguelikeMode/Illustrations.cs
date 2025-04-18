@@ -112,6 +112,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration SpiderShrine = new ModdedIllustration("RoguelikeModeAssets/Terrain/SpiderShrine.png");
         internal static ModdedIllustration RestlessSpirit = new ModdedIllustration("RoguelikeModeAssets/Terrain/RestlessSouls.png");
         internal static ModdedIllustration DemonicPustule = new ModdedIllustration("RoguelikeModeAssets/Terrain/DemonicPustule.png");
+        internal static ModdedIllustration TripWire = new ModdedIllustration("RoguelikeModeAssets/Terrain/TripWire.png");
 
         // Icons
         internal static ModdedIllustration RitualOfAscension = new ModdedIllustration("RoguelikeModeAssets/Icons/RitualOfAscension.png");
@@ -124,5 +125,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");
         internal static ModdedIllustration BaneCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/BaneCircleWhite.png");
         internal static ModdedIllustration InkCloud = new ModdedIllustration("RoguelikeModeAssets/Other/InkCloud.png");
+        internal static ModdedIllustration KinestistCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/KineticistAuraCircle.png");
     }
 }

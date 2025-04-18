@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class UnseenGuardian {
         public static Creature Create() {
-            return new Creature(Illustrations.UnseenGuardian, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 4, 3, 1, 3, 1), new Skills(stealth: 2))
+            return new Creature(Illustrations.UnseenGuardian, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air, ModTraits.MeleeMutator }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 4, 3, 1, 3, 1), new Skills(stealth: 2))
                 .WithAIModification(ai => {
                     ai.IsDemonHorizonwalker = true;
                     ai.OverrideDecision = (self, options) => {

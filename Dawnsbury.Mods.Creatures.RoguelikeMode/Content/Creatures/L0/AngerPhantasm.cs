@@ -3,6 +3,7 @@ using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -13,7 +14,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             return new Creature(Illustrations.AngerPhantom,
                 "Anger Phantasm",
-                [Trait.Incorporeal, Trait.Undead, Trait.Chaotic, Trait.Evil],
+                [Trait.Incorporeal, Trait.Undead, Trait.Chaotic, Trait.Evil, ModTraits.MeleeMutator],
                 0, 6, 3,
                 new Defenses(15, 3, 6, 6),
                 8,

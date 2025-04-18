@@ -1006,7 +1006,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 "\n\n{b}Fey Price.{/b} Your connection with the fey gives denizens of the first world power over you in turn. When you make an attack roll against a Fey creature, you suffer a -1 penalty.",
                 new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Charisma), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
-                sheet.GrantFeat(FeatName.Religion);
+                sheet.GrantFeat(FeatName.Nature);
             })
             .WithOnCreature(creature => {
                 // TODO: Add feybound

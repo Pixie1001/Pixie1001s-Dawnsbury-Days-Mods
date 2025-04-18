@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class MerfolkSeaWitch {
         public static Creature Create() {
-            Creature monster = new Creature(Illustrations.MerfolkSeaWitch, "Merfolk Sea Witch", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic }, 5, 13, 6, new Defenses(21, 9, 12, 15), 60,
+            Creature monster = new Creature(Illustrations.MerfolkSeaWitch, "Merfolk Sea Witch", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic, ModTraits.SpellcasterMutator }, 5, 13, 6, new Defenses(21, 9, 12, 15), 60,
                 new Abilities(2, 2, 3, 2, 5, 4), new Skills(intimidation: 13, nature: 13, occultism: 13))
                 .WithCreatureId(CreatureIds.MerfolkSeaWitch)
                 .WithProficiency(Trait.Weapon, Proficiency.Expert)

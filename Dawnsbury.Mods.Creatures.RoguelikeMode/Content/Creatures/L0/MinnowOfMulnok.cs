@@ -14,6 +14,7 @@ using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Animations.AuraAnimations;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -24,7 +25,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.MInnowOfMulnok,
                 "Minnow of Mulnok",
-                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.NonSummonable],
+                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.NonSummonable, ModTraits.MeleeMutator],
                 0, 6, 7,
                 new Defenses(15, 6, 8, 3),
                 15,

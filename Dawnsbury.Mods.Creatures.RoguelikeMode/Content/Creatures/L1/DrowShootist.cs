@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowShootist {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowShootist, "Drow Shootist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
+            return new Creature(Illustrations.DrowShootist, "Drow Shootist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.ArcherMutator }, 1, 10, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(-1, 4, 1, 1, 2, 2), new Skills(acrobatics: 7, stealth: 7, deception: 7, intimidation: 5))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -34,6 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .WithCreatureId(CreatureIds.DrowShootist)
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(QEffect.SneakAttack("1d8"))
             .WithBasicCharacteristics()

@@ -46,6 +46,11 @@ using Dawnsbury.Phases.Menus.CampaignViews;
 using System.IO;
 using Dawnsbury.Display.Controls.Listbox;
 using Dawnsbury.Display.Controls;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
+using Dawnsbury.Core.Coroutines.Options;
+using static System.Net.Mime.MediaTypeNames;
+using Dawnsbury.Campaign.LongTerm;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -119,6 +124,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             "{b}Stats{/b}\n" +
             "{b}Deaths:{/b} " + __instance.CampaignState.Tags["deaths"] + "\n" +
             "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] +
+            "{b}Corruption Level:{/b} " + __instance.CampaignState.Tags["corruption level"] +
             "\n\n" + Loader.Credits;
 
             if (!victory) {
@@ -433,7 +439,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         private static void CampaignMenuPhaseDrawPatch(CampaignMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
             CampaignState state = CampaignState.Instance;
 
-            if (state?.AdventurePath?.Name == "Roguelike Mode" && UtilityFunctions.DiedThisRun(state)) {
+            if (state?.AdventurePath?.Name != "Roguelike Mode")
+                return;
+
+            if (UtilityFunctions.DiedThisRun(state)) {
                 // && (state.Tags.TryGetValue("deaths", ) != "0" || state.Tags["restarts"] != "0")
                 int h = 250;
                 int w = 250;
@@ -451,6 +460,59 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
                     // Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
                 }
+            }
+
+            if (!state.Tags.ContainsKey("corruption level")) {
+                //var bg = new Rectangle(0, 0, Root.ScreenWidth, Root.ScreenHeight);
+                //Primitives.FillRectangleGradient(bg, ColorScheme.Instance.ButtonBorderGradient1, ColorScheme.Instance.ButtonBorderGradient2);
+                var rectangle = new Rectangle(0, 0, Root.ScreenWidth, Root.ScreenHeight);  //LeftMenu.ContentRectangle; //new Rectangle(0, 0, Root.ScreenWidth, Root.ScreenHeight);
+                Primitives.FillRectangleGradient(rectangle, Color.PaleVioletRed, Color.Violet);
+
+                //Rectangle rectangle2 = Primitives.Scale(rectangle);
+                //Primitives.DrawAndFillRectangleNative(rectangle2.Extend(-2, -2), Color.SteelBlue, Color.Black);
+                //Primitives.DrawRectangleNative(rectangle2, Color.Black);
+
+                //Writer.DrawString("Corruption Level", rectangle2, Color.Black, BitmapFontGroup.Mia48Font, Writer.TextAlignment.TopLeft, degrading: true);
+
+                int width = LeftMenu.LEFT_MENU_WIDTH - 20;
+                // Root.ScreenWidth / 2 - width / 2, 
+
+                //UI.DrawUIButton(new Rectangle(10, 400 + 1 * 210, width, 200), "Normal Difficulty", () => {
+                //    state.Tags.Add("corruption level", "0");
+                //}, Writer.TextAlignment.Middle, BitmapFontGroup.Mia48Font, "This is the intended difficulty of the roguelike mode, without any additional rules.", ColorScheme.Instance.ButtonBorderGradient1);
+
+                //UI.DrawUIButton(new Rectangle(10, 400 + 2 * 210, width, 200), "Corruption Level 1", () => {
+                //    state.Tags.Add("corruption level", "1");
+                //}, Writer.TextAlignment.Middle, BitmapFontGroup.Mia48Font, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities.", Color.Violet);
+
+                LeftMenu.Draw([
+                    new LeftMenuButton("Easy Difficulty", () => {
+                        state.Tags.Add("corruption level", "-1");
+                        foreach (AdventurePathHero hero in state.Heroes) {
+                            hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour"));
+                        }
+                    }, "The party gains the Heavenly Favour boon, granting them a permanent +1 bonus to their attack, save and spell DCs and AC."),
+                    new LeftMenuButton("Normal Difficulty", () => {
+                        state.Tags.Add("corruption level", "0");
+
+                    }, "This is the intended difficulty of the roguelike mode, without any additional rules."),
+                    new LeftMenuButton("Corruption Level 1", () => {
+                        state.Tags.Add("corruption level", "1");
+                    }, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities." +
+                    "\n\n{b}Beta Content.{/b} Although there should be a minimum amount of bugs, I haven't had time to throughly playtest the difficulty of this mode or add as large as variety of possible modifiers as I'd like. " +
+                    "Any feedback on tihs new mode would be greatly appreciated!"),
+                    //new LeftMenuButton("Return", () => {
+                    //    Sfxs.Play(SfxName.Button);
+                    //    Sfxs.StopVoice();
+                    //    Root.PhaseStack[^1].Destruct(Root.Game);
+                    //}, null, LeftMenuButton.LeftMenuButtonPositioning.Down)
+                ]);
+
+                Writer.DrawString("Choose your Difficulty", new Rectangle(10, 10, Root.ScreenWidth, 400), Color.Black, BitmapFontGroup.Mia48Font);
+
+                string? tooltip = (string)Type.GetType("Dawnsbury.Display.MouseOver, Dawnsbury Days").GetProperty("MouseOverMenuTooltip", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                if (tooltip != null)
+                    Writer.DrawString(tooltip, new Rectangle(620, 400, 1000, 800));
             }
         }
 

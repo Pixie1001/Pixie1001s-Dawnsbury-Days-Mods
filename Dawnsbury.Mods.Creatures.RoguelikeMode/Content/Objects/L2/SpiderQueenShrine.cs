@@ -58,7 +58,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                         "The shrine's will be disabled.", null, null),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(2)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result >= CheckResult.Success) {
                                                                 target.RemoveAllQEffects(qf => qf.Name == "Blessings of the Spider Queen");
@@ -70,7 +70,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                         "Reduce all DCs on this hazard by 2.", null, "You take 1d6 evil damage and increase all DCs on this hazard by 1."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion, Skill.Crafting), Checks.FlatDC(qfCurrentDC.Value - 2)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Religion, Skill.Crafting), Checks.FlatDC(qfCurrentDC.Value - 2)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
@@ -88,7 +88,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                             Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
                                                             )
                                                         .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Thievery), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Thievery), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("1d6", "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);

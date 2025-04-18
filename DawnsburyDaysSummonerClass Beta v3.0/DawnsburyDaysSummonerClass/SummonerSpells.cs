@@ -73,10 +73,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             spellList.Add(SummonerSpellId.EvolutionSurge, ModManager.RegisterNewSpell("EvolutionSurge", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illEvolutionSurge, "Evolution Surge", new[] { Enums.tSummoner, Trait.Focus, Trait.Morph, Trait.Transmutation, Trait.Uncommon },
-                        "{b}Duration{/b} Until end of encounter.\n\nYou flood your eidolon with power, creating a temporary evolution in your eidolon's capabilities.",
-                        "Your eidolon gains one the following adeptations for the rest of the encounter\n• Your eidolon gains a swim speed.\n• Your eidolom gains a +20-foot status bonus to its speed.",
+                        "You flood your eidolon with power, creating a temporary evolution in your eidolon's capabilities.",
+                        "{b}Duration{/b} Until end of encounter.\n\nYour eidolon gains one the following adeptations for the rest of the encounter:\n\n• Your eidolon gains a swim speed.\n• Your eidolom gains a +20-foot status bonus to its speed." +
+                        $"{(spellLevel >= 3 ? "\n• Your eidolon gains reach on all of its attacks." : "")}",
                         Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Abjuration)
+                    .WithHeightenedAtSpecificLevel(spellLevel, 3, inCombat, "Add the following option:\n• Your eidolon gains reach on all of its attacks.")
                     .WithVariants(new SpellVariant[] {
                         new SpellVariant("Amphibious", "Amphibious Evolution Surge", (Illustration) IllustrationName.ElementWater),
                         new SpellVariant("Agility", "Agility Evolution Surge", (Illustration) IllustrationName.FleetStep),
@@ -263,7 +265,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             spellList.Add(SummonerSpellId.ExtendBoost, ModManager.RegisterNewSpell("ExtendBoostSpell", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illExtendBoost, "Extend Boost", new[] { Enums.tSummoner, Trait.Focus, Trait.Metamagic, Trait.Divination, Trait.Uncommon },
                         "You focus on the intricacies of the magic binding you to your eidolon to extend the duration of your boost eidolon or reinforce eidolon spell.",
-                        "If your next action is to cast boost eidolon or reinforce eidolon, attempt a skill check with the skill associated with the tradition of magic you gain from your eidolon (such as Nature for a primal eidolon) vs. a standard-difficulty DC of your level. The effect depends on the result of your check.\n\n{b}Critical Success{/b} The spell lasts 4 rounds.\n{b}Success{/b} The spell lasts 3 rounds.\n{b}Failure{/b} The spell lasts 1 round, but you don't spend the Focus Point for casting this spell.",
+                        "If your next action is to cast boost eidolon or reinforce eidolon, attempt a skill check with the skill associated with the tradition of magic you gain from your eidolon (such as Nature for a primal eidolon) vs. a standard-difficulty DC of your level. The effect depends on the result of your check.\n\n{b}Critical success{/b} The spell lasts 4 rounds.\n{b}Success{/b} The spell lasts 3 rounds.\n{b}Failure{/b} The spell lasts 1 round, but you don't spend the Focus Point for casting this spell.",
                         Target.Self(), spellLevel, null)
                     .WithSoundEffect(SfxName.MinorAbjuration)
                     .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {

@@ -75,6 +75,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using HarmonyLib;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
@@ -104,15 +105,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             CustomItems.LoadItems();
             CreatureList.LoadCreatures();
             CreatureList.LoadObjects();
+            CreatureList.LoadTiles();
             LTEs.LoadLongTermEffects();
             //LTEs.LoadBoons();
             //ScriptHooks.LoadHooks();
             SpellLoader.LoadSpells();
             FeatLoader.LoadFeats();
+            MonsterMutatorTable.LoadMutators();
             LoadEncounters();
 
             ModManager.RegisterBooleanSettingsOption("RL_HideDeathIcon", "Roguelike Mode: Hide failed run icons.",
                 "By default saves files with at least one death or restart will be marked by a scary green skull icon. Enable this if you want play the Roguelike mode like a regular randomly generated adventure path, without worrying about how many times you died or restarted an encounter.", false);
+
+            ModManager.RegisterBooleanSettingsOption("RL_Corruption2", "Roguelike Mode: Enable monster archetypes in free encounter mode.",
+                "Makes regular encounters from the Roguelike mode harder.", false);
         }
 
         private static void LoadEncounters()

@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowPriestess {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowPriestess, "Drow Priestess", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female }, 3, 9, 6, new Defenses(20, 8, 7, 11), 39,
+            return new Creature(Illustrations.DrowPriestess, "Drow Priestess", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female, ModTraits.SpellcasterMutator, ModTraits.MeleeMutator }, 3, 9, 6, new Defenses(20, 8, 7, 11), 39,
             new Abilities(1, 2, 1, 0, 4, 2), new Skills(deception: 9, stealth: 7, intimidation: 9))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -70,6 +70,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .WithCreatureId(CreatureIds.DrowPriestess)
             .AddQEffect(CommonQEffects.CruelTaskmistress("1d6"))
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(CommonQEffects.DrowClergy())

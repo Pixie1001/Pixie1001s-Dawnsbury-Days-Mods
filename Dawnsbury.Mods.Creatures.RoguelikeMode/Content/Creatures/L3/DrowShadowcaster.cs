@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowShadowcaster {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowShadowcaster, "Drow Shadowcaster", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 3, 9, 6, new Defenses(17, 6, 9, 12), 31,
+            return new Creature(Illustrations.DrowShadowcaster, "Drow Shadowcaster", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.SpellcasterMutator }, 3, 9, 6, new Defenses(17, 6, 9, 12), 31,
             new Abilities(1, 3, 0, 4, 1, 2), new Skills(acrobatics: 10, intimidation: 11, arcana: 13, deception: 11))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -31,6 +31,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .WithCreatureId(CreatureIds.DrowShadowcaster)
             .WithProficiency(Trait.Melee, Proficiency.Trained)
             .WithProficiency(Trait.Arcane, Proficiency.Expert)
             .WithBasicCharacteristics()

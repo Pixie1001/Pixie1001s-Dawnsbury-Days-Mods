@@ -27,7 +27,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowInquisitrix {
         public static Creature Create() {
-            Creature monster = new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
+            Creature monster = new Creature(Illustrations.DrowInquisitrix, "Drow Inquisitrix", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.Female, ModTraits.MeleeMutator, ModTraits.SpellcasterMutator }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
                 new Abilities(2, 4, 1, 2, 2, 4), new Skills(acrobatics: 8, intimidation: 11, religion: 7))
                 .WithAIModification(ai => {
                     ai.OverrideDecision = (self, options) => {
@@ -43,6 +43,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return null;
                     };
                 })
+                .WithCreatureId(CreatureIds.DrowInquisitrix)
                 .WithProficiency(Trait.Martial, Proficiency.Expert)
                 .WithProficiency(Trait.Spell, Proficiency.Trained)
                 .WithBasicCharacteristics()

@@ -31,7 +31,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class MerfolkBrineblade {
         public static Creature Create() {
-            Creature monster = new Creature(IllustrationName.DarkPoet256, "Merfolk Brineblade", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
+            Creature monster = new Creature(IllustrationName.DarkPoet256, "Merfolk Brineblade", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic, ModTraits.SpellcasterMutator, ModTraits.MeleeMutator }, 2, 8, 6, new Defenses(17, 5, 8, 11), 25,
                 new Abilities(4, 3, 1, 0, 2, 1), new Skills(acrobatics: 6, intimidation: 8, nature: 7, occultism: 7))
                 .WithAIModification(ai => {
                     ai.OverrideDecision = (self, options) => {

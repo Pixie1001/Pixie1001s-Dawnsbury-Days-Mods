@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class WitchMother {
         public static Creature Create() {
-            return new Creature(IllustrationName.WaterElemental256, "Mother Cassandra", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female }, 3, 4, 5, new Defenses(17, 9, 6, 12), 45,
+            return new Creature(IllustrationName.WaterElemental256, "Mother Cassandra", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female, ModTraits.SpellcasterMutator }, 3, 4, 5, new Defenses(17, 9, 6, 12), 45,
             new Abilities(0, 2, 3, 4, 2, 0), new Skills(nature: 10, occultism: 14, intimidation: 9))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

@@ -9,6 +9,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -19,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.Crocodile,
                 "Crocodile",
-                [Trait.Animal],
+                [Trait.Animal, ModTraits.MeleeMutator],
                 2, 7, 4,
                 new Defenses(17, 9, 7, 5),
                 30,

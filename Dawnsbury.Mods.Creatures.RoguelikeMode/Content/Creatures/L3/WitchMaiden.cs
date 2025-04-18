@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class WitchMaiden {
         public static Creature Create() {
-            return new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female }, 3, 6, 5, new Defenses(17, 6, 9, 12), 45,
+            return new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female, ModTraits.SpellcasterMutator }, 3, 6, 5, new Defenses(17, 6, 9, 12), 45,
             new Abilities(0, 4, 3, 4, 2, 0), new Skills(nature: 10, occultism: 10, intimidation: 9, arcana: 14))
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.Crossbow, Proficiency.Expert)

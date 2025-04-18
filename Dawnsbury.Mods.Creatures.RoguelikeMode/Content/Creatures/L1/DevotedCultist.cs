@@ -24,8 +24,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DevotedCultist {
         public static Creature Create() {
-            return new Creature(Illustrations.DevotedCultist, "Devoted Cultist", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Humanoid }, 1, 6, 5, new Defenses(15, 7, 4, 10), 26,
+            return new Creature(Illustrations.DevotedCultist, "Devoted Cultist", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator, ModTraits.SpellcasterMutator }, 1, 6, 5, new Defenses(15, 7, 4, 10), 26,
             new Abilities(1, 2, 4, -1, 1, 0), new Skills(acrobatics: 7, athletics: 6))
+            .WithCreatureId(CreatureIds.DevotedCultist)
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()

@@ -69,6 +69,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Dawnsbury.Core.Animations.AuraAnimations;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -122,7 +123,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "{b}Initial Eidolon Ability (Celestial Passion) {icon:Action}.{/b} One ally within 30-feet of your eidolon gains temporary HP equal to its level, and a +1 bonus to attack and skill checks for 1 round. Cannot be used on the same ally more than once per encounter." +
             "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Whimsical Aura).{/b} The wonder and whimsy of Elysium manifests around your eidolon in an aura. Your eidolon and all allies within a 15-foot aura gain a +5-foot status bonus to their speed at the " +
             "start of their turn. In addition, each ally within this aura at the end of your turn, reduces their frightened value by 1." +
-            "\n\n{b}Credits{/b} {i}Designed by LeoRandger{/i}";
+            "\n\nThis subclass is designed and contributed by {link:https://www.reddit.com/r/Pathfinder2e/comments/1bqusiu/leorandgers_summoning_circle_new_eidolons/}LeoRandger{/}.";
 
         private static readonly string DevilEidolonFlavour = "Your eidolon is a devil - a creature born in the depths of Nine Hells,the embodiment of order and tyranny. Whether tricked into being linked to each other through an infernal " +
             "contract or connected through means, your companion represents the interest of his infernal patrons in mortal affairs. He might act authoritative or submit to you, but while your goals align, it shall follow you on your adventures. " +
@@ -130,11 +131,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         private static readonly string DevilEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Religion, Intimidation\n\n" +
             "{b}Initial Eidolon Ability (Hellfire Scourage).{/b} Your eidolon gains resistance to fire equal to their level (minimum 1), and an equivalent weakness to good (minimum 1). In addition, the first attack they make against a Frightened creature each turn, deals an additional 1d4 fire damage." +
-            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Legion Commander) {icon:Action}.{/b} Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can use their reaction " +
-            "to make an Intimidation check against an easy DC for their level.\n{b}Critical Success{/b} You grant your ally a +2 circumstance bonus to the triggering check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4." +
-            "\n{b}Success{/b} You grant your ally a +1 circumstance bonus to the triggering check.\n{b}Critical Failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nYour ally also deals extra fire damage equal to half your level, " +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Legion Commander) {icon:Action}.{/b} Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can use their reaction {icon:Reaction} " +
+            "to make an Intimidation check against an easy DC for their level.\n{b}Critical success{/b} You grant your ally a +2 circumstance bonus to the triggering check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4." +
+            "\n{b}Success{/b} You grant your ally a +1 circumstance bonus to the triggering check.\n{b}Critical failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nYour ally also deals extra fire damage equal to half your level, " +
             "if the action your eidolon was assisting them with was an attack, and double if the attack was a critial success." +
-            "\n\n{b}Credits{/b} {i}Designed by LeoRandger{/i}";
+            "\n\nThis subclass is designed and contributed by {link:https://www.reddit.com/r/Pathfinder2e/comments/1bqusiu/leorandgers_summoning_circle_new_eidolons/}LeoRandger{/}.";
 
         private static readonly string FeyEidolonFlavour = "Your eidolon is a fey, a capricious being of the mysterious First World. Many fey appear similar to mortal humanoids with unusual features such as pointed ears, " +
             "wings, or bodies composed of natural elements, but the full variety of fey is endless, and many others appear completely inhuman. Fey from the First World never truly die, instead forming a new creature. " +
@@ -178,10 +179,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "It gains the Drain Life activity.\n\n" +
             "Your eidolon attacks a living creature and drains some of the creature's life force to feed your shared link. " +
             "Your eidolon Strikes a living enemy. If the Strike hits and deals damage, the target must attempt a Fortitude save, with the following effects. On a critical hit, the enemy uses the result one degree worse than it rolled.\n\n" +
-            "{b}Critical Success{/b} No effect.\nSuccess Your eidolon drains a small amount of life force. The enemy takes additional negative damage equal to half your level.\n" +
+            "{b}Critical success{/b} No effect.\nSuccess Your eidolon drains a small amount of life force. The enemy takes additional negative damage equal to half your level.\n" +
             "{b}Failure{/b} Your eidolon drains enough life force to satisfy itself. " +
             "The enemy takes additional negative damage equal to half your level and is drained 1. Your eidolon gains temporary Hit Points equal to the enemy's level, which last for 1 minute.\n" +
-            "{b}Critical Failure{/b} Your eidolon drains an incredible amount of life force and is thoroughly glutted with energy. As failure, but the enemy is drained 2 and the temporary Hit Points are equal to double the enemy's level.";
+            "{b}Critical failure{/b} Your eidolon drains an incredible amount of life force and is thoroughly glutted with energy. As failure, but the enemy is drained 2 and the temporary Hit Points are equal to double the enemy's level.";
 
         private static readonly string PsychopompEidolonFlavour = "Your eidolon is a psychopomp, a creature whose sworn duty is to usher souls safely to the afterlife and maintain the courts of the dead. " +
             "Psychopomp eidolons have a variety of appearances, but since they often traffic with mortals, their form typically includes an elaborate mask. You and your psychopomp eidolon share an important " +
@@ -196,12 +197,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "At stage 3, your eidolon removes their soul completely. Living creatures are paralyzed, their bodies left as soulness husks. Undead are immediately destroyed, unless they're of an equal or higher level than your" +
             " eidolon, in which case they suffer force damage equal to twice your eidolon's level their soul escapes back intoto their body.\n\n" +
             "{b}Failure{/b} The target gains soul wretch 1.\n" +
-            "{b}Critical Failure{/b} The target gains soul wretch 2.\n\n" +
+            "{b}Critical failure{/b} The target gains soul wretch 2.\n\n" +
             "Your eidolon must sustain this ability each turn to maintain their hold on the target's soul. Each time they do so, the target makes another will saving throw to determine how much progress your " +
             "eidolon makes towards wretching out their soul completely.\n\n" +
-            "{b}Critical Success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
+            "{b}Critical success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
             "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
-            "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.";
+            "{b}Critical failure{/b} The target's soul wretch increased by 2 stages.";
 
         private static readonly string ElementalEidolonFlavour = "Your eidolon is a primal chunk of elemental matter infused with sapience, power, and identity, but unable to manifest a true form of their own without the life force you provide" +
                "via your connection. Most elementals in their natural environment already have different sorts of forms, from vaguely humanoid, to animalistic, to simple masses of their component element. As your life force "
@@ -219,6 +220,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "Your eidolon rips off a chunk of elemental matter from their own form and hurls it into a group of foes. Your eidolon loses a number of Hit Points equal to your level, dealing 6d6 damage to all creatures inside the burst. " +
             "The damage increases by 1d6 for each level you have beyond 7th. The damage's type is either fire damage if your eidolon is a fire elemental, or the same physical damage type as your eidolon's primary unarmed attack if your " +
             "eidolon isn't a fire elemental. Elemental Burst gains any traits that your eidolon's unarmed attacks gain from elemental core.";
+
+        private static readonly string DemonEidolonFlavour = "Your eidolon is a demon, a chaotic evil invader from the stars, using its link to you to spread chaos at your side. Choose an associated sin for your " +
+            "demon. Demon eidolons have appearances as varied as the infinite Abyss. While demons are inherently untrustworthy, your demon eidolon has reached an accord with you and generally keeps it, though that doesn't mean your eidolon isn't " +
+            "actively working to bring your life deeper into its associated sin.";
+
+        private static readonly string DemonEidolonCrunch = "{b}Special.{/b} This eidolon option expands upon the controversial options presented in Secrets of Magic, with several new alternatives. To use the vanilla demon, you can select the 'Classic' sin.\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} You gain Religion and a bonus skill associated with your eidolon's demonic nature." +
+            "\n\n{b}Initial Eidolon Ability (Lesser Demonic Nature).{/b} Your demon gains unique powers and weaknesses associated with its sin." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Greater Demonic Nature).{/b} Your demon gains a unique once per encounter ability associated with its sin.";
 
         internal static IEnumerable<Feat> LoadSubclasses() {
 
@@ -450,6 +459,53 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
             });
 
+            subclasses.Add(new Feat(Enums.scDemonEidolon, DemonEidolonFlavour, DemonEidolonCrunch, new List<Trait>() { }, null)
+            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("SummonerDemonSin", "Embodied Sin", 1, ft => ft.HasTrait(Enums.tSinType)));
+                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DemonEidolonArray", "Eidolon Ability Scores", 1, ft => new FeatName[] { Enums.scDemonEidolonTempter, Enums.scDemonEidolonWrecker }.Contains(ft.FeatName)));
+            })));
+
+            yield return CreateEidolonFeat(scDemonEidolonTempter, "Your eidolon is a manipulative demon, that craves the corruption of mortals.", null, null, new int[6] { 1, 4, 1, 0, 0, 3 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scDemonEidolonWrecker, "Your eidolon is a demon born of violence and loathing, that revels in war and destruction.", null, null, new int[6] { 4, 2, 3, 0, -1, 1 }, 2, 3).WithTag(Ability.Strength);
+
+            // Demon Sin Subfeats
+            yield return new EidolonBond(ModManager.RegisterFeatName("DemonSinClassic", "Classic Demon"), "Your bound demon embodies sin itself.",
+                "{b}Initial Eidolon Ability (Demonic Strikes).{/b} Your eidolon's unarmed strikes deal +1 extra evil damage. Additionally, choose one of your eidolon's unarmed attacks; it gains versatile B, versatile P and versatile S." +
+                "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Visions of Sin) {icon:TwoActions}.{/b}\n{b}Frequency{/b} Once per encounter.\n{b}Range{/b} 30 feet\n{b}Saving Throw{/b} Will" +
+                "\n\nYour eidolon summons images of its sin into the mind of a target creature, tormenting and confusing them. If the target is evil, they suffer a -2 circumstance penalty to their Will save."
+                + S.FourDegreesOfSuccess(null, "The target can't use reactions.", "The target is slowed 1 and can't use reactions.", "As failure, and the target is also confused for 1 round. The confusion can't be extended, but the other effects can."),
+                Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.FeatName == ftAChaoticEvil),
+                [Trait.Demon, Trait.Fiend, Enums.tSinType], [Trait.Demon, Trait.Fiend, Trait.Starborn], [
+                    new Feat(ftPDemonicStrikes, "", "Your eidolon's primary natural weapon attack gains versatile B, versatile P and versatile S.", [], null),
+                    new Feat(ftSDemonicStrikes, "", "Your eidolon's secondary natural weapon attack gains versatile B, versatile P and versatile S.", [], null)
+                ]).WithClassFeatures((eidolon, summoner) => ClassicDemonEidolonLogic(eidolon, summoner));
+
+            yield return new EidolonBond(ModManager.RegisterFeatName("DemonSinLust", "Lust Demon"), "Your bound eidolon is a demon of destructive lust, sent from the stars to corrupt the souls of mortals.",
+                "{b}Demonic Weakness (Rejection Vulnerability).{/b} When your eidolon fails a Diplomacy check to Embrace, or when a creature succeeds at its save against your eidolon's Bewitch or Passionate Kiss, " +
+                "it takes 1d6 mental damage for every 3 levels it has (minimum 1d6) and when that creature next successfully Demoralizes your eidolon this encounter, it takes that damage again." +
+                "\nIn addition, they gain weakness to Cold Iron and Good damage equal to half their level." +
+                "\n\n{b}Initial Eidolon Ability (Power of Lust).{/b} Your eidolon gains the following abilities, as a demon embodieying the sin of lust:" +
+                "\n• {b}Embrace {icon:Action}.{/b} Your eidolon can use the embrace action to attempt to grapple an enemy creature, using their diplomacy in place of athletics." +
+                "\n• {b}Seductive Presence.{/b} Creatures susceptible to earthly desires within 10 feet of you take a -1 circumstance penalty to saving throws and DCs against effects with the Mental trait." +
+                "\n• {b}Passionate Kiss {icon:Action}.{/b} Your eidolon can passionately kiss a grappled enemy, dealing 1d6+level negative damage opposed by a basic Will save. If the target fails the save, you gain temporary hit points equal to your level and they can't attempt to Escape or take actions against your eidolon until your next turn." +
+                "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Bewitch) {icon:ThreeActions}.{/b}\n{b}Frequency{/b} Once per encounter.\n{b}Range{/b} 30 feet\n{b}Saving Throw{/b} Will\n\n{i}You take command of the target, forcing it to obey your orders.{/i}" +
+                    S.FourDegreesOfSuccess("The target is unaffected.", "The target is stunned 1.", "You gain control of the target until the end of their next turn. They are Slowed 2 while controlled in this way.", "As failure, but they are not slowed."),
+                Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy }, new Func<Feat, bool>(ft => ft.FeatName == ftAChaoticEvil),
+                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures((eidolon, summoner) => LustDemonEidolonLogic(eidolon, summoner));
+
+            yield return new EidolonBond(ModManager.RegisterFeatName("DemonSinWrath", "Wrath Demon"), "Your bound eidolon is a demon of wrath, born from the hatred of mortals souls. " +
+                "They often infect their victims with burrowing spores, and herald oncoming ivasions with their primal screeching",
+                "{b}Demonic Weakness (Peace Vulnerability).{/b} If the your eidolon fails a saving throw against an emotion effect, it takes takes 1d6 mental damage for every 3 levels it has (minimum 1d6)." +
+                "\nIn addition, they gain weakness to Cold Iron and Good damage equal to half their level." +
+                "\n\n{b}Initial Eidolon Ability (Spore Cloud) {icon:Action}.{/b}" +
+                "Your eidolon deals poison damage equal to its level to all adjacent creatures {i}(no save){/i}. Each adjacent creature also makes a Fortitude save." +
+                " On a failure, it takes persistent piercing damage equal to your eidolon's level. This persistent damage is removed if the creature is affected by a good" +
+                " effect. After your eidolon uses Spore Cloud, the ability can't be used again for 1d6 rounds." +
+                "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Stunning Screech) {icon:TwoActions} [Incapacitation].{/b}\nYour eidolon emits a shrill screech. Each enemy creature within a 15 foot burst must attempt a Fortitude save. On a failure, the creature is stunned 1, " +
+                "and on a critical failure, it's stunned 2. This ability can only be used once per encounter.",
+                Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy }, new Func<Feat, bool>(ft => ft.FeatName == ftAChaoticEvil),
+                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures((eidolon, summoner) => WrathDemonEidolonLogic(eidolon, summoner));
+
             // Dragon Type Subfeats
 
             // Primal
@@ -542,10 +598,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                         return (Possibility)(ActionPossibility)new CombatAction(eidolon, illAngelicAegis, "Angelic Aegis", new Trait[] { },
                             "{b}Frequency{/b} Once per round\n{b}Requirements{/b} Your eidolon is parrying.\n\n" +
-                            "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction, your eidolon " +
+                            "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction {icon:Reaction}, your eidolon " +
                             "may intercept any attack that deals physical damage to them, reducing the damage taken by an amount equal to your level." +
                             "\n\nThese benefits only apply whilst the target ally is adjacent to your eidolon.", Target.AdjacentFriend()) {
-                            ShortDescription = "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction, your eidolon " +
+                            ShortDescription = "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction {icon:Reaction}, your eidolon " +
                             "may intercept any attack that deals physical damage to them, reducing the damage taken by an amount equal to your level."
                         }
                         .WithActionCost(0)
@@ -576,7 +632,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     if (new DamageKind[] { DamageKind.Bludgeoning, DamageKind.Slashing, DamageKind.Piercing }.Contains(damage.Kind) == false) {
                                         return null;
                                     }
-                                    if (await eidolon.Battle.AskToUseReaction(eidolon, (damage.Power != null ? "{b}" + attacker.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" : "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes Angelic Aegis Interception.\nUse your reaction reduce the damage by {qf.Source.Level}?")) {
+                                    if (await eidolon.Battle.AskToUseReaction(eidolon, (damage.Power != null ? "{b}" + attacker.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" : "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes Angelic Aegis Interception.\nUse your reaction " + "{icon:Reaction}" + $" to reduce the damage by {qf.Source.Level}?")) {
                                         return (DamageModification)new ReduceDamageModification(qf.Source.Level, "Angelic Aegis Interception");
                                     }
                                     return null;
@@ -866,7 +922,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             }
                         }
 
-                        if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + action.Owner.Name + "{/b} uses {b}" + action.Name + "{/b} which provokes Dutiful Retaliation.\nUse your reaction to make an attack of opportunity?")) {
+                        if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + action.Owner.Name + "{/b} uses {b}" + action.Name + "{/b} which provokes Dutiful Retaliation.\nUse your reaction {icon:Reaction} to make an attack of opportunity?")) {
                             int map = eidolon.Actions.AttackedThisManyTimesThisTurn;
                             eidolon.Occupies.Overhead("*dutiful devotion*", Color.White);
                             await eidolon.MakeStrike(action.Owner, eidolon.UnarmedStrike, 0);
@@ -878,7 +934,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             if (eidolon.Level >= 7) {
                 eidolon.AddQEffect(new QEffect() {
                     ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
-                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, illDevoStance, "Devotion Stance", new Trait[] { }, "Your eidolon takes on a patient defensive stance, steeling their focus with thoughts of their devotion.\n\nUntil the start of their next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.", Target.Self())
+                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, illDevoStance, "Devotion Stance", new Trait[] { },
+                            "Your eidolon takes on a patient defensive stance, steeling their focus with thoughts of their devotion." +
+                            "\n\nUntil the start of their next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.",
+                            Target.Self()) {
+                            ShortDescription = "Your eidolon assumes a stance that grants a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn."
+                        }
                         .WithActionCost(1)
                         .WithSoundEffect(SfxName.RaiseShield)
                         .WithEffectOnSelf(self => {
@@ -910,7 +971,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static void AngerPhantomEidolonLogic(Creature eidolon, Creature summoner) {
-            eidolon.AddQEffect(new QEffect() {
+            eidolon.AddQEffect(new QEffect("Frenzied Assault", "Your eidolon can attack with both of its natural weapon attacks at the same time.") {
                 ProvideMainAction = effect => {
                     Possibility output = new ActionPossibility(new CombatAction(effect.Owner, illFrenziedAssault, "Frenzied Assault", new Trait[4] {
                                 tSummoner, Trait.Basic, Trait.AlwaysHits, Trait.IsHostile },
@@ -1084,15 +1145,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return new ActionPossibility(new CombatAction(effect.Owner, illDisciplineTheLegion, "Discipline the Legion", new Trait[] {
                                 tSummoner, Trait.Linguistic, Trait.Concentrate, Trait.Mental, Trait.Emotion },
                             "Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can " +
-                            "use their reaction to make an Intimidation check against an easy DC for their level.\n\n{b}Critical Success{/b} You grant your ally a +2 circumstance bonus to the triggering " +
+                            "use their reaction {icon:Reaction} to make an Intimidation check against an easy DC for their level.\n\n{b}Critical success{/b} You grant your ally a +2 circumstance bonus to the triggering " +
                             "check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4.\n{b}Success{/b} You grant your ally a +1 circumstance bonus to " +
-                            "the triggering check.\n{b}Critical Failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nYour ally also deals extra fire damage equal to half your " +
-                            "level, if the action your eidolon was assisting them with was an attack, and double if the attack was a critial success.", (Target)Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((source, target) => {
+                            "the triggering check.\n{b}Critical failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nif the action your eidolon was assisting them with was an " +
+                            "attack, it deals extra fire damage equal to half your level.",
+                            (Target)Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((source, target) => {
                                 if (target.QEffects.FirstOrDefault(qf => qf.Key == "Infernal Command") == null) {
                                     return Usability.Usable;
                                 }
                                 return Usability.NotUsableOnThisCreature("Your eidolon has already disciplined this creature.");
-                            }))
+                            })) {
+                                ShortDescription = "Target creature can be assisted via the Aid reaction {icon:Reaction} during the next attack roll they make before the start of your next turn. In addition, the aided attack deals extra fire damage equal to half your level."
+                        }
                             .WithActionCost(1)
                             .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
                                 targets.ChosenCreature.AddQEffect(new QEffect("Infernal Command", $"This creature has the attention of {self.Name}, and is ready to be spurred into decisive action.") {
@@ -1110,6 +1174,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                                 bonus = Math.Max(2, bonus / 2);
                                             } else if (result == CheckResult.Success) {
                                                 bonus = 1;
+                                            } else if (result == CheckResult.Failure) {
+                                                bonus = 1;
                                             } else if (result == CheckResult.CriticalFailure) {
                                                 bonus = -1;
                                             }
@@ -1121,18 +1187,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                                 BonusToAttackRolls = (effect, action, target) => {
                                                     return new Bonus(bonus, BonusType.Circumstance, "Infernal Command");
                                                 },
-                                                AfterYouDealDamage = async (self, action, target) => {
-                                                    if (effect.UsedThisTurn) {
-                                                        return;
-                                                    }
-
-                                                    if (target.OwningFaction != self.OwningFaction && target == innerTarget) {
-                                                        int damage = self.Level / 2;
-                                                        if (action.CheckResult == CheckResult.CriticalSuccess) {
-                                                            damage *= 2;
-                                                        }
-                                                        effect.UsedThisTurn = true;
-                                                        await self.DealDirectDamage(null, DiceFormula.FromText($"{damage}"), target, action.CheckResult, DamageKind.Fire);
+                                                YouDealDamageEvent = async (self, dmgEvent) => {
+                                                    if (dmgEvent.TargetCreature.OwningFaction != self.Owner.OwningFaction && dmgEvent.TargetCreature == innerTarget) {
+                                                        int damage = self.Owner.Level / 2;
+                                                        dmgEvent.KindedDamages.Add(new KindedDamage(DiceFormula.FromText(damage.ToString(), "Infernal Command"), DamageKind.Fire));
                                                     }
                                                 },
                                                 AfterYouTakeAction = async (effect, action) => {
@@ -1305,8 +1363,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         "If the Strike hits and deals damage, the target must attempt a Fortitude save, with the following effects. On a critical hit, the enemy uses the result one degree worse " +
                         "than it rolled.\n\n{b}Critcal Success.{/b} No effect.\r\n{b}Success.{/b} Your eidolon drains a small amount of life force. The enemy takes additional negative damage equal to " +
                         "half your level.\n{b}Failure.{/b} Your eidolon drains enough life force to satisfy itself. The enemy takes additional negative damage equal to half your level and is drained 1. " +
-                        "Your eidolon gains temporary Hit Points equal to the enemy's level, which last for 1 minute.\n{b}Critical Failure.{/b} Your eidolon drains an incredible amount of life force " +
+                        "Your eidolon gains temporary Hit Points equal to the enemy's level, which last for 1 minute.\n{b}Critical failure.{/b} Your eidolon drains an incredible amount of life force " +
                         "and is thoroughly glutted with energy. As failure, but the enemy is drained 2 and the temporary Hit Points are equal to double the enemy's level.";
+                        action.ShortDescription += ". On hit; The target must make a fort save to prevent its life force being drained.";
                         action.Target = (action.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => !d.IsLivingCreature ? Usability.CommonReasons.TargetIsNotAlive : Usability.Usable);
                         action.Illustration = new SideBySideIllustration(IllustrationName.VampiricTouch2, item.Illustration);
                         return (ActionPossibility)action;
@@ -1323,13 +1382,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
                     return new KindedDamage(DiceFormula.FromText("1", "Spirit Touch"), DamageKind.Negative);
                 },
-                // TODO: Alter to just give their natural weapons the GhostTouch trait
-                //YourStrikeGainsDamageType = (self, strike) => {
-                //    if (strike.HasTrait(Trait.Strike) && strike.ChosenTargets.ChosenCreature != null && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Undead) && strike.ChosenTargets.ChosenCreature.HasTrait(Trait.Incorporeal)) {
-                //        return DamageKind.Force;
-                //    }
-                //    return null;
-                //}
             });
             if (eidolon.Level >= 7) {
                 eidolon.AddQEffect(new QEffect() {
@@ -1341,12 +1393,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             "At stage 3, your eidolon removes their soul completely. Living creatures are paralyzed, their bodies left as soulness husks. Undead are immediately destroyed, unless they're of an equal or higher level than your" +
                             " eidolon, in which case they suffer force damage equal to twice your eidolon's level their soul escapes back intoto their body.\n\n" +
                             "{b}Failure{/b} The target gains soul wretch 1.\n" +
-                            "{b}Critical Failure{/b} The target gains soul wretch 2.\n\n" +
+                            "{b}Critical failure{/b} The target gains soul wretch 2.\n\n" +
                             "Your eidolon must sustain this ability each turn to maintain their hold on the target's soul. Each time they do so, the target makes another will saving throw to determine how much progress your " +
                             "eidolon makes towards wretching out their soul completely.\n\n" +
-                            "{b}Critical Success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
+                            "{b}Critical success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
                             "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
-                            "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.",
+                            "{b}Critical failure{/b} The target's soul wretch increased by 2 stages.",
                             Target.Ranged(1)
                             .WithAdditionalConditionOnTargetCreature((a, d) => new Trait[] {
                                 Trait.Incorporeal, Trait.Celestial, Trait.Fiend, Trait.Monitor, Trait.Archon, Trait.Angel, Trait.Elemental, Trait.Construct }
@@ -1429,9 +1481,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         return (ActionPossibility)new CombatAction(eidolon, illSoulWrench, "Sustain Soul Wrench", new Trait[] { Trait.Necromancy, Trait.Magical, Trait.Incapacitation },
                             "Your eidolon continues the battle of tug of war for their victim's soul.\n\n" +
-                            "{b}Critical Success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
+                            "{b}Critical success{/b} The target's soul breaks free from your eidolon's grasp.\n" +
                             "{b}Failure{/b} The target's soul wretch increased by 1 stage.\n" +
-                            "{b}Critical Failure{/b} The target's soul wretch increased by 2 stages.\n\n",
+                            "{b}Critical failure{/b} The target's soul wretch increased by 2 stages.\n\n",
                             Target.Self()) {
                                 ShortDescription = "Your eidolon continues the battle of tug of war for their victim's soul."
                         }
@@ -1532,8 +1584,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     });
                     break;
                 case Trait.Water:
-                    // TODO: Match desc with feat
-                    eidolon.AddQEffect(new QEffect("Water Elemental", "Your eidolon is not flat-footed while underwater, and doesn't take the usual penalties for using a bludgeoning or slashing melee weapon in water.") {
+                    eidolon.AddQEffect(new QEffect("Water Elemental", "Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.") {
                         YouAcquireQEffect = (self, newEffect) => {
                             if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (water elemental)") {
                                 return new QEffect("Aquatic Combat (water elemental)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.\nYou have resistance 5 to acid and fire.") {
@@ -1550,8 +1601,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                             Id = QEffectId.CountsAllTerrainAsDifficultTerrain
                                         });
                                     }),
-                                    PreventTakingAction = (Func<CombatAction, string>)(action =>
-                                    {
+                                    PreventTakingAction = (Func<CombatAction, string>)(action => {
                                         if (action.HasTrait(Trait.Impulse))
                                             return (string)null;
                                         if (action.HasTrait(Trait.Fire))
@@ -1600,7 +1650,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         DamageKind kind = element == Trait.Fire ? DamageKind.Fire : self.Owner.UnarmedStrike.WeaponProperties.DamageKind;
 
                         return (ActionPossibility)new CombatAction(self.Owner, illElementalBurst, "Elemental Burst", new Trait[] { Trait.Evocation, Trait.Primal },
-                            "{b}Range{/b} 60 feet\n{b}Area{/b} 20 foot burst\n{b}Saving throw{/b} basic Reflex\n{b}Frequency{/b} 1/encounter\n\n" +
+                            "{b}Range{/b} 60 feet\n{b}Area{/b} 20 foot burst\n{b}Saving throw{/b} basic Reflex\n{b}Frequency{/b} Once per encounter\n\n" +
                             $"Your eidolon rips off a chunk of elemental matter from their own form and hurls it into a group of foes. Your eidolon loses a number of Hit Points equal to your level, dealing {damage} {kind.HumanizeTitleCase2()} damage to all creatures inside the burst. ",
                             Target.Burst(12, 4)) {
                             ShortDescription = $"20 foot burst, basic Reflex; {damage} {kind.HumanizeTitleCase2()} damage"
@@ -1619,6 +1669,308 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
         }
 
+        private static void ClassicDemonEidolonLogic(Creature eidolon, Creature summoner) {
+            eidolon.AddQEffect(new QEffect("Demonic Strikes", "Your eidolon's unarmed strikes deal +1 extra evil damage.") {
+                AddExtraKindedDamageOnStrike = (action, target) => {
+                    return new KindedDamage(DiceFormula.FromText("1", "Demonic Strikes"), DamageKind.Evil);
+                },
+            });
+            if (eidolon.Level >= 7) {
+                QEffect lvl7 = new QEffect() {
+                    ProvideMainAction = self => {
+                        if (self.Owner.HasEffect(Enums.qfVisionsOfSin))
+                            return null;
+
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.HideousLaughter, "Visions of Sin", [Trait.Divine, Trait.Emotion, Enums.tEidolon, Trait.Mental, Trait.InflictsSlow],
+                            "{b}Frequency{/b} Once per encounter.\n{b}Range{/b} 30 feet\n{b}Saving Throw{/b} Will\n\nYour eidolon summons images of its sin into the mind of a target creature, tormenting and confusing them. If the target is evil, they suffer a -2 circumstance penalty to their Will save.\n\n"
+                            + S.FourDegreesOfSuccess(null, "The target can't use reactions.", "The target is slowed 1 and can't use reactions.", "As failure, and the target is also confused for 1 round. The confusion can't be extended, but the other effects can."),
+                            Target.Ranged(6)) {
+                            ShortDescription = "Slow or confuse an enemy with disturbing visions."
+                        }
+                        .WithSavingThrow(new SavingThrow(Defense.Will, summoner.ClassOrSpellDC()))
+                        .WithProjectileCone(IllustrationName.HideousLaughter, 7, ProjectileKind.Cone)
+                        .WithSoundEffect(SfxName.HideousLaughterVoiceMaleB02)
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                            if (result <= CheckResult.Success) {
+
+                                var effect = new QEffect("Visions of Sin", "You can't take reactions.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, caster, IllustrationName.HideousLaughter) {
+                                    CountsAsBeneficialToSource = true,
+                                    CannotExpireThisTurn = true,
+                                    StateCheck = (qfVoS) => {
+                                        qfVoS.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                            Id = QEffectId.CannotTakeReactions
+                                        });
+                                        if (result <= CheckResult.Failure) {
+                                            qfVoS.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationEphemeral());
+                                        }
+                                    }
+                                };
+                                if (result == CheckResult.CriticalFailure) {
+                                    target.AddQEffect(QEffect.Confused(false, spell).WithExpirationAtStartOfSourcesTurn(caster, 1));
+                                }
+
+                                target.AddQEffect(effect);
+                                var qSustaining = QEffect.Sustaining(spell, effect);
+                                caster.AddQEffect(qSustaining);
+                            }
+                        })
+                        .WithEffectOnSelf(caster => {
+                            caster.AddQEffect(new QEffect() { Id = Enums.qfVisionsOfSin });
+                        })
+                        ;
+                    }
+                };
+
+                lvl7.AddGrantingOfTechnical(cr => !eidolon.HasEffect(Enums.qfVisionsOfSin) && cr.HasTrait(Trait.Evil), qfTech => {
+                    qfTech.BonusToDefenses = (self, action, defence) => action?.Name == "Visions of Sin" ? new Bonus(-2, BonusType.Circumstance, "Evil", false) : null;
+                });
+
+                eidolon.AddQEffect(lvl7);
+            }
+        }
+
+        private static void LustDemonEidolonLogic(Creature eidolon, Creature summoner) {
+            string rejectionDmg = Math.Max(1, eidolon.Level / 3) + "d6";
+
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(new QEffect("Seductive Presence", "Creatures susceptible to earthly desires within 10 feet of you take a -1 circumstance penalty to saving throws and DCs against effects with the Mental trait.") {
+                 StateCheck = (sc) => {
+                     foreach (var inAura in sc.Owner.Battle.AllCreatures.Where(cr => cr != sc.Owner && cr.EnemyOf(sc.Owner) && cr.DistanceTo(sc.Owner) <= 2)) {
+                         if (!inAura.HasTrait(Trait.Mindless) && !inAura.HasTrait(Trait.Object) && !inAura.HasTrait(Trait.Undead) && !inAura.HasTrait(Trait.Animal) && !inAura.HasTrait(Trait.Elemental) && !inAura.HasTrait(Trait.Beast) && !inAura.HasTrait(Trait.Aberration)) {
+                             inAura.AddQEffect(new QEffect("Seductive Presence", $"You have -1 to saves and DCs against {sc.Owner.Name}'s abilities with the mental trait.", ExpirationCondition.Ephemeral, sc.Owner, IllustrationName.Love) {
+                                 BonusToDefenses = (effect, action, defense) => {
+                                     if (action?.Owner == sc.Owner && action.HasTrait(Trait.Mental)) {
+                                         return new Bonus(-1, BonusType.Circumstance, "Seductive Presence");
+                                     }
+
+                                     return null;
+                                 }
+                             });
+                         }
+                     }
+                 }
+            });
+            eidolon.AddQEffect(new QEffect("Rejection vulnerability", $"When your eidolon fails a Diplomacy check to Embrace, or when a creature succeeds at its save against your eidolon's Bewitch or Passionate Kiss, " +
+                $"it takes {rejectionDmg} mental damage and when that creature next successfully Demoralizes the your eidolon this encounter, they take the damage again.") {
+                AfterYouTakeActionAgainstTarget = async (effect, action, defender, checkResult) => {
+                    var mentalActionOwnerSuccubus = action.Owner;
+                    if (action.HasTrait(Trait.Mental) && defender != mentalActionOwnerSuccubus) {
+                        if ((action.ActiveRollSpecification != null && checkResult <= CheckResult.Failure) ||
+                            (action.SavingThrow != null && checkResult >= CheckResult.Success)) {
+                            await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText(rejectionDmg, "Rejection vulnerability"), mentalActionOwnerSuccubus, CheckResult.Failure, DamageKind.Mental);
+                            defender.AddQEffect(new QEffect("Rejected " + mentalActionOwnerSuccubus, $"You rejected a lust demon and you can incorporate that rejection into an attempt to Demoralize it. If that Demoralize succeeds, it also deals {rejectionDmg} additional mental damage.", ExpirationCondition.Never, defender, IllustrationName.Demoralize) {
+                                Key = "Lust Eidolon Rejection",
+                                StateCheck = (sc) => {
+                                    if (!mentalActionOwnerSuccubus.Alive) {
+                                        sc.ExpiresAt = ExpirationCondition.Immediately;
+                                    }
+                                },
+                                AfterYouTakeActionAgainstTarget = async (rejection, demoralize, succubus, demoralizeResult) => {
+                                    if (demoralize.ActionId == ActionId.Demoralize && succubus == action.Owner) {
+                                        if (demoralizeResult >= CheckResult.Success) {
+                                            await CommonSpellEffects.DealDirectSplashDamage(demoralize, DiceFormula.FromText(rejectionDmg, "Rejection vulnerability"), succubus, DamageKind.Mental);
+                                        }
+
+                                        rejection.ExpiresAt = ExpirationCondition.Immediately;
+                                    }
+                                },
+                                AdditionalGoodness = (self, action, target) => {
+                                    if (target == eidolon && action.ActionId == ActionId.Demoralize)
+                                        return Math.Max(1, eidolon.Level / 3) * 3.5f;
+                                    return 0f;
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+            eidolon.AddQEffect(new QEffect() { Id = QEffectId.GrappleWithDiplomacy });
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = qfSelf => new ActionPossibility(new CombatAction(qfSelf.Owner, new SideBySideIllustration(IllustrationName.LoversGloves, IllustrationName.Grapple), "Embrace", [Trait.Attack, Trait.Mental, Trait.Emotion, Trait.AttackDoesNotTargetAC, Trait.Restraining], "Make a Diplomacy check against the target's Will DC." + CommonAbilityEffects.GrappleDescription, Target.Touch().WithAdditionalConditionOnTargetCreature(new GrappleCreatureTargetingRequirement()))
+                    .WithActionId(ActionId.Grapple)
+                    .WithSoundEffect(SfxName.Grapple)
+                    .WithShortDescription("Grapple the target, but it's Diplomacy vs. Will DC instead of Athletics vs. Fortitude DC.")
+                    .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Diplomacy), TaggedChecks.DefenseDC(Defense.Will)))
+                    .WithGoodnessAgainstEnemy((t, a, d) => {
+                        if (!d.HasTrait(Trait.Humanoid)) return AIConstants.NEVER;
+                        return d.HasEffect(QEffectId.Grappled) ? AIConstants.NEVER : 25;
+                    })
+                    .WithEffectOnEachTarget((async (action, grappler, target, checkResult) => { await Possibilities.Grapple(grappler, target, checkResult); }))
+                )
+            });
+            string kissDmg = "1d6+" + eidolon.Level;
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = qfSelf => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.HealersBlessing, "Kiss", [Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental],
+                "{b}Frequency{b} Once per round\n{b}Saving throw{b} basic Will{b}Target{b} 1 creature you have grappled{i}You passionately kiss your embraced victim.{/i}\n\n" +
+                "You deal " + kissDmg + " negative damage to the target and gain temporary hit points equal to your level.\n\nIf the target fails or critical fails their saving throw," +
+                " they cannot attempt to Escape or take actions against you until your next turn.",
+                Target.Touch().WithAdditionalConditionOnTargetCreature(new GrappledCreatureOnlyCreatureTargetingRequirement()).WithAdditionalConditionOnTargetCreature(new NotUsedThisTurnCreatureTargetingRequirement(ActionId.Kiss)))
+                    .WithSoundEffect(SfxName.Kiss)
+                    .WithActionId(ActionId.Kiss)
+                    .WithShortDescription("Kiss a grappled creature, inflicting " + kissDmg + " negative damage against a basic Will save. On a failure, you gain " + eidolon.Level + " temporary HP and they are unable to escape or attack you.")
+                    .WithSavingThrow(new SavingThrow(Defense.Will, summoner.ClassOrSpellDC()))
+                    .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                        // Deal damage
+                        await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, DiceFormula.FromText(kissDmg, "Kiss"), DamageKind.Negative);
+
+                        // Suggest
+                        if (result <= CheckResult.Failure) {
+                            caster.GainTemporaryHP(caster.Level);
+                            summoner.GainTemporaryHP(caster.Level);
+                            target.AddQEffect(new QEffect("Passionate Kiss", "You're under a magical compulsion by " + caster + " to submit to acts of passion rather than fight. You can't attempt to Escape them or take actions against them.", ExpirationCondition.Never, caster, IllustrationName.DarkHeart) {
+                                PreventTakingAction = ca => ca.ActionId == ActionId.Escape && ca.Name.Contains(caster.Name) ? $"You're forced to stay in the grapple by {caster.Name}." : null,
+                                StateCheck = qfCharmed => {
+                                    caster.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                        PreventTargetingBy = attack => attack.Owner == qfCharmed.Owner ? "passionate-kiss" : null,
+                                        PreventAreaAttacksAgainstMe = (_, incomingSpell) => incomingSpell.Owner == qfCharmed.Owner && (incomingSpell.WillBecomeHostileAction || (incomingSpell.SpellId == SpellId.Heal && incomingSpell.Owner.HasEffect(QEffectId.HolyCastigation)))
+                                    });
+                                    if (!caster.Alive) {
+                                        qfCharmed.ExpiresAt = ExpirationCondition.Immediately;
+                                    }
+                                }
+                            }.WithExpirationAtStartOfSourcesTurn(caster, 1));
+                        }
+                    })
+                )
+            });
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        if (self.Owner.HasEffect(Enums.qfVisionsOfSin))
+                            return null;
+
+                        return (ActionPossibility) new CombatAction(self.Owner, IllustrationName.Dominate, "Bewitch", [Trait.Enchantment, Trait.Incapacitation, Trait.Mental, Trait.AssumesDirectControl],
+                            "{b}Frequency{/b} Once per encounter.\n{b}Range{/b} 30 feet\n{b}Saving Throw{/b} Will\n\n{i}You take command of the target, forcing it to obey your orders.{/i}" +
+                            S.FourDegreesOfSuccess("The target is unaffected.", "The target is stunned 1.", "You gain control of the target until the end of their next turn. They are Slowed 2 while controlled in this way.", "As failure, but they are not slowed."),
+                        Target.Ranged(6).WithAdditionalConditionOnTargetCreature((a, d) => !d.HasTrait(Trait.Minion) && !d.Traits.Any(tr => tr.HumanizeLowerCase2() == "eidolon") ? Usability.Usable : Usability.NotUsableOnThisCreature("minion"))) {
+                            ShortDescription = "Dominate target creature's mind."
+                        }
+                        .WithSoundEffect(SfxName.Mental)
+                        .WithActionCost(3)
+                        .WithSavingThrow(new SavingThrow(Defense.Will, summoner.ClassOrSpellDC()))
+                        .WithGoodnessAgainstEnemy((Func<Target, Creature, Creature, float>)((t, a, d) => (float)d.HP))
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                            if (result == CheckResult.Success)
+                                target.AddQEffect(QEffect.Stunned(1));
+                            if (result > CheckResult.Failure)
+                                return;
+                            Faction originalFaction = target.OwningFaction;
+                            target.OwningFaction = caster.OwningFaction;
+                            QEffect slowed = QEffect.Slowed(2).WithExpirationAtStartOfSourcesTurn(caster, 1);
+                            if (result == CheckResult.Failure)
+                                target.AddQEffect(slowed);
+                            target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, (Illustration)IllustrationName.Dominate) {
+                                Value = 0,
+                                StateCheck = qf => {
+                                    if (caster.Alive)
+                                        return;
+                                    qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " was banished and so can no longer bewitch " + target?.ToString() + ".");
+                                    if (qf.Owner.OwningFaction != caster.OwningFaction)
+                                        return;
+                                    qf.Owner.OwningFaction = originalFaction;
+                                    qf.ExpiresAt = ExpirationCondition.Immediately;
+                                },
+                                WhenExpires = self => {
+                                    self.Owner.Occupies.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the bewitchment.");
+                                    if (self.Owner.OwningFaction != caster.OwningFaction)
+                                        return;
+                                    self.Owner.OwningFaction = originalFaction;
+                                    self.Owner.RemoveAllQEffects(qf => qf == slowed);
+                                }
+                            });
+                        })
+                        .WithEffectOnSelf(caster => {
+                            caster.AddQEffect(new QEffect() { Id = Enums.qfVisionsOfSin });
+                        });
+                    }
+                });
+            }
+        }
+
+        private static void WrathDemonEidolonLogic(Creature eidolon, Creature summoner) {
+            string peaceDmg = Math.Max(1, eidolon.Level / 3) + "d6";
+
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, Math.Max(1, eidolon.Level / 2)));
+
+            eidolon.AddQEffect(new QEffect("Peace Vulnerability", $"If your eidolon fails a saving throw against an emotion effect, it takes {peaceDmg} mental damage.") {
+                AfterYouAreTargeted = async (qfPeaceVulnerability, action) => {
+                    if (action.HasTrait(Trait.Emotion)
+                        && action.SavingThrow != null
+                        && action.ChosenTargets.CheckResults.TryGetValue(qfPeaceVulnerability.Owner, out var checkResult)
+                        && checkResult <= CheckResult.Failure) {
+                        qfPeaceVulnerability.Owner.Occupies.Overhead("Peace Vulnerability", Color.White, $"An emotional effect hurts {eidolon.Name} (peace vulnerability).");
+                        int prevDmg = eidolon.Damage;
+                        await CommonSpellEffects.DealDirectSplashDamage(action, DiceFormula.FromText(peaceDmg, "Peace Vulnerability"), qfPeaceVulnerability.Owner, DamageKind.Mental);
+                        await CommonSpellEffects.DealDirectSplashDamage(action, DiceFormula.FromText((eidolon.Damage - prevDmg).ToString(), "Health Share (Peace Vulnerability)"), summoner, DamageKind.Mental);
+                    }
+                }
+            });
+
+            eidolon.AddQEffect(new QEffect() {
+                ProvideMainAction = self => {
+                    return (ActionPossibility) new CombatAction(self.Owner, IllustrationName.StinkingCloud, "Spore Cloud", [Trait.Disease, Trait.Poison],
+                        $"Deal {eidolon.Level.ToString()} poison damage to all adjacent creatures {{i}}(no save){{/i}}. Each adjacent creature also makes a Fortitude save." +
+                        $" On a failure, it takes {eidolon.Level.ToString()} persistent piercing damage. This persistent damage is removed if the creature is affected by a good" +
+                        " effect. After you use Spore Cloud, the ability can't be used again for 1d6 rounds.", Target.SelfExcludingEmanation(1))
+                    .WithActionCost(1)
+                    .WithSavingThrow(new SavingThrow(Defense.Fortitude, summoner.ClassOrSpellDC()))
+                    .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.StinkingCloud))
+                    .WithSoundEffect(SfxName.GaleBlast)
+                    .WithEffectOnSelf(qf => {
+                        qf.AddQEffect(QEffect.Recharging("Spore Cloud", Dice.D6));
+                    })
+                    .WithEffectOnEachTarget(async (action, attacker, defender, result) => {
+                        await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(eidolon.Level.ToString(), "Spore Cloud"), defender, result, DamageKind.Poison);
+                        if (result <= CheckResult.Failure) {
+                            QEffect persistentDamage = QEffect.PersistentDamage(eidolon.Level.ToString(), DamageKind.Piercing);
+                            persistentDamage.Description += "\nThe damage goes away automatically if you are targeted by a good effect.";
+                            QEffect persistentDamageRemover = new QEffect() {
+                                AfterYouAreTargeted = async (qf, goodAction) => {
+                                    if (goodAction.HasTrait(Trait.Good)) {
+                                        persistentDamage.ExpiresAt = ExpirationCondition.Immediately;
+                                        qf.ExpiresAt = ExpirationCondition.Immediately;
+                                    }
+                                }
+                            };
+                            persistentDamage.WhenExpires = (expires) => { persistentDamageRemover.ExpiresAt = ExpirationCondition.Immediately; };
+                            defender.AddQEffect(persistentDamage);
+                            defender.AddQEffect(persistentDamageRemover);
+                        }
+                    });
+                }
+            });
+
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        if (self.Owner.HasEffect(QEffectId.UsedMonsterOncePerEncounterAbility)) return null;
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Deafness, "Stunning Screech", [Trait.Auditory, Trait.Divine, Trait.Incapacitation, Trait.Sonic],
+                            "You emit a shrill screech. Each enemy creature within a 15-foot burst must attempt a Fortitude save. On a failure, the creature is stunned 1, " +
+                            "and on a critical failure, it's stunned 2. This ability can only be used once per encounter.", Target.SelfExcludingEmanation(3))
+                        .WithActionCost(2)
+                        .WithSavingThrow(new SavingThrow(Defense.Fortitude, summoner.ClassOrSpellDC()))
+                        .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Deafness))
+                        .WithNoSaveFor((ca, df) => df.FriendOf(ca.Owner))
+                        .WithGoodnessAgainstEnemy((target, attacker, defender) => {
+                            if (defender.FriendOf(attacker)) return 0;
+                            return attacker.AI.Stun(defender, 1);
+                        })
+                        .WithSoundEffect(SfxName.HauntingHymn)
+                        .WithEffectOnEachTarget(async (action, attacker, defender, result) => {
+                            if (defender.FriendOf(attacker)) return;
+                            if (result <= CheckResult.Failure) {
+                                defender.AddQEffect(QEffect.Stunned(result == CheckResult.CriticalFailure ? 2 : 1));
+                            }
+                        })
+                        .WithEffectOnChosenTargets(async (caster, targets) => {
+                            caster.AddQEffect(new QEffect() { Id = QEffectId.UsedMonsterOncePerEncounterAbility });
+                        });
+                    }
+                });
+            }
+        }
 
 
         private static bool IsSlashingOrBludgeoning(CombatAction action) {

@@ -84,7 +84,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             return this;
         }
 
-        public EidolonBond(FeatName featName, string flavourText, string rulesText, Trait spellList, List<FeatName> skills, Func<Feat, bool> alignmentOptions, List<Trait> traits, List<Trait> eidolonTraits, List<Feat> subfeats) : base(featName, flavourText, rulesText, traits.Concat(new List<Trait>() { Enums.tSummonerSubclass }).ToList(), subfeats) {
+        public EidolonBond(FeatName featName, string flavourText, string rulesText, Trait spellList, List<FeatName> skills, Func<Feat, bool> alignmentOptions, List<Trait> traits, List<Trait> eidolonTraits, List<Feat>? subfeats) : base(featName, flavourText, rulesText, traits.Concat(new List<Trait>() { Enums.tSummonerSubclass }).ToList(), subfeats) {
             Init(spellList, skills, alignmentOptions, eidolonTraits);
         }
 

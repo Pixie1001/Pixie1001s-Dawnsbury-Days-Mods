@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            return new Creature(Illustrations.Nuglub, "Nuglub", [Trait.Chaotic, Trait.Evil, Trait.Fey, Trait.Gremlin], 2, 5, 6, new Defenses(18, 9, 10, 5), 34, new Abilities(1, 4, 3, -1, -1, 1), new Skills(acrobatics: 8, crafting: 5, intimidation: 7, stealth: 8))
+            return new Creature(Illustrations.Nuglub, "Nuglub", [Trait.Chaotic, Trait.Evil, Trait.Fey, Trait.Gremlin, ModTraits.MeleeMutator], 2, 5, 6, new Defenses(18, 9, 10, 5), 34, new Abilities(1, 4, 3, -1, -1, 1), new Skills(acrobatics: 8, crafting: 5, intimidation: 7, stealth: 8))
                     .WithCharacteristics(false, true)
                     .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 2))
                     .AddQEffect(new QEffect("Kneecapper {icon:Reaction}", "When an adjacent creature uses a move action, you can make an Acrobatics check against the creature's Reflex DC. On a success, disrupt the action and the target falls and lands prone.")
@@ -34,7 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             Creature self = qfWhenProvoked.Owner;
                             if (action.HasTrait(Trait.Move) && await self.AskToUseReaction("Make an Acrobatics check to try to make the creature fall prone?"))
                             {
-                                if (CommonSpellEffects.RollCheck("Kneecapper", new ActiveRollSpecification(Checks.SkillCheck([Skill.Acrobatics]), Checks.DefenseDC(Defense.Reflex)), self, action.Owner) >= CheckResult.Success)
+                                if (CommonSpellEffects.RollCheck("Kneecapper", new ActiveRollSpecification(TaggedChecks.SkillCheck([Skill.Acrobatics]), Checks.DefenseDC(Defense.Reflex)), self, action.Owner) >= CheckResult.Success)
                                 {
                                     Sfxs.Play(SfxName.DropProne);
                                     action.Owner.AddQEffect(QEffect.Prone());

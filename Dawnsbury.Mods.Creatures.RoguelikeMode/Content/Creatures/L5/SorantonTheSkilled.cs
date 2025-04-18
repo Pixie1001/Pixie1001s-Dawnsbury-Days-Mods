@@ -119,7 +119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     .WithSoundEffect(SfxName.Trip)
                     .WithActionId(ActionId.Disarm)
                     .WithGoodness((Target _, Creature _, Creature _) => AIConstants.ALWAYS)
-                    .WithActiveRollSpecification(new(TaggedChecks.SkillCheck(Skill.Athletics), Checks.DefenseDC(Defense.Reflex)))
+                    .WithActiveRollSpecification(new(TaggedTaggedChecks.SkillCheck(Skill.Athletics), Checks.DefenseDC(Defense.Reflex)))
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
                         if (result >= CheckResult.Success)

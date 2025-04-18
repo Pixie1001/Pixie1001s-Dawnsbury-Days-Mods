@@ -170,21 +170,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static void HandleRune(Creature summoner, Item investedWeapon, List<Item> unarmedAttacks, RuneKind type) {
             Item? propertyRune = investedWeapon.Runes.FirstOrDefault(rune => rune.RuneProperties != null && rune.RuneProperties.RuneKind == type);
 
-            //if (propertyRune == null || (!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows) || (unarmedAttacks[0].Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type) != null && propertyRune.BaseItemName != unarmedAttacks[0].Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type).BaseItemName)) {
-            //    foreach (Item attack in unarmedAttacks) {
-            //        Item? grantedRune = attack.Runes.FirstOrDefault(rune => rune.RuneProperties.RuneKind == type);
-            //        attack.Runes.Remove(grantedRune);
-            //        if (grantedRune != null) {
-            //            attack.WeaponProperties = GenerateDefaultWeaponProperties(attack, type);
-            //        }
-            //    }
-            //}
-
-            // TODO: Rework this whole system to strip the weapon down, then add each rune again each state check
-
-            // Remove this rune slot
-
-
             // Re-add this rune slot
             if (propertyRune != null && !(!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows)) {
                 foreach (Item attack in unarmedAttacks) {
@@ -192,20 +177,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     propertyRune.RuneProperties.ModifyItem(attack);
                 }
             }
-        }
-
-        // TODO: Why doesn't this work properly?
-        private static WeaponProperties GenerateDefaultWeaponProperties(Item attack, RuneKind kind) {
-            Item baseItem = new Item(attack.Illustration, attack.Name, attack.Traits.ToArray()).WithWeaponProperties(new WeaponProperties($"1d{attack.WeaponProperties.DamageDieSize}", attack.WeaponProperties.DamageKind));
-
-            if (attack.WeaponProperties.RangeIncrement > 0) {
-                baseItem.WeaponProperties.WithRangeIncrement(attack.WeaponProperties.RangeIncrement);
-            }
-            foreach (Item rune in attack.Runes.Where(r => r.RuneProperties.RuneKind != kind)) {
-                rune.RuneProperties.ModifyItem(attack);
-            }
-
-            return baseItem.WeaponProperties;
         }
 
         private static WeaponProperties GenerateDefaultWeaponProperties(Item attack) {
@@ -303,15 +274,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
 
             // Share item bonuses
-            List<Item> wornItems = summoner.CarriedItems.Where(item => item.IsWorn == true && item.HasTrait(Trait.Invested) && item.PermanentQEffectActionWhenWorn != null).ToList<Item>();
+            List<Item> wornItems = summoner.CarriedItems.Where(item => item.IsWorn == true && (item.HasTrait(Trait.Invested) || item.HasTrait(Trait.AeonStone)) && item.PermanentQEffectActionWhenWorn != null).ToList<Item>();
             foreach (Item item in wornItems) {
                 QEffect qf1 = new QEffect() {
                     Source = summoner,
                     Owner = eidolon
                 };
                 QEffect qf2 = new QEffect();
+                qf2.Owner = summoner.Battle.Pseudocreature;
                 item.PermanentQEffectActionWhenWorn(qf2, item);
                 qf1.BonusToSkills = qf2.BonusToSkills;
+                qf1.BonusToPerception = qf2.BonusToPerception;
+                qf1.BonusToDefenses = qf2.BonusToDefenses;
                 eidolon.AddQEffect(qf1);
             }
 

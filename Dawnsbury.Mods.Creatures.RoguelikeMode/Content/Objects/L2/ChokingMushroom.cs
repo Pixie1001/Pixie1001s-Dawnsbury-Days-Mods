@@ -67,12 +67,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                     Subsections = {
                                                 new PossibilitySection(hazard.Name) {
                                                     Possibilities = {
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Soothe Mushroom", new Trait[] { Trait.Manipulate, Trait.Basic },
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Soothe Mushroom", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.UnaffectedByConcealment },
                                                         "Folktales speak of ancient rites and traditions used by cavern folk to appease the mushroom forests. Make an Occultism check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("The mushroom will stop emitting spores for the rest of the encounter.",
                                                         "The mushroom will stop emitting spores for 2 rounds.", null, "You take 1d6 poison damage."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Occultism), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Occultism), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {
@@ -109,11 +109,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                             }
                                                             await hazard.Battle.GameLoop.StateCheck();
                                                         }),
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Recall Knowledge", new Trait[] { Trait.Manipulate, Trait.Basic },
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.ChokingMushroom, "Recall Knowledge", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.UnaffectedByConcealment },
                                                         "Make a Nature check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.", "Reduce all DCs on this hazard by 2.", null, "You take 1d6 poison damage and increase all DCs on this hazard by 1."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Nature), Checks.FlatDC(qfCurrentDC.Value - 2)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Nature), Checks.FlatDC(qfCurrentDC.Value - 2)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {
@@ -128,7 +128,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                                 qfCurrentDC.Value -= 3;
                                                             }
                                                         }),
-                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical },
+                                                        (ActionPossibility)new CombatAction(qfContextActions.Owner, IllustrationName.DashOfHerbs, "Harvest Pollen", new Trait[] { Trait.Manipulate, Trait.Basic, Trait.Alchemical, Trait.UnaffectedByConcealment },
                                                             "Make a Medicine check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Heal your or an adjacent ally for 3d6 HP and inoculate them against the effects of spore clouds. This mushroom then cannot be harvested from again.",
                                                             "As per a critical success, but you only heal for 2d6 HP.", null, "You take 1d6 poison damage."),
                                                             Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
@@ -140,7 +140,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                                 return Usability.Usable;
                                                             }))
                                                         .WithActionCost(1)
-                                                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Medicine), Checks.FlatDC(qfCurrentDC.Value)))
+                                                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Medicine), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
                                                                 if (caster.FindQEffect(QEffectIds.MushroomInoculation) == null) {

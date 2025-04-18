@@ -14,6 +14,7 @@ using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Audio;
 using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -36,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
             var creature = new Creature(Illustrations.Chimera,
                 "Young Chimera",
-                [Trait.Beast, Trait.Evil, Trait.Chaotic],
+                [Trait.Beast, Trait.Evil, Trait.Chaotic, ModTraits.MeleeMutator],
                 5, 12, 8,
                 new Defenses(22, 14, 12, 10),
                 75,

@@ -21,7 +21,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class BebilithSpawn {
         public static Creature Create() {
-            return new Creature(new SpiderIllustration(Illustrations.BebilithSpawn, Illustrations.Bear2), "Bebilith Spawn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 2, 5, 6, new Defenses(17, 11, 8, 8), 40,
+            return new Creature(new SpiderIllustration(Illustrations.BebilithSpawn, Illustrations.Bear2), "Bebilith Spawn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider, ModTraits.MeleeMutator }, 2, 5, 6, new Defenses(17, 11, 8, 8), 40,
             new Abilities(4, 3, 3, 0, 2, 0), new Skills(acrobatics: 7, stealth: 7, athletics: 8))
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Trained)

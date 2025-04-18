@@ -639,7 +639,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 bonus.BonusToSkills = skill => new Bonus(BonusLogic(Nominee, skill), BonusType.Untyped, "Special Bonus");
                 Nominee.AddQEffect(bonus);
             }
-            CheckResult output = CommonSpellEffects.RollCheck("Skill Challenge", new ActiveRollSpecification(Checks.SkillCheck(Skill), Checks.FlatDC(DC)), Nominee, Nominee);
+            CheckResult output = CommonSpellEffects.RollCheck("Skill Challenge", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill), Checks.FlatDC(DC)), Nominee, Nominee);
             bonus.ExpiresAt = ExpirationCondition.Immediately;
             return output;
         }

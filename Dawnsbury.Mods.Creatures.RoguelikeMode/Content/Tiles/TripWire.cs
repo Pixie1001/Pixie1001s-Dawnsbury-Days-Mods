@@ -1,0 +1,61 @@
+﻿using Dawnsbury.Audio;
+using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Path;
+using Dawnsbury.Core;
+using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.StatBlocks.Traps;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.IO;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Microsoft.Xna.Framework;
+
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public static class TripWire {
+
+        private const int DC = 16;
+
+        public static (string, Func<Tile, Encounter?, TileQEffect>) Create() {
+            return ("Trip Wire", (tile, encounter) => {
+                var trap = CommonTraps.CreateBasicTrap(tile, "Trip Wire", Illustrations.TripWire, DC, $"When a creature enters this tile, a rock falls from the cieling dealing 3d6 bludgeoning damage vs. a basic Reflex save. On a crital failure, the victim is knocked prone. An adjacent creature can {{icon:TwoActions}} disable the trap with a DC {DC} Thievery check.");
+                Task OnTrigger(Creature enterer) => TriggerEffect(enterer);
+                CommonTraps.AddDoNotStepHere(trap);
+                CommonTraps.AddWhenCreatureEnters(trap, OnTrigger, (enterer) => !enterer.HasEffect(QEffectId.Flying));
+                CommonTraps.AddDisableDeviceOption(trap, DC - 2, OnTrigger);
+                tile.QEffects.Add(trap);
+
+                return trap;
+            });
+        }
+
+        private static async Task TriggerEffect(Creature cr) {
+            cr.Occupies.Overhead("*trap triggered*", Color.White, $"Trip Wire triggered by {cr.Name}!");
+            var trap = Creature.CreateSimpleCreature("Trip Wire");
+            var ca = CombatAction.CreateSimple(trap, "Falling Rocks");
+            var result = CommonSpellEffects.RollSavingThrow(cr, ca, Defense.Reflex, DC);
+            if (result == CheckResult.CriticalFailure) {
+                cr.AddQEffect(QEffect.Prone());
+            }
+            await CommonSpellEffects.DealBasicDamage(ca, trap, cr, result, DiceFormula.FromText("3d6", "Falling Rocks"), DamageKind.Bludgeoning);
+        }
+    }
+}

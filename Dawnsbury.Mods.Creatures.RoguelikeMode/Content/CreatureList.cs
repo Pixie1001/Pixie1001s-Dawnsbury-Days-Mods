@@ -211,6 +211,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             creatures.Add(id, creatureFunction);
         }
 
+        internal static void RegisterTile((string, Func<Tile, Encounter?, TileQEffect>) effect) {
+            ModManager.RegisterCustomTile(effect.Item1, (tile, map, encounter) => {
+                var qf = effect.Item2.Invoke(tile, encounter);
+                tile.AddQEffect(qf);
+            });
+        }
+
         internal static void LoadCreatures() {
             // Level -1 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.RavenousRat);
@@ -288,6 +295,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RESTLESS_SPIRIT);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.DEMONIC_PUSTULE);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE, "TestPile");
+        }
+
+        internal static void LoadTiles() {
+            RegisterTile(GrantMonsterMutator.Create());
         }
     }
 }

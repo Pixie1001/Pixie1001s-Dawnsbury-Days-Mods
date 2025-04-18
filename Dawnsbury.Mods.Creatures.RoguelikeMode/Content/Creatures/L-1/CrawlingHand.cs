@@ -28,7 +28,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            return new Creature(Illustrations.CrawlingHand, "Crawling Hand", [Trait.Evil, Trait.Undead], -1, 5, 6, new Defenses(12, 2, 5, 2), 8, new Abilities(1, 3, 0, -4, 0, 0), new Skills(athletics: 5, stealth: 6, survival: 2))
+            return new Creature(Illustrations.CrawlingHand, "Crawling Hand", [Trait.Evil, Trait.Undead, ModTraits.MeleeMutator], -1, 5, 6, new Defenses(12, 2, 5, 2), 8, new Abilities(1, 3, 0, -4, 0, 0), new Skills(athletics: 5, stealth: 6, survival: 2))
                 .WithBasicCharacteristics() // lol Crawling Hand can understand Common
                 .AddQEffect(QEffect.TraitImmunity(Trait.Death))
                 .AddQEffect(QEffect.TraitImmunity(Trait.Disease))

@@ -111,9 +111,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
             owner.AddQEffect(new()
             {
-                WhenMonsterDies = (_) =>
+                WhenCreatureDiesAtStateCheckAsync = async (_) =>
                 {
-                    creature.DieFastAndWithoutAnimation();
+                    await creature.DieFastAndWithoutAnimation();
                 }
             });
 

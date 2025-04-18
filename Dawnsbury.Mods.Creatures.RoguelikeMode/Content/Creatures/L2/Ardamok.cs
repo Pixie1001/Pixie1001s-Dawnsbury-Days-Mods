@@ -12,6 +12,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Audio;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -22,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.Ardamok,
                 "Ardamok",
-                [Trait.Animal],
+                [Trait.Animal, ModTraits.MeleeMutator],
                 2, 6, 5,
                 new Defenses(18, 11, 6, 4),
                 30,

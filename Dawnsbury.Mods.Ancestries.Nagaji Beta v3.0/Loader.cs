@@ -272,7 +272,9 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         }
                         return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Soothe, "Skin Split", new Trait[] { tNagaji },
                             "{b}Frequency{/b} once per day\n\nImmediately end all persistent damage from effects that coat your skin, such as fire and acid damage.",
-                            Target.Self())
+                            Target.Self()) {
+                            ShortDescription = "Immediately end all persistent damage from effects that coat your skin, such as fire and acid damage."
+                        }
                         .WithSoundEffect(SfxName.Fabric)
                         .WithActionCost(2)
                         .WithEffectOnSelf(user => {
@@ -364,7 +366,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         if (action == null)
                             return null;
 
-                        if (action.ActionId == ActionId.Trip || action.ActionId == ActionId.Grapple || action.Traits.FirstOrDefault(t => new Trait[] { Trait.Trip, Trait.Grab }.Contains(t)) != Trait.None) {
+                        if (action.ActionId == ActionId.Trip || action.ActionId == ActionId.Grapple || action.HasTrait(Trait.Restraining)) {
                             return new Bonus(2, BonusType.Circumstance, "Sacred Nagaji");
                         }
                         return null;

@@ -71,6 +71,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using FMOD;
 using System.Xml.Linq;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using System.Text.RegularExpressions;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -136,7 +137,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         if (section.PossibilitySectionId != PossibilitySectionId.ItemActions)
                             return null;
 
-                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Haste, "Powerful Charge", new Trait[] { Trait.Move },
+                        return (ActionPossibility)new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.Walk, Illustrations.AlicornPike), "Powerful Charge", new Trait[] { Trait.Move },
                             "Stride up to twice your speed in a direct line, then strike. If you moved at least 20-feet, the strike deals +1d6 damage." +
                             "\n\nThis movement will not path around hazards or attacks of opportunity.",
                             Target.Self((user, ai) => {
@@ -163,7 +164,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             };
 
                             Tile startingTile = self.Occupies;
-                            Tile? destTile = await UtilityFunctions.GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Beast's Charge or right-click to cancel", IllustrationName.Haste);
+                            Tile? destTile = await UtilityFunctions.GetChargeTiles(self, movementStyle, 4, "Choose where to Stride with Powerful Charge or right-click to cancel", IllustrationName.Haste);
 
                             if (destTile == null) {
                                 action.RevertRequested = true;
@@ -258,8 +259,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
                                         ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
                                             new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(caster.ClassOrSpellDC())),
-                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Athletics), Checks.FlatDC(caster.ClassOrSpellDC())),
-                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(caster.ClassOrSpellDC()))
+                                            new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.FlatDC(caster.ClassOrSpellDC())),
+                                            new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(caster.ClassOrSpellDC()))
                                         }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
 
                                         return (ActionPossibility)combatAction
@@ -339,8 +340,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
                                         ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
                                             new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(baseDC + caster.Level)),
-                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Athletics), Checks.FlatDC(baseDC + caster.Level)),
-                                            new ActiveRollSpecification(Checks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(baseDC + caster.Level))
+                                            new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.FlatDC(baseDC + caster.Level)),
+                                            new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(baseDC + caster.Level))
                                         }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
 
                                         return (ActionPossibility)combatAction
@@ -470,7 +471,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
-                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Crossbow, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Firearm, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, Trait.RogueWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(ModTraits.Hexshot)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
             .WithDescription("{i}This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.{/i}\n\n" +
@@ -881,13 +882,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             "equal to damage dealt.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
                 qfMoC.Innate = true;
+                qfMoC.Id = QEffectId.Drained;
                 qfMoC.Name = "Mask of Consumption";
                 qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage and deals you for an amount equal to damage dealt.";
                 qfMoC.StateCheck = self => {
                     if (qfMoC.Owner.Traits.Any(trait => trait.HumanizeTitleCase2() == "Summoner")) {
                         QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
-                        if (eidolon != null && eidolon.Source != null)
+                        if (eidolon != null && eidolon.Source != null) {
                             eidolon.Source.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
+                            eidolon.Source.AddQEffect(new QEffect() { Id = QEffectId.Drained });
+                        }
                     }
                     self.Owner.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
                     Item unarmed = qfMoC.Owner.UnarmedStrike;
@@ -933,6 +937,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     if (item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
                         self.Owner.Occupies.Overhead("no companion", Color.Green, "The spider hatchling is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
                     } else {
+                        self.Id = QEffectId.AnimalCompanionController;
                         // TODO: Replace with proper animal companion stats
                         int lvl = self.Owner.Level;
                         int prof = self.Owner.Level + 2;
@@ -1006,10 +1011,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Creature owner = self.Owner;
                     Creature animalCompanion = Ranger.GetAnimalCompanion(owner);
                     bool flag = owner.HasEffect(QEffectId.MatureAnimalCompanion);
+                    if (animalCompanion != null && flag && GetAnimalCompanionCommandRestriction(self, animalCompanion) == null) {
+                        self.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                            Id = QEffectId.YouShouldTakeYourTurnEvenUnconsciousOrParalyzed
+                        });
+                    }
                     if (animalCompanion == null || !animalCompanion.Actions.CanTakeActions())
                         return;
                     ActionPossibility fullCommand = new ActionPossibility(new CombatAction(owner, flag ? (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.Action) : animalCompanion.Illustration, "Command your Animal Companion",
-                    [Trait.Auditory], "Take 2 actions as your animal companion.\n\nYou can only command your animal companion once per turn.", (Target)Target.Self().WithAdditionalRestriction((Func<Creature, string>)(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null))) {
+                    [Trait.Auditory], "Take 2 actions as your animal companion.\n\nYou can only command your animal companion once per turn.", (Target)Target.Self()
+                    .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null)
+                    .WithAdditionalRestriction(cr => GetAnimalCompanionCommandRestriction(self, animalCompanion))) {
                         ShortDescription = "Take 2 actions as your animal companion."
                     }.WithEffectOnSelf(async action => {
                         self.UsedThisTurn = true;
@@ -1189,7 +1201,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     }
                     demon.AddQEffect(new QEffect("Bound Demon", $"This demon is bound to {caster.Name}'s will. At the start of its master's turn, there's a 25% chance that it will break free of their control and turn against the party.") {
                         Id = QEffectId.SummonedBy,
-                        Source = caster
+                        Source = caster,
+                        StateCheck = dominateQf => {
+                            if (dominateQf.Source == null)
+                                return;
+
+                            if (dominateQf.Source.HasEffect(QEffectId.Controlled))
+                                dominateQf.Owner.AddQEffect(new QEffect() { Id = QEffectId.Controlled }.WithExpirationEphemeral());
+
+                            dominateQf.Owner.OwningFaction = dominateQf.Source.OwningFaction;
+                        }
                     });
                     demon.EntersInitiativeOrder = false;
                     demon.Traits.Add(Trait.Minion);
@@ -1201,7 +1222,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         CountsAsBeneficialToSource = true,
                         StateCheck = self => {
                             if (self.Owner.HasEffect(QEffectId.Confused)) {
-                                demon.AddQEffect(QEffect.Confused(false, CombatAction.CreateSimple(self.Owner)).WithExpirationEphemeral());
+                                demon.AddQEffect(QEffect.Confused(false, CombatAction.CreateSimple(self.Owner, "Summoning Feedback")).WithExpirationEphemeral());
                             }
                         },
                         StartOfYourPrimaryTurn = async (self, creature) => {
@@ -1941,6 +1962,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
                .WithModification(mod);
             });
+        }
+
+        private static string? GetAnimalCompanionCommandRestriction(QEffect qfRanger, Creature animalCompanion) {
+            if (qfRanger.UsedThisTurn) return "You already commanded your animal companion this turn.";
+            if (animalCompanion.HasEffect(QEffectId.Paralyzed)) return "Your animal companion is paralyzed.";
+            if (animalCompanion.Actions.ActionsLeft == 0 && (animalCompanion.Actions.QuickenedForActions == null || animalCompanion.Actions.UsedQuickenedAction)) return "You animal companion has no actions it could take.";
+            return null;
         }
 
         private static int GetWandPrice(int level) {

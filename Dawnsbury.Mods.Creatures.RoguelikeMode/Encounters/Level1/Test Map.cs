@@ -93,34 +93,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
                 //td.Level = 9;
             });
 
-            this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-                //var eidolon = battle.AllCreatures.FirstOrDefault(cr => cr.Name == "test summoner's Eidolon");
-                //eidolon.AddQEffect(QEffect.Quickened(a => true));
+            //this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
+            //    //var eidolon = battle.AllCreatures.FirstOrDefault(cr => cr.Name == "test summoner's Eidolon");
+            //    //eidolon.AddQEffect(QEffect.Quickened(a => true));
 
-                battle.Cinematics.EnterCutscene();
+            //    battle.Cinematics.EnterCutscene();
 
-                // await RecoverAllFriends(battle);
-                List<Creature> party = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToList();
+            //    // await RecoverAllFriends(battle);
+            //    List<Creature> party = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToList();
 
-                //async Task BoostHero(Creature character) {
-                //    character.AnimationData.ColorBlink(Color.Yellow);
-                //    //cr.AddQEffect(WellKnownLongTermEffects.CreateQEffect(Settings.CurrentDifficulty >= Difficulty.Hard ? WellKnownLongTermEffects.CeruleanSkyBoon : WellKnownLongTermEffects.CeruleanSkyMajorBoon));
-                //    await character.HealAsync("4d6+4", CombatAction.CreateSimple(character.Battle.Pseudocreature, "Boon of the Cerulean Sky"));
-                //}
+            //    //async Task BoostHero(Creature character) {
+            //    //    character.AnimationData.ColorBlink(Color.Yellow);
+            //    //    //cr.AddQEffect(WellKnownLongTermEffects.CreateQEffect(Settings.CurrentDifficulty >= Difficulty.Hard ? WellKnownLongTermEffects.CeruleanSkyBoon : WellKnownLongTermEffects.CeruleanSkyMajorBoon));
+            //    //    await character.HealAsync("4d6+4", CombatAction.CreateSimple(character.Battle.Pseudocreature, "Boon of the Cerulean Sky"));
+            //    //}
 
-                //foreach (Creature hero in party) {
-                //    await BoostHero(hero);
-                //}
+            //    //foreach (Creature hero in party) {
+            //    //    await BoostHero(hero);
+            //    //}
 
-                foreach (Creature hero in party) {
-                    hero.Heal("1000", null);
-                }
+            //    foreach (Creature hero in party) {
+            //        hero.Heal("1000", null);
+            //    }
 
-                //await battle.Cinematics.LineAsync(party[0], "Test line!");
+            //    //await battle.Cinematics.LineAsync(party[0], "Test line!");
 
-                battle.Cinematics.ExitCutscene();
+            //    battle.Cinematics.ExitCutscene();
 
-            });
+            //});
 
             //this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
             //    Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);

@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class DrowFighter {
         public static Creature Create() {
             int poisonDC = 17;
-            return new Creature(Illustrations.DrowFighter, "Drow Fighter", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 5, 6, new Defenses(15, 4, 10, 7), 18,
+            return new Creature(Illustrations.DrowFighter, "Drow Fighter", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.MeleeMutator }, 1, 5, 6, new Defenses(15, 4, 10, 7), 18,
             new Abilities(2, 4, 2, 0, 1, 0), new Skills(acrobatics: 7, athletics: 5, stealth: 7, intimidation: 5))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

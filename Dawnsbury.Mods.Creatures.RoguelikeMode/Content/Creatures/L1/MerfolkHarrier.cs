@@ -32,7 +32,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             QEffectId[] rootEffects = new QEffectId[] { QEffectId.Grabbed, QEffectId.Grappled, QEffectId.Restrained, QEffectId.Immobilized, QEffectId.Prone };
 
-            return new Creature(IllustrationName.DarkMerfolk256, "Merfolk Harrier", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic }, 1, 7, 7, new Defenses(17, 4, 9, 6), 19,
+            return new Creature(IllustrationName.DarkMerfolk256, "Merfolk Harrier", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic, ModTraits.MeleeMutator }, 1, 7, 7, new Defenses(17, 4, 9, 6), 19,
             new Abilities(1, 4, 3, 0, 2, 2), new Skills(acrobatics: 7, athletics: 4))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

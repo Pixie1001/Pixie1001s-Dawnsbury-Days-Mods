@@ -27,7 +27,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            return new Creature(Illustrations.AnimatedStatue, "Animated Statue", [Trait.Construct, Trait.Earth, Trait.Mindless], 3, 9, 4, new Defenses(19, 12, 5, 5), 35, new Abilities(4, -2, 5, -5, 0, -5), new Skills(athletics: 11))
+            return new Creature(Illustrations.AnimatedStatue, "Animated Statue", [Trait.Construct, Trait.Earth, Trait.Mindless, ModTraits.MeleeMutator], 3, 9, 4, new Defenses(19, 12, 5, 5), 35, new Abilities(4, -2, 5, -5, 0, -5), new Skills(athletics: 11))
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.TraitImmunity(Trait.Disease))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Doomed))

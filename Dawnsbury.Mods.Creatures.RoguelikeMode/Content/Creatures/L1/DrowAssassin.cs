@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowAssassin {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowAssassin, "Drow Assassin", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 7, 6, new Defenses(18, 4, 10, 7), 18, new Abilities(-1, 4, 1, 2, 2, 1), new Skills(stealth: 10, acrobatics: 7))
+            return new Creature(Illustrations.DrowAssassin, "Drow Assassin", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.MeleeMutator }, 1, 7, 6, new Defenses(18, 4, 10, 7), 18, new Abilities(-1, 4, 1, 2, 2, 1), new Skills(stealth: 10, acrobatics: 7))
                 .WithAIModification(ai => {
                     ai.OverrideDecision = (self, options) => {
 

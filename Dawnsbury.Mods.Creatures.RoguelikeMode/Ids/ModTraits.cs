@@ -59,5 +59,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             BackgroundColor = Color.MediumPurple,
             WhiteForeground = true
         });
+
+        // Mutator Traits
+        internal static Trait UniversalMutator { get; } = ModManager.RegisterTrait("UniversalMutator", new TraitProperties("UniversalMutator", false));
+        internal static Trait SpellcasterMutator { get; } = ModManager.RegisterTrait("SpellcasterMutator", new TraitProperties("SpellcasterMutator", false));
+        internal static Trait MeleeMutator { get; } = ModManager.RegisterTrait("MeleeMutator", new TraitProperties("MeleeMutator", false));
+        internal static Trait ArcherMutator { get; } = ModManager.RegisterTrait("ArcherMutator", new TraitProperties("ArcherMutator", false));
+
     }
 }

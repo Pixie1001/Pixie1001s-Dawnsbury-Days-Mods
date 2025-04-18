@@ -73,7 +73,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                 return null;
             };
-            return new Creature(Illustrations.Owlbear, "Owl Bear", [Trait.Animal], 4, 14, 5, new Defenses(21, 13, 7, 11), 70, new Abilities(6, 1, 5, -4, 3, 0), new Skills(acrobatics: 7, athletics: 14, intimidation: 10))
+            return new Creature(Illustrations.Owlbear, "Owl Bear", [Trait.Animal, ModTraits.MeleeMutator], 4, 14, 5, new Defenses(21, 13, 7, 11), 70, new Abilities(6, 1, 5, -4, 3, 0), new Skills(acrobatics: 7, athletics: 14, intimidation: 10))
                 .WithAIModification(ai =>
                 {
                     ai.OverrideDecision = (self, options) =>

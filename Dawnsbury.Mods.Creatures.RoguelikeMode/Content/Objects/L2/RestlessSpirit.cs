@@ -58,7 +58,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                 null, "You take 1d6 negative damage."),
                                                 Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                 .WithActionCost(1)
-                                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value + 2)))
+                                                .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Religion), Checks.FlatDC(qfCurrentDC.Value + 2)))
                                                 .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                     if (result == CheckResult.CriticalFailure) {
                                                         Sfxs.Play(SfxName.Necromancy, 0.7f);
@@ -124,7 +124,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                 "Reduce all DCs on this hazard by 2.", null, "You take 1d6 negative damage and increase all DCs on this hazard by 1."),
                                                 Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                 .WithActionCost(1)
-                                                .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(qfCurrentDC.Value - 2)))
+                                                .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(qfCurrentDC.Value - 2)))
                                                 .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                     if (result == CheckResult.CriticalFailure) {
                                                         Sfxs.Play(SfxName.Necromancy, 0.7f);

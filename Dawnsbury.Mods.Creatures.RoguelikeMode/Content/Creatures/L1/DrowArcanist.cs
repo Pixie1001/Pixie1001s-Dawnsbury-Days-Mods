@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowArcanist {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowArcanist, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
+            return new Creature(Illustrations.DrowArcanist, "Drow Arcanist", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.SpellcasterMutator }, 1, 7, 6, new Defenses(15, 4, 7, 10), 14,
             new Abilities(1, 3, 0, 4, 1, 1), new Skills(acrobatics: 10, intimidation: 6, arcana: 8, deception: 8))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -31,6 +31,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .WithCreatureId(CreatureIds.DrowArcanist)
             .WithProficiency(Trait.Melee, Proficiency.Trained)
             .WithProficiency(Trait.Arcane, Proficiency.Expert)
             .WithBasicCharacteristics()

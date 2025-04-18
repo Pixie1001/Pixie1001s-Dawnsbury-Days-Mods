@@ -18,6 +18,7 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.Intelligence;
 using System.Text;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -28,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.FlailSnail,
                 "Flail Snail",
-                [Trait.Animal],
+                [Trait.Animal, ModTraits.MeleeMutator],
                 5, 15, 3,
                 new Defenses(23, 16, 8, 12),
                 60,

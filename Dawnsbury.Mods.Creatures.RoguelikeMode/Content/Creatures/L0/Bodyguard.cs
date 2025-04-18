@@ -4,6 +4,7 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -14,7 +15,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.OrcBrute256,
                 "Bodyguard",
-                [Trait.Orc, Trait.Humanoid, Trait.Lawful],
+                [Trait.Orc, Trait.Humanoid, Trait.Lawful, ModTraits.MeleeMutator],
                 0, 9, 5,
                 new Defenses(16, 9, 3, 6),
                 18,

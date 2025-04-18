@@ -486,8 +486,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
                                     ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
                                         new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(baseDC + caster.Level)),
-                                        new ActiveRollSpecification(Checks.SkillCheck(Skill.Athletics), Checks.FlatDC(baseDC + caster.Level)),
-                                        new ActiveRollSpecification(Checks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(baseDC + caster.Level))
+                                        new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.FlatDC(baseDC + caster.Level)),
+                                        new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(baseDC + caster.Level))
                                     }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
 
                                     return (ActionPossibility)combatAction

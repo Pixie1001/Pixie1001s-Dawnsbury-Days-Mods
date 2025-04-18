@@ -30,6 +30,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove=".editorconfig" />
+	  <None Remove="0Harmony-unstable.dll" />
+	  <None Remove="0Harmony.dll-old" />
+	  <None Remove="Dawnsbury.Mods.Creatures.RoguelikeMode.targets" />
+	  <None Remove="net9.0.lnk" />
+	  <None Remove="README.md" />
+	  <None Remove="References.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="0Harmony">
 		  <HintPath>0Harmony-unstable.dll</HintPath>
 		</Reference>
@@ -52,6 +62,14 @@
 	  <Folder Include="Content\Objects\L0\" />
 	  <Folder Include="Content\Objects\L3\" />
 	  <Folder Include="Content\Objects\L4\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EditorConfigFiles Remove="D:\Save Files\Code\C-Sharp\Pixie1001s-Dawnsbury-Days-Mods\Dawnsbury.Mods.Creatures.RoguelikeMode\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EditorConfigFiles Remove="D:\Save Files\Code\C-Sharp\Pixie1001s-Dawnsbury-Days-Mods\Dawnsbury.Mods.Creatures.RoguelikeMode\.editorconfig" />
 	</ItemGroup>
 
 </Project>

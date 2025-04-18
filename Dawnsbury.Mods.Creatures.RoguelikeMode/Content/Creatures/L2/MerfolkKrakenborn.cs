@@ -46,7 +46,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 }
             }));
 
-            Creature monster = new Creature(Illustrations.MerfolkKrakenborn, "Merfolk Krakenborn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic }, 2, 7, 6, new Defenses(17, 10, 8, 7), 30,
+            Creature monster = new Creature(Illustrations.MerfolkKrakenborn, "Merfolk Krakenborn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic, ModTraits.MeleeMutator }, 2, 7, 6, new Defenses(17, 10, 8, 7), 30,
                 new Abilities(4, 2, 1, 0, 2, 0), new Skills(athletics: 8))
                 .WithProficiency(Trait.Weapon, Proficiency.Expert)
                 .WithBasicCharacteristics()
