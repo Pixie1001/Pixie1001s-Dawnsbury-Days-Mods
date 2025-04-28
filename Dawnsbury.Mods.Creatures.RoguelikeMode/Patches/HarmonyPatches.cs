@@ -51,6 +51,9 @@ using Microsoft.Xna.Framework;
 using Dawnsbury.Core.Coroutines.Options;
 using static System.Net.Mime.MediaTypeNames;
 using Dawnsbury.Campaign.LongTerm;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Possibilities;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -111,6 +114,48 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //    if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_ArachnophobiaMode")) {
         //        UtilityFunctions.ReplaceSpiderSprite(creature);
         //    }
+        //}
+
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(ForcedActions), "ExecuteForcedActions")]
+        //private static async void ExecuteForcedActionsPatch(Creature selectedCreature, List<Option> options) {
+        //    var confused = new QEffect() { Id = QEffectId.Controlled }.WithExpirationNever();
+        //    if (selectedCreature.HasEffect(QEffectIds.LesserConfused) && selectedCreature.Actions.ActionHistoryThisTurn.Count() == 0) {
+        //        //selectedCreature.Actions.UseUpActions(1, ActionDisplayStyle.UsedUp, CombatAction.DefaultCombatAction);
+        //        selectedCreature.AddQEffect(confused);
+        //        Item melee = selectedCreature.PrimaryWeapon;
+        //        Item ranged = selectedCreature.PrimaryWeaponIncludingRanged;
+
+        //        if (ranged == null) {
+        //            goto CannotStrike;
+        //        }
+        //        CombatAction strike = null;
+        //        if (!ranged.WeaponProperties.Melee) {
+        //            strike = selectedCreature.CreateStrike(ranged);
+        //        } else {
+        //            strike = selectedCreature.CreateStrike(melee);
+        //        }
+        //        var target = selectedCreature.Battle.AllCreatures.Where(cr => (strike.Target as CreatureTarget).IsLegalTarget(selectedCreature, cr)).ToList().GetRandom();
+
+        //        if (target == null)
+        //            goto CannotStrike;
+        //        else
+        //            await selectedCreature.MakeStrike(target, strike.Item);
+
+        //        selectedCreature.RemoveAllQEffects(qf => qf == confused);
+        //    }
+
+        //    return;
+
+        //    CannotStrike:
+        //        selectedCreature.RegeneratePossibilities();
+        //        Option? chosenOption = options.Where(opt => opt.AiUsefulness.ObjectiveAction?.Action.ActionCost == 1).ToList().GetRandom();
+        //        if (chosenOption == null)
+        //            selectedCreature.Actions.UseUpActions(1, ActionDisplayStyle.UsedUp, CombatAction.DefaultCombatAction);
+        //        else
+        //            chosenOption.Action();
+        //        selectedCreature.RemoveAllQEffects(qf => qf == confused);
+        //        return;
         //}
 
         [HarmonyPostfix]

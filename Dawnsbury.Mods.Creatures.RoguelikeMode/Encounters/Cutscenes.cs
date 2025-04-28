@@ -177,7 +177,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             battle.Cinematics.EnterCutscene();
             await battle.Cinematics.LineAsync(maiden, "Welcome to my sanctuary adventurers. There are many a soul in the Below who've met a gruesome fate, I'm afraid. Truly, it is not a place mortals were meant to tread.", null);
             await battle.Cinematics.LineAsync(maiden, "But at least here, in my sanctuary, they can find peace.", null);
-            await battle.Cinematics.LineAsync(maiden, "And perhaps with the help of the linelines, even those from the world above. When the time comes.", null);
+            await battle.Cinematics.LineAsync(maiden, "And perhaps with the help of the leylines, even those from the world above. When the time comes.", null);
             await battle.Cinematics.LineAsync(maiden, "But you, brave souls, may rest well knowing you'll have my personal assistance in moving onto a... better place. No matter how gruesome a death I shall be forced to afflict upon you.", null);
             await battle.Cinematics.LineAsync(maiden, "I... I really am quite sorry.", null);
             Sfxs.BeginSong(Songname.HighTensionBegins);

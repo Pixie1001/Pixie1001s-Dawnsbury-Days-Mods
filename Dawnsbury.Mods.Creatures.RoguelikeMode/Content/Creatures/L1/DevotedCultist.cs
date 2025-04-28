@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddHeldItem(Items.CreateNew(ItemName.Dagger))
             .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
-                    return (ActionPossibility)new CombatAction(self.Owner, Illustrations.RitualOfAscension, "Ritual of Ascension", new Trait[] { Trait.Flourish, Trait.Divine, Trait.Magical }, "", Target.Self())
+                    return (ActionPossibility)new CombatAction(self.Owner, Illustrations.RitualOfAscension, "Ritual of Ascension", new Trait[] { Trait.Flourish, Trait.Divine, Trait.Magical }, "Ascension grows nearer.", Target.Self())
                     .WithSoundEffect(SfxName.AuraExpansion)
                     .WithActionCost(1)
                     .WithGoodness((t, a, d) => 100f)

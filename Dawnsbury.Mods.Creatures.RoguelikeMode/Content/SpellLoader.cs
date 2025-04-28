@@ -153,9 +153,109 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             }));
         });
 
+        public static SpellId WakingNightmare = ModManager.RegisterNewSpell("WakingNightmare", 1, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern((Illustration)IllustrationName.Fear, "Waking Nightmare", new Trait[] {
+                        Trait.Cleric,
+                        Trait.Emotion,
+                        Trait.Enchantment,
+                        Trait.Fear,
+                        Trait.Mental,
+                        Trait.Focus,
+                        ModTraits.Roguelike
+                    }, "You fill the creature's mind with a terrifying vision out of its nightmares.",
+                    "The target makes a Will save." +
+                    S.FourDegreesOfSuccess("The target is unaffected.", "The target is frightened 1.", "The target is frightened 2.", "The target is frightened 3."),
+            (Target)Target.Ranged(6), level, SpellSavingThrow.Standard(Defense.Will))
+            .WithSoundEffect(SfxName.Fear)
+            .WithProjectileCone(IllustrationName.Fear, 15, ProjectileKind.Cone)
+            .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Fear(d))
+            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                if (result < CheckResult.CriticalSuccess)
+                    target.AddQEffect(QEffect.Frightened(3 - (int)result));
+            });
+        });
+
+        public static SpellId SharedNightmare = ModManager.RegisterNewSpell("SharedNightmare", 4, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern((Illustration)IllustrationName.BestowCurse, "Shared Nightmare", new Trait[] {
+                        Trait.Cleric,
+                        Trait.Emotion,
+                        Trait.Enchantment,
+                        Trait.Incapacitation,
+                        Trait.Mental,
+                        Trait.Focus,
+                        ModTraits.Roguelike
+                    }, "Merging minds with the target, you swap disorienting visions from one another's nightmares.",
+                    "One of you will become confused, but which it'll be depends on the target's Will save." +
+                    S.FourDegreesOfSuccess("At the start of your next turn, you spend your first action with the confused condition, then act normally.", "The nightmare is unravelled, leaving you both unaffected.",
+                    "As critial success, but the target is affected instead of you, spending its first action each turn confused. The duration is 1 minute.", "The target is confused for 1 minute."),
+            (Target)Target.Ranged(6), level, SpellSavingThrow.Standard(Defense.Will))
+            .WithSoundEffect(SfxName.Fear)
+            .WithProjectileCone(IllustrationName.BestowCurse, 15, ProjectileKind.Cone)
+            .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Fear(d))
+            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                switch (result) {
+                    case CheckResult.CriticalSuccess:
+                        //caster.AddQEffect(QEffect.Confused(false, spell).WithExpirationAtStartOfOwnerTurn());
+                        //break;
+                        caster.AddQEffect(new QEffect("Shared Nightmare", "You are confused for your first action of each turn.", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.BestowCurse) {
+                            Id = QEffectIds.LesserConfused,
+                            CannotExpireThisTurn = true,
+                            StartOfYourPrimaryTurn = async (self, you) => {
+                                //self.Tag = you.Battle.RoundNumber;
+                                int roundNum = -1;
+                                if (self.Tag != null && self.Tag is int) {
+                                    roundNum = (int)self.Tag;
+                                }
+                                if (roundNum < you.Battle.RoundNumber) {
+                                    self.Tag = you.Battle.RoundNumber;
+                                    var slowed = QEffect.Slowed(you.Actions.ActionsLeft - 1).WithExpirationNever();
+                                    var confused = QEffect.Confused(false, spell).WithExpirationNever();
+                                    you.Actions.UsedQuickenedAction = true;
+                                    you.AddQEffect(slowed);
+                                    you.AddQEffect(confused);
+                                    await you.Battle.GameLoop.OneTurn(you);
+                                    you.RemoveAllQEffects(qf => qf == slowed || qf == confused);
+                                    you.Actions.ResetToFull();
+                                    you.Actions.UseUpActions(1, ActionDisplayStyle.UsedUp, CombatAction.DefaultCombatAction);
+                                }
+                            }
+                        });
+                        break;
+                    case CheckResult.Success:
+                        break;
+                    case CheckResult.Failure:
+                        target.AddQEffect(new QEffect("Shared Nightmare", "You are confused for your first action of each turn.", ExpirationCondition.Never, caster, IllustrationName.BestowCurse) {
+                            Id = QEffectIds.LesserConfused,
+                            StartOfYourPrimaryTurn = async (self, you) => {
+                                int roundNum = -1;
+                                if (self.Tag != null && self.Tag is int) {
+                                    roundNum = (int)self.Tag;
+                                }
+                                if (roundNum < you.Battle.RoundNumber) {
+                                    self.Tag = you.Battle.RoundNumber;
+                                    var slowed = QEffect.Slowed(you.Actions.ActionsLeft - 1).WithExpirationNever();
+                                    var confused = QEffect.Confused(false, spell).WithExpirationNever();
+                                    you.Actions.UsedQuickenedAction = true;
+                                    you.AddQEffect(slowed);
+                                    you.AddQEffect(confused);
+                                    await you.Battle.GameLoop.OneTurn(you);
+                                    you.RemoveAllQEffects(qf => qf == slowed || qf == confused);
+                                    you.Actions.ResetToFull();
+                                    you.Actions.UseUpActions(1, ActionDisplayStyle.UsedUp, CombatAction.DefaultCombatAction);
+                                }
+                            }
+                        });
+                        break;
+                    case CheckResult.CriticalFailure:
+                        caster.AddQEffect(QEffect.Confused(false, spell).WithExpirationNever());
+                        break;
+                }
+            });
+        });
+
         internal static void LoadSpells() {
 
-            //var spells = new List<SpellId>() { BrinyBolt };
+            var spells = new List<SpellId>() { WakingNightmare, SharedNightmare };
 
             ModManager.RegisterActionOnEachSpell(spell => {
                 if (spell.SpellId == SpellId.BoneSpray) {
@@ -280,7 +380,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
 
                 if (spell.SpellId == SpellId.Guidance) {
-                    spell.WithGoodness((t, a, d) => 2);
+                    spell.WithGoodness((t, a, d) => {
+                        int range = d.Speed;
+
+                        if (a == d && a.Actions.ActionsLeft < 3)
+                            return AIConstants.NEVER;
+
+                        if (!d.Battle.AllCreatures.Any(cr => !cr.FriendOf(d) && cr.DistanceTo(d) <= range))
+                            return AIConstants.NEVER;
+
+                        return 2;
+                    });
                 }
 
             });

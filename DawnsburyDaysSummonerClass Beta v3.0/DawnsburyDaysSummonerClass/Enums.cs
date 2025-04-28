@@ -124,9 +124,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftPFist = ModManager.RegisterFeatName("P_Fist", "Fist");
         internal static FeatName ftPTendril = ModManager.RegisterFeatName("P_Tendril", "Tendril");
         internal static FeatName ftPHorn = ModManager.RegisterFeatName("P_Horn", "Horn");
-        internal static FeatName ftPTail = ModManager.RegisterFeatName("P_Tail", "Tail");
+        internal static FeatName ftPTail = ModManager.RegisterFeatName("P_Tail", "Tail (Aquotic)");
         internal static FeatName ftPMermaidTail = ModManager.RegisterFeatName("P_MermaidTail", "Tail");
         internal static FeatName ftPSpiderLeg = ModManager.RegisterFeatName("P_SpiderLeg", "Stabbing Appendage");
+        internal static FeatName ftPSerpentTail = ModManager.RegisterFeatName("P_SerpentTail", "Tail (Serpentile)");
 
         // Primary Weapon Statblock Feat Names
         internal static FeatName ftPSPowerful = ModManager.RegisterFeatName("PS_Powerful", "Powerful");
@@ -142,9 +143,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftSFist = ModManager.RegisterFeatName("S_Fist", "Fist");
         internal static FeatName ftSTendril = ModManager.RegisterFeatName("S_Tendril", "Tendril");
         internal static FeatName ftSHorn = ModManager.RegisterFeatName("S_Horn", "Horn");
-        internal static FeatName ftSTail = ModManager.RegisterFeatName("S_Tail", "Tail");
-        internal static FeatName ftSMermaidTail = ModManager.RegisterFeatName("S_MermaidTail", "Tail");
+        internal static FeatName ftSTail = ModManager.RegisterFeatName("S_Tail", "Tail (Stinging)");
+        internal static FeatName ftSMermaidTail = ModManager.RegisterFeatName("S_MermaidTail", "Tail (Aquotic)");
         internal static FeatName ftSSpiderLeg = ModManager.RegisterFeatName("S_SpiderLeg", "Stabbing Appendage");
+        internal static FeatName ftSSerpentTail = ModManager.RegisterFeatName("S_SerpentTail", "Tail (Serpentile)");
 
         // Ability BoostOptions
         internal static FeatName ftStrengthBoost = ModManager.RegisterFeatName("EidolonStrengthBoost", "Strength Boost");
@@ -221,6 +223,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static ModdedIllustration illElementalBurst = new ModdedIllustration("SummonerAssets/ElementalBurst.png");
         internal static ModdedIllustration illMermaidTail = new ModdedIllustration("SummonerAssets/MermaidTail.png");
         internal static ModdedIllustration illStabbingAppendage = new ModdedIllustration("SummonerAssets/StabbingAppendage.png");
+        internal static ModdedIllustration illSerpentTail = new ModdedIllustration("SummonerAssets/NagajiTail.png");
         internal static ModdedIllustration illGenericAura = new ModdedIllustration("SummonerAssets/BaneCircleWhite.png");
         internal static ModdedIllustration illAngelicAura = new ModdedIllustration("SummonerAssets/AngelicHaloCircle.png");
         internal static ModdedIllustration illKineticistAura = new ModdedIllustration("SummonerAssets/KineticistAuraCircle.png");

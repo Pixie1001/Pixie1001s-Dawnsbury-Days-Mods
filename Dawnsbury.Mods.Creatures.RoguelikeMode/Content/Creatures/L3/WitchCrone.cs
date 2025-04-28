@@ -86,7 +86,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         Illustration = owner.Illustration,
                         StateCheckWithVisibleChanges = async self => {
                             if (!self.Source.Alive) {
-                                self.Owner.Occupies.Overhead($"*{self.Owner.Name} flees!*", Color.Green, $"With the cruse broken, {self.Owner.Name} flees from the fight.");
+                                self.Owner.Occupies.Overhead($"*{self.Owner.Name} flees!*", Color.Green, $"With the curse broken, {self.Owner.Name} flees from the fight.");
                                 self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                             }
                         }

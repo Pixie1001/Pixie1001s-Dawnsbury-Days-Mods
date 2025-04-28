@@ -22,8 +22,10 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -42,6 +44,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         public static Creature Create()
         {
             return new Creature(Illustrations.Homunculus, "Homunculus", [Trait.Construct, ModTraits.MeleeMutator], 0, 3, 8, new Defenses(17, 2, 7, 3), 17, new Abilities(-1, 3, 0, 0, 1, -2), new Skills(acrobatics: 5, stealth: 5))
+                .WithCreatureId(CreatureIds.Homunculus)
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.TraitImmunity(Trait.Disease))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Doomed))
@@ -59,15 +62,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             Creature? master = ((Creature?)(self.FindQEffect(QEffectIds.HomunculusMaster)?.Tag ?? null));
                             if (master != null && master.Alive)
                             {
-                                CombatAction deathDamage = new CombatAction(self, IllustrationName.Unknown, "Master Link Death", [Trait.Arcane, Trait.Divination, Trait.Mental, Trait.ExecuteEvenIfCasterCannotTakeActions], "Deals 2d10 mental damage to the master.", Target.Uncastable())
-                                .WithActionCost(0)
-                                .WithSoundEffect(SfxName.PhaseBolt)
-                                .WithEffectOnSelf(async (action, innerself) =>
-                                {
-                                    await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText("2d10"), master, CheckResult.Success, DamageKind.Mental);
-                                });
+                                //CombatAction deathDamage = new CombatAction(self, IllustrationName.Unknown, "Master Link Death", [Trait.Arcane, Trait.Divination, Trait.Mental, Trait.ExecuteEvenIfCasterCannotTakeActions, Trait.UsableEvenWhenUnconsciousOrParalyzed], "Deals 2d10 mental damage to the master.", Target.Self())
+                                //.WithActionCost(0)
+                                //.WithSoundEffect(SfxName.PhaseBolt)
+                                //.WithEffectOnSelf(async (action, innerself) =>
+                                //{
+                                //    await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText("2d10"), master, CheckResult.Success, DamageKind.Mental);
+                                //});
+                                //await self.Battle.GameLoop.FullCast(deathDamage);
 
-                                await self.Battle.GameLoop.FullCast(deathDamage);
+                                Sfxs.Play(SfxName.PhaseBolt);
+                                master.Occupies.Overhead("*master link feedback*", Color.Violet, $"{master.Name} suffers 2d10 mental damage from the psychic shock of losing their bonded Homunculus.");
+                                await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self, "Master Link Death"), DiceFormula.FromText("2d10"), master, CheckResult.Success, DamageKind.Mental);
                             }
                         }
                     }

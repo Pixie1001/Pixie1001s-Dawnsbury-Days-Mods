@@ -1326,7 +1326,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     for (int i = 0; i < 3; ++i) {
                         await caster.Battle.GameLoop.StateCheck();
                         List<Option> options = new List<Option>();
-                        CombatAction summon = new CombatAction(caster, Illustrations.HornOfTheHunt, "Summon Hunting Hound", new Trait[] { }, "", Target.RangedEmptyTileForSummoning(100))
+                        CombatAction summon = new CombatAction(caster, Illustrations.HornOfTheHunt, "Summon Hunting Hound", [Trait.UsableEvenWhenUnconsciousOrParalyzed], "", Target.RangedEmptyTileForSummoning(100))
+                        .WithActionCost(0)
                         .WithEffectOnEachTile(async (_, _, subtiles) => {
                             Creature wolf = MonsterStatBlocks.CreateWolf();
                             wolf.AddQEffect(CommonQEffects.CantOpenDoors());
@@ -1964,7 +1965,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
         }
 
-        private static string? GetAnimalCompanionCommandRestriction(QEffect qfRanger, Creature animalCompanion) {
+        public static string? GetAnimalCompanionCommandRestriction(QEffect qfRanger, Creature animalCompanion) {
             if (qfRanger.UsedThisTurn) return "You already commanded your animal companion this turn.";
             if (animalCompanion.HasEffect(QEffectId.Paralyzed)) return "Your animal companion is paralyzed.";
             if (animalCompanion.Actions.ActionsLeft == 0 && (animalCompanion.Actions.QuickenedForActions == null || animalCompanion.Actions.UsedQuickenedAction)) return "You animal companion has no actions it could take.";

@@ -661,12 +661,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return effect;
         }
 
-        public static QEffect RetributiveStrike(int reduction, Func<Creature, bool> filter, string targetDesc, bool step) {
+        public static QEffect RetributiveStrike(int baseReduction, Func<Creature, bool> filter, string targetDesc, bool step) {
 
-            QEffect effect = new QEffect("Retributive Strike {icon:Reaction}", "{b}Trigger{/b} An enemy damages " + targetDesc + " and both are within 15 feet of you. " +
-                "{b}Effect{/b} The ally gains resistance " + reduction + " to all damage against the triggering attack. If the foe is within reach, make a melee Strike against it." +
-                (step ? " If the target is out of range, you can step to put the foe within your reach." : "")) {
+            QEffect effect = new QEffect("Retributive Strike {icon:Reaction}", "...") {
                 Innate = true,
+                StartOfCombat = async self => {
+                    self.Description = "{b}Trigger{/b} An enemy damages " + targetDesc + " and both are within 15 feet of you. " +
+                        "{b}Effect{/b} The ally gains resistance " + (baseReduction + self.Owner.Level) + " to all damage against the triggering attack. If the foe is within reach, make a melee Strike against it." +
+                        (step ? " If the target is out of range, you can step to put the foe within your reach." : "");
+                }
             };
 
             effect.AddGrantingOfTechnical(filter, qf => {
@@ -678,7 +681,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         return null;
                     }
 
-                    if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker?.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + reduction.ToString() + " of that damage?"))
+                    if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker?.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + (baseReduction + effect.Owner.Level).ToString() + " of that damage?"))
                         return null;
 
                     List<Tile> validStepTiles = effect.Owner.Battle.Map.AllTiles.Where(t => t.IsFree && t.IsAdjacentTo(effect.Owner.Occupies) && t.DistanceTo(attacker.Occupies) < 3 && attacker.HasLineOfEffectTo(attacker.Occupies) < CoverKind.Blocked).ToList();
@@ -713,7 +716,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                             meleeStrikeTarget = null;
                         }
                     });
-                    return new ReduceDamageModification(reduction, "Retributive Strike");
+                    return new ReduceDamageModification(baseReduction + effect.Owner.Level, "Retributive Strike");
                 };
             });
             return effect;
@@ -748,6 +751,36 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         return 15f + d.HP / d.MaxHP * 4;
                     })
                     ;
+                }
+            };
+        }
+
+        public static QEffect MothersProtection() {
+            return new QEffect("Mother's Protection {icon:Reaction}", "Upon taking damage, Echidna protects this creature by transfering the damage dealt to a healthier friendly beast or animal within 10 feet.") {
+                YouAreDealtDamage = async (self, attacker, damageStuff, defender) => {
+                    Creature? protector = defender.Battle.AllCreatures.Where(cr => cr.DistanceTo(defender) <= 2 && IsMonsterAlly(self.Owner, cr)).MaxBy(cr => cr.HP);
+
+                    if (protector == null || damageStuff.Amount == 0 || (protector.HP < defender.HP && damageStuff.Amount < defender.HP) || damageStuff.Amount >= protector.HP) {
+                        return null;
+                    }
+
+                    if (await defender.AskToUseReaction($"Use your reaction to have {protector.Name} take {damageStuff.Amount} damage instead of you?")) {
+
+                        await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(defender.Battle.Pseudocreature, "Mother's Protection"), DiceFormula.FromText(damageStuff.Amount.ToString()), protector, CheckResult.Failure, DamageKind.Untyped);
+
+                        return new ReduceDamageModification(damageStuff.Amount, $"Protected by {protector.Name}");
+                    }
+
+                    return null;
+                }
+            };
+        }
+
+        public static QEffect BlessedOfEchidna() {
+            return new QEffect("Blessed of Echidna", "You automatically critically succeed against all save effects from allied animals and beasts.") {
+                AfterYouMakeSavingThrow = (self, action, breakdown) => {
+                    if (IsMonsterAlly(self.Owner, action.Owner))
+                        breakdown.CheckResult = CheckResult.CriticalSuccess;
                 }
             };
         }
@@ -920,6 +953,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             //    self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectIds.ExtraTurn);
             //    self.UsedThisTurn = true;
             //}
+        }
+
+        public static bool IsMonsterAlly(Creature user, Creature? otherCreature) {
+            if (otherCreature == null)
+                return false;
+
+            return otherCreature.FriendOf(user) && !otherCreature.HasTrait(Trait.Celestial) && (otherCreature.HasTrait(Trait.Beast) || otherCreature.HasTrait(Trait.Animal));
         }
 
         private static bool IsSlashingOrBludgeoning(CombatAction action) {

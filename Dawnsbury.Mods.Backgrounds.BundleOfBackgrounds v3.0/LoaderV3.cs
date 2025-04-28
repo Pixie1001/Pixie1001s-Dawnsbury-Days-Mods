@@ -352,7 +352,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             }, "You must be trained in Diplomacy or Performance");
 
             yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.SHARPENED_SENSES], 1, "Your senses are sharpen to a knife's edge, making you particularly adept at spotting traps or lurking enemies.", "You gain a +1 bonus to Seek checks.", new Trait[] { Trait.General, Trait.Skill, Trait.Homebrew })
-            .WithPermanentQEffect("+1 status bonus to checks made to Create a Diversion.", self => {
+            .WithPermanentQEffect("You gain a +1 bonus to Seek checks.", self => {
                 self.BonusToAttackRolls = (self, action, target) => {
                     if (action != null && action.ActionId == ActionId.Seek) {
                         return new Bonus(1, BonusType.Untyped, "Sharpened Senses");

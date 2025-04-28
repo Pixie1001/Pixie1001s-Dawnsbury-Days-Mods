@@ -34,7 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithCreatureId(CreatureIds.DrowTempleGuard)
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(CommonQEffects.DrowBloodBond())
-            .AddQEffect(CommonQEffects.RetributiveStrike(4, cr => cr.HasEffect(QEffectIds.DrowClergy), "a member of the drow clergy", true))
+            .AddQEffect(CommonQEffects.RetributiveStrike(2, cr => cr.HasEffect(QEffectIds.DrowClergy), "a member of the drow clergy", true))
             //.AddQEffect(QEffect.AttackOfOpportunity())
             .AddQEffect(QEffect.DamageResistance(DamageKind.Negative, 5))
             .WithBasicCharacteristics()

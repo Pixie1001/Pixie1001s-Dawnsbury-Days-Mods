@@ -170,6 +170,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Ardamok.Create();
                 case var v when v.Equals(CreatureIds.CorruptedTree):
                     return CorruptedTree.Create();
+                case var v when v.Equals(CreatureIds.EchidnaditeWombCultist):
+                    return EchidnaditeWombCultist.Create();
+                case var v when v.Equals(CreatureIds.EchidnaditeMonsterBound):
+                    return EchidnaditeMonsterBound.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -274,7 +278,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             // Level 4 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.OwlBear);
 
-            // Level 5 Creatures
+            // Level 5 Creatures - Echidnadite
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeWombCultist);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeMonsterBound);
+
+            // Level 5 Creatures - Other
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CorruptedTree);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkSeaWitch);
 

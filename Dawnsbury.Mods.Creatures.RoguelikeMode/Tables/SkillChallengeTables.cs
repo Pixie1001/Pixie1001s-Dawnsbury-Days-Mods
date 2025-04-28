@@ -80,7 +80,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {cursedItem.Name.CapitalizeEachWord()}.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of their through how to safely operate it without activating the curse.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of the party through how to safely operate it without activating the curse.", null);
                             await battle.Cinematics.NarratorLineAsync($"The {cursedItem.Name.CapitalizeEachWord()} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.", null);
                             cursedItem.Price = 0;
                             foreach (Item rune in cursedItem.Runes) {

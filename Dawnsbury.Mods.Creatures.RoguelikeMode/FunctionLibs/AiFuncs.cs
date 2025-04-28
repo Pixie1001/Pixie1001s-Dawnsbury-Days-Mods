@@ -80,8 +80,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         // - Cowardly
 
         /// <summary>
-        /// The MONSTER considers all OPTIONS, and determines which creatures in the encounter feat the conditions of FILTER(postion, self, is a step?, other creature).
-        /// They then gain goodness bonus equal their MODIFIER. If FLAT is false, they gain this bonus for each creature that meets the conditions set by filter.
+        /// The MONSTER considers all OPTIONS, and determines which creatures in the encounter fit the conditions of FILTER(postion, self, is a step?, other creature).
+        /// They then gain a goodness bonus equal their MODIFIER if filter returns true for a given postion. If FLAT is false, they gain this bonus for each creature that meets the conditions set by filter.
         /// </summary>
         internal static void PositionalGoodness(Creature monster, List<Option> options, Func<Tile, Creature, bool, Creature, bool> filter, float modifier, bool flat = true) {
 

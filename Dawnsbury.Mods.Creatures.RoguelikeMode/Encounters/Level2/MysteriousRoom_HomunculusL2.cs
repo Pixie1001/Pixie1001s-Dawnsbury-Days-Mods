@@ -16,7 +16,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
             // Run setup
             this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
                 var masters = battle.AllCreatures.Where(creature => creature.OwningFaction.IsEnemy && creature.HasTrait(ModTraits.Drow)).ToList();
-                var homunculus = battle.AllCreatures.Where(creature => creature.OwningFaction.IsEnemy && creature.BaseName == "Homunculus").ToList();
+                var homunculus = battle.AllCreatures.Where(creature => creature.OwningFaction.IsEnemy && creature.CreatureId == CreatureIds.Homunculus).ToList();
 
                 for (int i = 0; i < masters.Count(); i++) {
                     Homunculus.AddMasterEffect(homunculus[i], masters[i]);
