@@ -16,40 +16,6 @@ using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
-using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
-using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
-using System.Text;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
@@ -70,7 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1 {
         public TestMap(string filename) : base("Test Map", filename, null, 0) {
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                //CommonEncounterFuncs.ApplyEliteAdjustments(battle);
+                // CommonEncounterFuncs.ApplyEliteAdjustments(battle);
 
                 Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
                 Creature pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);

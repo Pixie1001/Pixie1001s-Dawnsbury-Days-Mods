@@ -198,7 +198,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         //caster.AddQEffect(QEffect.Confused(false, spell).WithExpirationAtStartOfOwnerTurn());
                         //break;
                         caster.AddQEffect(new QEffect("Shared Nightmare", "You are confused for your first action of each turn.", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.BestowCurse) {
-                            Id = QEffectIds.LesserConfused,
                             CannotExpireThisTurn = true,
                             StartOfYourPrimaryTurn = async (self, you) => {
                                 //self.Tag = you.Battle.RoundNumber;
@@ -225,7 +224,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         break;
                     case CheckResult.Failure:
                         target.AddQEffect(new QEffect("Shared Nightmare", "You are confused for your first action of each turn.", ExpirationCondition.Never, caster, IllustrationName.BestowCurse) {
-                            Id = QEffectIds.LesserConfused,
                             StartOfYourPrimaryTurn = async (self, you) => {
                                 int roundNum = -1;
                                 if (self.Tag != null && self.Tag is int) {
@@ -356,14 +354,37 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                 }
 
-                if (spell.SpellId == SpellId.BrinyBolt) {
+                //if (spell.SpellId == SpellId.BrinyBolt) {
+                //    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                //        float score = 3.5f * t.OwnerAction.SpellLevel;
+                //        if (!d.HasEffect(QEffectId.Blinded)) {
+                //            score += 1.5f * d.Level;
+                //        }
+                //        if (!d.HasEffect(QEffectId.Dazzled)) {
+                //            score += 0.5f * d.Level;
+                //        }
+                //        return score;
+                //    });
+                //}
+
+                if (spell.SpellId == SpellId.RayOfEnfeeblement) {
                     spell.WithGoodnessAgainstEnemy((t, a, d) => {
-                        float score = 3.5f * t.OwnerAction.SpellLevel;
-                        if (!d.HasEffect(QEffectId.Blinded)) {
-                            score += 1.5f * d.Level;
+                        float score = 0;
+
+                        if (d.FindQEffect(QEffectId.Enfeebled)?.Value >= 2) {
+                            return 0f;
                         }
-                        if (!d.HasEffect(QEffectId.Dazzled)) {
-                            score += 0.5f * d.Level;
+
+                        if (d.Abilities.Get(Ability.Strength) > 0) {
+                            score += 1;
+                        }
+
+                        if (d.Abilities.Get(Ability.Strength) > d.Abilities.Get(Ability.Dexterity)) {
+                            score += a.AI.Fear(d);
+                        }
+
+                        if (d.FindQEffect(QEffectId.Enfeebled)?.Value == 1) {
+                            score /= 2;
                         }
                         return score;
                     });

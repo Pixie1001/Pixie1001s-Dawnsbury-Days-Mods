@@ -263,3 +263,5 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         }
     }
 }
+
+// public static void RegisterInlineTooltip(string code, string tooltipText)

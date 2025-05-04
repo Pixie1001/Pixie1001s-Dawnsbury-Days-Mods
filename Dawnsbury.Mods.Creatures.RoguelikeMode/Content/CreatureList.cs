@@ -174,6 +174,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return EchidnaditeWombCultist.Create();
                 case var v when v.Equals(CreatureIds.EchidnaditeMonsterBound):
                     return EchidnaditeMonsterBound.Create();
+                case var v when v.Equals(CreatureIds.EchidnaditeBroodGuard):
+                    return EchidnaditeBroodguard.Create();
+                case var v when v.Equals(CreatureIds.EchidnaditeBroodNurse):
+                    return EchidnaditeBroodNurse.Create();
+                case var v when v.Equals(CreatureIds.WinterWolf):
+                    return WinterWolf.Create();
+                case var v when v.Equals(CreatureIds.Sigbin):
+                    return Sigbin.Create();
+                case var v when v.Equals(CreatureIds.Basilisk):
+                    return Basilisk.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -281,14 +291,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             // Level 5 Creatures - Echidnadite
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeWombCultist);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeMonsterBound);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeBroodNurse);
 
             // Level 5 Creatures - Other
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CorruptedTree);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkSeaWitch);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Sigbin);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WinterWolf);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Basilisk);
 
-            // Level 6 Creatures - Demons
+            // Level 6 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.YoungWhiteDragon);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeBroodGuard);
         }
 
         internal static void LoadObjects() {

@@ -1,6 +1,7 @@
 # Art Accreditations
 
 ## Paid or Free Public Assets
+
 ### Fisktak
 *Please support Fishtak [here (Unity Asset Store)](https://assetstore.unity.com/packages/2d/gui/icons/free-fantasy-items-253853).*
 <ul>
@@ -31,6 +32,7 @@
 	<li>DeathDrinkerAmulet.png (modified)</li>
 	<li>SpideryHalberd.png</li>
 	<li>StaffOfSpellPenetration.png</li>
+	<li>Shuriken.png</li>
 </ul>
 
 ### Rexard
@@ -42,6 +44,13 @@
 	<li>KrakenMail.png (Modified)</li>
 	<li>FlailSnail.png (Modified)</li>
 	<li>AngerPhantom.png (Modified)</li>
+	<li>Basilisk.png (Modified)</li>
+</ul>
+
+### Flaticon.com
+<ul>
+	<li>AvertGaze.png by Leremy - published on FlatIcon.com, at https://www.flaticon.com/free-icons/blind</li>
+	<li>CoverEyes.png by Leremy - published on FlatIcon.com, at https://www.flaticon.com/free-icons/eyes</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -105,6 +114,14 @@
 	<li>Ardamok.png</li>
 	<li>Chimera.png</li>
 	<li>Crocodile.png</li>
+	
+	<li>Mounterbound.png</li>
+	<li>WombCultist.png</li>
+	<li>BroodGuard.png</li>
+	<li>BroodNurse.png</li>
+	<li>Sigbin.png</li>
+	<li>WinterWolf.png</li>
+	<li>Basilisk.png</li>
 </ul>
 
 ## Volunteer Contributions

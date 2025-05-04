@@ -34,6 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             Creature monster = new Creature(new SpiderIllustration(Illustrations.AbyssalHandmaiden, Illustrations.Bear3), "Abyssal Handmaiden", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider }, 6, 6, 5, new Defenses(22, 11, 17, 14), 95,
             new Abilities(5, 5, 4, 2, 2, 4), new Skills(acrobatics: 15, athletics: 14, intimidation: 14, religion: 10, arcana: 10))
+            .WithCreatureId(CreatureIds.AbyssalHandmaiden)
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()
@@ -87,7 +88,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         }
                         await Possibilities.Grapple(attacker, defender, result);
                     };
-                    CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d10", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse));
+                    CombatAction bite = self.Owner.CreateStrike(CommonItems.CreateNaturalWeapon(IllustrationName.GluttonsJaw, "bite", "2d10", DamageKind.Piercing, Trait.Unarmed, Trait.Finesse, Trait.Restraining));
                     bite.Description = "The Abyssal Handmaiden attemps to grab and sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";
                     bite.ShortDescription += " and the target becomes grabbed and exposed to abyssal rot.";
                     //bite.Description = "The Abyssal Handmaiden attemps to sink their teeth into an isolated opponent, afflicting them with her terrible, wasting poison.";

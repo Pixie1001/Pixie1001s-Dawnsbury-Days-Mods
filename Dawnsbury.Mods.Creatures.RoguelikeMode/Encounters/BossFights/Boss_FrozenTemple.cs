@@ -7,6 +7,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 {
@@ -16,7 +17,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
         {
             // Run setup
             this.AddTrigger(TriggerName.StartOfEncounter, async battle => {
-                Creature? dragon = battle.AllCreatures.FirstOrDefault(creature => creature.BaseName == "Young White Dragon");
+                Creature? dragon = battle.AllCreatures.FirstOrDefault(creature => creature.CreatureId == CreatureIds.YoungWhiteDragon);
                 if (dragon != null)
                 {
                     // Dragon Undead changes

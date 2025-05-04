@@ -59,6 +59,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             BackgroundColor = Color.MediumPurple,
             WhiteForeground = true
         });
+        internal static Trait MonkWeapon { get; } = ModManager.RegisterTrait("RL_MonkWeapon", new TraitProperties("Monk", true));
+        internal static Trait Reload0 { get; } = ModManager.RegisterTrait("RL_Reload0", new TraitProperties("Reload 0", true, "While you have a free hand, you can draw and throw this weapon as a single action.", true));
 
         // Mutator Traits
         internal static Trait UniversalMutator { get; } = ModManager.RegisterTrait("UniversalMutator", new TraitProperties("UniversalMutator", false));

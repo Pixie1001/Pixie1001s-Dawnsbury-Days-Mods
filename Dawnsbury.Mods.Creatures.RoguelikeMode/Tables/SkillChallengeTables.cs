@@ -52,9 +52,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 SCOption opt3 = GetBestPartyMember(battle, level, -2, Skill.Arcana, Skill.Diplomacy);
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"Regardless the {cursedItem.Name} emanates a dark and terrible aura, no doubt possessed of a great demonic taint. And yet, the party can hardly afford to be picky in times such as these...",
-                    $"{opt1.printInfoTag()} Have {opt1.Nominee.Name} perform a ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()} of its curse.",
+                    $"{opt1.printInfoTag()} Have {opt1.Nominee.Name} perform a ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} of its curse.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes they might be able to find a loophole in the curse.",
-                    $"{opt3.printInfoTag()} {opt3.Nominee.Name} hesitantly suggests that the demon might yet still be bargained with to bequeash the {cursedItem.Name.CapitalizeEachWord()} to the party.",
+                    $"{opt3.printInfoTag()} {opt3.Nominee.Name} hesitantly suggests that the demon might yet still be bargained with to bequeash the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} to the party.",
                     "The party decides to leave the item where it lies."
                     );
                 battle.Cinematics.EnterCutscene();
@@ -63,13 +63,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()}.", null);
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                         result = opt1.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {cursedItem.Name.CapitalizeEachWord()}, banishing the evil energy lurking within!", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}, banishing the evil energy lurking within!", null);
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name}'s attempts to cleanse the item do not go unnoticed. Barely a moment passes before the {cursedItem.Name.CapitalizeEachWord()} explodes into " +
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name}'s attempts to cleanse the item do not go unnoticed. Barely a moment passes before the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
@@ -77,18 +77,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         break;
                     case 1:
-                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {cursedItem.Name.CapitalizeEachWord()}.", null);
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of the party through how to safely operate it without activating the curse.", null);
-                            await battle.Cinematics.NarratorLineAsync($"The {cursedItem.Name.CapitalizeEachWord()} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of the party through how to safely operate it without activating the curse.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.", null);
                             cursedItem.Price = 0;
                             foreach (Item rune in cursedItem.Runes) {
                                 rune.Price = 0;
                             }
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {cursedItem.Name.CapitalizeEachWord()} abruptly explodes into " +
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} abruptly explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
@@ -99,7 +99,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} quickly sets about recruiting the rest of the party to help shore up the abandoned ritual circle, before attempting to make contact with the demon.", null);
                         result = opt3.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {cursedItem.Name.CapitalizeEachWord()}.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                             await battle.Cinematics.NarratorLineAsync("And then, all at once before the party even fully realises what they've agreed to, a deal is struck. Each party members gains {b}Drained 2{/b}.", null);
                             foreach (Creature pm in GetParty(battle)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drained", null, 2));
@@ -110,7 +110,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         break;
                     case 3:
-                        await battle.Cinematics.NarratorLineAsync($"With one last look at the ominous smoke curling off the {cursedItem.Name.CapitalizeEachWord()} the party wisely moves on ahead, leaving the accursed item untouched.", null);
+                        await battle.Cinematics.NarratorLineAsync($"With one last look at the ominous smoke curling off the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} the party wisely moves on ahead, leaving the accursed item untouched.", null);
                         break;
                 }
             }));
@@ -138,14 +138,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} returns with several tonics of healing concocted from the strange mushroom's sap.", null);
                             if (level == 1) {
-                                await battle.Cinematics.NarratorLineAsync("The party gained a {b}lesser healing potion.{/b}", null);
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {{b}}lesser healing potion {Items.CreateNew(ItemName.LesserHealingPotion).Illustration.IllustrationAsIconString}.{{/b}}", null);
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             } else if (level == 2) {
-                                await battle.Cinematics.NarratorLineAsync("The party gained {b}lesser healing potion x2{/b}", null);
+                                await battle.Cinematics.NarratorLineAsync($"The party gained {{b}}lesser healing potion x2 {Items.CreateNew(ItemName.LesserHealingPotion).Illustration.IllustrationAsIconString}.{{/b}}", null);
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             } else if (level == 3) {
-                                await battle.Cinematics.NarratorLineAsync("The party gained a {b}moderate healing potion{/b} and a {b}lesser healing potion{/b}", null);
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {{b}}moderate healing potion{{/b}} {Items.CreateNew(ItemName.ModerateHealingPotion).Illustration.IllustrationAsIconString} and a {{b}}lesser healing potion{{/b}} {Items.CreateNew(ItemName.LesserHealingPotion).Illustration.IllustrationAsIconString}.", null);
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
                                 battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             }
@@ -431,7 +431,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The party watches on guiltily as {opt3.Nominee.Name} sets about carving up the majestic creature and inscribing the forbidden runes required to forge the poached spoils into a righteous Alicorn armament.", null);
                             var chosenWeapon = await CommonQuestions.OfferDialogueChoice(opt3.Nominee, GetNarrator(),
                                 $"{opt3.Nominee} uses the unicorn's carcass to forge...",
-                                "An easily handled Alicorn Dagger.", "A stout Alicorn Pike for the martially inclined."
+                                $"An easily handled Alicorn Dagger. {Illustrations.AlicornDagger.IllustrationAsIconString}", $"A stout Alicorn Pike for the martially inclined. {Illustrations.AlicornPike.IllustrationAsIconString}"
                             );
                             await battle.Cinematics.NarratorLineAsync($"The party gains an Alicorn {(chosenWeapon.Index == 0 ? "Dagger" : "Pike")}, but {opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until they return to turn.", null);
                             Item AlicornWeapon;

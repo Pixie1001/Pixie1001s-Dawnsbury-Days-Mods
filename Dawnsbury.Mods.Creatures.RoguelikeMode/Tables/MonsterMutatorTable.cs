@@ -44,6 +44,8 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.StatBlocks.Monsters.L5;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Tiles;
+using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -55,6 +57,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
         public static bool RollForMutator(Creature creature) {
             int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
             seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;
+            seed += creature.Battle.AllCreatures.Where(cr => cr.OwningFaction == cr.Battle.Enemy).ToList().FindIndex(cr => cr == creature);
 
             Random rand = new Random(seed);
 
@@ -63,7 +66,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             if (viableResults.Count <= 0)
                 return false;
 
-            viableResults[rand.Next(0, viableResults.Count)].Apply(creature);
+            int num = rand.Next(0, viableResults.Count);
+
+            viableResults[num].Apply(creature);
             return true;
         }
 
@@ -165,17 +170,120 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 });
             }));
 
-            //mutators.Add(new MonsterArchetype("Oozing", [], creature => {
-            //    creature.WithImmunityToCriticalHits();
-            //    creature.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious));
-            //    creature.AddQEffect(QEffect.TraitImmunity(Trait.Visual));
-            //    creature.AddQEffect(QEffect.TraitImmunity(Trait.PrecisionDamage));
-            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Acid));
-            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Electricity));
-            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Piercing));
-            //    creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Slashing));
-            //    creature.AddQEffect(MonsterQEffects.Split());
-            //}));
+            mutators.Add(new MonsterArchetype("Deflecting", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Deflecting", "This creature is master at deflecting attacks in melee, gaining a +2 bonus to AC against melee attacks.") {
+                    BonusToDefenses = (self, action, def) => action != null && action.HasTrait(Trait.Melee) && def == Defense.AC ? new Bonus(2, BonusType.Untyped, "Deflecting") : null
+                };
+
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Galeward", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Galeward", "An aegis of wind protects this creature from projectiles, granting them a +2 bonus Reflex, and to AC against ranged attacks.") {
+                    BonusToDefenses = (self, action, def) => def == Defense.Reflex || (action != null && action.HasTrait(Trait.Ranged) && def == Defense.AC) ? new Bonus(2, BonusType.Untyped, "Galeward") : null
+                };
+
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Impervious", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Impervious", "") {
+                    StateCheck = (self) => {
+                        self.Description = $"This creature cannot be harmed by mere physical attacks, granting them resistence {3 + self.Owner.Level} against bludgeoning, piercing and slashing damage.";
+                        self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, self.Owner.Level + 3);
+                        self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, self.Owner.Level + 3);
+                        self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Bludgeoning, self.Owner.Level + 3);
+                    }
+                };
+
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Trollblood", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Trollblood", "The blood of trolls runs through this creature's vein, granting them natural regeneration.") {
+                };
+
+                creature.AddQEffect(QEffect.Regeneration(Math.Max(5, creature.Level * 5), [DamageKind.Acid, DamageKind.Fire], [], true));
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Eternal", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Eternal", "Foul necromancy sustains this creature, granting them regeneration and undead status.") {
+                };
+                creature.Traits.Add(Trait.Undead);
+                creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Negative));
+                creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Bleed));
+                creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Poison));
+                creature.AddQEffect(QEffect.TraitImmunity(Trait.Poison));
+                creature.AddQEffect(QEffect.TraitImmunity(Trait.Death));
+                creature.AddQEffect(QEffect.TraitImmunity(Trait.Disease));
+                creature.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Paralyzed));
+                creature.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious));
+
+                creature.AddQEffect(QEffect.Regeneration(Math.Max(5, creature.Level * 5), [DamageKind.Good, DamageKind.Positive], [], true));
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Rat Blessed", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Rat Blessed", "This creature commands a swarm of ravenous rats. Killing them will disperse their swarm.") {
+                    WhenMonsterDies = self => {
+                        foreach (var rat in self.Owner.Battle.AllCreatures.Where(cr => cr.QEffects.Any(qf => qf.Name == "Rat Swarm Familiar" && qf.Source == self.Owner)).ToList()) {
+                            self.Owner.Battle.RemoveCreatureFromGame(rat);
+                        }
+                    }
+                };
+
+                // TODO: Make a proper formula for this
+                int numRats = Math.Max(2, Math.Min(creature.Level, 5));
+                int ratLevel = Math.Max(-2, Math.Min(creature.Level - 3, 1));
+
+                for (int i = 0; i < numRats; i++) {
+                    var rat = CreatureList.Creatures[CreatureIds.RavenousRat](creature.Battle.Encounter);
+                    rat.AddQEffect(new QEffect("Rat Swarm Familiar", $"Killing {creature.Name} will cause this creature to flee the encounter.", ExpirationCondition.Never, creature, IllustrationName.GiantRat256));
+                    rat.MainName = "Rat Familiar";
+                    if (ratLevel == -2) rat.ApplyWeakAdjustments(false);
+                    else if (ratLevel == 0) rat.ApplyEliteAdjustments();
+                    else if (ratLevel == 1) rat.ApplyEliteAdjustments(true);
+                    rat.MainName = creature.Name + "'s " + rat.MainName;
+                    creature.Battle.SpawnCreature(rat, creature.OwningFaction, creature.Occupies);
+                }
+
+                creature.AddQEffect(effect);
+            }));
+
+            mutators.Add(new MonsterArchetype("Mooncursed", [ModTraits.UniversalMutator], creature => {
+                QEffect effect = new QEffect("Mooncursed", "This creature has been infected by a werecreature, allowing them to assume their true monstrous form when reduced below half HP. Their new form shakes off all conditions, but begins combat at half HP.") {
+                    WhenCreatureDiesAtStateCheckAsync = async self => {
+                        if (self.Owner.Damage >= self.Owner.MaxHP) {
+                            Tile pos = self.Owner.Occupies;
+                            self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
+
+                            var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, self.Owner.Level - 1, self.Owner.Level + 2) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+                            int rand = R.Next(0, list.Count());
+
+                            if (list.Count() == 0)
+                                return;
+
+                            Creature newForm = MonsterStatBlocks.MonsterFactories[list[rand].Name](self.Owner.Battle.Encounter, self.Owner.Occupies);
+
+                            if (newForm.Level - self.Owner.Level >= 3) {
+                                newForm.ApplyWeakAdjustments(false, true);
+                            } else if (newForm.Level - self.Owner.Level == 2) {
+                                newForm.ApplyWeakAdjustments(false);
+                            } else if (newForm.Level - self.Owner.Level == 0) {
+                                newForm.ApplyEliteAdjustments();
+                            } else if (newForm.Level - self.Owner.Level == -1) {
+                                newForm.ApplyEliteAdjustments(true);
+                            }
+                            Sfxs.Play(SfxName.BeastRoar);
+                            self.Owner.Battle.SpawnCreature(newForm, self.Owner.OwningFaction, pos);
+                            await CommonSpellEffects.DealDirectSplashDamage(null, DiceFormula.FromText((newForm.MaxHP / 2).ToString(), "Mooncursed"), newForm, DamageKind.Untyped);
+                            pos.Overhead("mooncursed", Color.Aqua, $"{self.Owner.Name}'s curse activates, causing them to assume the form of a{("aeiouAEIOU".IndexOf(newForm.Name[0]) >= 0 ? "n" : "")} {newForm.Name}!");
+                        }
+                    }
+                };
+                creature.AddQEffect(effect);
+            }));
 
             mutators.Add(new MonsterArchetype("Studious", [ModTraits.SpellcasterMutator], creature => {
                 QEffect effect = new QEffect("Studious", "This creature is capable of casting powerful high level spells.");

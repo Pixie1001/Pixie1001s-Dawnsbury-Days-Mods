@@ -57,8 +57,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static CreatureId EchidnaditeMonsterBound { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_EchidnaditeMonsterBound");
         internal static CreatureId EchidnaditeWombCultist { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_EchidnaditeWombCultist");
         internal static CreatureId EchidnaditeBroodGuard { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_EchidnaditeBroodGuard");
+        internal static CreatureId EchidnaditeBroodNurse { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_EchidnaditeBroodNurse");
         internal static CreatureId EchidnaditeShifter { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_EchidnaditeShifter");
         internal static CreatureId WinterWolf { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_WinterWolf");
+        internal static CreatureId Sigbin { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Sigbin");
+        internal static CreatureId Basilisk { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Basilisk");
 
     }
 }

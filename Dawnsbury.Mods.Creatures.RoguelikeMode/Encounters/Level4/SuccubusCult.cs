@@ -21,6 +21,8 @@ using Microsoft.Xna.Framework;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 {
@@ -39,7 +41,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 await CommonEncounterFuncs.StandardEncounterSetup(battle);
-                Creature succubus = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.BaseName == "Succubus");
+                Creature succubus = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureId.Succubus);
                 succubus.Spellcasting.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Dominate);
                 //ca.SpellcastingSource = succubus.Spellcasting.PrimarySpellcastingSource;
                 succubus.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellLoader.LesserDominate], 5);

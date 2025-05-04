@@ -27,7 +27,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class WinterWolf {
         public static Creature Create() {
-            var creature = new Creature(IllustrationName.Wolf256,
+            var creature = new Creature(Illustrations.WinterWolf,
                 "Winter Wolf",
                 [Trait.Evil, Trait.Beast, ModTraits.MeleeMutator],
                 5, 14, 8,
@@ -36,12 +36,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 new Abilities(6, 4, 4, 2, 3, 2),
                 new Skills(acrobatics: 13, athletics: 13, deception: 11, intimidation: 11, stealth: 13, survival: 12))
             .WithCreatureId(CreatureIds.WinterWolf)
-            .WithUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Jaws, "1d10", DamageKind.Piercing, [Trait.Cold]).WithAdditionalWeaponProperties(wp => {
+            .WithUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Jaws, "1d10", DamageKind.Piercing, [Trait.Cold, Trait.Knockdown]).WithAdditionalWeaponProperties(wp => {
                 wp.AdditionalDamage.Add(("1d6", DamageKind.Cold));
-                wp.WithOnTarget(async (action, a, d, r) => {
-                    if (r >= CheckResult.Success)
-                        d.AddQEffect(QEffect.Prone());
-                });
             }))
             .WithTactics(Tactic.PackAttack)
             .WithCharacteristics(true, true)
@@ -50,12 +46,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .AddQEffect(QEffect.TraitImmunity(Trait.Cold))
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 5))
             .AddQEffect(QEffect.PackAttack("Winter Wolf", "1d6"))
-            .AddQEffect(new QEffect("Knockdown", "A successful strike made using the Winter Wolf's jaw strike knocks the target prone."))
+            .AddQEffect(QEffect.MonsterKnockdown())
             .Builder
             .AddMainAction((Creature creature) => {
                 return new CombatAction(creature, IllustrationName.ConeOfCold, "Breath Weapon", [Trait.Cold, Trait.Evocation, Trait.Primal], "You breathe a cloud of frost in a 15-foot cone that deals 5d8 cold damage vs. basic Reflex. You can’t use Breath Weapon again for 1d4 rounds.", Target.FifteenFootCone())
                 .WithActionCost(2)
                 .WithSavingThrow(new SavingThrow(Defense.Reflex, 18 + creature.Level))
+                .WithSoundEffect(SfxName.RayOfFrost)
+                .WithProjectileCone(IllustrationName.ConeOfCold, 20, Core.Animations.ProjectileKind.Cone)
                 .WithGoodnessAgainstEnemy((_, a, d) => 5 * 4.5f)
                 .WithEffectOnEachTarget(async (action, user, defender, result) => {
                     await CommonSpellEffects.DealBasicDamage(action, user, defender, result, "5d8", DamageKind.Cold);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="49" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="54" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -287,12 +287,42 @@
   <properties>
    <property name="Id" value="Echidnadite Womb Cultist"/>
   </properties>
-  <image source="Creatures/TieflingAdept256.png" width="256" height="256"/>
+  <image source="CustomCreatures/WombCultist.png" width="256" height="256"/>
  </tile>
  <tile id="2041">
   <properties>
    <property name="Id" value="Echidnadite Monsterbound"/>
   </properties>
-  <image source="Creatures/OrcRanger256.png" width="256" height="256"/>
+  <image source="CustomCreatures/Monsterbound.png" width="256" height="256"/>
+ </tile>
+ <tile id="2042">
+  <properties>
+   <property name="Id" value="Echidnadite Brood Nurse"/>
+  </properties>
+  <image source="CustomCreatures/BroodNurse.png" width="256" height="256"/>
+ </tile>
+ <tile id="2043">
+  <properties>
+   <property name="Id" value="Echidnadite Brood Guard"/>
+  </properties>
+  <image source="CustomCreatures/BroodGuard.png" width="256" height="256"/>
+ </tile>
+ <tile id="2044">
+  <properties>
+   <property name="Id" value="Winter Wolf"/>
+  </properties>
+  <image source="CustomCreatures/WinterWolf.png" width="256" height="256"/>
+ </tile>
+ <tile id="2045">
+  <properties>
+   <property name="Id" value="Sigbin"/>
+  </properties>
+  <image source="CustomCreatures/Sigbin.png" width="256" height="256"/>
+ </tile>
+ <tile id="2046">
+  <properties>
+   <property name="Id" value="Basilisk"/>
+  </properties>
+  <image source="CustomCreatures/Basilisk.png" width="256" height="256"/>
  </tile>
 </tileset>

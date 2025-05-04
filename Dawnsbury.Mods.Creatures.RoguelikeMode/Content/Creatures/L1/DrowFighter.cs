@@ -53,6 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 };
             })
+            .WithCreatureId(CreatureIds.DrowFighter)
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(QEffect.AttackOfOpportunity(false))

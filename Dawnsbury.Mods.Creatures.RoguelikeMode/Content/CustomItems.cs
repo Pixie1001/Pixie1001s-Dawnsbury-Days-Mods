@@ -86,12 +86,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
 
         public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
-            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+            Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, Trait.Axe, ModTraits.Roguelike)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
 
         public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, ModTraits.Roguelike)
+            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Hammer, ModTraits.Roguelike)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
+
+        public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
+            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Knife, ModTraits.Reload0, ModTraits.MonkWeapon, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 60,
@@ -879,7 +883,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             .WithDescription("{i}This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.{/i}\n\n" +
             "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
             "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wear may consume it to heal for an amount of hit points " +
-            "equal to damage dealt.")
+            "equal to damage dealt.\n\n{b}Note.{/b} To unequip this cursed item, simply place it in the common loot field at the bottom of the character sheets. It won't despawn between encounters.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
                 qfMoC.Innate = true;
                 qfMoC.Id = QEffectId.Drained;
@@ -890,7 +894,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
                         if (eidolon != null && eidolon.Source != null) {
                             eidolon.Source.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
-                            eidolon.Source.AddQEffect(new QEffect() { Id = QEffectId.Drained });
+                            eidolon.Source.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
                         }
                     }
                     self.Owner.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
@@ -922,15 +926,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.AnimalCompanion)
             .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
-            "If you do not already have a battle ready animal companion, you gain a unique Spider Hatchling to fight at your side, that otherwise functional identically to the Animal Companion class feat.\n\nIf the spider hatchling dies in battle, it cannot aid the party until it has time to heal during their next long rest.")
+            "If you do not already have a battle ready animal companion, you gain a unique Spider Hatchling to fight at your side, that's otherwise functional identically to the Animal Companion class feat.\n\nIf the spider hatchling dies in battle, it cannot aid the party until it has time to heal during the next long rest.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
                 qfMoC.Tag = false;
                 qfMoC.Innate = false;
                 qfMoC.StartOfCombat = async self => {
                     Creature? companion = self.Owner.Battle.AllCreatures.FirstOrDefault(cr => cr.FindQEffect(QEffectId.RangersCompanion)?.Source == self.Owner);
                     if (companion != null) {
-                        //companion.RemoveAllQEffects(qf => qf.Id == QEffectId.RangersCompanion);
-                        //companion.Battle.RemoveCreatureFromGame(companion);
                         self.Tag = true;
                         return;
                     }
@@ -941,11 +943,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         // TODO: Replace with proper animal companion stats
                         int lvl = self.Owner.Level;
                         int prof = self.Owner.Level + 2;
-                        Creature animalCompanion = new Creature(new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
+                        Creature animalCompanion = new Creature(new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
                             new Abilities(3, 3, 1, -4, 1, 0), new Skills(stealth: 3 + prof, acrobatics: 3 + prof, athletics: 3 + prof))
                         .WithProficiency(Trait.Unarmed, Proficiency.Trained)
                         .WithEntersInitiativeOrder(false)
                         .WithProficiency(Trait.UnarmoredDefense, Proficiency.Trained)
+                        .WithProficiency(Trait.Barding, Proficiency.Trained)
+                        .WithProficiency(Trait.Stealth, Proficiency.Trained)
+                        .WithProficiency(Trait.Acrobatics, Proficiency.Trained)
+                        .WithProficiency(Trait.Athletics, Proficiency.Trained)
+                        .WithProficiency(Trait.Perception, Proficiency.Trained)
+                        .WithProficiency(Trait.Reflex, Proficiency.Trained)
+                        .WithProficiency(Trait.Fortitude, Proficiency.Trained)
+                        .WithProficiency(Trait.Will, Proficiency.Trained)
                         .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing))
                         //.WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "leg", Trait.Unarmed, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
                         .AddQEffect(QEffect.Webwalk())
@@ -987,15 +997,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 owner.Battle.InitiativeOrder.Remove(sc.Owner);
                             }
                         })
-                        
                         ;
+
                         animalCompanion.MainName = self.Owner.Name + "'s " + animalCompanion.MainName;
                         animalCompanion.InitiativeControlledBy = self.Owner;
                         animalCompanion.AddQEffect(new QEffect() {
                             Id = QEffectId.RangersCompanion,
+                            Tag = 0,
                             Source = self.Owner,
                             WhenMonsterDies = qfCompanion => item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay))
                         });
+                        var bestBarding = self.Owner.CarriedItems.FirstOrDefault(backpackItem => backpackItem.HasTrait(Trait.Barding) && backpackItem.IsWorn);
+                        animalCompanion.BaseArmor = bestBarding;
+                        animalCompanion.RecalculateArmor();
+                        animalCompanion.Defenses.RecalculateFromProficiencies();
+                        animalCompanion.Skills.RecalculateFromProficiencies();
+
                         Action<Creature, Creature> benefitsToCompanion = self.Owner.PersistentCharacterSheet?.Calculated.RangerBenefitsToCompanion;
                         if (benefitsToCompanion != null)
                             benefitsToCompanion(animalCompanion, self.Owner);
@@ -1010,6 +1027,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
                     Creature owner = self.Owner;
                     Creature animalCompanion = Ranger.GetAnimalCompanion(owner);
+
                     bool flag = owner.HasEffect(QEffectId.MatureAnimalCompanion);
                     if (animalCompanion != null && flag && GetAnimalCompanionCommandRestriction(self, animalCompanion) == null) {
                         self.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
@@ -1018,6 +1036,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     }
                     if (animalCompanion == null || !animalCompanion.Actions.CanTakeActions())
                         return;
+
                     ActionPossibility fullCommand = new ActionPossibility(new CombatAction(owner, flag ? (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.Action) : animalCompanion.Illustration, "Command your Animal Companion",
                     [Trait.Auditory], "Take 2 actions as your animal companion.\n\nYou can only command your animal companion once per turn.", (Target)Target.Self()
                     .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null)
@@ -1074,7 +1093,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         axe.WithModificationRune(rune.ItemName);
                     }
 
-                    qfTB.Tag = new List<Item>() { dagger, hammer, axe };
+                    var shuriken = Items.CreateNew(Shuriken);
+                    foreach (Item rune in item.Runes) {
+                        shuriken.WithModificationRune(rune.ItemName);
+                    }
+
+                    qfTB.Tag = new List<Item>() { dagger, hammer, axe, shuriken };
                 };
 
                 qfTB.ProvideActionIntoPossibilitySection = (self, section) => {
@@ -1116,6 +1140,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
                         Item item = (qfTB.Tag as List<Item>)[2].Duplicate();
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
+                    }));
+
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[3].Illustration, "Draw Shuriken", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)[3].Name} from your thrower's bandolier.\n\n{{b}}Special{{/b}} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action.",
+                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
+                    .WithActionCost(cost)
+                    .WithSoundEffect(SfxName.ItemGet)
+                    .WithEffectOnSelf(async user => {
+                        Item item = (qfTB.Tag as List<Item>)[3].Duplicate();
                         item.Traits.Add(Trait.EncounterEphemeral);
                         user.HeldItems.Add(item);
                     }));
@@ -1602,7 +1637,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -1630,6 +1665,71 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Armour effects
             ModManager.RegisterActionOnEachCreature(creature => {
+                creature.AddQEffect(new QEffect() {
+                    StateCheckWithVisibleChanges = async _ => {
+                        Item? bandolier = creature.CarriedItems.FirstOrDefault(item => item.ItemName == ThrowersBandolier && item.IsWorn);
+
+                        if (bandolier == null && !creature.CarriedItems.Any(item => item.ItemName == Shuriken))
+                            return;
+
+                        List<Item> uniqueShurikens = new List<Item>();
+                        int numShurikens = 0;
+                        creature.CarriedItems.ForEach(item => {
+                            if (item.ItemName == Shuriken) {
+                                numShurikens += 1;
+                                bool unique = true;
+                                foreach (Item skn in uniqueShurikens) {
+                                    if (item.Name == skn.Name)
+                                        unique = false;
+                                }
+                                if (unique)
+                                    uniqueShurikens.Add(item);
+                            }
+                        });
+
+                        creature.AddQEffect(new QEffect() {
+                            ExpiresAt = ExpirationCondition.Ephemeral,
+                            ProvideActionIntoPossibilitySection = (self, section) => {
+                                if (section.PossibilitySectionId == PossibilitySectionId.ItemActions) {
+                                    var menu = new SubmenuPossibility(new SideBySideIllustration(Illustrations.Shuriken, IllustrationName.Throw), "Throw Shuriken");
+                                    var subsection = new PossibilitySection($"Throw Shuriken ({(bandolier == null ? "x" + numShurikens : "unlimited")})");
+                                    menu.Subsections.Add(subsection);
+                                    foreach (Item shuriken in uniqueShurikens) {
+                                        var strike = StrikeRules.CreateStrike(self.Owner, shuriken, RangeKind.Ranged, -1, true);
+                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
+                                            user.CarriedItems.Remove(shuriken);
+                                            user.AddHeldItem(shuriken);
+                                        });
+                                        strike.Name += " (" + shuriken.Name + ")";
+                                        subsection.AddPossibility((ActionPossibility)strike);
+                                    }
+
+                                    if (bandolier != null) {
+                                        var shuriken = Items.CreateNew(Shuriken);
+                                        shuriken.Traits.Add(Trait.EncounterEphemeral);
+                                        foreach (Item rune in bandolier.Runes) {
+                                            shuriken.WithModificationRune(rune.ItemName);
+                                        }
+
+                                        var strike = StrikeRules.CreateStrike(self.Owner, shuriken, RangeKind.Ranged, -1, true);
+                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
+                                            user.AddHeldItem(shuriken);
+                                        });
+                                        strike.Name += " from bandolier (" + shuriken.Name + ")";
+                                        subsection.AddPossibility((ActionPossibility)strike);
+                                    }
+
+                                    return menu;
+                                }
+
+                                return null;
+                            }
+                        });
+                    }
+                });
+                
                 if (creature.BaseArmor == null) {
                     return;
                 }

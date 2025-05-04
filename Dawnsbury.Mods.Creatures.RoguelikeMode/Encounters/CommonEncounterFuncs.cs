@@ -99,9 +99,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 }
             }
 
-            var split = creature.MainName.Split(" ");
+            var split = creature.MainName.Split(" ").ToList();
+            split.Remove("Weak");
+            split.Remove("Inferior");
+            split.Remove("Elite");
+            split.Remove("Superior");
             creature.MainName = "";
-            for (int i = 1; i < split.Count(); i++) {
+            for (int i = 0; i < split.Count(); i++) {
                 creature.MainName += split[i] + (i == split.Count() - 1 ? "" : " ");
             }
 
@@ -116,9 +120,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 } else if (adj == QEffectId.Unspecified) {
                     enemy.ApplyEliteAdjustments(false);
                 } else if (adj == QEffectId.Elite) {
-                    if (enemy.BaseName == "Drow Arcanist") {
-                        continue;
-                    }
                     RemoveDifficultyAdjustment(enemy);
                     enemy.ApplyEliteAdjustments(true);
                 }
@@ -134,9 +135,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 } else if (adj == QEffectId.Unspecified) {
                     enemy.ApplyWeakAdjustments(false);
                 } else if (adj == QEffectId.Weak) {
-                    if (enemy.BaseName == "Drow Shadowcaster") {
-                        continue;
-                    }
                     RemoveDifficultyAdjustment(enemy);
                     enemy.ApplyWeakAdjustments(false, true);
                 }
@@ -148,15 +146,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             List<Creature> creatures = battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList();
             for (int i = 0; i < creatures.Count(); i++) {
                 QEffectId adj = GetAdjustmentRank(creatures[i]);
-                if (levelDrain && adj == QEffectId.Weak) {
-                    if (creatures[i].BaseName == "Drow Shadowcaster") {
+                if (levelDrain && adj == QEffectId.Inferior) {
+                    if (creatures[i].CreatureId == CreatureIds.DrowShadowcaster) {
                         Tile pos = creatures[i].Occupies;
                         Faction faction = creatures[i].OwningFaction;
                         battle.RemoveCreatureFromGame(creatures[i]);
                         battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowArcanist](battle.Encounter), faction, pos);
                     }
-                } else if (!levelDrain && adj == QEffectId.Elite) {
-                    if (creatures[i].BaseName == "Drow Arcanist") {
+                } else if (!levelDrain && adj == QEffectId.Supreme) {
+                    if (creatures[i].CreatureId == CreatureIds.DrowArcanist) {
                         Tile pos = creatures[i].Occupies;
                         Faction faction = creatures[i].OwningFaction;
                         battle.RemoveCreatureFromGame(creatures[i]);

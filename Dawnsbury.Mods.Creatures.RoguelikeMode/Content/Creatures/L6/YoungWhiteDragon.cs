@@ -33,6 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         public static Creature Create()
         {
             return new Creature(Illustrations.WhiteDragon, "Young White Dragon", [Trait.Chaotic, Trait.Evil, Trait.Cold, Trait.Dragon], 6, 13, 16, new Defenses(23, 16, 14, 11), 115, new Abilities(6, 2, 4, -1, 1, 0), new Skills(acrobatics: 10, arcana: 7, athletics: 16, deception: 15, intimidation: 12, stealth: 14))
+                .WithCreatureId(CreatureIds.YoungWhiteDragon)
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(QEffect.DamageImmunity(DamageKind.Cold))

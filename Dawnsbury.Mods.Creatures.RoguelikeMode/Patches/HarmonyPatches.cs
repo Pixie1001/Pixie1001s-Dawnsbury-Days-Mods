@@ -497,6 +497,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     Illustrations.FailedRun.DrawImage(new Rectangle(padding, padding, w, h), null, false, false, null);
                 } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is LevelUpStop) {
                     Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is LongRestCampaignStop) {
+                    Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
                 } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is DawnsburyStop) {
                     Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
                 } else if (__instance.CurrentView is ShopView) {

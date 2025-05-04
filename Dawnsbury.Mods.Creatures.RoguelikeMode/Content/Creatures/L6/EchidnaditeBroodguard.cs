@@ -36,12 +36,13 @@ using Dawnsbury.Core.Intelligence;
 using System.Collections.Generic;
 using Dawnsbury.Core.Mechanics.Rules;
 using System.Reflection.Metadata;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class EchidnaditeBroodguard {
         public static Creature Create() {
-            Creature monster = new Creature(IllustrationName.OrcBrute256, "Echidnadite Brood Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator }, 5, 12, 5, new Defenses(24, 17, 11, 14), 120,
+            Creature monster = new Creature(Illustrations.EBroodGuard, "Echidnadite Brood Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator }, 5, 12, 5, new Defenses(24, 17, 11, 14), 120,
                 new Abilities(4, 2, 4, 0, 2, 2), new Skills(athletics: 17, nature: 13))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -77,6 +78,37 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return diceFormula;
                 }
             })
+            .AddQEffect(new QEffect("Combat Disarm", "When your Strike hits, you can spend an action to attempt to disarm your opponent.") {
+                ProvideMainAction = self => {
+                    Creature monster = self.Owner;
+                    IEnumerable<Creature> source = from cr in monster.Battle.AllCreatures.Where(delegate (Creature cr) {
+                        CombatAction combatAction = monster.Actions.ActionHistoryThisTurn.LastOrDefault();
+                        return combatAction != null && combatAction.CheckResult >= CheckResult.Success && combatAction.HasTrait(Trait.Disarm) && combatAction.ChosenTargets.ChosenCreature == cr;
+                    }) select cr;
+                    return new SubmenuPossibility(IllustrationName.Disarm, "Disarm") {
+                        Subsections = {
+                            new PossibilitySection("Disarm") {
+                                Possibilities = source.Select((Func<Creature, Possibility>)((lt) =>
+                                    (ActionPossibility) new CombatAction(monster, IllustrationName.Disarm, "Disarm " + lt.Name, [Trait.Melee, Trait.AttackDoesNotIncreaseMultipleAttackPenalty, Trait.Attack, Trait.Basic],
+                                    "Disarm the target.",
+                                    Target.ReachWithWeaponOfTrait(Trait.Disarm)
+                                        .WithAdditionalConditionOnTargetCreature((a, d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable)
+                                        .WithAdditionalConditionOnTargetCreature((a, d) => (a.HasFreeHand || a.WieldsItem(Trait.Disarm) ? Usability.Usable : Usability.CommonReasons.NoFreeHandForManeuver))
+                                        .WithAdditionalConditionOnTargetCreature((a, d) => d.HeldItems.Any(hi => !hi.HasTrait(Trait.Grapplee) && !hi.HasTrait(Trait.Shield) && d.GetProficiency(hi) > d.Level) ? Usability.Usable : Usability.CommonReasons.TargetHasNoWeapon)
+                                    )
+                                    .WithGoodness((t, a, d) => AIConstants.ALWAYS)
+                                    .WithItem(monster.PrimaryWeapon)
+                                    .WithActionCost(1)
+                                    .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), TaggedChecks.DefenseDC(Defense.Reflex)))
+                                    .WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr) {
+                                        await CommonAbilityEffects.Disarm(ca, a, d, cr);
+                                }))).ToList()
+                            }
+                        }
+                    };
+                }
+            })
+            .AddQEffect(new QEffect("Powerful Disarm", "When you succeed but not critically succeed at a Disarm check, the penalty lasts until the end of the target's turn, not until the start of their turn.") { Id = QEffectId.PowerfulDisarm })
             ;
 
             monster.AddQEffectAtPriority(CommonQEffects.RetributiveStrike(2, cr => CommonQEffects.IsMonsterAlly(monster, cr), "a monstrous ally", true), true);

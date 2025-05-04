@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            var creature = new Creature(Illustrations.MInnowOfMulnok,
+            var creature = new Creature(Illustrations.MinnowOfMulnok,
                 "Minnow of Mulnok",
                 [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.NonSummonable, ModTraits.MeleeMutator],
                 0, 6, 7,
@@ -32,6 +32,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 new Abilities(1, 3, 2, -4, 0, -2),
                 new Skills(athletics: 5, survival: 4))
             .WithCharacteristics(false, true)
+            .WithCreatureId(CreatureIds.MinnowOfMulnok)
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Good, 3))
             .AddQEffect(QEffect.DamageImmunity(DamageKind.Fire))
             .AddQEffect(QEffect.Swimming())
@@ -69,7 +70,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         {
                             var creature = user.Battle.AllCreatures[i];
 
-                            if (creature.FriendOfAndNotSelf(user) && creature.BaseName == "Minnow of Mulnok")
+                            if (creature.FriendOfAndNotSelf(user) && creature.CreatureId == CreatureIds.MinnowOfMulnok)
                             {
                                 await creature.StrideAsync("Select where you want to stride.", allowPass: true);
 
@@ -106,7 +107,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             return AIConstants.NEVER;
                         }
 
-                        var minnows = user.Battle.AllCreatures.Where((creature) => creature.FriendOf(user) && creature.BaseName == "Minnow of Mulnok");
+                        var minnows = user.Battle.AllCreatures.Where((creature) => creature.FriendOf(user) && creature.CreatureId == CreatureIds.MinnowOfMulnok);
 
                         var total = minnows.Count();
 
@@ -149,7 +150,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         return AIConstants.NEVER;
 
-                        /*var minnows = user.Battle.AllCreatures.Where((creature) => creature.FriendOf(user) && creature.BaseName == "Minnow of Mulnok" && !creature.Actions.IsReactionUsedUp && creature != user);
+                        /*var minnows = user.Battle.AllCreatures.Where((creature) => creature.FriendOf(user) && creature.CreatureId == CreatureIds.MinnowOfMulnok && !creature.Actions.IsReactionUsedUp && creature != user);
 
                         var total = minnows.Count();
 
@@ -217,7 +218,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                     foreach (Creature creature in minnow.Battle.AllCreatures)
                     {
-                        if (creature.FriendOfAndNotSelf(minnow) && creature.BaseName == "Minnow of Mulnok" && creature.IsAdjacentTo(minnow))
+                        if (creature.FriendOfAndNotSelf(minnow) && creature.CreatureId == CreatureIds.MinnowOfMulnok && creature.IsAdjacentTo(minnow))
                         {
                             creature.AddQEffect(new(ExpirationCondition.Ephemeral)
                             {
@@ -259,7 +260,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                     foreach (Creature creature in minnow.Battle.AllCreatures)
                     {
-                        if (creature.FriendOfAndNotSelf(minnow) && creature.BaseName == "Minnow of Mulnok" && creature.IsAdjacentTo(minnow) && creature.QEffects.FirstOrDefault((qEffect) => qEffect.Name == "Frenzied") == null)
+                        if (creature.FriendOfAndNotSelf(minnow) && creature.CreatureId == CreatureIds.MinnowOfMulnok && creature.IsAdjacentTo(minnow) && creature.QEffects.FirstOrDefault((qEffect) => qEffect.Name == "Frenzied") == null)
                         {
                             creature.AddQEffect(new("Frenzied", "You have a +1 circumstance bonus to AC, attack rolls, and saving throws.", ExpirationCondition.Ephemeral, minnow, IllustrationName.Rage)
                             {
@@ -279,7 +280,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             });
                         }
 
-                        /*if (creature.FriendOfAndNotSelf(minnow) && creature.BaseName == "Minnow of Mulnok")
+                        /*if (creature.FriendOfAndNotSelf(minnow) && creature.CreatureId == CreatureIds.MinnowOfMulnok)
                         {
                             creature.AddQEffect(new()
                             {

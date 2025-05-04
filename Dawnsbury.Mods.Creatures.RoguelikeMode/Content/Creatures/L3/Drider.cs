@@ -21,6 +21,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             return new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Aberration, ModTraits.Spider, Trait.Female, ModTraits.MeleeMutator }, 3, 6, 6, new Defenses(17, 12, 7, 6), 56,
             new Abilities(5, 3, 3, 1, 3, 2), new Skills(athletics: 10, intimidation: 8))
+            .WithCreatureId(CreatureIds.Drider)
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Ranged, Proficiency.Expert)
             .WithBasicCharacteristics()

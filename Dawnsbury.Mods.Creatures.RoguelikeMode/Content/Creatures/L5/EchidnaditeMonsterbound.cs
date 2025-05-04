@@ -40,7 +40,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class EchidnaditeMonsterBound {
         public static Creature Create() {
-            Creature monster = new Creature(IllustrationName.OrcRanger256, "Echidnadite Monsterbound", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator }, 5, 12, 5, new Defenses(21, 12, 12, 12), 72,
+            Creature monster = new Creature(Illustrations.EMonsterbound, "Echidnadite Monsterbound", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator }, 5, 12, 5, new Defenses(21, 12, 12, 12), 72,
                 new Abilities(2, 4, 3, 0, 2, 2), new Skills(nature: 13, intimidation: 12))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

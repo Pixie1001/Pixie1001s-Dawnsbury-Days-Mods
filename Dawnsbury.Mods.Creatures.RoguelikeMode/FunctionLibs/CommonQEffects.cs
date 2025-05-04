@@ -765,7 +765,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
 
                     if (await defender.AskToUseReaction($"Use your reaction to have {protector.Name} take {damageStuff.Amount} damage instead of you?")) {
-
+                        Sfxs.Play(SfxName.Abjuration);
+                        defender.Occupies.Overhead("mother's protection", Color.Crimson, $"{defender.Name } used Mother's Protection to transfer their wounds to {protector.Name}.");
                         await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(defender.Battle.Pseudocreature, "Mother's Protection"), DiceFormula.FromText(damageStuff.Amount.ToString()), protector, CheckResult.Failure, DamageKind.Untyped);
 
                         return new ReduceDamageModification(damageStuff.Amount, $"Protected by {protector.Name}");

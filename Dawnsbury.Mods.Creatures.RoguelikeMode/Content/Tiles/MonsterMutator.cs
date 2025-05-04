@@ -35,7 +35,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return;
                     }
 
-                    if (self.Owner.PrimaryOccupant?.Battle.RoundNumber <= 1) {
+                    var occupant = self.Owner.PrimaryOccupant;
+
+                    if (occupant == null) return;
+
+                    if (self.Owner.PrimaryOccupant?.Battle.RoundNumber <= 1
+                    && !(occupant.CreatureId == CreatureIds.DrowArcanist && occupant.HasEffect(QEffectId.Elite))
+                    && !(occupant.CreatureId == CreatureIds.DrowShadowcaster && occupant.HasEffect(QEffectId.Weak))) {
                         MonsterMutatorTable.RollForMutator(self.Owner.PrimaryOccupant);
                         // self.Owner.PrimaryOccupant.AddQEffect();
                         //self.Owner.PrimaryOccupant.MainName = "Modified " + self.Owner.PrimaryOccupant.MainName;
