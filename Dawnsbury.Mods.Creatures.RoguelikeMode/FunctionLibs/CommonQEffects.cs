@@ -626,7 +626,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                             CalculatedTrueDamageFormula = DiceFormula.FromText("1d6", "Cruel Taskmistress")
                         };
 
-                        CombatAction attack = effect.Owner.CreateStrike(fakeWhip, -1, strikeMod);
+                        CombatAction attack = effect.Owner.CreateStrike(fakeWhip, -1, strikeMod).WithActionCost(0);
                         attack.WithActiveRollSpecification(null);
                         attack.Target = new CreatureTarget(RangeKind.Melee, new CreatureTargetingRequirement[] { }, (_1, _2, _3) => int.MinValue);
                         attack.ChosenTargets = ChosenTargets.CreateSingleTarget(action.Owner);
@@ -795,6 +795,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
 
                     CombatAction ca = new CombatAction(source, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
+                    .WithActionCost(0)
                     .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
                     .WithSoundEffect(SfxName.ElementalBlastWater)
                     .WithEffectOnEachTarget(async (spell, user, d, result) => {

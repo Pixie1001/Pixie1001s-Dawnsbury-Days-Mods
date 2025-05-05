@@ -32,7 +32,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             string name = self.Owner.Name;
 
                             if (!self.UsedThisTurn && (kind == DamageKind.Fire || kind == DamageKind.Electricity || (action != null && (action.HasTrait(Trait.Fire) || action.HasTrait(Trait.Electricity))))) {
-                                CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire }, "", Target.SelfExcludingEmanation(2))
+                                CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion }, "", Target.SelfExcludingEmanation(2))
+                                .WithActionCost(0)
                                 .WithSoundEffect(SfxName.Fireball)
                                 .WithSavingThrow(new SavingThrow(Defense.Reflex, 19))
                                 .WithProjectileCone(IllustrationName.Fireball, 15, ProjectileKind.Cone)

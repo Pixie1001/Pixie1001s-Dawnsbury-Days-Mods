@@ -431,7 +431,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             if (ranged) {
                                 mod.AdditionalBonusesToAttackRoll = new List<Bonus>() { new Bonus(-2, BonusType.Untyped, "Ranged Trigger") };
                             }
-                            CombatAction ca = rat.CreateStrike(rat.UnarmedStrike, 0, mod);
+                            CombatAction ca = rat.CreateStrike(rat.UnarmedStrike, 0, mod).WithActionCost(0);
                             ca.ChosenTargets.ChosenCreature = target;
                             ca.ChosenTargets.ChosenCreatures.Add(target);
                             await ca.AllExecute();

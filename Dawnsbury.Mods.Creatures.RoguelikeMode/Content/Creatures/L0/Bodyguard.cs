@@ -21,6 +21,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 18,
                 new Abilities(3, 0, 3, 0, 2, 0),
                 new Skills(athletics: 6, intimidation: 4))
+            .WithCreatureId(CreatureIds.Bodyguard)
             .WithBasicCharacteristics()
             .AddQEffect(CommonQEffects.MonsterKnockdown())
             .AddHeldItem(new Item(ItemName.SteelShield, IllustrationName.SteelShield, "Steel Shield", 0, 0, Trait.Shield, Trait.Martial).WithMainTrait(Trait.SteelShield).WithShieldProperties(5));

@@ -137,5 +137,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration BaneCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/BaneCircleWhite.png");
         internal static ModdedIllustration InkCloud = new ModdedIllustration("RoguelikeModeAssets/Other/InkCloud.png");
         internal static ModdedIllustration KinestistCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/KineticistAuraCircle.png");
+        internal static ModdedIllustration MutatedBorder = new ModdedIllustration("RoguelikeModeAssets/Other/MutatedBorder.png");
     }
 }

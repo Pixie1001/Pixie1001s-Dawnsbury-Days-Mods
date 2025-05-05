@@ -40,6 +40,8 @@ using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Core.StatBlocks.Description;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 {
@@ -63,6 +65,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         public void Apply(Creature creature) {
             adjustment(creature);
             creature.MainName = this.name + " " + creature.MainName;
+            creature.Illustration = new SameSizeDualIllustration(creature.Illustration, Illustrations.MutatedBorder);
         }
     }
 

@@ -67,7 +67,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         //SavingThrow st = new SavingThrow();
                         //CommonSpellEffects.DealBasicDamage();
 
-                        CombatAction ca = new CombatAction(hazard, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
+                        CombatAction ca = new CombatAction(hazard, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion], "", Target.Ranged(100))
+                        .WithActionCost(0)
                         .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
                         .WithSoundEffect(SfxName.ElementalBlastWater)
                         .WithEffectOnEachTarget(async (spell, user, d, result) => {

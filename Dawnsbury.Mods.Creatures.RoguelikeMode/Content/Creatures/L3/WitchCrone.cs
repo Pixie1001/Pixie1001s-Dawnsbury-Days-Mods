@@ -26,6 +26,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             return new Creature(IllustrationName.SwampHag, "Agatha Agaricus", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female, ModTraits.SpellcasterMutator }, 3, 4, 5, new Defenses(17, 9, 6, 12), 60,
             new Abilities(2, 2, 3, 4, 2, 0), new Skills(nature: 13, occultism: 9, intimidation: 10, religion: 9))
+            .WithCreatureId(CreatureIds.WitchCrone)
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.BattleformAttack, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Trained)

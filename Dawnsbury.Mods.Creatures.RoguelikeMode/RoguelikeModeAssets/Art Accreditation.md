@@ -72,6 +72,7 @@
 	<li>AnimalFormWolf.png (Modified)</li>
 	<li>CloakOfAir.png (Modified)</li>
 	<li>BaneCircleWhite.png (Modified)</li>
+	<li>MutatedBorder.png (Modified)</li>
 </ul>
 
 ## Self Produced Assets
@@ -114,7 +115,6 @@
 	<li>Ardamok.png</li>
 	<li>Chimera.png</li>
 	<li>Crocodile.png</li>
-	
 	<li>Mounterbound.png</li>
 	<li>WombCultist.png</li>
 	<li>BroodGuard.png</li>

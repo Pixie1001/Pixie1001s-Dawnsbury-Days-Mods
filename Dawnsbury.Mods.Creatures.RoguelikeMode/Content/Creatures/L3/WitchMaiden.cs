@@ -25,6 +25,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             return new Creature(IllustrationName.SuccubusShapeshifted, "Harriet Hex", new List<Trait>() { Trait.Neutral, Trait.Evil, Trait.Human, Trait.Tiefling, Trait.Humanoid, ModTraits.Witch, Trait.Female, ModTraits.SpellcasterMutator }, 3, 6, 5, new Defenses(17, 6, 9, 12), 45,
             new Abilities(0, 4, 3, 4, 2, 0), new Skills(nature: 10, occultism: 10, intimidation: 9, arcana: 14))
+            .WithCreatureId(CreatureIds.WitchMaiden)
             .WithProficiency(Trait.Unarmed, Proficiency.Trained)
             .WithProficiency(Trait.Crossbow, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
@@ -63,9 +64,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             StartOfYourPrimaryTurn = async (qfCurse, victim) => {
                                 if (victim.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon")) {
                                     QEffect bond = victim.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
-                                    CombatAction action = new CombatAction(self.Owner, self.Illustration, "Curse of Agony", new Trait[] { Trait.Curse, Trait.Mental, Trait.Arcane }, "", Target.Emanation(100).WithIncludeOnlyIf((area, target) => {
+                                    CombatAction action = new CombatAction(self.Owner, self.Illustration, "Curse of Agony", new Trait[] { Trait.Curse, Trait.Mental, Trait.Arcane, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion }, "", Target.Emanation(100).WithIncludeOnlyIf((area, target) => {
                                         return target == victim || target == bond.Source;
                                     }))
+                                    .WithActionCost(0)
                                     .WithEffectOnEachTarget(async (spell, user, d, result) => {
                                         await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText($"{curseDmg}", "Curse of Agony"), d, CheckResult.Success, DamageKind.Mental);
                                     });

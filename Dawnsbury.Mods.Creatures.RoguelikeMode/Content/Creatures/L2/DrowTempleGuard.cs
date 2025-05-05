@@ -11,9 +11,13 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -35,11 +39,31 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(CommonQEffects.DrowBloodBond())
             .AddQEffect(CommonQEffects.RetributiveStrike(2, cr => cr.HasEffect(QEffectIds.DrowClergy), "a member of the drow clergy", true))
-            //.AddQEffect(QEffect.AttackOfOpportunity())
             .AddQEffect(QEffect.DamageResistance(DamageKind.Negative, 5))
             .WithBasicCharacteristics()
             .WithProficiency(Trait.Weapon, Proficiency.Expert)
-            .AddHeldItem(Items.CreateNew(ItemName.Halberd));
+            .AddHeldItem(Items.CreateNew(ItemName.Halberd))
+            .Builder
+            .AddMainAction(you => {
+                return new CombatAction(you, IllustrationName.SanguineMist, "Blood Ward", [Trait.Necromancy, Trait.Abjuration, Trait.Manipulate], "[Manipulate, 15-feet] Grant target cleric a magical barrier until the start of your next turn, that increases their AC by +2 and inflicts 1d6 negative damage to any creature that attacks them.", Target.RangedFriend(3)
+                    .WithAdditionalConditionOnTargetCreature((a, d) => d.HasEffect(QEffectIds.DrowClergy) ? Usability.Usable : Usability.NotUsableOnThisCreature("not-a-member-of-the-drow-clergy")))
+                .WithActionCost(2)
+                .WithGoodness((t, a, d) => 2f)
+                .WithSoundEffect(SfxName.Necromancy)
+                .WithProjectileCone(IllustrationName.SanguineMist, 5,ProjectileKind.Cone)
+                .WithEffectOnEachTarget(async (action, user, target, result) => {
+                    target.AddQEffect(new QEffect("Blood Ward", "You gain +2 AC, and enemy creatures that damage you suffer 1d6 negative damage.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, user, IllustrationName.SanguineMist) {
+                        BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(2, BonusType.Untyped, "Blood Ward", true) : null,
+                        AfterYouTakeDamage = async (self, amount, kind, action, crit) => {
+                            if (action?.Owner?.Occupies == null || action?.Owner.OwningFaction == self.Owner.OwningFaction) return;
+                            await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self.Owner, "Blood Ward"), DiceFormula.FromText("1d6", "Blood Ward"), action.Owner, CheckResult.Success, DamageKind.Negative);
+                            Sfxs.Play(SfxName.Necromancy);
+                        }
+                    });
+                })
+                ;
+            })
+            .Done();
         }
     }
 }

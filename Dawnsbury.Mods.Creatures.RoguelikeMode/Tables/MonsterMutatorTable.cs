@@ -50,9 +50,8 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class MonsterMutatorTable {
-        //public static List<SkillChallenge> events = new List<SkillChallenge>();
-        //public static Dictionary<int, SkillChallenge> chosenEvents = new Dictionary<int, SkillChallenge>();
         private static List<MonsterArchetype> mutators = new List<MonsterArchetype>();
+        private static string icon = $"{((Illustration)IllustrationName.Tentacle).IllustrationAsIconString} ";
 
         public static bool RollForMutator(Creature creature) {
             int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
@@ -80,7 +79,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             mutators.Clear();
 
             mutators.Add(new MonsterArchetype("Vampiric", [ModTraits.MeleeMutator], creature => {
-                QEffect effect = new QEffect("Vampiric", "This creature heals for an amount of damage equal to that which it deals on a melee strike.") {
+                QEffect effect = new QEffect(icon + "Vampiric", "This creature heals for an amount of damage equal to that which it deals on a melee strike.") {
                     AdditionalGoodness = (self, action, target) => {
                         if (action != null && action.HasTrait(Trait.Strike) && action.HasTrait(Trait.Melee) && target.IsLivingCreature && self.Owner.Damage >= 0) {
                             return 5;
@@ -100,7 +99,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Analytical", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Analytical", "Enemy creatures damaged by this creature gain the 'analysed' condition, causing them to take 1d6 additional damage when damaged by an ally of this creature.") {
+                QEffect effect = new QEffect(icon + "Analytical", "Enemy creatures damaged by this creature gain the 'analysed' condition, causing them to take 1d6 additional damage when damaged by an ally of this creature.") {
                     AfterYouDealDamage = async (you, action, target) => {
                         if (target?.Occupies == null) {
                             return;
@@ -129,7 +128,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Berserking", [ModTraits.MeleeMutator], creature => {
-                QEffect effect = new QEffect("Berserking", "This creature is consumed by a reckless, berserkers rage, granting them additional temporary hit points, a +4 bonus to damage and a +5 bonus to speed, at the expense of a -2 penalty to their AC and Will save DC. They cannot use Concentrate actions.") {
+                QEffect effect = new QEffect(icon + "Berserking", "This creature is consumed by a reckless, berserkers rage, granting them additional temporary hit points, a +4 bonus to damage and a +5 bonus to speed, at the expense of a -2 penalty to their AC and Will save DC. They cannot use Concentrate actions.") {
                     BonusToDamage = (self, action, target) => !action.HasTrait(Trait.Spell) ? new Bonus(4, BonusType.Untyped, "Berserking") : null,
                     BonusToDefenses = (self, action, def) => def == Defense.AC || def == Defense.Will ? new Bonus(-2, BonusType.Untyped, "Berserking") : null,
                     BonusToAllSpeeds = (self) => new Bonus(1, BonusType.Untyped, "Berserking"),
@@ -140,13 +139,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Mirrored", [ModTraits.UniversalMutator], creature => {
-                creature.AddQEffect(Level2Spells.CreateMirrorImageEffect(creature));
+                var effect = Level2Spells.CreateMirrorImageEffect(creature);
+                effect.Name = icon + effect.Name;
+                creature.AddQEffect(effect);
             }));
 
             mutators.Add(new MonsterArchetype("Volatile", [ModTraits.MeleeMutator], creature => {
                 int dc = SkillChallengeTables.GetDCByLevel(creature.Level) + 2;
                 string dmg = (1 + Math.Max(1, creature.Level / 2)) + "d6";
-                creature.AddQEffect(new QEffect("Volatile", $"This creature explodes on death, dealing {dmg} force damage vs. a basic Reflex save (DC {dc}) against each creature within 10 feet of them.") {
+                creature.AddQEffect(new QEffect(icon + "Volatile", $"This creature explodes on death, dealing {dmg} force damage vs. a basic Reflex save (DC {dc}) against each creature within 10 feet of them.") {
                     Illustration = IllustrationName.Fireball,
                     YouAreDealtDamageEvent = async (self, dmgEvent) => {
                         Tile location = self.Owner.Occupies;
@@ -171,7 +172,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Deflecting", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Deflecting", "This creature is master at deflecting attacks in melee, gaining a +2 bonus to AC against melee attacks.") {
+                QEffect effect = new QEffect(icon + "Deflecting", "This creature is master at deflecting attacks in melee, gaining a +2 bonus to AC against melee attacks.") {
                     BonusToDefenses = (self, action, def) => action != null && action.HasTrait(Trait.Melee) && def == Defense.AC ? new Bonus(2, BonusType.Untyped, "Deflecting") : null
                 };
 
@@ -179,7 +180,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Galeward", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Galeward", "An aegis of wind protects this creature from projectiles, granting them a +2 bonus Reflex, and to AC against ranged attacks.") {
+                QEffect effect = new QEffect(icon + "Galeward", "An aegis of wind protects this creature from projectiles, granting them a +2 bonus Reflex, and to AC against ranged attacks.") {
                     BonusToDefenses = (self, action, def) => def == Defense.Reflex || (action != null && action.HasTrait(Trait.Ranged) && def == Defense.AC) ? new Bonus(2, BonusType.Untyped, "Galeward") : null
                 };
 
@@ -187,7 +188,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Impervious", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Impervious", "") {
+                QEffect effect = new QEffect(icon + "Impervious", "") {
                     StateCheck = (self) => {
                         self.Description = $"This creature cannot be harmed by mere physical attacks, granting them resistence {3 + self.Owner.Level} against bludgeoning, piercing and slashing damage.";
                         self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, self.Owner.Level + 3);
@@ -200,7 +201,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Trollblood", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Trollblood", "The blood of trolls runs through this creature's vein, granting them natural regeneration.") {
+                QEffect effect = new QEffect(icon + "Trollblood", "The blood of trolls runs through this creature's vein, granting them natural regeneration.") {
                 };
 
                 creature.AddQEffect(QEffect.Regeneration(Math.Max(5, creature.Level * 5), [DamageKind.Acid, DamageKind.Fire], [], true));
@@ -208,7 +209,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Eternal", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Eternal", "Foul necromancy sustains this creature, granting them regeneration and undead status.") {
+                QEffect effect = new QEffect(icon + "Eternal", "Foul necromancy sustains this creature, granting them regeneration and undead status.") {
                 };
                 creature.Traits.Add(Trait.Undead);
                 creature.AddQEffect(QEffect.DamageImmunity(DamageKind.Negative));
@@ -225,7 +226,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Rat Blessed", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Rat Blessed", "This creature commands a swarm of ravenous rats. Killing them will disperse their swarm.") {
+                QEffect effect = new QEffect(icon + "Rat Blessed", "This creature commands a swarm of ravenous rats. Killing them will disperse their swarm.") {
                     WhenMonsterDies = self => {
                         foreach (var rat in self.Owner.Battle.AllCreatures.Where(cr => cr.QEffects.Any(qf => qf.Name == "Rat Swarm Familiar" && qf.Source == self.Owner)).ToList()) {
                             self.Owner.Battle.RemoveCreatureFromGame(rat);
@@ -252,7 +253,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Mooncursed", [ModTraits.UniversalMutator], creature => {
-                QEffect effect = new QEffect("Mooncursed", "This creature has been infected by a werecreature, allowing them to assume their true monstrous form when reduced below half HP. Their new form shakes off all conditions, but begins combat at half HP.") {
+                QEffect effect = new QEffect(icon + "Mooncursed", "This creature has been infected by a werecreature, allowing them to assume their true monstrous form when reduced below half HP. Their new form shakes off all conditions, but begins combat at half HP.") {
                     WhenCreatureDiesAtStateCheckAsync = async self => {
                         if (self.Owner.Damage >= self.Owner.MaxHP) {
                             Tile pos = self.Owner.Occupies;
@@ -286,7 +287,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
 
             mutators.Add(new MonsterArchetype("Studious", [ModTraits.SpellcasterMutator], creature => {
-                QEffect effect = new QEffect("Studious", "This creature is capable of casting powerful high level spells.");
+                QEffect effect = new QEffect(icon + "Studious", "This creature is capable of casting powerful high level spells.");
                 creature.AddQEffect(effect);
                 switch (creature.CreatureId) {
                     case var v when v.Equals(CreatureIds.DrowArcanist):
@@ -354,7 +355,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             return new MonsterArchetype(name, [ModTraits.UniversalMutator], creature => {
                 creature.AnimationData.AddAuraAnimation(new MagicCircleAuraAnimation(Illustrations.KinestistCircleWhite, colour, 2));
                 creature.AnimationData.AuraAnimations.Last().MaximumOpacity = 0.7f;
-                QEffect effect = new QEffect(name, $"This creature is empowered by the element of {elementTrait.HumanizeTitleCase2()}," +
+                QEffect effect = new QEffect(icon + name, $"This creature is empowered by the element of {elementTrait.HumanizeTitleCase2()}," +
                     $" gaining immunity to {elementTrait.HumanizeTitleCase2()} and {(physical ? "resistance 5 to" : "")} {element.HumanizeTitleCase2()} damage{(hasWeakness ? $", as well as weakness 5 to {weakness.HumanizeTitleCase2()} damage" : "")}." +
                     $" It also gains an aura that deals 1d6+{creature.Level} {element.HumanizeTitleCase2()} " +
                     $"damage (Basic fort vs. DC {SkillChallengeTables.GetDCByLevel(creature.Level) + 2}) to enemy creatures who end their turn within 10ft of it. In addition, their spells deal +2 {element.HumanizeTitleCase2()} damage.") {

@@ -48,6 +48,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             Creature monster = new Creature(Illustrations.MerfolkKrakenborn, "Merfolk Krakenborn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Merfolk, Trait.Humanoid, Trait.Aquatic, ModTraits.MeleeMutator }, 2, 7, 6, new Defenses(17, 10, 8, 7), 30,
                 new Abilities(4, 2, 1, 0, 2, 0), new Skills(athletics: 8))
+                .WithCreatureId(CreatureIds.MerfolkKrakenBorn)
                 .WithProficiency(Trait.Weapon, Proficiency.Expert)
                 .WithBasicCharacteristics()
                 .WithUnarmedStrike(tentacle)
@@ -68,7 +69,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             return;
                         }
 
-                        CombatAction strike = self.Owner.CreateStrike(self.Owner.UnarmedStrike, 0);
+                        CombatAction strike = self.Owner.CreateStrike(self.Owner.UnarmedStrike, 0).WithActionCost(0);
                         strike.ActionCost = 0;
                         strike.ChosenTargets = ChosenTargets.CreateSingleTarget(action.Owner);
                         
