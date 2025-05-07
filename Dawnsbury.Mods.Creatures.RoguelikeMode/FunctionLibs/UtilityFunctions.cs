@@ -329,7 +329,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public record DualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
-        public override string IllustrationAsIconString => Center.IllustrationAsIconString;
+        public override string IllustrationAsIconString => NewMain.IllustrationAsIconString;
 
         public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             int num = rectangle.Width / 6;
@@ -357,7 +357,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public record SameSizeDualIllustration(Illustration NewMain, Illustration Center) : ScrollIllustration(IllustrationName.None, Center) {
-        public override string IllustrationAsIconString => Center.IllustrationAsIconString;
+        public override string IllustrationAsIconString => NewMain.IllustrationAsIconString;
 
         public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
             //NewMain.DrawImage(new Rectangle(rectangle.X + num, rectangle.Y + num2, rectangle.Width - 2 * num, rectangle.Height - 2 * num2), color, scale, scaleUp, scaleBgColor);

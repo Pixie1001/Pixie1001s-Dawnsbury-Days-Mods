@@ -81,6 +81,65 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         //public static List<ItemName> items = new List<ItemName>();
 
+        //public static ItemName TestItem { get; } = ModManager.RegisterNewItemIntoTheShop("TEST", itemName => new Item(itemName, Illustrations.DuelingSpear, "TEST", 0, 2,
+        //    Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
+        //.WithModification(new ItemModification(ItemModificationKind.CustomPermanent))
+        //.WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
+
+        public static ItemName Sai { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Sai", itemName => new Item(itemName, Illustrations.Sai, "sai", 0, 2,
+            Trait.Uncommon, Trait.Agile, Trait.Disarm, Trait.Finesse, Trait.VersatileB, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)));
+
+        public static ItemName Nunchaku { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Nunchaku", itemName => new Item(itemName, Illustrations.Nunchuck, "nunchaku", 0, 0,
+            Trait.Uncommon, Trait.Backswing, Trait.Disarm, Trait.Finesse, Trait.Club, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
+
+        public static ItemName Kama { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Kama", itemName => new Item(itemName, Illustrations.Kama, "kama", 0, 1,
+            Trait.Uncommon, Trait.Agile, Trait.Trip, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
+
+        public static ItemName HookSword { get; } = ModManager.RegisterNewItemIntoTheShop("RL_HookSword", itemName => {
+            Item item = new Item(itemName, Illustrations.HookSword, "hook sword", 0, 2,
+            ModTraits.Parry, ModTraits.Twin, Trait.Disarm, Trait.Trip, Trait.Uncommon, Trait.Sword, Trait.Advanced, Trait.MonkWeapon, ModTraits.Roguelike)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing));
+
+            item.ProvidesItemAction = (wielder, wpn) => {
+                if (wielder.QEffects.Any(qf => qf.Id == QEffectIds.Parry && qf.Tag == wpn)) return null;
+
+                return (ActionPossibility)new CombatAction(wielder, new SideBySideIllustration(Illustrations.Parry, wpn.Illustration), $"Parry ({item.Name})", [], "You raise your weapon to parry oncoming attacks, granting yourself a +1 circumstance bonus to AC.", Target.Self())
+                .WithSoundEffect(SfxName.RaiseShield)
+                .WithActionCost(1)
+                .WithEffectOnSelf(you => {
+                    you.AddQEffect(new QEffect("Parrying with " + item.Name, "You have a +1 circumstance bonus to AC.", ExpirationCondition.ExpiresAtStartOfYourTurn, you, Illustrations.Parry) {
+                        Id = QEffectIds.Parry,
+                        BonusToDefenses = delegate (QEffect parrying, CombatAction? bonk, Defense defense) {
+                            if (defense == Defense.AC) {
+                                return new Bonus(1, BonusType.Circumstance, "parry");
+                            } else return null;
+                        },
+                        Tag = item,
+                        StateCheck = (qf) => {
+                            if (!qf.Owner.HeldItems.Contains(item)) {
+                                qf.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        }
+                    });
+                });
+            };
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    YouDealDamageWithStrike = (self, action, damage, defender) => {
+                        if (action == null || !action.HasTrait(ModTraits.Twin) || action.Item != item) return damage;
+                        if (self.Owner.Actions.ActionHistoryThisTurn.Any(a => a.HasTrait(Trait.Strike) && a.Item?.ItemName == action.Item.ItemName && a.Item != action.Item)) return damage.Add(DiceFormula.FromText($"{action?.Item?.WeaponProperties?.DamageDieCount}", "Twin"));
+                        return damage;
+                    }
+                });
+            };
+            return item;
+        });
+
         public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
             Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
         .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
@@ -94,7 +153,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
 
         public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Knife, ModTraits.Reload0, ModTraits.MonkWeapon, ModTraits.Roguelike)
+            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
@@ -890,13 +949,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 qfMoC.Name = "Mask of Consumption";
                 qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage and deals you for an amount equal to damage dealt.";
                 qfMoC.StateCheck = self => {
-                    if (qfMoC.Owner.Traits.Any(trait => trait.HumanizeTitleCase2() == "Summoner")) {
-                        QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
-                        if (eidolon != null && eidolon.Source != null) {
-                            eidolon.Source.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
-                            eidolon.Source.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
-                        }
-                    }
                     self.Owner.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
                     Item unarmed = qfMoC.Owner.UnarmedStrike;
                     qfMoC.Owner.ReplacementUnarmedStrike = self.Owner.ReplacementUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "hungry claws", "1d10", DamageKind.Slashing, Trait.Agile, Trait.Finesse, Trait.Brawling, Trait.Unarmed)
@@ -1637,7 +1689,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -1672,19 +1724,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         if (bandolier == null && !creature.CarriedItems.Any(item => item.ItemName == Shuriken))
                             return;
 
-                        List<Item> uniqueShurikens = new List<Item>();
+                        var uniqueShurikens = new List<(Item?, Item)>();
                         int numShurikens = 0;
-                        creature.CarriedItems.ForEach(item => {
-                            if (item.ItemName == Shuriken) {
-                                numShurikens += 1;
-                                bool unique = true;
-                                foreach (Item skn in uniqueShurikens) {
-                                    if (item.Name == skn.Name)
-                                        unique = false;
-                                }
-                                if (unique)
-                                    uniqueShurikens.Add(item);
+                        var allShurikens = new List<(Item?, Item)>();
+                        foreach (var item in creature.CarriedItems) {
+                            if (item.ItemName == Shuriken)
+                                allShurikens.Add((null, item));
+                            foreach (var subItem in item.StoredItems) {
+                                if (subItem.ItemName == Shuriken)
+                                    allShurikens.Add((item, subItem));
                             }
+                        }
+                        allShurikens.ForEach(tuple => {
+                            numShurikens += 1;
+                            bool unique = true;
+                            foreach ((Item?, Item) skn in uniqueShurikens) {
+                                if (tuple.Item2.Name == skn.Item2.Name)
+                                    unique = false;
+                            }
+                            if (unique)
+                                uniqueShurikens.Add(tuple);
                         });
 
                         creature.AddQEffect(new QEffect() {
@@ -1694,14 +1753,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                     var menu = new SubmenuPossibility(new SideBySideIllustration(Illustrations.Shuriken, IllustrationName.Throw), "Throw Shuriken");
                                     var subsection = new PossibilitySection($"Throw Shuriken ({(bandolier == null ? "x" + numShurikens : "unlimited")})");
                                     menu.Subsections.Add(subsection);
-                                    foreach (Item shuriken in uniqueShurikens) {
-                                        var strike = StrikeRules.CreateStrike(self.Owner, shuriken, RangeKind.Ranged, -1, true);
+                                    foreach ((Item?, Item) shuriken in uniqueShurikens) {
+                                        var strike = StrikeRules.CreateStrike(self.Owner, shuriken.Item2, RangeKind.Ranged, -1, true);
                                         (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
-                                            user.CarriedItems.Remove(shuriken);
-                                            user.AddHeldItem(shuriken);
+                                            if (shuriken.Item1 != null)
+                                                // RunestoneRules.RecreateWithUnattachedSubitem(shuriken.Item1, shuriken.Item2, false);
+                                                shuriken.Item1.StoredItems.Remove(shuriken.Item2);
+                                            else
+                                                self.Owner.CarriedItems.Remove(shuriken.Item2);
+                                            user.AddHeldItem(shuriken.Item2);
                                         });
-                                        strike.Name += " (" + shuriken.Name + ")";
+                                        strike.Name += " (" + shuriken.Item2.Name + ")";
                                         subsection.AddPossibility((ActionPossibility)strike);
                                     }
 
@@ -2039,6 +2102,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             ItemModification mod = new ItemModification(ItemModificationKind.CustomPermanent) {
                 Tag = baseSpell.Duplicate(null, (int)level, true)
+                //SpellId = spellId,
+                //HeightenedToSpellLevel = baseSpell.Duplicate(null, (int)level, true).SpellLevel
             };
 
             List<Trait> traits = new List<Trait> { ModTraits.Wand, Trait.Magical, Trait.Unarmed, Trait.Melee, Trait.SpecificMagicWeapon, ModTraits.Roguelike };
@@ -2052,10 +2117,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             string name = level == baseSpell.MinimumSpellLevel ? $"wand of {baseSpell.Name.ToLower()}" : $"wand of level {level} {baseSpell.Name.ToLower()}";
             string desc = "Allows the wielder to cast {i}" + AllSpells.CreateModernSpellTemplate(spellId, Trait.None).ToSpellLink() + "{/i} once per day.";
             Illustration illustration = new WandIllustration(baseSpell.Illustration, Illustrations.Wand);
-
-            /// Func<Item> factory = () => wand;
-
-            //Items.ShopItems.Add(wand);
 
             return ModManager.RegisterNewItemIntoTheShop($"WandOf{baseSpell.Name}Lv{level}", itemName => {
                 return new Item(itemName, illustration, name, (int)level * 2 - 1, GetWandPrice((int)level * 2 - 1), traits.ToArray())

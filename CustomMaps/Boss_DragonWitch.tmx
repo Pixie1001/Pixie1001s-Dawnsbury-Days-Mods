@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="A debug map made for testing mods against different kinds of creatures."/>
-  <property name="EncounterGroup" value="Roguelike"/>
-  <property name="EncounterLevel" type="int" value="1"/>
-  <property name="EncounterName" value="Test Map"/>
+  <property name="EncounterDescription" value="WIP map for final boss fight"/>
+  <property name="EncounterGroup" value="Roguelike (Boss)"/>
+  <property name="EncounterLevel" type="int" value="8"/>
+  <property name="EncounterName" value="Dragon Witch"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
@@ -41,7 +41,7 @@
 0,0,0,0,0,0,0,2175,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,146,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

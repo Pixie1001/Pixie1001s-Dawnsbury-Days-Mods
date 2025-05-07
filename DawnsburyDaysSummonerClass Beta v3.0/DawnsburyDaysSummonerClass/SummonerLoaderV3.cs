@@ -1041,6 +1041,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             yield return new Feat(ftPMermaidTail, "Your eidolon possesses a powerful tail.", "Your eidolon's primary attack deals bludgeoning damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illMermaidTail);
             yield return new Feat(ftPSpiderLeg, "Your eidolon possesses lethal spidery appendages.", "Your eidolon's primary attack deals piercing damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illStabbingAppendage);
             yield return new Feat(ftPSerpentTail, "Your eidolon possesses a powerful tail.", "Your eidolon's primary attack deals bludgeoning damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illSerpentTail);
+            yield return new Feat(ftPHoof, "Your eidolon possesses powerful cloven hooves.", "Your eidolon's primary attack deals bludgeoning damage.", new List<Trait> { tPrimaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Hoof);
 
             yield return new Feat(ftSWing, "Your eidolon knocks its enemies aside with a pair of powerful wings.", "Your eidolon's secondary attack deals 1d6 bludgeoning damage with the agile and finesse traits." +
                 "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
@@ -1086,6 +1087,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
                 "\n{b}" + Trait.Finesse.GetTraitProperties().HumanizedName + "{/b} " + Trait.Finesse.GetTraitProperties().RulesText,
                 new List<Trait> { tSecondaryAttackType, Trait.Strike }, null).WithIllustration(Enums.illSerpentTail);
+            yield return new Feat(ftSHoof, "Your eidolon possesses powerful cloven hooves.", "Your eidolon's secondary attack deals 1d6 bludgeoning damage with the agile and finesse traits." +
+                "\n\n{b}" + Trait.Agile.GetTraitProperties().HumanizedName + "{/b} " + Trait.Agile.GetTraitProperties().RulesText +
+                "\n{b}" + Trait.Finesse.GetTraitProperties().HumanizedName + "{/b} " + Trait.Finesse.GetTraitProperties().RulesText,
+                new List<Trait> { tSecondaryAttackType, Trait.Strike }, null).WithIllustration(IllustrationName.Hoof);
 
             // Init Primary Weapon Properties
             yield return new Feat(ftPSPowerful, "Your eidolon possesses great strength, allowing it to easily bully and subdue its enemies.", "Your eidolon's primary deals 1d8 damage and has the disarm, nonlethal, shove and trip traits.\n\nAthletics checks made using a weapon with a maneouvre trait benefit your eidolon's item bonus." +
@@ -1367,7 +1372,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     // Handle drained mirror addition
-                    HandleDrainedSharing(qf.Owner, eidolon, true);
+                    // HandleDrainedSharing(qf.Owner, eidolon, true);
 
                     // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
                     if (eidolon.Destroyed == true) {
@@ -1563,9 +1568,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         self.Owner.Battle.RemoveCreatureFromGame(eidolon);
                     }
 
-                    if (nQf.Key == "Drained") {
-                        HandleDrainedSharing(self.Owner, eidolon, true);
+                    if (nQf.Id == QEffectId.Drained || nQf.Id == QEffectId.MummyRot) {
+                        HandleDrainedSharing(self.Owner, eidolon, true, true);
                     }
+                }
+            })
+            .AddQEffect(new QEffect() {
+                StateCheckLayer = 1,
+                StateCheck = self => {
+                    Creature? eidolon = GetEidolon(self.Owner);
+                    if (eidolon == null) return;
+                    HandleDrainedSharing(self.Owner, eidolon, true);
                 }
             })
             .AddQEffect(InvestedWeaponLogic.SummonerInvestedWeaponQEffect())
@@ -1699,7 +1712,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)).Name == "Primary Unarmed Attack") {
                 primaryDamageType = TraitToDamage(summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage)).Traits[0]);
                 pStats.Add(DamageToTrait(primaryDamageType));
-            }  else if (new FeatName[] { ftPMace, ftPWing, ftPKick, ftPFist, ftPTendril, ftPMermaidTail, ftPSerpentTail }.Contains(pAttack.FeatName)) {
+            }  else if (new FeatName[] { ftPMace, ftPWing, ftPKick, ftPFist, ftPTendril, ftPMermaidTail, ftPSerpentTail, ftPHoof }.Contains(pAttack.FeatName)) {
                 primaryDamageType = DamageKind.Bludgeoning;
             } else if (new FeatName[] { ftPPolearm, ftPHorn, ftPTail, ftPSpiderLeg }.Contains(pAttack.FeatName)) {
                 primaryDamageType = DamageKind.Piercing;
@@ -1712,7 +1725,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)).Name == "Secondary Unarmed Attack") {
                 secondaryDamageType = TraitToDamage(summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage)).Traits[0]);
                 sStats.Add(DamageToTrait(secondaryDamageType));
-            } else if (new FeatName[] { ftSWing, ftSKick, ftSFist, ftSTendril, ftSMermaidTail, ftSSerpentTail }.Contains(sAttack.FeatName)) {
+            } else if (new FeatName[] { ftSWing, ftSKick, ftSFist, ftSTendril, ftSMermaidTail, ftSSerpentTail, ftSHoof }.Contains(sAttack.FeatName)) {
                 secondaryDamageType = DamageKind.Bludgeoning;
             } else if (new FeatName[] { ftSHorn, ftSTail, ftPSpiderLeg }.Contains(sAttack.FeatName)) {
                 secondaryDamageType = DamageKind.Piercing;
@@ -1935,6 +1948,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Id = qfSharedActions,
                 })
                 .AddQEffect(InvestedWeaponLogic.EidolonInvestedWeaponQEffect())
+                .AddQEffect(new QEffect() {
+                    StateCheckLayer = 1,
+                    StateCheck = self => {
+                        Creature? summoner = GetSummoner(self.Owner);
+                        if (summoner == null) return;
+                        HandleDrainedSharing(self.Owner, summoner, false);
+                    }
+                })
                 .AddQEffect(new QEffect("Eidolon Bond", "You and your eidolon share your actions and multiple attack penalty. Each round, you can use any of your actions (including reactions and free actions) for yourself or your eidolon. " +
                 "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities.") {
                     //YouAcquireQEffect = (self, qfNew) => {
@@ -1960,7 +1981,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         Creature summoner = GetSummoner(qf.Owner);
 
                         // Handle drained mirror addition
-                        HandleDrainedSharing(qf.Owner, summoner, false);
+                        //HandleDrainedSharing(qf.Owner, summoner, false);
 
                         // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
                         if (qf.Owner.Destroyed == true) {
@@ -2125,9 +2146,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             summoner.AddQEffect(nQf);
                         }
 
-                        if (nQf.Key == "Drained") {
+                        if (nQf.Id == QEffectId.Drained || nQf.Id == QEffectId.MummyRot) {
                             Creature summoner = GetSummoner(self.Owner);
-                            HandleDrainedSharing(self.Owner, summoner, false);
+                            HandleDrainedSharing(self.Owner, summoner, false, true);
                         }
                     }
                 });
@@ -2272,87 +2293,92 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             oldActiveCreature = (Creature)null;
         }
 
-        private static void HandleDrainedSharing(Creature self, Creature partner, bool isSummoner) {
-            // TODO: Debug drained affected Eidolon and Summoner not immediately updating
-            // TODO: Debug Manifest Eidolon auto failing
+        private static void HandleDrainedSharing(Creature self, Creature partner, bool isSummoner, bool onGain=false) {
 
-            string mrName = isSummoner ? "Eidolon Mummy Rot" : "Master's Mummy Rot";
-            string mrName2 = isSummoner ? "Master's Mummy Rot" : "Eidolon Mummy Rot";
+            var drainVal = self.DrainedMaxHPDecrease;
+            if (!isSummoner && !onGain) {
+                drainVal -= partner.DrainedMaxHPDecrease;
+            } else if (onGain) {
+                drainVal -= self.DrainedMaxHPDecrease;
+            }
 
-            //self.RemoveAllQEffects(effect => effect.Key == "DrainedMirror");
-            //self.RemoveAllQEffects(qf => qf.Name == mrName);
-            //partner.RemoveAllQEffects(effect => effect.Key == "DrainedMirror");
-            //partner.RemoveAllQEffects(qf => qf.Name == mrName2);
+            partner.DrainedMaxHPDecrease += Math.Max(0, drainVal);
+            if (drainVal > 0) {
+                partner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
+            }
 
-            QEffect? drained = self.QEffects.FirstOrDefault(qf => qf.Key == "Drained");
-            if (drained != null) {
+            //string mrName = isSummoner ? "Eidolon Mummy Rot" : "Master's Mummy Rot";
+            //string mrName2 = isSummoner ? "Master's Mummy Rot" : "Eidolon Mummy Rot";
 
-                partner.AddQEffect(new QEffect() {
-                    Id = QEffectId.Drained,
-                    Key = "DrainedMirror",
-                    StateCheck = (qfDrainMirror) => {
-                        if (qfDrainMirror.Source?.QEffects.FirstOrDefault(qf => qf.Key == "Drained") == null || qfDrainMirror.Source.Destroyed || !qfDrainMirror.Source.Alive) {
-                            qfDrainMirror.ExpiresAt = ExpirationCondition.Immediately;
-                            return;
-                        }
+            //QEffect? drained = self.QEffects.FirstOrDefault(qf => qf.Key == "Drained");
+            //if (drained != null) {
+
+            //    partner.AddQEffect(new QEffect() {
+            //        Id = QEffectId.Drained,
+            //        Key = "DrainedMirror",
+            //        StateCheck = (qfDrainMirror) => {
+            //            if (qfDrainMirror.Source?.QEffects.FirstOrDefault(qf => qf.Key == "Drained") == null || qfDrainMirror.Source.Destroyed || !qfDrainMirror.Source.Alive) {
+            //                qfDrainMirror.ExpiresAt = ExpirationCondition.Immediately;
+            //                return;
+            //            }
                         
-                        QEffect? partnerDrained = qfDrainMirror.Owner.QEffects.FirstOrDefault(qf => qf.Key == "Drained");
-                        if (partnerDrained != null) {
-                            if (partnerDrained.Value >= qfDrainMirror.Value) {
-                                return;
-                            }
-                            qfDrainMirror.Owner.DrainedMaxHPDecrease += (qfDrainMirror.Value - partnerDrained.Value) * Math.Max(1, self.Level);
-                            return;
-                        }
-                        qfDrainMirror.Owner.DrainedMaxHPDecrease += qfDrainMirror.Value * Math.Max(1, self.Level);
-                    },
-                    Value = drained.Value,
-                    Source = self
-                });
-            } else if (self.QEffects.Any(qf => qf.Key == "DrainedMirror") && !partner.QEffects.Any(qf => qf.Key == "Drained")) {
-                partner.RemoveAllQEffects(effect => effect.Key == "DrainedMirror");
-            }
+            //            QEffect? partnerDrained = qfDrainMirror.Owner.QEffects.FirstOrDefault(qf => qf.Key == "Drained");
+            //            if (partnerDrained != null) {
+            //                if (partnerDrained.Value >= qfDrainMirror.Value) {
+            //                    return;
+            //                }
+            //                qfDrainMirror.Owner.DrainedMaxHPDecrease += (qfDrainMirror.Value - partnerDrained.Value) * Math.Max(1, self.Level);
+            //                return;
+            //            }
+            //            qfDrainMirror.Owner.DrainedMaxHPDecrease += qfDrainMirror.Value * Math.Max(1, self.Level);
+            //        },
+            //        Value = drained.Value,
+            //        Source = self
+            //    });
+            //} else if (self.QEffects.Any(qf => qf.Key == "DrainedMirror") && !partner.QEffects.Any(qf => qf.Key == "Drained")) {
+            //    partner.RemoveAllQEffects(effect => effect.Key == "DrainedMirror");
+            //}
 
-            QEffect mummyrot = self.FindQEffect(QEffectId.MummyRot);
-            if (mummyrot != null) {
-                partner.AddQEffect(new QEffect(mrName, "") {
-                    Innate = false,
-                    Id = QEffectId.Drained,
-                    Key = "MummyRotMirrorKey",
-                    StateCheck = (qfMirror) => {
-                        if (qfMirror.Source?.FindQEffect(QEffectId.MummyRot) == null || qfMirror.Source.Destroyed || !qfMirror.Source.Alive) {
-                            qfMirror.ExpiresAt = ExpirationCondition.Immediately;
-                            return;
-                        }
+            //QEffect mummyrot = self.FindQEffect(QEffectId.MummyRot);
+            //if (mummyrot != null) {
+            //    partner.AddQEffect(new QEffect(mrName, "") {
+            //        Innate = false,
+            //        Id = QEffectId.Drained,
+            //        Key = "MummyRotMirrorKey",
+            //        StateCheck = (qfMirror) => {
+            //            if (qfMirror.Source?.FindQEffect(QEffectId.MummyRot) == null || qfMirror.Source.Destroyed || !qfMirror.Source.Alive) {
+            //                qfMirror.ExpiresAt = ExpirationCondition.Immediately;
+            //                return;
+            //            }
 
-                        string strVal = new string(mummyrot.Description.Where(char.IsDigit).ToArray());
-                        strVal = strVal.Remove(strVal.Length - 1);
-                        int mirrorVal = Int32.TryParse(strVal, out int val) ? val : 0;
+            //            string strVal = new string(mummyrot.Description.Where(char.IsDigit).ToArray());
+            //            strVal = strVal.Remove(strVal.Length - 1);
+            //            int mirrorVal = Int32.TryParse(strVal, out int val) ? val : 0;
 
-                        QEffect? partnerMummyRot = qfMirror.Owner.FindQEffect(QEffectId.MummyRot);
-                        if (partnerMummyRot != null) {
+            //            QEffect? partnerMummyRot = qfMirror.Owner.FindQEffect(QEffectId.MummyRot);
+            //            if (partnerMummyRot != null) {
 
-                            string strVal2 = new string(partnerMummyRot.Description.Where(char.IsDigit).ToArray());
-                            strVal2 = strVal2.Remove(strVal.Length - 1);
-                            int mainVal = Int32.TryParse(strVal2, out int val2) ? val2 : 0;
+            //                string strVal2 = new string(partnerMummyRot.Description.Where(char.IsDigit).ToArray());
+            //                strVal2 = strVal2.Remove(strVal.Length - 1);
+            //                int mainVal = Int32.TryParse(strVal2, out int val2) ? val2 : 0;
 
-                            if (mirrorVal >= mainVal) {
-                                return;
-                            }
+            //                if (mirrorVal >= mainVal) {
+            //                    return;
+            //                }
 
-                            qfMirror.Owner.DrainedMaxHPDecrease += mirrorVal - mainVal;
-                            return;
-                        }
+            //                qfMirror.Owner.DrainedMaxHPDecrease += mirrorVal - mainVal;
+            //                return;
+            //            }
 
-                        qfMirror.Owner.DrainedMaxHPDecrease += mirrorVal;
-                    },
-                    Value = mummyrot.Value,
-                    LongTermEffectDuration = LongTermEffectDuration.None,
-                    Source = self
-                });
-            } else if (self.QEffects.Any(qf => qf.Name == mrName) && !partner.QEffects.Any(qf => qf.Id == QEffectId.MummyRot && qf.LongTermEffectDuration != LongTermEffectDuration.None)) {
-                partner.RemoveAllQEffects(qf => qf.Name == mrName);
-            }
+            //            qfMirror.Owner.DrainedMaxHPDecrease += mirrorVal;
+            //        },
+            //        Value = mummyrot.Value,
+            //        LongTermEffectDuration = LongTermEffectDuration.None,
+            //        Source = self
+            //    });
+            //} else if (self.QEffects.Any(qf => qf.Name == mrName) && !partner.QEffects.Any(qf => qf.Id == QEffectId.MummyRot && qf.LongTermEffectDuration != LongTermEffectDuration.None)) {
+            //    partner.RemoveAllQEffects(qf => qf.Name == mrName);
+            //}
         }
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {

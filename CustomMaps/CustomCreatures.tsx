@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="54" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="59" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -324,5 +324,35 @@
    <property name="Id" value="Basilisk"/>
   </properties>
   <image source="CustomCreatures/Basilisk.png" width="256" height="256"/>
+ </tile>
+ <tile id="2047">
+  <properties>
+   <property name="Id" value="Medusa"/>
+  </properties>
+  <image source="CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
+ </tile>
+ <tile id="2048">
+  <properties>
+   <property name="Id" value="Petrified Guardian"/>
+  </properties>
+  <image source="CustomCreatures/PetrifiedGuardian.png" width="256" height="256"/>
+ </tile>
+ <tile id="2049">
+  <properties>
+   <property name="Id" value="Echidnadite High Priestess"/>
+  </properties>
+  <image source="CustomCreatures/EHighPriestess.png" width="256" height="256"/>
+ </tile>
+ <tile id="2050">
+  <properties>
+   <property name="Id" value="Dragon Witch"/>
+  </properties>
+  <image source="CustomCreatures/DragonWitch.png" width="256" height="256"/>
+ </tile>
+ <tile id="2051">
+  <properties>
+   <property name="Id" value="Young Red Dragon"/>
+  </properties>
+  <image source="CustomCreatures/RedDragon.png" width="256" height="256"/>
  </tile>
 </tileset>

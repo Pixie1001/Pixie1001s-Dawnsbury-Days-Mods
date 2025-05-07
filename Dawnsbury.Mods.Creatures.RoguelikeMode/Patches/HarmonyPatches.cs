@@ -54,6 +54,7 @@ using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Intelligence;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -157,6 +158,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //        selectedCreature.RemoveAllQEffects(qf => qf == confused);
         //        return;
         //}
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(AI), "ModifyGoodness")]
+        private static void BattlePhaseDrawPatch(ref float __result, Target target, Creature attacker, Creature defender, float howMuchDamageEquivalent) {
+            if (defender.HasEffect(QEffectIds.RatFamiliar))
+                __result = Math.Min(1.5f, __result);
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TBattle), "EndTheGame")]

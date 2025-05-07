@@ -201,12 +201,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 AdditionalGoodness = (self, action, target) => {
                     int dc = baseDC + self.Owner.Level;
 
-                    if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
+                    if (action == null || !(action.Name == weapon || action.HasTrait(Trait.Strike))) {
                         return 0f;
                     }
 
                     if (target != null && !target.HasEffect(QEffectId.SpiderVenom)) {
                         return 2f;
+                    }
+
+                    return 0f;
+                }
+            };
+        }
+
+        public static QEffect SerpentVenomAttack(int baseDC, string? weapon) {
+            Affliction serpentVenom = new Affliction(QEffectIds.SerpentVenom, "Serpent Venom", 0,
+                "{b}Stage 1{/b} 1d6 poison damage and enfeebled 1; {b}Stage 2{/b} 2d6 poison damage and enfeebled 2", 2, stage => stage + "d6", qfVenom => qfVenom.Owner.AddQEffect(QEffect.Enfeebled(qfVenom.Value).WithExpirationEphemeral()));
+
+            return new QEffect("Serpent Poison", "Set Later") {
+                StateCheck = async self => {
+                    if (self.Description == "Set Later") {
+                        self.Name += $" (DC {baseDC + self.Owner.Level})";
+                        self.Description = $"Enemies damaged by the {self.Owner.Name}{(weapon == null ? "" : $"'s {weapon} attack")} are afflicted by Serpent Venom: " + "{i}" + $"{serpentVenom.StagesDescription}" + "{/i}";
+                    }
+                },
+                AfterYouDealDamage = async (attacker, action, target) => {
+                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                        Affliction poison = serpentVenom;
+                        poison.DC = baseDC + attacker.Level;
+
+                        await Affliction.ExposeToInjury(poison, attacker, target);
+                    }
+                },
+                AdditionalGoodness = (self, action, target) => {
+                    int dc = baseDC + self.Owner.Level;
+
+                    if (weapon != null && !(action.Name == weapon || action.HasTrait(Trait.Strike))) {
+                        return 0f;
+                    }
+
+                    if (target != null && !target.HasEffect(QEffectIds.SerpentVenom)) {
+                        return 4f;
                     }
 
                     return 0f;
@@ -222,7 +257,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
         public static QEffect AbyssalRotAttack(int baseDC, string dmg, string weapon) {
             Affliction abyssalRot = new Affliction(QEffectIds.AbyssalRot, "Abyssal Rot", 0,
-                "The drained condition from Abyssal rot is cumulative, to a maximum of drained 4; {b}Stage 1{/b} " + dmg + " negative damage; {b}Stage 2{/b} " + dmg + " negative damage and drained 1 {b}Stage 3{/b} " + dmg + " negative damage and drained 2", 3, stage => null, null);
+                "The drained condition from Abyssal rot is cumulative, to a maximum of drained 4; {b}Stage 1{/b} " + dmg + " negative damage; {b}Stage 2{/b} " + dmg + " negative damage and drained 1; {b}Stage 3{/b} " + dmg + " negative damage and drained 2", 3, stage => null, null);
             abyssalRot.EnterStage = async (self, action) => {
                 await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(dmg), self.Owner, CheckResult.Failure, DamageKind.Negative);
                 if (self.Value >= 2) {
@@ -250,7 +285,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AdditionalGoodness = (self, action, target) => {
-                    if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
+                    if (action == null || !(action.Name == weapon || action.HasTrait(Trait.Strike))) {
                         return 0f;
                     }
 
@@ -290,7 +325,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AdditionalGoodness = (self, action, target) => {
-                    if (action == null || !(action.Name == weapon || action.Name == $"Strike ({weapon})")) {
+                    if (action == null || !(action.Name == weapon || action.HasTrait(Trait.Strike))) {
                         return 0f;
                     }
 
@@ -961,7 +996,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             if (otherCreature == null)
                 return false;
 
-            return otherCreature.FriendOf(user) && !otherCreature.HasTrait(Trait.Celestial) && (otherCreature.HasTrait(Trait.Beast) || otherCreature.HasTrait(Trait.Animal));
+            return otherCreature.FriendOf(user) && !otherCreature.HasTrait(Trait.Celestial) && (otherCreature.HasTrait(Trait.Beast) || otherCreature.HasTrait(Trait.Animal) || otherCreature.HasTrait(ModTraits.Monstrous));
         }
 
         private static bool IsSlashingOrBludgeoning(CombatAction action) {

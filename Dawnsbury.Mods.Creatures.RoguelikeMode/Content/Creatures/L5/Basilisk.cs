@@ -27,6 +27,8 @@ using System;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using System.Reflection.Metadata.Ecma335;
 using Dawnsbury.Display;
+using System.Numerics;
+using System.Reflection.Metadata;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -47,7 +49,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .WithProficiency(Trait.Unarmed, Proficiency.Master)
             .Builder
             .AddMainAction(you => new CombatAction(you, IllustrationName.Dominate, "Petrifying Gaze", [Trait.Arcane, Trait.Concentrate, Trait.Incapacitation, Trait.Transmutation, Trait.Visual, Trait.InflictsSlow],
-            "The basilisk stares at a creature it can see within 30 feet. That creature must attempt a DC 22 Fortitude save. If it fails and has not already been slowed by Petrifying Glance or this ability," +
+            $"The basilisk stares at a creature it can see within 30 feet. That creature must attempt a DC {you.Level + 17} Fortitude save. If it fails and has not already been slowed by Petrifying Glance or this ability," +
             " it becomes slowed 1. If the creature was already slowed by this ability or Petrifying Glance, a failed save causes the creature to be petrified until the end of the encounter.", Target.Ranged(6))
             .WithActionCost(2)
             .WithSavingThrow(new SavingThrow(Defense.Fortitude, 15 + you.Level))
@@ -118,30 +120,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 };
             });
 
-            glance.AddGrantingOfTechnical(cr => cr.EnemyOf(glance.Owner) && !cr.HasEffect(QEffectId.Blinded), qfTech => {
-                qfTech.Key = "Avert Gaze Context";
-                qfTech.ProvideContextualAction = self => {
-                    var menu = new SubmenuPossibility(Illustrations.AvertGaze, "Visual Protection");
-                    var section = new PossibilitySection("Visual Protection");
-                    menu.Subsections.Add(section);
-
-                    section.AddPossibility((ActionPossibility)new CombatAction(self.Owner, Illustrations.AvertGaze, "Avert Gaze", [Trait.Basic], "You avert your gaze from danger. You gain a +2 circumstance bonus to saves against visual abilities until the end of your next turn.", Target.Self())
-                    .WithActionCost(1)
-                    .WithSoundEffect(SfxName.StowItem)
-                    .WithEffectOnSelf(caster => caster.AddQEffect(new QEffect("Avert Gaze", "You gain a +2 circumstance bonus to saves against visual abilities.", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, Illustrations.AvertGaze) {
-                        CannotExpireThisTurn = true,
-                        BonusToDefenses = (self, action, defence) => action != null && action.HasTrait(Trait.Visual) && defence != Defense.AC ? new Bonus(2, BonusType.Circumstance, "Avert Gaze", true) : null,
-                    })));
-
-                    section.AddPossibility((ActionPossibility)new CombatAction(self.Owner, Illustrations.CoverEyes, "Cover Eyes", [Trait.Basic], "You squeeze your eyes shut, protecting you from the basilisk's petrifying stare.", Target.Self())
-                    .WithActionCost(0)
-                    .WithSoundEffect(SfxName.StowItem)
-                    .WithEffectOnSelf(caster => caster.AddQEffect(QEffect.Blinded().WithExpirationAtEndOfSourcesNextTurn(caster, true)))
-                    );
-
-                    return menu;
-                };
-            });
+            AddGazeProtection(glance);
 
             creature.AddQEffect(glance);
 
@@ -149,7 +128,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         }
 
 
-        private static void Petrify(Creature target) {
+        public static void Petrify(Creature target) {
             target.RemoveAllQEffects(qf => qf.Key == "Partial Petrification");
             target.Traits.Add(Trait.Object);
             target.AddQEffect(new QEffect("Petrified", "You've been turned to stone. You can't act, and you become an object with AC 9 and Hardness 8") {
@@ -160,6 +139,38 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 PreventTargetingBy = action => action.HasTrait(Trait.Healing) ? "petrified" : null
             });
             target.WithHardness(8);
+        }
+
+        public static void AddGazeProtection(QEffect effect) {
+            effect.AddGrantingOfTechnical(cr => cr.EnemyOf(effect.Owner), qfTech => {
+                qfTech.Key = "Avert Gaze Context";
+                qfTech.ProvideContextualAction = self => {
+                    var menu = new SubmenuPossibility(Illustrations.AvertGaze, "Visual Protection");
+                    var section = new PossibilitySection("Visual Protection");
+                    menu.Subsections.Add(section);
+
+                    section.AddPossibility((ActionPossibility)new CombatAction(self.Owner, Illustrations.AvertGaze, "Avert Gaze", [Trait.Basic], "You avert your gaze from danger. You gain a +2 circumstance bonus to saves against visual abilities until the end of your next turn.",
+                        Target.Self().WithAdditionalRestriction(user => user.QEffects.Any(qf => qf.Id == QEffectId.Blinded || ((string)qf.Tag == "CoverEyes")) ? "gaze already protected" : null))
+                    .WithActionCost(1)
+                    .WithSoundEffect(SfxName.StowItem)
+                    .WithEffectOnSelf(caster => caster.AddQEffect(new QEffect("Avert Gaze", "You gain a +2 circumstance bonus to saves against visual abilities.", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, Illustrations.AvertGaze) {
+                        CannotExpireThisTurn = true,
+                        BonusToDefenses = (self, action, defence) => action != null && action.HasTrait(Trait.Visual) && defence != Defense.AC ? new Bonus(2, BonusType.Circumstance, "Avert Gaze", true) : null,
+                    })));
+
+                    section.AddPossibility((ActionPossibility)new CombatAction(self.Owner, Illustrations.CoverEyes, "Cover Eyes", [Trait.Basic], "You squeeze your eyes shut, blinding yourself, but protecting you visual abilities until the end of your next turn.", Target.Self())
+                    .WithActionCost(0)
+                    .WithSoundEffect(SfxName.StowItem)
+                    .WithEffectOnSelf(caster => {
+                        var blindness = QEffect.Blinded().WithExpirationAtEndOfSourcesNextTurn(caster, true);
+                        blindness.Tag = "CoverEyes";
+                        caster.AddQEffect(blindness);
+                    })
+                    );
+
+                    return menu;
+                };
+            });
         }
     }
 }

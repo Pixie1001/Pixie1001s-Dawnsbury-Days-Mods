@@ -128,6 +128,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftPMermaidTail = ModManager.RegisterFeatName("P_MermaidTail", "Tail");
         internal static FeatName ftPSpiderLeg = ModManager.RegisterFeatName("P_SpiderLeg", "Stabbing Appendage");
         internal static FeatName ftPSerpentTail = ModManager.RegisterFeatName("P_SerpentTail", "Tail (Serpentile)");
+        internal static FeatName ftPHoof = ModManager.RegisterFeatName("P_Hoof", "Hoof");
 
         // Primary Weapon Statblock Feat Names
         internal static FeatName ftPSPowerful = ModManager.RegisterFeatName("PS_Powerful", "Powerful");
@@ -147,6 +148,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftSMermaidTail = ModManager.RegisterFeatName("S_MermaidTail", "Tail (Aquotic)");
         internal static FeatName ftSSpiderLeg = ModManager.RegisterFeatName("S_SpiderLeg", "Stabbing Appendage");
         internal static FeatName ftSSerpentTail = ModManager.RegisterFeatName("S_SerpentTail", "Tail (Serpentile)");
+        internal static FeatName ftSHoof = ModManager.RegisterFeatName("S_Hoof", "Hoof");
 
         // Ability BoostOptions
         internal static FeatName ftStrengthBoost = ModManager.RegisterFeatName("EidolonStrengthBoost", "Strength Boost");

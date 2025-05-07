@@ -33,6 +33,7 @@
 	<li>SpideryHalberd.png</li>
 	<li>StaffOfSpellPenetration.png</li>
 	<li>Shuriken.png</li>
+	<li>HookSword.png</li>
 </ul>
 
 ### Rexard
@@ -49,14 +50,21 @@
 
 ### Flaticon.com
 <ul>
-	<li>AvertGaze.png by Leremy - published on FlatIcon.com, at https://www.flaticon.com/free-icons/blind</li>
-	<li>CoverEyes.png by Leremy - published on FlatIcon.com, at https://www.flaticon.com/free-icons/eyes</li>
+	<li>AvertGaze.png by Leremy - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/people_9930169?term=blind&page=1&position=57&origin=tag&related_id=9930169)</li>
+	<li>CoverEyes.png by Leremy - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/person_10049581?term=eye&page=1&position=4&origin=style&related_id=10049581)</li>
+	<li>Nunchuck.png by Freepik - published on FlatIcon.com, [here]( https://www.flaticon.com/free-icon/nunchuck_5038212?term=nunchuck&page=1&position=1&origin=tag&related_id=5038212)</li>
+	<li>Sai.png by Futuer - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/sai_6670774?term=sai&page=1&position=2&origin=search&related_id=6670774)</li>
+	<li>Kama.png by Futuer - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/kusarigama_6670676?term=chain+sickle&page=1&position=45&origin=tag&related_id=6670676)</li>
+	<li>Parry.png by Park Jisun - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/sword_15617861?term=sword+duel&page=1&position=58&origin=search&related_id=15617861)</li>
 </ul>
 
 ## Creative Commons Artwork
 <ul>
 	<li>SkillChallengeBG.png By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=22488172</li>
 	<li>WhiteDragon.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:Scale-adult-preview.png</li>
+	<li>RedDragon.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:2010-01-C%26E_Dragon.png</li>
+	<li>EHighPriestess.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:2010-01-portrait_cendrea.png</li>
+	<li>DragonWitch.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:2009-8-Quetzalcoat.png</li>
 	<li>Bear1.png (Modified) By Arturo de Frias Marques - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Polar_Bear_AdF.jpg</li>
 	<li>Bear2.png (Modified) By Francis C. Franklin - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:European_Brown_Bear.jpg</li>
 	<li>Bear3.png (Modified) By LadyofHats - Released into public domain by author, https://commons.wikimedia.org/wiki/File:Closeup_kodiak_bear_hamburg.JPG</li>

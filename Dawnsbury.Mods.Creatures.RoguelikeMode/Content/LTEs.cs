@@ -225,7 +225,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             owner.Occupies.Overhead("Curse of the Rat Fiend!", Color.Red, $"A giant rat crawls up out of {defender.Name}'s corpse, thanks to the curse of the Rat Fiend.");
                         }
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend")),
                 };
             });
 
@@ -255,13 +255,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Value = val,
                     StateCheck = self => {
                         self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.MaxHP);
-                        if (self.Owner.Traits.Any(trait => trait.HumanizeTitleCase2() == "Summoner")) {
-                            QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
-                            if (eidolon != null && eidolon.Source != null) {
-                                eidolon.Source.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.MaxHP);
-                                eidolon.Source.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
-                            }
-                        }
+                        self.Owner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, val))
                 };
@@ -273,13 +267,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Illustration = IllustrationName.BestowCurse,
                     StateCheck = self => {
                         self.Owner.DrainedMaxHPDecrease += 5;
-                        if (self.Owner.Traits.Any(trait => trait.HumanizeTitleCase2() == "Summoner")) {
-                            QEffect? eidolon = self.Owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
-                            if (eidolon != null && eidolon.Source != null) {
-                                eidolon.Source.DrainedMaxHPDecrease += 5;
-                                eidolon.Source.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
-                            }
-                        }
+                        self.Owner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
                     },
                     BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(-1, BonusType.Untyped, "Unicorn's Curse") : null,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null))

@@ -37,6 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
         public static Dictionary<int, SkillChallenge> chosenEvents = new Dictionary<int, SkillChallenge>();
 
         public static void LoadSkillChallengeTables() {
+            events.Clear();
             chosenEvents.Clear();
 
             events.Add(new SkillChallenge("Cursed Relic", async (level, battle) => {
@@ -514,7 +515,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"And all at once, a large stack of bone chips are reluctantly swept towards their side of the table.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
-                            opt1.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
+                            if (!opt1.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
+                                opt1.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
                             opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null));
                         }
                         break;
@@ -533,8 +535,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, {opt2.Nominee.Name}'s superior guile and sleight of hand makes victory an inevitability.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
-
-                            opt2.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
+                            if (!opt2.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
+                                opt2.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null));
                         }
                         break;

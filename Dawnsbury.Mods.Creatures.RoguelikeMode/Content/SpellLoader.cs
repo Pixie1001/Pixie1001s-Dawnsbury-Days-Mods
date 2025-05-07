@@ -414,6 +414,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                 }
 
+                if (spell.SpellId == SpellId.FireShield) {
+                    spell.WithGoodness((t, a, d) => {
+                        return 13f;
+                    });
+                }
+
             });
 
             //    if (spell.SpellId == SpellId.FlourishingFlora) {

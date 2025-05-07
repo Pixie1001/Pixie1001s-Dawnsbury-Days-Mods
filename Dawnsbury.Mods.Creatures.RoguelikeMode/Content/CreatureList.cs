@@ -184,6 +184,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Sigbin.Create();
                 case var v when v.Equals(CreatureIds.Basilisk):
                     return Basilisk.Create();
+                case var v when v.Equals(CreatureIds.Medusa):
+                    return Medusa.Create();
+                case var v when v.Equals(CreatureIds.DragonWitch):
+                    return DragonWitch.Create();
+                case var v when v.Equals(CreatureIds.YoungRedDragon):
+                    return YoungRedDragon.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -304,6 +310,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.YoungWhiteDragon);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeBroodGuard);
+
+            // Level 7 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Medusa);
+
+            // Level 10 creatures
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DragonWitch);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.YoungRedDragon);
         }
 
         internal static void LoadObjects() {

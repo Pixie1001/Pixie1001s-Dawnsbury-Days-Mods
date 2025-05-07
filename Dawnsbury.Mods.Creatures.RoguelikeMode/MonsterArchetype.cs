@@ -64,7 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 
         public void Apply(Creature creature) {
             adjustment(creature);
-            creature.MainName = this.name + " " + creature.MainName;
+            creature.MainName = "{Purple}" + this.name + "{/Purple} " + creature.MainName;
             creature.Illustration = new SameSizeDualIllustration(creature.Illustration, Illustrations.MutatedBorder);
         }
     }

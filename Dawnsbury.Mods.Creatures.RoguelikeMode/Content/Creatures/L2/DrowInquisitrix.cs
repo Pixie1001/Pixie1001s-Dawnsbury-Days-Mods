@@ -44,7 +44,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     };
                 })
                 .WithCreatureId(CreatureIds.DrowInquisitrix)
-                .WithProficiency(Trait.Martial, Proficiency.Expert)
+                .WithProficiency(Trait.Weapon, Proficiency.Expert)
                 .WithProficiency(Trait.Spell, Proficiency.Trained)
                 .WithBasicCharacteristics()
                 .AddHeldItem(Items.CreateNew(CustomItems.ScourgeOfFangs))

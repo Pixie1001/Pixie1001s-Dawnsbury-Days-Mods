@@ -74,13 +74,14 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using System.Xml.Linq;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Archetypes;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class FeatLoader {
 
-        public static FeatName RatMonarchDedication { get; } = ModManager.RegisterFeatName("Rat Monarch Dedication");
+        //public static FeatName RatMonarchDedication { get; } = ModManager.RegisterFeatName("Rat Monarch Dedication");
         public static FeatName PlagueRats { get; } = ModManager.RegisterFeatName("Plague Rats");
         public static FeatName SwarmLord { get; } = ModManager.RegisterFeatName("Swarm Lord");
         public static FeatName PowerOfTheRatFiend { get; } = ModManager.RegisterFeatName("Power of the Rat Fiend");
@@ -108,11 +109,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             yield return new TrueFeat(MonasticWeaponry, 1, "You have trained with the traditional weaponry of your monastery or school.",
                 "You become trained in simple and martial monk weapons. When your proficiency rank for unarmed attacks increases to expert or master, your proficiency rank for these weapons increases to expert or master as well." +
                 "\n\nYou can use melee monk weapons with any of your monk feats or monk abilities that normally require unarmed attacks, though not if the feat or ability requires you to use a single specific type of attack, such as Crane Stance." +
-                "\n\n{b}Note{/b} The shuriken is currently the only thrown weapon. More will be coming soon, alongside compatability with weapons added by other mods.",
+                "\n\n{b}Special{/b} If you have the Brawling Focus feat, the Critical Specialization effect also extends to your monk weapons.",
                 [Trait.Monk, ModTraits.Roguelike], null)
             .WithOnSheet(sheet => {
-                sheet.Proficiencies.Set(ModTraits.MonkWeapon, Proficiency.Trained);
-                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(ModTraits.MonkWeapon) && item.Contains(Trait.Martial), Trait.Simple);
+                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial), Trait.Simple);
+            })
+            .WithOnCreature(you => {
+                if (!you.HasFeat(FeatName.BrawlingFocus)) return;
+
+                you.AddQEffect(new QEffect() {
+                    YouHaveCriticalSpecialization = (self, item, action, defender) => item != null && item.HasTrait(Trait.MonkWeapon)
+                });
             });
 
             yield return new TrueFeat(ModManager.RegisterFeatName("RL_ShootingStarStance", "Shooting Star Stance"), 2, "You enter a stance that lets you throw shuriken with lightning speed.",
@@ -190,30 +197,40 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     if (bandolier == null && !user.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken))
                                         return;
 
-                                    List<Item> uniqueShurikens = new List<Item>();
+                                    var uniqueShurikens = new List<(Item?, Item)>();
                                     int numShurikens = 0;
-                                    user.CarriedItems.ForEach(item => {
-                                        if (item.ItemName == CustomItems.Shuriken) {
-                                            numShurikens += 1;
-                                            bool unique = true;
-                                            foreach (Item skn in uniqueShurikens) {
-                                                if (item.Name == skn.Name)
-                                                    unique = false;
-                                            }
-                                            if (unique)
-                                                uniqueShurikens.Add(item);
+                                    var allShurikens = new List<(Item?, Item)>();
+                                    foreach (var item in user.CarriedItems) {
+                                        if (item.ItemName == CustomItems.Shuriken)
+                                            allShurikens.Add((null, item));
+                                        foreach (var subItem in item.StoredItems) {
+                                            if (subItem.ItemName == CustomItems.Shuriken)
+                                                allShurikens.Add((item, subItem));
                                         }
+                                    }
+                                    allShurikens.ForEach(tuple => {
+                                        numShurikens += 1;
+                                        bool unique = true;
+                                        foreach ((Item?, Item) skn in uniqueShurikens) {
+                                            if (tuple.Item2.Name == skn.Item2.Name)
+                                                unique = false;
+                                        }
+                                        if (unique)
+                                            uniqueShurikens.Add(tuple);
                                     });
 
                                     List<CombatAction> shurikenThrows = new List<CombatAction>();
-                                    foreach (Item shuriken in uniqueShurikens) {
-                                        var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0);
+                                    foreach ((Item?, Item) shuriken in uniqueShurikens) {
+                                        var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, -1, true).WithActionCost(0);
                                         (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
-                                            user.CarriedItems.Remove(shuriken);
-                                            user.AddHeldItem(shuriken);
+                                            if (shuriken.Item1 != null)
+                                                shuriken.Item1.StoredItems.Remove(shuriken.Item2);
+                                            else
+                                                user.CarriedItems.Remove(shuriken.Item2);
+                                            user.AddHeldItem(shuriken.Item2);
                                         });
-                                        strike.Name += " (" + shuriken.Name + ")";
+                                        strike.Name += " (" + shuriken.Item2.Name + ")";
                                         shurikenThrows.Add(strike);
                                     }
 
@@ -300,12 +317,56 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             })
             .WithPrerequisite(sheet => sheet.HasFeat(MonasticWeaponry), "You must have the Monastic Weaponry feat.");
 
+            yield return new TrueFeat(ModManager.RegisterFeatName("RL_PeafowlStance", "Peafowl Stance"), 4, "You enter a tall and proud stance while remaining mobile, with all the grace and composure of a peafowl.",
+                "While in this stance, the only Strikes you can make are melee Strikes with the required sword. Once per round, after you hit with a monk sword Strike, you can Step as a free action as your next action.",
+                [Trait.Monk, ModTraits.Roguelike], null)
+            .WithOnCreature(you => {
+                you.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Bird256, "Peafowl Stance", [Trait.Monk, Trait.Stance],
+                            "{b}Requirements{/b} You are wielding a sword that has the monk trait in one hand.\n\nEnter a stance.\n\nWhile in this stance, the only Strikes you can make are melee Strikes with the required sword. Once per round, after you hit with a monk sword Strike, you can Step as a free action as your next action.",
+                            Target.Self().WithAdditionalRestriction(self => {
+                                if (self.QEffects.Any(qf => qf.Name == "Peafowl Stance"))
+                                    return "You're already in this stance.";
+                                else if (!self.HeldItems.Any(item => item.HasTrait(Trait.Sword) && item.HasTrait(Trait.MonkWeapon) && !item.HasTrait(Trait.TwoHanded))) return "You must be wielding a sword that has the monk trait in one hand.";
+                                return null;
+                            })) {
+                            ShortDescription = "Enter a stance where the only Strikes you can make are melee Strikes with one handed monk swords. Once per round, after you hit with a monk sword Strike, you can Step as a free action as your next action."
+                        }
+                        .WithActionCost(1)
+                        .WithEffectOnSelf(user => {
+                            var stance = KineticistCommonEffects.EnterStance(user, IllustrationName.Bird256,
+                                "Peafowl Stance", "While in this stance, the only Strikes you can make are melee Strikes with one handed monk swords. Once per round, after you hit with a monk sword Strike, you can Step as a free action as your next action.");
+                            stance.AfterYouTakeActionAgainstTarget = async (_, action, target, result) => {
+                                if (stance.Owner.QEffects.Any(qf => qf.Key == "Peafowl Stance Step Used")) return;
+                                if (action.HasTrait(Trait.Strike) && action.Item != null && action.Item.HasTrait(Trait.Sword) && action.Item.HasTrait(Trait.MonkWeapon) && !action.Item.HasTrait(Trait.TwoHanded)) {
+                                    // Add a temp QF to limit use until next round
+                                    if (await stance.Owner.Battle.AskForConfirmation(stance.Owner, stance.Illustration, "Would you like to use your one free step action per round provided by Peafowl Stance?", "Yes")) {
+                                        await stance.Owner.StepAsync("Peafowl Stance", false, true);
+                                        stance.Owner.AddQEffect(new QEffect() { Key = "Peafowl Stance Step Used" }.WithExpirationAtStartOfOwnerTurn());
+                                    }
+                                }
+                            };
+                            stance.PreventTakingAction = action => action.HasTrait(Trait.Strike) && (action.Item == null || !action.Item.HasTrait(Trait.Sword) || !action.Item.HasTrait(Trait.MonkWeapon) || action.Item.HasTrait(Trait.TwoHanded) || !action.HasTrait(Trait.Melee)) ?
+                            "You can only strike with monk swords while in Peafowl Stance." : null;
+                            stance.StateCheck = _ => {
+                                if (!stance.Owner.HeldItems.Any(item => item.HasTrait(Trait.Sword) && item.HasTrait(Trait.MonkWeapon) && !item.HasTrait(Trait.TwoHanded)))
+                                    stance.ExpiresAt = ExpirationCondition.Immediately;
+                            };
+                        })) {
+                            PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
+                        };
+                    }
+                });
+            })
+            .WithIllustration(IllustrationName.Bird256)
+            .WithPrerequisite(sheet => sheet.HasFeat(MonasticWeaponry), "You must have the Monastic Weaponry feat.");
+
             yield return new TrueFeat(ModManager.RegisterFeatName("RL_AdvancedMonasticWeaponry", "Advanced Monastic Weaponry"), 6, "Your rigorous training regimen allows you to wield complex weaponry with ease.",
-                "For the purposes of proficiency, you treat advanced monk weapons as if they were martial monk weapons." +
-                "\n\n{b}Note{/b} There are currently no advanced monk weapons implemented into the game. More will be coming soon, alongside compatability with weapons added by other mods.",
+                "For the purposes of proficiency, you treat advanced monk weapons as if they were martial monk weapons.",
                 [Trait.Monk, ModTraits.Roguelike], null)
             .WithOnSheet(sheet => {
-                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(ModTraits.MonkWeapon) && item.Contains(Trait.Advanced), Trait.Simple);
+                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Advanced), Trait.Simple);
             })
             .WithPrerequisite(sheet => sheet.HasFeat(MonasticWeaponry), "You must have the Monastic Weaponry feat.");
 
@@ -340,15 +401,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             yield return new Feat(PowerOfTheRatFiend, null, "", [], null);
 
-            yield return new TrueFeat(RatMonarchDedication, 2, "The Rat Monarch lords over their flock of rodents, that emerge from the most neglected corners of the abyss to fulfill their master's will.",
+            //yield return 
+
+            var ratMonarch = ArchetypeFeats.CreateAgnosticArchetypeDedication(ModTraits.RatMonarch, "The Rat Monarch lords over their flock of rodents, that emerge from the most neglected corners of the abyss to fulfill their master's will.",
                 "You gain the following actions, allowing to summon forth and direct a swarm of vicious rats:\n\n" +
                 "{b}Call Rats {icon:TwoActions}.{/b}\n" +
                 "{b}Range{/b} self\n\nSpawn 2 friendly rat familiars into the nearest unoccupied space available to you." +
                 "Your familiars have the base statistics of a Giant Rat, but their level is equal to your own -2, adjusting their defences and attack bonuses and increasing their max HP by 3 per level.\n\n" +
                 "{b}Command Swarm {icon:Action}.{/b}\n" +
                 "{b}Range{/b} 30 feet\n{b}Target{/b} 1 enemy creature\n\n" +
-                "You mark the target creature with a demonic curse, attracting your rat familiars to them. While marked, your familiars gain a +1 status bonus to attack, and a +2 damage bonus against the target and are more likely to attack them.",
-                new Trait[] { ModTraits.Archetype, ModTraits.Dedication, ModTraits.Event, ModTraits.Roguelike }.Concat(classTraits).ToArray(), null)
+                "You mark the target creature with a demonic curse, attracting your rat familiars to them. While marked, your familiars gain a +1 status bonus to attack, and a +2 damage bonus against the target and are more likely to attack them."
+                , null)
             .WithOnCreature((sheet, creature) => {
                 creature.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
@@ -406,14 +469,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
             }, "This archetype can only be taken by one who has stolen the power of the Rat Fiend.");
 
+            ratMonarch.Traits.Add(ModTraits.Event);
+            ratMonarch.Traits.Add(ModTraits.Roguelike);
+
+            yield return ratMonarch;
+
             yield return new TrueFeat(PlagueRats, 4, "Your rats grow larger and more vicious, carrying a wasting otherwordly plague.",
                 "Your rat familiars gain +5 HP and inflict Rat Plague on a successful jaws attack, an affliction with a DC equal to the higher of your class or spell DC.\n\n{b}Rat Plague{/b}\n{b}Stage 1{/b} 1d6 poison damage and enfeebled 1; {b}Stage 2{/b} 2d6 poison damage and enfeebled 2; {b}Stage 3{/b} 3d6 poison damage and enfeebled 2.",
-                new Trait[] { ModTraits.Archetype, ModTraits.Event, ModTraits.Roguelike }.Concat(classTraits).ToArray(), null)
-            .WithPrerequisite(sheet => sheet.HasFeat(RatMonarchDedication) ? true : false, "Requires the Rat Monarch Dedication");
+                new Trait[] { ModTraits.Event, ModTraits.Roguelike }, null)
+            .WithAvailableAsArchetypeFeat(ModTraits.RatMonarch);
 
             yield return new TrueFeat(SwarmLord, 4, "You and your rats fight as one.",
                 "When you hit a creature with an attack roll, each adjacent rat familiar may use its reaction to make a jaws attack against them. Attacks triggered by ranged attacks suffer a -2 penalty.",
-                new Trait[] { ModTraits.Archetype, ModTraits.Event, ModTraits.Roguelike }.Concat(classTraits).ToArray(), null)
+                new Trait[] { ModTraits.Event, ModTraits.Roguelike }, null)
+            .WithAvailableAsArchetypeFeat(ModTraits.RatMonarch)
             .WithOnCreature((sheet, creature) => {
                 creature.AddQEffect(new QEffect("Swarm Lord", "When you hit a creature with an attack roll, each adjacent rat familiar may use its reaction to make a jaws attack against them. Attacks triggered by ranged attacks suffer a -2 penalty.") {
                     AfterYouTakeActionAgainstTarget = async (self, action, target, result) => {
@@ -438,8 +507,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         }
                     }
                 });
-            })
-            .WithPrerequisite(sheet => sheet.HasFeat(RatMonarchDedication) ? true : false, "Requires the Rat Monarch Dedication.");
+            });
         }
 
         //internal static Feat CreateAdvancedDomainFeat(Trait forClass, Feat domainFeat) {

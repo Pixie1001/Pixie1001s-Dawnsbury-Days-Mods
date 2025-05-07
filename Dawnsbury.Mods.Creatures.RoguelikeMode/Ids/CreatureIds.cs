@@ -62,6 +62,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static CreatureId WinterWolf { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_WinterWolf");
         internal static CreatureId Sigbin { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Sigbin");
         internal static CreatureId Basilisk { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Basilisk");
-
+        internal static CreatureId Medusa { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Medusa");
+        internal static CreatureId PetrifiedGuardian { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_PetrifiedGuardian");
+        internal static CreatureId Chimera { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_Chimera");
+        internal static CreatureId YoungRedDragon { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_YoungRedDragon");
+        internal static CreatureId DragonWitch { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DragonWitch");
     }
 }
