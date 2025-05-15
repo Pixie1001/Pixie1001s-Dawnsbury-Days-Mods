@@ -54,8 +54,11 @@
 	<li>CoverEyes.png by Leremy - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/person_10049581?term=eye&page=1&position=4&origin=style&related_id=10049581)</li>
 	<li>Nunchuck.png by Freepik - published on FlatIcon.com, [here]( https://www.flaticon.com/free-icon/nunchuck_5038212?term=nunchuck&page=1&position=1&origin=tag&related_id=5038212)</li>
 	<li>Sai.png by Futuer - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/sai_6670774?term=sai&page=1&position=2&origin=search&related_id=6670774)</li>
-	<li>Kama.png by Futuer - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/kusarigama_6670676?term=chain+sickle&page=1&position=45&origin=tag&related_id=6670676)</li>
+	<li>Kama.png (modified) & Kusarigama.png by Futuer - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/kusarigama_6670676?term=chain+sickle&page=1&position=45&origin=tag&related_id=6670676)</li>
 	<li>Parry.png by Park Jisun - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/sword_15617861?term=sword+duel&page=1&position=58&origin=search&related_id=15617861)</li>
+	<li>FightingFan.png by smashingstocks - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/hand-fan_8635537?term=hand+fan&page=1&position=16&origin=search&related_id=8635537)</li>
+	<li>spellbook.png by Smashicons - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/spell-book_10580223?related_id=10580223)</li>
+	<li>pentagram.png by Good Ware - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/pentagram_6766762?term=pentagram&related_id=6766762)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -130,6 +133,7 @@
 	<li>Sigbin.png</li>
 	<li>WinterWolf.png</li>
 	<li>Basilisk.png</li>
+	<li>Medusa.png</li>
 </ul>
 
 ## Volunteer Contributions

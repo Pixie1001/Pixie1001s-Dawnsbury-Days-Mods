@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="17" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
+ <properties>
+  <property name="EncounterDescription">For some time now the party has been hounded by an abnormal amount of hissing and scurrying footsteps coming from the gloom... The source always just outside of their eye line. It isn't until a rag draped kobald steps out from the winding tunnels that they realise they've walked straight into a trap.
+
+Perhaps the creatures were coerced by the Drow, or merely subsist by preying on travellers walking this path. Regardless, their only option left is to brave the ambush.</property>
+  <property name="EncounterGroup" value="Roguelike"/>
+  <property name="EncounterLevel" type="int" value="2"/>
+  <property name="EncounterName" value="Kobold Ambush"/>
+ </properties>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
+ <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2179" source="DlcTileset.tsx"/>
+ <imagelayer id="5" name="Image Layer 1">
+  <image source="KobaldAmbush.jpg" width="4352" height="4352"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="17" height="17" visible="0">
+  <data encoding="csv">
+21,21,21,21,21,22,22,22,22,106,106,106,106,22,22,22,22,
+22,22,21,21,21,21,22,22,106,106,106,106,106,22,22,22,22,
+22,22,22,21,21,21,21,21,21,21,21,106,21,21,22,22,22,
+22,22,22,21,21,21,21,21,21,21,21,21,21,21,21,22,22,
+22,22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+22,22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,21,22,22,
+22,106,21,21,21,21,21,21,21,21,21,21,21,21,22,22,22,
+106,106,106,21,21,21,21,21,21,21,21,21,21,21,22,22,22,
+106,106,106,21,21,21,22,22,22,22,22,21,21,21,21,22,22,
+106,106,106,106,21,22,22,22,22,22,22,22,21,21,21,22,22
+</data>
+ </layer>
+ <layer id="2" name="Top layer: stones, trees, creatures..." width="17" height="17">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,13,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,24,0,
+37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+39,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,
+38,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,24,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="3" name="Topmost layer: Metadata" width="17" height="17">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2163,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2178,2178,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,2178,0,0,0,0,0,0,
+0,0,0,0,0,0,2164,2178,0,0,2164,0,2178,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,2178,115,0,
+0,0,0,2164,0,0,0,2178,0,0,2178,0,0,2178,0,0,0,
+0,0,0,2178,0,2178,2164,0,0,0,0,0,0,2164,0,2178,2163,
+0,0,0,2178,0,0,0,0,0,0,0,2178,0,0,0,0,0,
+0,0,0,0,0,2178,0,0,2178,2164,0,0,0,0,0,0,0,
+0,0,2178,0,0,0,0,0,0,2178,0,0,0,2178,115,0,0,
+0,0,0,0,2164,0,0,0,0,0,0,0,2164,0,0,0,0,
+0,0,0,0,0,0,2178,0,0,0,0,0,2178,0,0,0,0,
+0,0,0,0,0,0,0,0,2164,0,0,0,0,0,0,0,0,
+0,0,0,0,2178,0,0,0,0,0,0,0,2178,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2178,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

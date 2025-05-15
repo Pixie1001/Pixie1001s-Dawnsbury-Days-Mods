@@ -63,7 +63,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait Reload0 { get; } = ModManager.RegisterTrait("RL_Reload0", new TraitProperties("Reload 0", true, "While you have a free hand, you can draw and throw this weapon as a single action.", true));
         internal static Trait Parry = ModManager.RegisterTrait("RL_Parry", new TraitProperties("Parry", true, "This weapon can be used defensively to block attacks."));
         internal static Trait Twin = ModManager.RegisterTrait("RL_Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
-        internal static Trait Monstrous = ModManager.RegisterTrait("RL_Monstrous", null);
+        internal static Trait Monstrous = ModManager.RegisterTrait("RL_Monstrous", new TraitProperties("Monstrous", false));
 
         // Mutator Traits
         internal static Trait UniversalMutator { get; } = ModManager.RegisterTrait("UniversalMutator", new TraitProperties("UniversalMutator", false));
@@ -71,5 +71,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait MeleeMutator { get; } = ModManager.RegisterTrait("MeleeMutator", new TraitProperties("MeleeMutator", false));
         internal static Trait ArcherMutator { get; } = ModManager.RegisterTrait("ArcherMutator", new TraitProperties("ArcherMutator", false));
 
+        // Weapon Traits
+        internal static Trait DuelingSpear { get; } = ModManager.RegisterTrait("RL_DuelingSpear", new TraitProperties("Dueling Spear", false));
+        internal static Trait LightHammer { get; } = ModManager.RegisterTrait("RL_LightHammer", new TraitProperties("Light Hammer", false));
+        internal static Trait Hatchet { get; } = ModManager.RegisterTrait("RL_Hatchet", new TraitProperties("Hatchet", false));
+        internal static Trait Shuriken { get; } = ModManager.RegisterTrait("RL_Shuriken", new TraitProperties("Shuriken", false));
+        internal static Trait Kama { get; } = ModManager.RegisterTrait("RL_Kama", new TraitProperties("Kama", false));
+        internal static Trait Sai { get; } = ModManager.RegisterTrait("RL_Sai", new TraitProperties("Sai", false));
+        internal static Trait Nunchaku { get; } = ModManager.RegisterTrait("RL_Nunchaku", new TraitProperties("Nunchaku", false));
+        internal static Trait HookSword { get; } = ModManager.RegisterTrait("RL_HookSword", new TraitProperties("Hook Sword", false));
+        internal static Trait Kusarigama { get; } = ModManager.RegisterTrait("RL_Kusarigama", new TraitProperties("Kusarigama", false));
+        internal static Trait FightingFan { get; } = ModManager.RegisterTrait("RL_FightingFan", new TraitProperties("FightingFan", false));
     }
 }

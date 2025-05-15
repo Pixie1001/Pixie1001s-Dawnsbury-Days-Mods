@@ -42,7 +42,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class EchidnaditeBroodguard {
         public static Creature Create() {
-            Creature monster = new Creature(Illustrations.EBroodGuard, "Echidnadite Brood Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator }, 5, 12, 5, new Defenses(24, 17, 11, 14), 120,
+            Creature monster = new Creature(Illustrations.EBroodGuard, "Echidnadite Brood Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.MeleeMutator }, 6, 12, 5, new Defenses(24, 17, 11, 14), 120,
                 new Abilities(4, 2, 4, 0, 2, 2), new Skills(athletics: 17, nature: 13))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

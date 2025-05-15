@@ -115,24 +115,69 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial), Trait.Simple);
             })
             .WithOnCreature(you => {
-                if (!you.HasFeat(FeatName.BrawlingFocus)) return;
+                if (you.HasFeat(FeatName.BrawlingFocus)) {
+                    you.AddQEffect(new QEffect() {
+                        YouHaveCriticalSpecialization = (self, item, action, defender) => item != null && item.HasTrait(Trait.MonkWeapon)
+                    });
+                }
 
-                you.AddQEffect(new QEffect() {
-                    YouHaveCriticalSpecialization = (self, item, action, defender) => item != null && item.HasTrait(Trait.MonkWeapon)
-                });
+                ReplaceFlurryOfBlows(you);
+            });
+
+            yield return new TrueFeat(ModManager.RegisterFeatName("RL_MonasticArcherStance", "Monastic Archer Stance"), 2, "You enter a specialized stance for a unique martial art centered around the use of a bow.",
+                "While in this stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait. You can use Flurry of Blows with these bows. " +
+                "You can use your other monk feats or monk abilities that normally require unarmed attacks with these bows when attacking within half the first range increment (normally 50 feet for a longbow and 30 feet for a shortbow), " +
+                "so long as the feat or ability doesn't require a single, specific Strike." +
+                "\n\nSpecial When you select this feat, you become trained in the longbow, shortbow, and any simple and martial bows with the monk trait. At later levels, your proficancy with these weapons scales with your unarmed attacks.",
+                [Trait.Monk, Trait.Stance, ModTraits.Roguelike], null)
+            .WithIllustration(IllustrationName.Shortbow)
+            .WithOnSheet(sheet => {
+                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial) && item.Contains(Trait.Bow) || item.Contains(Trait.Longbow) || item.Contains(Trait.Shortbow), Trait.Simple);
+            })
+            .WithOnCreature(you => {
+                if (!you.HasFeat(MonasticWeaponry))
+                    ReplaceFlurryOfBlows(you);
+            })
+            .WithPermanentQEffect(null, (qfMAS) => {
+                qfMAS.ProvideMainAction = self => {
+                    return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Shortbow, "Monastic Archer Stance", [Trait.Monk, Trait.Stance],
+                        "Enter a stance.\n\nWhile in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead.\n\nYou can't enter this stance if you're wearing armour.",
+                        Target.Self().WithAdditionalRestriction(self => {
+                            if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance))
+                                return "You're already in this stance.";
+                            if (self.Armor.WearsArmor)
+                                return "You're wearing armour.";
+                            return null;
+                        })) {
+                        ShortDescription = "You can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead."
+                    }
+                    .WithActionCost(1)
+                    .WithEffectOnSelf(user => {
+                        var stance = KineticistCommonEffects.EnterStance(user, IllustrationName.Shortbow,
+                            "Monastic Archer Stance", "While in this stance, you can use your monk feats or monk abilities " +
+                            "that normally require unarmed attacks with longbows, shortsbows and monk bows instead.", QEffectIds.MonasticArcherStance);
+                        stance.PreventTakingAction = action => action.HasTrait(Trait.Strike)
+                            && !((action.Item != null
+                            && action.Item.HasTrait(Trait.MonkWeapon)
+                            && action.Item.HasTrait(Trait.Bow)
+                            && !action.Item.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow }.Contains(action.Item.MainTrait))
+                            ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;  
+
+                    })) {
+                        PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
+                    }
+                    ;
+                };
             });
 
             yield return new TrueFeat(ModManager.RegisterFeatName("RL_ShootingStarStance", "Shooting Star Stance"), 2, "You enter a stance that lets you throw shuriken with lightning speed.",
                 "While in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with shuriken instead.",
                 [Trait.Monk, Trait.Stance, ModTraits.Roguelike], null)
-            //.WithOnCreature((sheet, creature) => {
-            //    creature.AddQEffect();
-            //})
             .WithIllustration(IllustrationName.SprayOfStars)
             .WithPermanentQEffect(null, (qfSSS) => {
                 qfSSS.ProvideMainAction = self => {
                     return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.SprayOfStars, "Shooting Star Stance", [Trait.Monk, Trait.Stance],
-                        "Enter a stance.\n\nWhile in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with shuriken instead.",
+                        "Enter a stance.\n\nWhile in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with shuriken instead.\n\nUnlike most monk stances, you can enter this stance even if you're wearing armour.",
                         Target.Self().WithAdditionalRestriction(self => {
                             if (self.QEffects.Any(qf => qf.Name == "Shooting Star Stance"))
                                 return "You're already in this stance.";
@@ -144,171 +189,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     .WithEffectOnSelf(user => {
                         var stance = KineticistCommonEffects.EnterStance(user, IllustrationName.SprayOfStars,
                             "Shooting Star Stance", "While in this stance, you can use your monk feats or monk abilities " +
-                            "that normally require unarmed attacks with shuriken instead.");
-                        //stance.StateCheck = _ => {
-                        //    var s = stance.Owner.Possibilities.Sections.FirstOrDefault(s => s.PossibilitySectionId == PossibilitySectionId.MainActions);
-                        //    if (s == null) return;
-                        //    s.Possibilities.RemoveAll(pos => pos.Caption == "Flurry of Blows");
-                        //};
-                        stance.PreventTakingAction = action => action.Name == "Flurry of Blows" ? "Cannot use in shooting star stance" : null;
-                        stance.ProvideMainAction = qfSelf => {
-                            return (ActionPossibility)new CombatAction(qfSelf.Owner, new SideBySideIllustration(IllustrationName.FlurryOfBlows, Illustrations.Shuriken),
-                                "Flurry of Blows (Shooting Star Stance)", [Trait.Monk, Trait.Flourish],
-                                "Make two unarmed or shuriken Strikes.\n\nIf both hit the same creature, " +
-                                "combine their damage for the purpose of resistances and weaknesses. Apply your multiple attack penalty to the Strikes normally." +
-                                "\n\nAs it has the flourish trait, you can use Flurry of Blows only once per turn.",
-                            Target.Self()
-                            .WithAdditionalRestriction(user => {
-                                Item? shuriken = null;
-
-                                if (user.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken) || user.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn) != null) {
-                                    shuriken = Items.CreateNew(CustomItems.Shuriken);
-                                }
-
-                                CombatAction combatAction = StrikeRules.CreateStrike(user, shuriken, RangeKind.Ranged, -1, true);
-                                var result = combatAction.CanBeginToUse(user);
-
-                                if (shuriken != null && combatAction.CanBeginToUse(user).CanBeUsed)
-                                    return null;
-
-
-                                if (!user.CanMakeBasicUnarmedAttack && user.QEffects.All(qf => qf.AdditionalUnarmedStrike == null)) return "You must be able to make an unarmed or shuriken throw Strike to use Flurry of Blows.";
-
-                                if (user.MeleeWeapons.Concat([]).Any(weapon => weapon.HasTrait(Trait.Unarmed) && CommonRulesConditions.CouldMakeStrike(user, weapon))) {
-                                    return null;
-                                }
-
-                                return "There is no nearby enemy or you can't make attacks.";
-                            })) {
-                                ShortDescription = "Make two unarmed Strikes."
-                            }
-                            .WithActionCost(1)
-                            .WithActionId(ActionId.FlurryOfBlows)
-                            .WithEffectOnEachTarget(async (spell, self, target, irrelevantResult) => {
-                                var chosenCreatures = new List<Creature>();
-                                int hpBefore = -1;
-                                for (int i = 0; i < 2; i++) {
-                                    await self.Battle.GameLoop.StateCheck();
-                                    var possibilities = new List<Option>();
-
-                                    // Add shurikens
-                                    Item? bandolier = user.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn);
-
-                                    if (bandolier == null && !user.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken))
-                                        return;
-
-                                    var uniqueShurikens = new List<(Item?, Item)>();
-                                    int numShurikens = 0;
-                                    var allShurikens = new List<(Item?, Item)>();
-                                    foreach (var item in user.CarriedItems) {
-                                        if (item.ItemName == CustomItems.Shuriken)
-                                            allShurikens.Add((null, item));
-                                        foreach (var subItem in item.StoredItems) {
-                                            if (subItem.ItemName == CustomItems.Shuriken)
-                                                allShurikens.Add((item, subItem));
-                                        }
-                                    }
-                                    allShurikens.ForEach(tuple => {
-                                        numShurikens += 1;
-                                        bool unique = true;
-                                        foreach ((Item?, Item) skn in uniqueShurikens) {
-                                            if (tuple.Item2.Name == skn.Item2.Name)
-                                                unique = false;
-                                        }
-                                        if (unique)
-                                            uniqueShurikens.Add(tuple);
-                                    });
-
-                                    List<CombatAction> shurikenThrows = new List<CombatAction>();
-                                    foreach ((Item?, Item) shuriken in uniqueShurikens) {
-                                        var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, -1, true).WithActionCost(0);
-                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
-                                        strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
-                                            if (shuriken.Item1 != null)
-                                                shuriken.Item1.StoredItems.Remove(shuriken.Item2);
-                                            else
-                                                user.CarriedItems.Remove(shuriken.Item2);
-                                            user.AddHeldItem(shuriken.Item2);
-                                        });
-                                        strike.Name += " (" + shuriken.Item2.Name + ")";
-                                        shurikenThrows.Add(strike);
-                                    }
-
-                                    if (bandolier != null) {
-                                        var shuriken = Items.CreateNew(CustomItems.Shuriken);
-                                        shuriken.Traits.Add(Trait.EncounterEphemeral);
-                                        foreach (Item rune in bandolier.Runes) {
-                                            shuriken.WithModificationRune(rune.ItemName);
-                                        }
-
-                                        var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0);
-                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
-                                        strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
-                                            user.AddHeldItem(shuriken);
-                                        });
-                                        strike.Name += " from bandolier (" + shuriken.Name + ")";
-                                        shurikenThrows.Add(strike);
-                                    }
-
-                                    foreach (var strike in shurikenThrows) {
-                                        GameLoop.AddDirectUsageOnCreatureOptions(strike, possibilities, false);
-                                    }
-
-                                    foreach (var item in self.MeleeWeapons.Where(weapon => weapon.HasTrait(Trait.Unarmed))) {
-                                        var combatAction = self.CreateStrike(item);
-                                        combatAction.WithActionCost(0);
-                                        GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
-                                    }
-
-                                    if (self.HasEffect(QEffectId.FlurryOfManeuvers)) {
-                                        foreach (var maneuverAction in CombatManeuverPossibilities.GetAllShoveGrappleAndTripOptions(self)) {
-                                            GameLoop.AddDirectUsageOnCreatureOptions(maneuverAction.WithActionCost(0), possibilities, true);
-                                        }
-                                    }
-
-                                    if (possibilities.Count > 0) {
-                                        Option chosenOption;
-                                        if (possibilities.Count >= 2 || i == 0) {
-                                            if (i == 0) possibilities.Add(new CancelOption(true));
-                                            var result = await self.Battle.SendRequest(new AdvancedRequest(self, "Choose a creature to Strike.", possibilities) {
-                                                TopBarText = (i == 0 ? "Choose a creature to Strike or right-click to cancel. (1/2)" : "Choose a creature to Strike. (2/2)"),
-                                                TopBarIcon = IllustrationName.Fist
-                                            });
-                                            chosenOption = result.ChosenOption;
-                                        } else {
-                                            chosenOption = possibilities[0];
-                                        }
-
-                                        if (chosenOption is CreatureOption creatureOption) {
-                                            if (hpBefore == -1) {
-                                                hpBefore = creatureOption.Creature.HP;
-                                            }
-
-                                            chosenCreatures.Add(creatureOption.Creature);
-                                        }
-
-                                        if (chosenOption is CancelOption) {
-                                            spell.RevertRequested = true;
-                                            return;
-                                        }
-
-                                        await chosenOption.Action();
-                                    }
-                                }
-
-                                if (self.HasEffect(QEffectId.StunningFist) && (chosenCreatures.Count == 1 || chosenCreatures.Count == 2 && chosenCreatures[0] == chosenCreatures[1])) {
-                                    if (chosenCreatures[0].HP < hpBefore) {
-                                        var stunningFistAction = CombatAction.CreateSimpleIncapacitation(self, "Stunning Fist", self.MaximumSpellRank);
-                                        var stunningFistResult = CommonSpellEffects.RollSavingThrow(chosenCreatures[0], stunningFistAction, Defense.Fortitude, self.Proficiencies.Get(Trait.Monk).ToNumber(self.ProficiencyLevel) + self.Abilities.Get(self.Abilities.KeyAbility) + 10);
-                                        if (stunningFistResult <= CheckResult.Failure) {
-                                            chosenCreatures[0].AddQEffect(QEffect.Stunned(stunningFistResult == CheckResult.CriticalFailure ? 3 : 1));
-                                        }
-                                    }
-                                }
-
-                                Steam.CollectAchievement("MONK");
-                    });
-                };
+                            "that normally require unarmed attacks with shuriken instead.", QEffectIds.ShootingStarStance);;
+                        
                     })) {
                         PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
                     }
@@ -324,7 +206,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 you.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Bird256, "Peafowl Stance", [Trait.Monk, Trait.Stance],
-                            "{b}Requirements{/b} You are wielding a sword that has the monk trait in one hand.\n\nEnter a stance.\n\nWhile in this stance, the only Strikes you can make are melee Strikes with the required sword. Once per round, after you hit with a monk sword Strike, you can Step as a free action as your next action.",
+                            "{b}Requirements{/b} You are wielding a sword that has the monk trait in one hand.\n\nEnter a stance.\n\nWhile in this stance, the only Strikes you can make are melee Strikes with the required sword. Once per round, after you hit with a monk sword Strike, you can Step as a free action as your next action.\n\nUnlike most monk stances, you can enter this stance even if you're wearing armour.",
                             Target.Self().WithAdditionalRestriction(self => {
                                 if (self.QEffects.Any(qf => qf.Name == "Peafowl Stance"))
                                     return "You're already in this stance.";
@@ -580,6 +462,195 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 rat.AddQEffect(CommonQEffects.RatPlagueAttack(master, "jaws"));
             }
             master.Battle.SpawnCreature(rat, master.Battle.GaiaFriends, master.Occupies);
+        }
+
+        internal static void ReplaceFlurryOfBlows(Creature monk) {
+            monk.RemoveAllQEffects(qf => qf.ProvideMainAction != null && ((ActionPossibility)qf.ProvideMainAction(qf))?.CombatAction?.Name == "Flurry of Blows");
+
+            monk.AddQEffect(new QEffect() {
+                ProvideMainAction = qfSelf => {
+                    return (ActionPossibility)new CombatAction(qfSelf.Owner, IllustrationName.FlurryOfBlows,
+                        "Flurry of Blows", [Trait.Monk, Trait.Flourish],
+                        "Make two unarmed or shuriken Strikes.\n\nIf both hit the same creature, " +
+                        "combine their damage for the purpose of resistances and weaknesses. Apply your multiple attack penalty to the Strikes normally." +
+                        "\n\nAs it has the flourish trait, you can use Flurry of Blows only once per turn.",
+                    Target.Self()
+                    .WithAdditionalRestriction(user => {
+                        if (user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance)) {
+                            Item? shuriken = null;
+
+                            if (user.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken) || user.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn) != null) {
+                                shuriken = Items.CreateNew(CustomItems.Shuriken);
+                                CombatAction combatAction = StrikeRules.CreateStrike(user, shuriken, RangeKind.Ranged, -1, true);
+                                var result = combatAction.CanBeginToUse(user);
+
+                                if (user.HasFreeHand && shuriken != null && combatAction.CanBeginToUse(user).CanBeUsed)
+                                    return null;
+                            }
+                        }
+
+                        if (user.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
+                            Item? bow = user.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow }.Contains(wpn.MainTrait));
+                            if (bow != null) {
+                                CombatAction combatAction = StrikeRules.CreateStrike(user, bow, RangeKind.Ranged, -1, true);
+                                if (combatAction.CanBeginToUse(user) && (bow.HasTrait(Trait.TwoHanded) || user.HasFreeHand)) {
+                                    return null;
+                                }
+                            }
+                        }
+
+                        if ((!user.CanMakeBasicUnarmedAttack
+                        && user.QEffects.All(qf => qf.AdditionalUnarmedStrike == null)
+                        && !user.HeldItems.Any(wp => wp.HasTrait(Trait.MonkWeapon)))
+                        || user.PrimaryWeapon == null
+                        || user.QEffects.Any(qf => qf.PreventTakingAction != null && qf.PreventTakingAction(user.CreateStrike(user.PrimaryWeapon)) != null))
+                            return $"You must be able to make a melee unarmed{(user.HasFeat(MonasticWeaponry) ? " or monk weapon" : "")} strike{(user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance || qf.Id == QEffectIds.MonasticArcherStance) ? " or ranged attack appropriate to your stance" : "")} to use Flurry of Blows.";
+
+                        if (user.MeleeWeapons.Any(weapon => (weapon.HasTrait(Trait.Unarmed) || weapon.HasTrait(Trait.MonkWeapon)) && CommonRulesConditions.CouldMakeStrike(user, weapon))) {
+                            return null;
+                        }
+
+                        return "There is no nearby enemy or you can't make attacks.";
+                    })) {
+                        ShortDescription = $"Make two unarmed{(qfSelf.Owner.HasFeat(MonasticWeaponry) ? " or monk weapon" : "")} Strikes."
+                    }
+                    .WithActionCost(1)
+                    .WithActionId(ActionId.FlurryOfBlows)
+                    .WithEffectOnEachTarget(async (spell, self, target, irrelevantResult) => {
+                        var chosenCreatures = new List<Creature>();
+                        int hpBefore = -1;
+                        for (int i = 0; i < 2; i++) {
+                            await self.Battle.GameLoop.StateCheck();
+                            var possibilities = new List<Option>();
+
+                            if (self.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance)) {
+                                // Add shurikens
+                                Item? bandolier = self.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn);
+
+                                if (bandolier != null && self.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken)) {
+                                    var uniqueShurikens = new List<(Item?, Item)>();
+                                    int numShurikens = 0;
+                                    var allShurikens = new List<(Item?, Item)>();
+                                    foreach (var item in self.CarriedItems) {
+                                        if (item.ItemName == CustomItems.Shuriken)
+                                            allShurikens.Add((null, item));
+                                        foreach (var subItem in item.StoredItems) {
+                                            if (subItem.ItemName == CustomItems.Shuriken)
+                                                allShurikens.Add((item, subItem));
+                                        }
+                                    }
+                                    allShurikens.ForEach(tuple => {
+                                        numShurikens += 1;
+                                        bool unique = true;
+                                        foreach ((Item?, Item) skn in uniqueShurikens) {
+                                            if (tuple.Item2.Name == skn.Item2.Name)
+                                                unique = false;
+                                        }
+                                        if (unique)
+                                            uniqueShurikens.Add(tuple);
+                                    });
+
+                                    List<CombatAction> shurikenThrows = new List<CombatAction>();
+                                    foreach ((Item?, Item) shuriken in uniqueShurikens) {
+                                        var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, -1, true).WithActionCost(0);
+                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
+                                            if (shuriken.Item1 != null)
+                                                shuriken.Item1.StoredItems.Remove(shuriken.Item2);
+                                            else
+                                                user.CarriedItems.Remove(shuriken.Item2);
+                                            user.AddHeldItem(shuriken.Item2);
+                                        });
+                                        strike.Name += " (" + shuriken.Item2.Name + ")";
+                                        shurikenThrows.Add(strike);
+                                    }
+
+                                    if (bandolier != null) {
+                                        var shuriken = Items.CreateNew(CustomItems.Shuriken);
+                                        shuriken.Traits.Add(Trait.EncounterEphemeral);
+                                        foreach (Item rune in bandolier.Runes) {
+                                            shuriken.WithModificationRune(rune.ItemName);
+                                        }
+
+                                        var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0);
+                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
+                                            user.AddHeldItem(shuriken);
+                                        });
+                                        strike.Name += " from bandolier (" + shuriken.Name + ")";
+                                        shurikenThrows.Add(strike);
+                                    }
+
+                                    foreach (var strike in shurikenThrows) {
+                                        GameLoop.AddDirectUsageOnCreatureOptions(strike, possibilities, false);
+                                    }
+                                }
+                            } else if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
+                                Item? bow = self.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow }.Contains(wpn.MainTrait));
+                                if (bow != null) {
+                                    var combatAction = self.CreateStrike(bow);
+                                    (combatAction.Target as CreatureTarget).CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties.RangeIncrement / 2));
+                                    combatAction.WithActionCost(0);
+                                    GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
+                                }
+                            }
+
+                            foreach (var item in self.MeleeWeapons.Where(weapon => weapon.HasTrait(Trait.Unarmed) || weapon.HasTrait(Trait.MonkWeapon))) {
+                                var combatAction = self.CreateStrike(item);
+                                combatAction.WithActionCost(0);
+                                GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
+                            }
+
+                            if (self.HasEffect(QEffectId.FlurryOfManeuvers)) {
+                                foreach (var maneuverAction in CombatManeuverPossibilities.GetAllShoveGrappleAndTripOptions(self)) {
+                                    GameLoop.AddDirectUsageOnCreatureOptions(maneuverAction.WithActionCost(0), possibilities, true);
+                                }
+                            }
+
+                            if (possibilities.Count > 0) {
+                                Option chosenOption;
+                                if (possibilities.Count >= 2 || i == 0) {
+                                    if (i == 0) possibilities.Add(new CancelOption(true));
+                                    var result = await self.Battle.SendRequest(new AdvancedRequest(self, "Choose a creature to Strike.", possibilities) {
+                                        TopBarText = (i == 0 ? "Choose a creature to Strike or right-click to cancel. (1/2)" : "Choose a creature to Strike. (2/2)"),
+                                        TopBarIcon = IllustrationName.Fist
+                                    });
+                                    chosenOption = result.ChosenOption;
+                                } else {
+                                    chosenOption = possibilities[0];
+                                }
+
+                                if (chosenOption is CreatureOption creatureOption) {
+                                    if (hpBefore == -1) {
+                                        hpBefore = creatureOption.Creature.HP;
+                                    }
+
+                                    chosenCreatures.Add(creatureOption.Creature);
+                                }
+
+                                if (chosenOption is CancelOption) {
+                                    spell.RevertRequested = true;
+                                    return;
+                                }
+
+                                await chosenOption.Action();
+                            }
+                        }
+
+                        if (self.HasEffect(QEffectId.StunningFist) && (chosenCreatures.Count == 1 || chosenCreatures.Count == 2 && chosenCreatures[0] == chosenCreatures[1])) {
+                            if (chosenCreatures[0].HP < hpBefore) {
+                                var stunningFistAction = CombatAction.CreateSimpleIncapacitation(self, "Stunning Fist", self.MaximumSpellRank);
+                                var stunningFistResult = CommonSpellEffects.RollSavingThrow(chosenCreatures[0], stunningFistAction, Defense.Fortitude, self.Proficiencies.Get(Trait.Monk).ToNumber(self.ProficiencyLevel) + self.Abilities.Get(self.Abilities.KeyAbility) + 10);
+                                if (stunningFistResult <= CheckResult.Failure) {
+                                    chosenCreatures[0].AddQEffect(QEffect.Stunned(stunningFistResult == CheckResult.CriticalFailure ? 3 : 1));
+                                }
+                            }
+                        }
+
+                        Steam.CollectAchievement("MONK");
+                    });
+                }
+            });
         }
     }
 }

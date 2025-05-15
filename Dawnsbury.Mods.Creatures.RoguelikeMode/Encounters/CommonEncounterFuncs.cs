@@ -198,13 +198,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public static async Task StandardEncounterSetup(TBattle battle, ModEnums.EncounterType type=ModEnums.EncounterType.NORMAL) {
             Sfxs.BeginSong(Songname.Battle);
-            if (battle.CampaignState != null) {
+            if (battle.CampaignState != null && battle.CampaignState.Tags.ContainsKey("TreasureDemonEncounters")) {
                 var treasureDemonEncounters = battle.CampaignState.Tags["TreasureDemonEncounters"].Split(", ");
                 bool addTD = false;
                 foreach (string index in treasureDemonEncounters) {
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
-                        Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).ToList().GetRandom();
+                        Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).Concat(battle.Map.AllTiles.Where(t => t.IsFree && DistanceToNearestPartyMember(t, battle) <= 5 && DistanceToNearestPartyMember(t, battle) > 2)).ToList().GetRandom();
                         Creature td = CreatureList.Creatures[CreatureIds.TreasureDemon](battle.Encounter);
                         if (battle.Encounter.CharacterLevel == 1) td.ApplyWeakAdjustments(false);
                         else if (battle.Encounter.CharacterLevel == 3) td.ApplyEliteAdjustments();
@@ -297,6 +297,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 return true;
             }
             return false;
+        }
+
+        internal static int DistanceToNearestPartyMember(Tile tile, TBattle battle) {
+            var heroes = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr.Occupies?.HasLineOfEffectToIgnoreLesser(tile) <= CoverKind.Greater).ToList();
+            if (heroes.Count == 0)
+                return 1000;
+            return heroes.MinBy(cr => cr.DistanceTo(tile))!.DistanceTo(tile);
         }
 
     }

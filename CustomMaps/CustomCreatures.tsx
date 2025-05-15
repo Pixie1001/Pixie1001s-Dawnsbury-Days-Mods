@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="59" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="61" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -329,7 +329,7 @@
   <properties>
    <property name="Id" value="Medusa"/>
   </properties>
-  <image source="CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
+  <image source="CustomCreatures/Medusa.png" width="256" height="256"/>
  </tile>
  <tile id="2048">
   <properties>
@@ -354,5 +354,17 @@
    <property name="Id" value="Young Red Dragon"/>
   </properties>
   <image source="CustomCreatures/RedDragon.png" width="256" height="256"/>
+ </tile>
+ <tile id="2052">
+  <properties>
+   <property name="Id" value="Chimera"/>
+  </properties>
+  <image source="CustomCreatures/Chimera.png" width="256" height="256"/>
+ </tile>
+ <tile id="2053">
+  <properties>
+   <property name="Id" value="Trip Wire Spawn Location"/>
+  </properties>
+  <image source="CustomCreatures/TripWireSpawnLocation.png" width="256" height="256"/>
  </tile>
 </tileset>

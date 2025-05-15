@@ -76,6 +76,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration EHighPriestess = new ModdedIllustration("RoguelikeModeAssets/Enemies/EHighPriestess.png");
         internal static ModdedIllustration DragonWitch = new ModdedIllustration("RoguelikeModeAssets/Enemies/DragonWitch.png");
         internal static ModdedIllustration RedDragon = new ModdedIllustration("RoguelikeModeAssets/Enemies/RedDragon.png");
+        internal static ModdedIllustration Medusa = new ModdedIllustration("RoguelikeModeAssets/Enemies/Medusa.png");
 
         // Bears for Archanophobia Mode
         internal static ModdedIllustration Bear1 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
@@ -121,6 +122,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Nunchuck = new ModdedIllustration("RoguelikeModeAssets/Items/Nunchuck.png");
         internal static ModdedIllustration HookSword = new ModdedIllustration("RoguelikeModeAssets/Items/HookSword.png");
         internal static ModdedIllustration Kama = new ModdedIllustration("RoguelikeModeAssets/Items/Kama.png");
+        internal static ModdedIllustration Kusarigama = new ModdedIllustration("RoguelikeModeAssets/Items/Kusarigama.png");
+        internal static ModdedIllustration FightingFan = new ModdedIllustration("RoguelikeModeAssets/Items/FightingFan.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");
@@ -139,6 +142,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration AvertGaze = new ModdedIllustration("RoguelikeModeAssets/Icons/AvertGaze.png");
         internal static ModdedIllustration CoverEyes = new ModdedIllustration("RoguelikeModeAssets/Icons/CoverEyes.png");
         internal static ModdedIllustration Parry = new ModdedIllustration("RoguelikeModeAssets/Icons/Parry.png");
+        internal static ModdedIllustration EliteEncounter = new ModdedIllustration("RoguelikeModeAssets/Icons/spellbook.png");
+        internal static ModdedIllustration BossEncounter = new ModdedIllustration("RoguelikeModeAssets/Icons/pentagram.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

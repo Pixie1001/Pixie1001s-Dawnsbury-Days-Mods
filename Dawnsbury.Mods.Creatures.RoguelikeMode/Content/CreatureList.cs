@@ -186,10 +186,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Basilisk.Create();
                 case var v when v.Equals(CreatureIds.Medusa):
                     return Medusa.Create();
+                case var v when v.Equals(CreatureIds.PetrifiedGuardian):
+                    return PetrifiedGuardian.Create();
                 case var v when v.Equals(CreatureIds.DragonWitch):
                     return DragonWitch.Create();
                 case var v when v.Equals(CreatureIds.YoungRedDragon):
                     return YoungRedDragon.Create();
+                case var v when v.Equals(CreatureIds.Chimera):
+                    return Chimera.Create();
+                case var v when v.Equals(CreatureIds.YoungChimera):
+                    return YoungChimera.Create();
+                case var v when v.Equals(CreatureIds.FlailSnail):
+                    return FlailSnail.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -263,6 +271,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DevotedCultist);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkHarrier);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.HuntingSpider);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Pikeman);
 
             // Level 2 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowInquisitrix);
@@ -279,6 +288,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Nuglub);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.TreasureDemon);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.UnseenGuardian);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Ardamok);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Crocodile);
 
             // Level 3 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Drider);
@@ -305,6 +316,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Sigbin);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WinterWolf);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Basilisk);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.FlailSnail);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.PetrifiedGuardian);
 
             // Level 6 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
@@ -313,6 +326,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 7 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Medusa);
+
+            // Level 8 Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Chimera);
 
             // Level 10 creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DragonWitch);
@@ -335,6 +351,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         internal static void LoadTiles() {
             RegisterTile(GrantMonsterMutator.Create());
+            RegisterTile(TripWire.Create());
+            RegisterTile(TripWireSpawnLocation.Create());
         }
     }
 }

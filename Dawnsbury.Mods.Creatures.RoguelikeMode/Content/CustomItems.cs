@@ -86,21 +86,35 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         //.WithModification(new ItemModification(ItemModificationKind.CustomPermanent))
         //.WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
 
+        public static ItemName FightingFan { get; } = ModManager.RegisterNewItemIntoTheShop("RL_FightingFan", itemName => new Item(itemName, Illustrations.FightingFan, "fighting fan", 0, 2,
+            Trait.Uncommon, Trait.Agile, Trait.Backstabber, Trait.DeadlyD6, Trait.Finesse, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.FightingFan)
+        .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
+
+        public static ItemName Kusarigama { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Kusarigama", itemName => new Item(itemName, Illustrations.Kusarigama, "kusarigama", 0, 2,
+            Trait.Uncommon, Trait.Disarm, Trait.Reach, Trait.Trip, Trait.VersatileB, Trait.TwoHanded, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Kusarigama)
+        .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing)));
+
         public static ItemName Sai { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Sai", itemName => new Item(itemName, Illustrations.Sai, "sai", 0, 2,
             Trait.Uncommon, Trait.Agile, Trait.Disarm, Trait.Finesse, Trait.VersatileB, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Sai)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)));
 
         public static ItemName Nunchaku { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Nunchaku", itemName => new Item(itemName, Illustrations.Nunchuck, "nunchaku", 0, 0,
             Trait.Uncommon, Trait.Backswing, Trait.Disarm, Trait.Finesse, Trait.Club, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Nunchaku)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
 
         public static ItemName Kama { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Kama", itemName => new Item(itemName, Illustrations.Kama, "kama", 0, 1,
             Trait.Uncommon, Trait.Agile, Trait.Trip, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Kama)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
 
         public static ItemName HookSword { get; } = ModManager.RegisterNewItemIntoTheShop("RL_HookSword", itemName => {
             Item item = new Item(itemName, Illustrations.HookSword, "hook sword", 0, 2,
             ModTraits.Parry, ModTraits.Twin, Trait.Disarm, Trait.Trip, Trait.Uncommon, Trait.Sword, Trait.Advanced, Trait.MonkWeapon, ModTraits.Roguelike)
+            .WithMainTrait(ModTraits.HookSword)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing));
 
             item.ProvidesItemAction = (wielder, wpn) => {
@@ -142,18 +156,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
         public static ItemName DuelingSpear { get; } = ModManager.RegisterNewItemIntoTheShop("DuelingSpear", itemName => new Item(itemName, Illustrations.DuelingSpear, "dueling spear", 0, 2,
             Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.DuelingSpear)
         .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
 
         public static ItemName Hatchet { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Hatchet", itemName => new Item(itemName, Illustrations.Hatchet, "hatchet", 0, 0,
             Trait.Agile, Trait.Sweep, Trait.Thrown20Feet, Trait.Martial, Trait.Axe, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Hatchet)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
 
         public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
             Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Hammer, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.LightHammer)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
 
         public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
             Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Shuriken)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
@@ -1689,7 +1707,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);

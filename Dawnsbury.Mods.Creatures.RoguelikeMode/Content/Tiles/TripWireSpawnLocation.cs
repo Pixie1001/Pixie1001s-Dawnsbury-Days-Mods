@@ -30,17 +30,35 @@ using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public static class TripWire {
+    public static class TripWireSpawnLocation {
 
         private const int DC = 16;
 
         public static (string, Func<Tile, Encounter?, TileQEffect>) Create() {
-            return ("Trip Wire", (tile, encounter) => {
+            return ("Trip Wire Spawn Location", (tile, encounter) => {
                 var trap = CommonTraps.CreateBasicTrap(tile, "Trip Wire", Illustrations.TripWire, DC, $"When a creature enters this tile, a rock falls from the ceiling dealing 3d6 bludgeoning damage vs. a basic Reflex save. On a crital failure, the victim is knocked prone. An adjacent creature can {{icon:TwoActions}} disable the trap with a DC {DC} Thievery check.");
                 Task OnTrigger(Creature enterer) => TriggerEffect(enterer);
                 CommonTraps.AddDoNotStepHere(trap);
                 CommonTraps.AddWhenCreatureEnters(trap, OnTrigger, (enterer) => !enterer.HasEffect(QEffectId.Flying));
                 CommonTraps.AddDisableDeviceOption(trap, DC - 2, OnTrigger);
+
+                trap.AfterDamageIsDealtHere = dmg => { };
+
+                trap.StateCheck += self => {
+                    if (self.AfterDamageIsDealtHere == null) return;
+                    int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
+                    seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;
+                    seed += self.Owner.Battle.Map.AllTiles.IndexOf(self.Owner);
+
+                    Random rand = new Random(seed);
+
+                    if (rand.Next(0, 3) == 0) {
+                        self.AfterDamageIsDealtHere = null;
+                    } else {
+                        self.ExpiresAt = ExpirationCondition.Immediately;
+                    }
+
+                };
 
                 return trap;
             });

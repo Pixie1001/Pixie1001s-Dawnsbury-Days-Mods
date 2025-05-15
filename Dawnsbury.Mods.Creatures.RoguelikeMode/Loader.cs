@@ -84,6 +84,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
     {
         public static string UnderdarkName = "Below";
 
+        public static string[] Seed = ["null"];
+
         internal static string Credits { get; } =
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
             "{b}Lead design, writing, direction and programming: {/b} Pixie1001\n" +

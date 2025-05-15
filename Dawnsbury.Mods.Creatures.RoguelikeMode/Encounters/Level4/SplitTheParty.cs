@@ -21,6 +21,7 @@ using Microsoft.Xna.Framework;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Core.Creatures.Parts;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 {
@@ -40,6 +41,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 await CommonEncounterFuncs.StandardEncounterSetup(battle);
             });
+
+            this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
+                if (battle.RoundNumber == 1) {
+                    battle.AllCreatures
+                    .Where(cr => cr.CreatureId == CreatureId.Door && cr.Occupies != null && CommonEncounterFuncs.DistanceToNearestPartyMember(cr.Occupies, battle) <= 2)
+                    .ToList()
+                    .ForEach(cr => {
+                        Sfxs.Play(SfxName.OpenLock);
+                        cr.DieFastAndWithoutAnimation();
+                    });
+                }
+            }); 
 
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {

@@ -673,8 +673,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                                 $"{action.Owner.Name} rerolls their attack and takes the new result: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}.\n\nThey have taken the new higher value.");
-                            breakdown.GetType().GetField("<D20Roll>k__BackingField", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).SetValue(breakdown, newValue);
-                            breakdown.GetType().GetField("<FirstD20Roll>k__BackingField", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).SetValue(breakdown, newValue);
+                            //breakdown.GetType().GetField("<D20Roll>k__BackingField", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).SetValue(breakdown, newValue);
+                            //breakdown.GetType().GetField("<FirstD20Roll>k__BackingField", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).SetValue(breakdown, newValue);
+                            breakdown.D20Roll = newValue;
+                            breakdown.FirstD20Roll = newValue;
                         } else {
                             action.Owner.Occupies.Overhead("", Color.Black,
                                 $"{action.Owner.Name} rerolls their attack and takes the origional result: {breakdown.D20Roll} > {newValue}",

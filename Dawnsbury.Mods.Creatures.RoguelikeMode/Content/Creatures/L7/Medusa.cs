@@ -33,14 +33,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class Medusa {
         public static Creature Create() {
-            var creature = new Creature(IllustrationName.SwampHag,
+            var creature = new Creature(Illustrations.Medusa,
                 "Medusa",
                 [Trait.Chaotic, Trait.Evil, Trait.Humanoid, ModTraits.Monstrous, ModTraits.ArcherMutator],
-                5, 11, 4,
+                7, 11, 4,
                 new Defenses(25, 15, 16, 14),
                 105,
                 new Abilities(2, 5, 4, 2, 1, 2),
                 new Skills(deception: 16, diplomacy: 14, stealth: 16))
+            .WithAIModification(ai => {
+                ai.OverrideDecision = (self, options) => {
+                    Creature monster = self.Self;
+
+                    AiFuncs.PositionalGoodness(monster, options, (t, _, _, cr) => t.DistanceTo(cr.Occupies) <= 6, 1.5f, false);
+
+                    return null;
+                };
+            })
             .WithCreatureId(CreatureIds.Medusa)
             .WithAdditionalUnarmedStrike(new Item(IllustrationName.Fang, "snake fangs", [Trait.Agile, Trait.Finesse, Trait.Unarmed, Trait.AddsInjuryPoison, Trait.Brawling]).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)).WithMonsterWeaponSpecialization(6))
             .AddHeldItem(Items.CreateNew(ItemName.CompositeShortbow).WithModificationPlusOne().WithMonsterWeaponSpecialization(6))

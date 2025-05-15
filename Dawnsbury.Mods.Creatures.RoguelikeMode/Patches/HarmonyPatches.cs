@@ -55,6 +55,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Intelligence;
+using Dawnsbury.Display.Illustrations;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -176,7 +177,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             (__instance.CampaignState.AdventurePath.CampaignStops.Last() as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
             "{b}Stats{/b}\n" +
             "{b}Deaths:{/b} " + __instance.CampaignState.Tags["deaths"] + "\n" +
-            "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] +
+            "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] + "\n" +
             "{b}Corruption Level:{/b} " + __instance.CampaignState.Tags["corruption level"] +
             "\n\n" + Loader.Credits;
 
@@ -487,6 +488,25 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             Writer.DrawStringNative("{b}used up{/b}", rectangle6, new Color?(Color.White), alignment: Writer.TextAlignment.Middle);
         }
 
+        //[HarmonyPostfix]
+        //[HarmonyPatch(typeof(AdventurePathView), "Draw")]
+        //private static void CampaignMenuPhaseDrawPatch(AdventurePathView __instance) {
+        //    CampaignState state = CampaignState.Instance;
+
+        //    if (state?.AdventurePath?.Name != "Roguelike Mode")
+        //        return;
+
+        //    var stopItem = (CampaignStopListboxItem)__instance.AdventurePath.SelectedItem!;
+        //    var stop = stopItem.Stop;
+        //    var rectangleStop = new Rectangle(__instance.ContentRectangle.X + 610, __instance.ContentRectangle.Y + 100, __instance.ContentRectangle.Width - 620, __instance.ContentRectangle.Height - 20).Extend(-40, -40);
+
+        //    if (stop.Icon == IllustrationName.None) {
+        //        Writer.DrawString("{icon:" + Illustrations.EliteEncounter.ToString() + "} " + stop.Name, rectangleStop, font: BitmapFontGroup.Mia48Font);
+        //    } else if (stop.Icon == IllustrationName.Action) {
+        //        Writer.DrawString("{icon:" + Illustrations.BossEncounter.ToString() + "} " + stop.Name, rectangleStop, font: BitmapFontGroup.Mia48Font);
+        //    }
+        //}
+
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CampaignMenuPhase), "Draw")]
         private static void CampaignMenuPhaseDrawPatch(CampaignMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
@@ -494,6 +514,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
             if (state?.AdventurePath?.Name != "Roguelike Mode")
                 return;
+
+            //if (__instance.CurrentStopReal.Icon == IllustrationName.None) {
+            //    var rectBottomBar = new Rectangle(0, 1440 - 100, 2560, 100);
+            //    Primitives.DrawImage(Illustrations.EliteEncounter, new Rectangle(5, rectBottomBar.Y + 5, rectBottomBar.Height - 10, rectBottomBar.Height - 10));
+            //} else if (__instance.CurrentStopReal.Icon == IllustrationName.Action) {
+            //    var rectBottomBar = new Rectangle(0, 1440 - 100, 2560, 100);
+            //    Primitives.DrawImage(Illustrations.BossEncounter, new Rectangle(5, rectBottomBar.Y + 5, rectBottomBar.Height - 10, rectBottomBar.Height - 10));
+            //}
 
             if (UtilityFunctions.DiedThisRun(state)) {
                 // && (state.Tags.TryGetValue("deaths", ) != "0" || state.Tags["restarts"] != "0")
@@ -555,12 +583,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                         state.Tags.Add("corruption level", "1");
                     }, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities." +
                     "\n\n{b}Beta Content.{/b} Although there should be a minimum amount of bugs, I haven't had time to throughly playtest the difficulty of this mode or add as large as variety of possible modifiers as I'd like. " +
-                    "Any feedback on tihs new mode would be greatly appreciated!"),
-                    //new LeftMenuButton("Return", () => {
-                    //    Sfxs.Play(SfxName.Button);
-                    //    Sfxs.StopVoice();
-                    //    Root.PhaseStack[^1].Destruct(Root.Game);
-                    //}, null, LeftMenuButton.LeftMenuButtonPositioning.Down)
+                    "Any feedback on tihs new mode would be greatly appreciated!")
                 ]);
 
                 Writer.DrawString("Choose your Difficulty", new Rectangle(10, 10, Root.ScreenWidth, 400), Color.Black, BitmapFontGroup.Mia48Font);
@@ -575,8 +598,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPatch(typeof(CampaignMenuPhase), "CreateViews")]
         private static void CreateViewsPatch() {
             CampaignState state = CampaignState.Instance;
+            if (state == null || state?.AdventurePath?.Name != "Roguelike Mode") return;
 
-            if (state.AdventurePath.CampaignStops[2].Name == "Random Encounter" || state.Tags.ContainsKey("new run")) {
+            if (state.AdventurePath?.CampaignStops[2].Name == "Random Encounter"
+                || state.Tags.ContainsKey("seed") && state.Tags["seed"] != Loader.Seed[0]
+                || state.Tags.ContainsKey("new run") && state.Tags["new run"] == "true") {
                 GenerateRun(state);
             }
         }
@@ -596,15 +622,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             //    campaign.Tags.Remove("new run");
             //}
 
+            //if (campaign.Tags.ContainsKey("seed") && !campaign.Tags.ContainsKey("profile slot")) {
+            //    campaign.Tags.Add("profile slot", $"{CampaignState.InstanceProfileNumber}");
+            //}
+
             // Declare campaign tags
             if (!campaign.Tags.ContainsKey("seed") || campaign.Tags.ContainsKey("new run")) {
                 campaign.Tags.Clear();
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
+                Loader.Seed[0] = campaign.Tags["seed"];
                 campaign.Tags.Add("restarts", "0");
                 campaign.Tags.Add("deaths", "0");
+                // campaign.Tags.Add("profile slot", $"{CampaignState.InstanceProfileNumber}");
                 foreach (AdventurePathHero hero in campaign.Heroes) {
                     hero.CharacterSheet.SelectedFeats.Remove("Power of the Rat Fiend");
                 }
+            } else {
+                Loader.Seed[0] = campaign.Tags["seed"];
             }
 
             if (!Int32.TryParse(campaign.Tags["seed"], out int result)) {
@@ -656,8 +690,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                     if (encounterType == ModEnums.EncounterType.NORMAL) {
                         removed += 1;
-                    }
-                    else if (encounterType == ModEnums.EncounterType.EVENT) {
+                    } else if (encounterType == ModEnums.EncounterType.ELITE) {
+                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.GrimTendrils);
+                    } else if (encounterType == ModEnums.EncounterType.BOSS) {
+                        //typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.Evil);
+                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.Evil);
+                    } else if (encounterType == ModEnums.EncounterType.EVENT) {
                         SkillChallengeTables.chosenEvents.Add(i, SkillChallengeTables.events[rand.Next(0, SkillChallengeTables.events.Count())]);
                         SkillChallengeTables.events.Remove(SkillChallengeTables.chosenEvents[i]);
                     }

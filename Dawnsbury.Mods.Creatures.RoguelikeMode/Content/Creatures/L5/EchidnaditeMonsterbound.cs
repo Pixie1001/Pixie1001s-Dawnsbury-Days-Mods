@@ -46,7 +46,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;
 
-                    AiFuncs.PositionalGoodness(monster, options, (pos, you, step, cr) => you.DistanceTo(cr) <= 2 && cr.FriendOf(you) && (cr.HasTrait(Trait.Animal) || cr.HasTrait(Trait.Beast)), 0.5f, false);
+                    AiFuncs.PositionalGoodness(monster, options, (pos, you, step, cr) => you.DistanceTo(cr) <= 2 && (CommonQEffects.IsMonsterAlly(you, cr) || cr.QEffects.Any(qf => qf.Key == "Marked for the Hunt")), 0.5f, false);
+                    //AiFuncs.PositionalGoodness(monster, options, (pos, you, step, cr) => you.DistanceTo(cr) <= 2 && CommonQEffects.IsMonsterAlly(you, cr), 0.3f, false);
+                    //AiFuncs.PositionalGoodness(monster, options, (pos, you, step, cr) => you.DistanceTo(cr) <= 2 && cr.QEffects.Any(qf => qf.Key == "Marked for the Hunt"), 0.3f, false);
 
                     return null;
                 };
@@ -128,6 +130,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                     pet.MainName = self.Owner.Name + "'s " + pet.MainName;
 
+                    pet.AddQEffect(new QEffect("Monstrous Companion",
+                        $"This monster will flee when it's master {{Blue}}{self.Owner.Name}{{/Blue}} is defeated.", ExpirationCondition.Never, self.Owner, self.Owner.Illustration));
+
                     self.Owner.Battle.SpawnCreature(pet, self.Owner.OwningFaction, self.Owner.Occupies);
                 },
                 ProvideMainAction = self => {
@@ -137,7 +142,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return null;
 
                     return new ActionPossibility(new CombatAction(self.Owner, pet.Illustration, "Command " + pet.BaseName, [Trait.Basic, Trait.DoesNotBreakStealth], "Your bonded monster takes its turn. You choose what actions it takes.",
-                        Target.Self((cr, ai) => cr.Actions.ActionsLeft == 0 ? AIConstants.ALWAYS : AIConstants.NEVER).WithAdditionalRestriction(cr => CustomItems.GetAnimalCompanionCommandRestriction(self, pet)))
+                        Target.Self((cr, ai) => cr.Actions.ActionsLeft == 0 ? 1f : AIConstants.NEVER).WithAdditionalRestriction(cr => CustomItems.GetAnimalCompanionCommandRestriction(self, pet)))
                     .WithActionCost(0)
                     .WithEffectOnSelf(async (cr) => {
                         await CommonSpellEffects.YourMinionActs(pet);

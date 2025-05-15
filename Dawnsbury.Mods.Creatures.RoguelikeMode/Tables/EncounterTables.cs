@@ -56,6 +56,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[0].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv1>());
             encounters[0].Add(new TypedEncounterCampaignStop<DrowSalavagingPartyLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<KoboldWarrenLv1>());
+            encounters[0].Add(new TypedEncounterCampaignStop<KoboldAmbushLv1>());
 
             // level2Encounters
             encounters[1].Add(new TypedEncounterCampaignStop<AlchemicalAmbushLv2>());
@@ -83,6 +85,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[1].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv2>());
             encounters[1].Add(new TypedEncounterCampaignStop<DrowSalavagingPartyLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<KoboldWarrenLv2>());
+            encounters[1].Add(new TypedEncounterCampaignStop<KoboldAmbushLv2>());
 
             // level3Encounters
             encounters[2].Add(new TypedEncounterCampaignStop<AlchemicalAmbushLv3>());
@@ -110,6 +114,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[2].Add(new TypedEncounterCampaignStop<CultOfTheBrineLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<ChosenOfTheKrakenLv3>());
             encounters[2].Add(new TypedEncounterCampaignStop<DrowSalavagingPartyLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<KoboldWarrenLv3>());
+            encounters[2].Add(new TypedEncounterCampaignStop<KoboldAmbushLv3>());
 
             // level4Encounters
             encounters[3].Add(new TypedEncounterCampaignStop<DemonWebPits>());

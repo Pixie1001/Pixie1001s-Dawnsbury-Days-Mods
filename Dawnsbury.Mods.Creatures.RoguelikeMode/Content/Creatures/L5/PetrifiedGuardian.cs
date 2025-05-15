@@ -36,7 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .AddQEffect(QEffect.DamageWeakness(DamageKind.Bludgeoning, 5))
                 .AddQEffect(QEffect.DamageResistance(DamageKind.Piercing, 5))
                 .AddQEffect(new QEffect("Join Us", "The petrified guardians gains a +1 bonus to attack rolls made against partially petrified creatures.") {
-                    BonusToAttackRolls = (self, action, target) => target.QEffects.Any(qf => qf.Key == "Partial Petrification") ? new Bonus(1, BonusType.Untyped, "Join Us") : null
+                    BonusToAttackRolls = (self, action, target) => target != null && target.QEffects.Any(qf => qf.Key == "Partial Petrification") ? new Bonus(1, BonusType.Untyped, "Join Us") : null
                 })
                 .AddQEffect(QEffect.MonsterGrab())
                 .AddQEffect(QEffect.AttackOfOpportunity())
