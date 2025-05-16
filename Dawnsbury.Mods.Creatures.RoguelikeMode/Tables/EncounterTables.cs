@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class EncounterTables {
-        public static List<EncounterCampaignStop>[] encounters = new List<EncounterCampaignStop>[4];
+        public static List<EncounterCampaignStop>[] encounters = new List<EncounterCampaignStop>[8];
         public static List<EncounterCampaignStop>[] eliteEncounters = new List<EncounterCampaignStop>[3];
         public static List<EncounterCampaignStop> bossFights = new List<EncounterCampaignStop>();
 

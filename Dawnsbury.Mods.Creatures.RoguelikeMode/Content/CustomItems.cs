@@ -1729,7 +1729,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             CreateWand(SpellId.BoneSpray, null);
             CreateWand(SpellId.SpiritualWeapon, null);
             CreateWand(SpellId.Restoration, null);
+            CreateWand(SpellId.SuddenBolt, null);
+            CreateWand(SpellId.SuddenBlight, null);
             CreateWand(SpellId.SummonElemental, 3);
+            CreateWand(SpellId.LooseTimesArrow, null);
+
+            CreateWand(SpellId.Fireball, 4);
+            CreateWand(SpellId.MagicMissile, 3);
+            CreateWand(SpellId.MagicMissile, 4);
+            CreateWand(SpellId.BoneSpray, 4);
+            CreateWand(SpellId.RadiantBeam, null);
+            CreateWand(SpellId.WallOfFire, null);
+            CreateWand(SpellId.LightningBolt, null);
+            CreateWand(SpellId.Haste, null);
+            CreateWand(SpellId.Slow, null);
+            CreateWand(SpellId.SuddenBolt, 4);
+            CreateWand(SpellId.SuddenBlight, 4);
+            //CreateWand(SpellLoader.LesserDominate, null, false);
 
             // Item QEffects
 
@@ -2111,7 +2127,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
         }
 
-        internal static ItemName CreateWand(SpellId spellId, int? level) {
+        internal static ItemName CreateWand(SpellId spellId, int? level, bool baseGame=true) {
             Spell baseSpell = AllSpells.TemplateSpells.GetValueOrDefault(spellId);
 
             if (level == null || level < baseSpell.MinimumSpellLevel) {
@@ -2125,6 +2141,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             };
 
             List<Trait> traits = new List<Trait> { ModTraits.Wand, Trait.Magical, Trait.Unarmed, Trait.Melee, Trait.SpecificMagicWeapon, ModTraits.Roguelike };
+
+            if (!baseGame)
+                traits.Add(Trait.DoNotAddToCampaignShop);
 
             foreach (Trait trait in baseSpell.Traits) {
                 if (new Trait[] { Trait.Divine, Trait.Occult, Trait.Arcane, Trait.Primal, Trait.Elemental }.Contains(trait)) {

@@ -10,7 +10,7 @@
  <tileset firstgid="125" source="CustomCreatures.tsx"/>
  <tileset firstgid="2179" source="DlcTileset.tsx"/>
  <imagelayer id="5" name="Image Layer 1">
-  <image source="KobaldWarrens.jpg" width="4864" height="4352"/>
+  <image source="KoboldWarrens.jpg" width="4864" height="4352"/>
  </imagelayer>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="19" height="17" visible="0">
   <data encoding="csv">

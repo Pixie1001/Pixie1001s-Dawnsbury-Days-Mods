@@ -202,6 +202,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<DrowSalavagingPartyLv1>("DrowSalvagingParty.tmx", "DrowSalvagingPartyLv1");
             ModManager.RegisterEncounter<DrowSalavagingPartyLv2>("DrowSalvagingParty.tmx");
             RegisterEncounter<DrowSalavagingPartyLv3>("DrowSalvagingParty.tmx", "DrowSalvagingPartyLv3");
+            RegisterEncounter<KoboldAmbushLv1>("KoboldAmbush.tmx", "KoboldAmbushLv1");
+            ModManager.RegisterEncounter<KoboldAmbushLv2>("KoboldAmbush.tmx");
+            RegisterEncounter<KoboldAmbushLv3>("KoboldAmbush.tmx", "KoboldAmbushLv3");
+            RegisterEncounter<KoboldWarrenLv1>("KoboldWarren.tmx", "KoboldWarrenLv1");
+            ModManager.RegisterEncounter<KoboldWarrenLv2>("KoboldWarren.tmx");
+            RegisterEncounter<KoboldWarrenLv3>("KoboldWarren.tmx", "KoboldWarrenLv3");
 
             // Level 4 Fights
             ModManager.RegisterEncounter<DemonWebPits>("DemonWebPits.tmx");

@@ -30,7 +30,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
     internal class SplitTheParty : Level4Encounter {
 
 
-        public SplitTheParty(string filename) : base("Split", filename) {
+        public SplitTheParty(string filename) : base("Lost", filename) {
             this.CharacterLevel = 4;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0) {
