@@ -428,3 +428,4 @@ CustomMaps/BasicTileset.tsx
 /CustomMaps/Unused
 *.targets
 CustomMaps/TestCampaign.xml
+*.idea
