@@ -570,17 +570,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 LeftMenu.Draw([
                     new LeftMenuButton("Easy Difficulty", () => {
-                        state.Tags.Add("corruption level", "-1");
                         foreach (AdventurePathHero hero in state.Heroes) {
                             hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour"));
                         }
+                        OnDifficultyChosen(-1);
                     }, "The party gains the Heavenly Favour boon, granting them a permanent +1 bonus to their attack, save and spell DCs and AC."),
                     new LeftMenuButton("Normal Difficulty", () => {
-                        state.Tags.Add("corruption level", "0");
+                        OnDifficultyChosen(0);
 
                     }, "This is the intended difficulty of the roguelike mode, without any additional rules."),
                     new LeftMenuButton("Corruption Level 1", () => {
-                        state.Tags.Add("corruption level", "1");
+                        OnDifficultyChosen(1);
                     }, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities." +
                     "\n\n{b}Beta Content.{/b} Although there should be a minimum amount of bugs, I haven't had time to throughly playtest the difficulty of this mode or add as large as variety of possible modifiers as I'd like. " +
                     "Any feedback on tihs new mode would be greatly appreciated!")
@@ -592,6 +592,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 if (tooltip != null)
                     Writer.DrawString(tooltip, new Rectangle(620, 400, 1000, 800));
             }
+        }
+
+        private static void OnDifficultyChosen(int corruptionLevel)
+        {
+            var state = CampaignState.Instance;
+            state!.Tags.Add("corruption level", $"{corruptionLevel}");
+            CampaignState.Autosave();
         }
 
         [HarmonyPrefix]
