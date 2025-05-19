@@ -569,7 +569,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         var shuriken = Items.CreateNew(CustomItems.Shuriken);
                                         shuriken.Traits.Add(Trait.EncounterEphemeral);
                                         foreach (Item rune in bandolier.Runes) {
-                                            shuriken.WithModificationRune(rune.ItemName);
+                                            if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
+                                                shuriken.WithModificationRune(rune.ItemName);
                                         }
 
                                         var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0);
