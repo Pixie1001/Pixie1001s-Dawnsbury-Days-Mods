@@ -570,7 +570,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 await battle.Cinematics.NarratorLineAsync($"It emits a faint, alluring glow.");
                 battle.Cinematics.ExitCutscene();
                 
-                SCOption drinkOpt = GetBestPartyMember(battle, level, 3, Skill.Medicine);
+                SCOption drinkOpt = GetBestPartyMember(battle, level, 5, Skill.Medicine);
                 SCOption itemOpt = null;
                 Item item = null;
 
@@ -616,7 +616,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                     WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1));
                                 break;
                             case >= CheckResult.Success:
-                                // TODO: success/crit success result
+                                var reward = Items.CreateNew(ItemName.PotionOfQuickness);
+                                await battle.Cinematics.NarratorLineAsync($"{drinkOpt.Nominee.Name} takes a confident swig...");
+                                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"They feel reinvigorated! Better bottle some up for later.");
+                                await battle.Cinematics.NarratorLineAsync($"The party gains a {reward.Name}.");
+                                battle.CampaignState.CommonLoot.Add(reward);
                                 break;
                         }
 
@@ -682,7 +686,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 // Lose the item
                                 itemOptNominee.CarriedItems.Remove(item);
                                 
-                                // TODO: receive a blessing
+                                // Gain a blessing
+                                await battle.Cinematics.NarratorLineAsync("The party gains 'Well Spirit's Blessing', increasing their will saving throws by 1 until they return to town.");
+                                foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
+                                    pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null));
+                                }
                                 break;
                             }
                         }
