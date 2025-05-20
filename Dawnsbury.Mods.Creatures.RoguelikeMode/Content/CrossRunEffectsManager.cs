@@ -1,3 +1,5 @@
+using Dawnsbury.Campaign.Path;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.IO;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
@@ -5,9 +7,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 public class CrossRunEffectsManager
 {
 	[Serializable]
-	private struct RoguelikeExtraData
+	public struct RoguelikeExtraData
 	{
-		public List<ACrossRunEffect> CrossRunEffects;
+		public List<ItemName> TransferredItems;
 	}
 	
 	private readonly string _filePath;
@@ -16,64 +18,32 @@ public class CrossRunEffectsManager
 	public CrossRunEffectsManager(int profile)
 	{
 		_filePath = Path.Combine(LocalDataStore.StorageFolder, $"roguelike-extra-{profile}.json");
-		try
-		{
-			_extraData = LocalDataStore.Load<RoguelikeExtraData>(_filePath);
-		}
-		catch (Exception ex)
-		{
-			Eqatec.SendLog("EXCEPTION SUPPRESSED");
-			Eqatec.SendException(ex);
-		}
+		_extraData = LocalDataStore.Load<RoguelikeExtraData>(_filePath);
 	}
 
-	public void AddEffect(ACrossRunEffect effect)
+	public void AddTransferredItem(ItemName itemName)
 	{
-		_extraData.CrossRunEffects.Add(effect);
+		_extraData.TransferredItems ??= new List<ItemName>();
+		_extraData.TransferredItems.Add(itemName);
 		Save();
 	}
 
-	public void ApplyEffects()
+	public void TransferItems()
 	{
-		var previousCount = _extraData.CrossRunEffects.Count; 
-		_extraData.CrossRunEffects = _extraData.CrossRunEffects.Where(effect =>
+		if (_extraData.TransferredItems == null)
+			return;
+
+		foreach (var item in _extraData.TransferredItems)
 		{
-			effect.ApplyEffect();
-			return effect.Duration == ACrossRunEffect.EffectDuration.Permanent;
-		}).ToList();
-			
-		if (previousCount != _extraData.CrossRunEffects.Count)
-			Save();
+			CampaignState.Instance?.CommonLoot.Add(Items.CreateNew(item));
+		}
+		
+		_extraData.TransferredItems.Clear();
+		Save();
 	}
 
 	private void Save()
 	{
-		try
-		{
-			LocalDataStore.Save(_filePath, _extraData);
-		}
-		catch (Exception ex)
-		{
-			Eqatec.SendLog("EXCEPTION SUPPRESSED");
-			Eqatec.SendException(ex);
-		}
+		LocalDataStore.Save(_filePath, _extraData);
 	}
-}
-
-[Serializable]
-public abstract class ACrossRunEffect
-{
-	public enum EffectDuration
-	{
-		NextRun,
-		Permanent
-	}
-	public EffectDuration Duration { get; }
-	
-	protected ACrossRunEffect(EffectDuration effectDuration)
-	{
-		Duration = effectDuration;
-	}
-	
-	public abstract void ApplyEffect();
 }

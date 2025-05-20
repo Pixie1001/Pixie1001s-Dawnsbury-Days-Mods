@@ -644,6 +644,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 if (campaign.Tags.ContainsKey("new run") && campaign.Tags["new run"] == "true") {
                     campaign.Tags["new run"] = "false";
                 }
+                
+                // Apply cross-run effects
+                var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
+                creManager.TransferItems();
+                
                 CampaignState.Autosave();
             } else {
                 Loader.Seed[0] = campaign.Tags["seed"];

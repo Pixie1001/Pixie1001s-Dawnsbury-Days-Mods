@@ -30,7 +30,6 @@ using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.CrossRunEffects;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -61,9 +60,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     "The party decides to leave the item where it lies."
                     );
                 battle.Cinematics.EnterCutscene();
-
+            
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
@@ -117,13 +116,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
-
+            
             events.Add(new SkillChallenge("Strange Mushrooms", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("The party finds some weird mushrooms.", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Nature);
                 SCOption opt2 = GetBestPartyMember(battle, level, 2, Skill.Occultism);
-
+            
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"What does the party choose to do about these unusual mushrooms?",
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes the mushrooms could be used to create healing tonics.",
@@ -131,9 +130,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     "The party decides to leave the strange mushrooms be."
                     );
                 battle.Cinematics.EnterCutscene();
-
+            
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} dilligently begins harvesting the strange mushrooms.", null);
@@ -176,7 +175,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
-
+            
             events.Add(new SkillChallenge("Drow Renegades", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("You stumble upon a drow hunting party, adorned in strange luna iconography. After some initial tension, they reveal that they're renegade disciples of the Cerulean Sky, on a mission to liberate their people from the starborn.", null);
                 await battle.Cinematics.NarratorLineAsync($"Yet suspicions still linger. Drow are known for their deceit, and many evil adventurer parties often delve into the {Loader.UnderdarkName} to barter for slaves or bargain for demonic boons.", null);
@@ -192,7 +191,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     );
                 battle.Cinematics.EnterCutscene();
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} suggests that whilst they could hardly ask the reneges to divert resources from their own righteous cause, the two groups could at least share information about enemy movements and hazards they've encountered on their journey so far.", null);
@@ -242,7 +241,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
-
+            
             events.Add(new SkillChallenge("Escaped Slaves", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.", null);
                 await battle.Cinematics.NarratorLineAsync($"Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.", null);
@@ -250,24 +249,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Intimidation);
                 SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy);
-
+            
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} suggests scaring the group away.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes the group can be reasoned with.",
                     "{DimGray}{b}" + $"[Lose {level * 5} gold]" + "{/b}{/DimGray} Despite the slave's aggression, the party offers what little they can all the same."
                 };
-
+            
                 if (battle.CampaignState.CommonGold < level * 5) {
                     choices.RemoveAt(choices.Count - 1);
                 }
-
+            
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"What does the party do?",
                     choices.ToArray()
                     );
                 battle.Cinematics.EnterCutscene();
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} steps confidently towards the encroaching mob, motioning for the party to draw steel and spell alike, daring them to come closer.", null);
@@ -311,7 +310,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
-
+            
             events.Add(new SkillChallenge("Magical Traps", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("Too late to doubleback, the party finds their path black by an abandoned Duergar stronghold built between a narrow passage.", null);
                 await battle.Cinematics.NarratorLineAsync($"The arrow slits lie empty and dusty, yet the gates glow ominously with cruel arcane runes - no doubt set to unleash their terrible magic on any would-be intruders.", null);
@@ -319,19 +318,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Arcana);
                 SCOption opt2 = GetBestPartyMember(battle, level, -2, Skill.Acrobatics);
-
+            
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} thinks they might be able to disarm the magical traps.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes that a particular dexterous thief might be able to avoid the triggering mechanism and safely disable the traps from inside the fortress."
                 };
-
+            
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"What does the party do?",
                     choices.ToArray()
                     );
                 battle.Cinematics.EnterCutscene();
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} quickly sets to work identifying the runes used in the traps, and sketching out how best to safely circumvent the magic.", null);
@@ -344,12 +343,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It takes several hour to completely dismantle the traps and ensure the Duergar haven't left any nasty surprises.", null);
                             await battle.Cinematics.NarratorLineAsync($"But when {opt1.Nominee.Name} is done, the party continues with several new scrolls to show for it, diligently copied from the traps.", null);
-
+            
                             int itemLevel = battle.Encounter.CharacterLevel <= 2 ? 3 : 5;
-
+            
                             Item scroll1 = LootTables.RollScroll(itemLevel, itemLevel, item => item.HasTrait(Trait.Evocation));
                             Item scroll2 = LootTables.RollScroll(itemLevel, itemLevel, item => item.HasTrait(Trait.Evocation));
-
+            
                             await battle.Cinematics.NarratorLineAsync($"The party gained a {scroll1.Name} and {scroll2.Name}.", null);
                             battle.CampaignState.CommonLoot.Add(scroll1);
                             battle.CampaignState.CommonLoot.Add(scroll2);
@@ -369,7 +368,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
-
+            
             events.Add(new SkillChallenge("Injured Unicorn", async (level, battle) => {
                 await battle.Cinematics.NarratorLineAsync("As the party treks through the jagged stalagmites, they're drawn towards a soft, almost musical whinny of distress.", null);
                 await battle.Cinematics.NarratorLineAsync($"Venturing closer, they soon locate the source of the disturbance - an injured unicorn foal, curling up in a rocky alcove, collapsed from a gorey wound upon its hind leg.", null);
@@ -378,20 +377,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 SCOption opt1 = GetBestPartyMember(battle, level, 2, Skill.Medicine, Skill.Nature);
                 SCOption opt2 = GetBestPartyMember(battle, level, 2, (user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet.IdentityChoice.Alignment) ? 2 : 0, Skill.Diplomacy);
                 SCOption opt3 = GetBestPartyMember(battle, level, -4, Skill.Arcana, Skill.Occultism);
-
+            
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they might be able to nurse the creature back to health",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests beseeching the unicorn to use the last of its strength to aid the party with a blessing.",
                     $"{opt3.printInfoTag()} With an uneasy glance, {opt3.Nominee.Name} apprehensively mentions that the dying creature's horn could be used to forge a powerful Alicorn weapon."
                 };
-
+            
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"Kneeling around the injured creature, the party ponders their options.",
                     choices.ToArray()
                 );
                 battle.Cinematics.EnterCutscene();
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"Reaching out to gently stroke the creature's majestic main, {opt1.Nominee.Name} tries their best to sooth the creature and tend to its wounds.", null);
@@ -455,7 +454,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         break;
                 }
             }));
-
+            
             events.Add(new SkillChallenge("The Rat Fiend's Offer", async (level, battle) => {
                 List<(List<Item>, Item)> items = new List<(List<Item>, Item)>();
                 foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
@@ -464,7 +463,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 }
                 if (battle.CampaignState.CommonLoot.Count > 0)
                     items.Add((battle.CampaignState.CommonLoot, battle.CampaignState.CommonLoot.MaxBy(i => i.Price)));
-
+            
                 Item? wageredItem = null;
                 List<Item> container = null;
                 if (items.Count > 0) {
@@ -472,35 +471,35 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     wageredItem = temp.Item2;
                     container = temp.Item1;
                 }
-
+            
                 await battle.Cinematics.NarratorLineAsync("As the party ventures forth into the murky caverns, they notice a strange carnival tent off to the side of the passageway that they swear hadn't been there just a moment before...", null);
                 await battle.Cinematics.NarratorLineAsync($"Upon cautiously peering inside its flaps, they spy a looming rodent-like creature grinning back at them from atop a pile shiny trinkets - a table with two sets of playing cards filling the gulf between it and the party.", null);
-
+            
                 if (wageredItem == null) {
                     await battle.Cinematics.NarratorLineAsync($"Yet upon seeing them, the creature merely sneers and tells them to be gone. It seems they do not possess the treasure neccessary to place a wager in the foul creature's game.", null);
                     return;
                 }
-
+            
                 await battle.Cinematics.NarratorLineAsync($"The thing is clearly a demon, yet its offer cannot be ignored. The terms are simple, a game of skill, guile and chance. If the party wins, it will share its power to help them on their journey. If they lose, they must surrender their {wageredItem.Name} to the fiend's collection.", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 1, Skill.Deception);
                 SCOption opt2 = GetBestPartyMember(battle, level, 3, Skill.Thievery);
                 SCOption opt3 = GetBestPartyMember(battle, level, -2, Skill.Religion);
-
+            
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they should accept the fiend's challenge, wager their {wageredItem.Name} for a chance at demonic power.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests using some sleight of hand to rig the game in their favour.",
                     $"{opt3.printInfoTag()} {opt3.Nominee.Name} claims no good can come of dealing with demons. The fiend must be banished so that it might tempt travellers no more.",
                     "The party declines the suspicious creature's offer."
                 };
-
+            
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"What do they do?",
                     choices.ToArray()
                 );
                 battle.Cinematics.EnterCutscene();
                 CheckResult result = CheckResult.Failure;
-
+            
                 switch (choice.Index) {
                     case 0:
                         await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} boldly thunks the {wageredItem.Name} down on the small table, accepting the creature's wager.", null);
@@ -533,7 +532,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null));
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);
-
+            
                             await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, {opt2.Nominee.Name}'s superior guile and sleight of hand makes victory an inevitability.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
@@ -587,10 +586,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 
                 if (itemOptNominee != null)
                 {
-                    itemOpt = new SCOption(itemOptNominee, Skill.Occultism, itemOptNominee.Skills.Get(Skill.Occultism), level, 0, null);
+                    itemOpt = new SCOption(itemOptNominee, Skill.Occultism, itemOptNominee.Skills.Get(Skill.Occultism), level, -5, null);
 
                     item = itemOptNominee.CarriedItems.GetRandom()!;
-                    itemIndex = itemOptNominee.PersistentCharacterSheet!.CampaignInventory.Backpack.IndexOf(item);
+                    itemIndex = itemOptNominee.PersistentCharacterSheet!.CampaignInventory.Backpack.FindIndex(i => i != null && i.Name == item.Name);
                     
                     choices.Insert(1, $"{itemOpt.printInfoTag()} {itemOpt.Nominee.Name} wants to bestow their {item.Name} as an offering to the well spirits.");
                 }
@@ -642,7 +641,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                                                           $"{itemOpt.Nominee.Name}'s {item.Name} sinks to the bottom, yet nothing happens.");
                                 await battle.Cinematics.NarratorLineAsync(
                                     $"Disappointed, the party carries on their way.");
-
+                            
                                 itemOpt.Nominee.PersistentCharacterSheet!.CampaignInventory.Backpack[itemIndex] = null;
                                 break;
                             }
@@ -663,8 +662,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
                                 // Save the item to file
                                 var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
-                                creManager.AddEffect(new GrantItem(ACrossRunEffect.EffectDuration.NextRun,
-                                    item.ItemName));
+                                creManager.AddTransferredItem(item.ItemName);
 
                                 // Lose the item
                                 itemOpt.Nominee.PersistentCharacterSheet!.CampaignInventory.Backpack[itemIndex] = null;
@@ -681,8 +679,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 
                                 // Save the item to file
                                 var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
-                                creManager.AddEffect(new GrantItem(ACrossRunEffect.EffectDuration.NextRun,
-                                    item.ItemName));
+                                creManager.AddTransferredItem(item.ItemName);
 
                                 // Lose the item
                                 itemOpt.Nominee.PersistentCharacterSheet!.CampaignInventory.Backpack[itemIndex] = null;
