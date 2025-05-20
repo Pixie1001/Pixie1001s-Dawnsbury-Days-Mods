@@ -45,9 +45,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom(), lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
                 await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.", null);
                 await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.", null);
-                await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {cursedItem.Name.CapitalizeEachWord()}, bereft of dust and seemingly abandoned by those it was bequeathed upon...", null);
+                await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}, bereft of dust and seemingly abandoned by those it was bequeathed upon...", null);
                 await battle.Cinematics.NarratorLineAsync($"Perhaps the ritualists responsible for this terrible act where slain by whatever foul creatured they hoped to contact... Or left their loathsome reward behind as a cunning trap.", null);
-                await battle.Cinematics.NarratorLineAsync($"Regardless the {cursedItem.Name.CapitalizeEachWord()} emanates a dark and terrible aura, no doubt possessed of a great demonic taint. And yet, the party can hardly afford to be picky in times such as these...", null);
+                await battle.Cinematics.NarratorLineAsync($"Regardless the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} emanates a dark and terrible aura, no doubt possessed of a great demonic taint. And yet, the party can hardly afford to be picky in times such as these...", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 0, Skill.Religion);
                 SCOption opt2 = GetBestPartyMember(battle, level, 0, Skill.Occultism);
@@ -65,13 +65,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} spends several hours setting up an elaborate ritual to cleanse the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                         result = opt1.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}, banishing the evil energy lurking within!", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}, banishing the evil energy lurking within!", null);
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name}'s attempts to cleanse the item do not go unnoticed. Barely a moment passes before the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} explodes into " +
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name}'s attempts to cleanse the item do not go unnoticed. Barely a moment passes before the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
@@ -79,18 +79,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         break;
                     case 1:
-                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} spends several hours consulting a collection of heavy grimoires and leather bound volumes in order to identify and circumvent the maladiction placed on the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of the party through how to safely operate it without activating the curse.", null);
-                            await battle.Cinematics.NarratorLineAsync($"The {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt2.Nominee.Name} emerges with the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} several hours later, now bound in rune scribed binding wraps, before quickly running the rest of the party through how to safely operate it without activating the curse.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} should be safe for the party to use now... Probably. Though it's unlikely any merchant will want to take it.", null);
                             cursedItem.Price = 0;
                             foreach (Item rune in cursedItem.Runes) {
                                 rune.Price = 0;
                             }
                             battle.CampaignState.CommonLoot.Add(cursedItem);
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} abruptly explodes into " +
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} abruptly explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
@@ -101,7 +101,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} quickly sets about recruiting the rest of the party to help shore up the abandoned ritual circle, before attempting to make contact with the demon.", null);
                         result = opt3.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString}.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                             await battle.Cinematics.NarratorLineAsync("And then, all at once before the party even fully realises what they've agreed to, a deal is struck. Each party members gains {b}Drained 2{/b}.", null);
                             foreach (Creature pm in GetParty(battle)) {
                                 pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drained", null, 2));
@@ -112,7 +112,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         break;
                     case 3:
-                        await battle.Cinematics.NarratorLineAsync($"With one last look at the ominous smoke curling off the {cursedItem.Name.CapitalizeEachWord()} {cursedItem.Illustration.IllustrationAsIconString} the party wisely moves on ahead, leaving the accursed item untouched.", null);
+                        await battle.Cinematics.NarratorLineAsync($"With one last look at the ominous smoke curling off the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} the party wisely moves on ahead, leaving the accursed item untouched.", null);
                         break;
                 }
             }));
@@ -560,7 +560,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         break;
                     case 3:
-                        await battle.Cinematics.NarratorLineAsync("The party politely declines the creature's offer. The demon's only response is to cackle wickedly as they depart. When they looks back, the tent and all traces of the creature are gone.", null);
+                        await battle.Cinematics.NarratorLineAsync("The party politely declines the creature's offer. The demon's only response is to cackle wickedly as they depart. When they look back, the tent and all traces of the creature are gone.", null);
                         break;
                 }
             }));
@@ -569,7 +569,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 await battle.Cinematics.NarratorLineAsync($"As the party traverses the Below, they stumble across a mysterious well.");
                 await battle.Cinematics.NarratorLineAsync($"It emits a faint, alluring glow.");
                 battle.Cinematics.ExitCutscene();
-                
+
                 SCOption drinkOpt = GetBestPartyMember(battle, level, 5, Skill.Medicine);
                 SCOption itemOpt = null;
                 Item item = null;
@@ -579,16 +579,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     $"{drinkOpt.printInfoTag()} Have {drinkOpt.Nominee.Name} test the water to see if it is potable.",
                     "This well is probably cursed, best to steer clear of it."
                 ];
-                
+
                 var partyMembersWithCarriedItems = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr.CarriedItems.Count > 0);
                 var itemOptNominee = partyMembersWithCarriedItems.ToList().GetRandom();
-                
-                if (itemOptNominee != null)
-                {
+
+                if (itemOptNominee != null) {
                     itemOpt = new SCOption(itemOptNominee, Skill.Occultism, itemOptNominee.Skills.Get(Skill.Occultism), level, -5, null);
 
                     item = itemOptNominee.CarriedItems.GetRandom()!;
-                    
+
                     choices.Insert(1, $"{itemOpt.printInfoTag()} {itemOpt.Nominee.Name} wants to bestow their {item.Name} as an offering to the well spirits.");
                 }
 
@@ -600,109 +599,100 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 CheckResult result;
 
                 switch (choice.Index) {
-                    case 0:
-                    {
-                        result = drinkOpt.Roll();
-                        switch (result)
-                        {
-                            case <= CheckResult.Failure:
-                                await battle.Cinematics.NarratorLineAsync("Common sense would tell you that drinking a dubious liquid is a bad way to test its safety, yet here we are.");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    PrintResult(result) +
-                                    $"{drinkOpt.Nominee.Name} confidently took a swig and is now puking in a corner.");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    $"{itemOpt.Nominee.Name} has become sickened 1 for the duration of the next encounter.");
-                                drinkOpt.Nominee.LongTermEffects.Add(
-                                    WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1));
-                                break;
-                            case >= CheckResult.Success:
-                                var reward = Items.CreateNew(ItemName.PotionOfQuickness);
-                                await battle.Cinematics.NarratorLineAsync($"{drinkOpt.Nominee.Name} takes a confident swig...");
-                                await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"They feel reinvigorated! Better bottle some up for later.");
-                                await battle.Cinematics.NarratorLineAsync($"The party gains a {reward.Name}.");
-                                battle.CampaignState.CommonLoot.Add(reward);
-                                break;
-                        }
+                    case 0: {
+                            result = drinkOpt.Roll();
+                            switch (result) {
+                                case <= CheckResult.Failure:
+                                    await battle.Cinematics.NarratorLineAsync("Common sense would tell you that drinking a dubious liquid is a bad way to test its safety, yet here we are.");
+                                    await battle.Cinematics.NarratorLineAsync(
+                                        PrintResult(result) +
+                                        $"{drinkOpt.Nominee.Name} confidently took a swig and is now puking in a corner.");
+                                    await battle.Cinematics.NarratorLineAsync(
+                                        $"{itemOpt.Nominee.Name} has become sickened 1 for the duration of the next encounter.");
+                                    drinkOpt.Nominee.LongTermEffects.Add(
+                                        WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1));
+                                    break;
+                                case >= CheckResult.Success:
+                                    var reward = Items.CreateNew(ItemName.PotionOfQuickness);
+                                    await battle.Cinematics.NarratorLineAsync($"{drinkOpt.Nominee.Name} takes a confident swig...");
+                                    await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"They feel reinvigorated! Better bottle some up for later.");
+                                    await battle.Cinematics.NarratorLineAsync($"The party gains a {reward.Name}.");
+                                    battle.CampaignState.CommonLoot.Add(reward);
+                                    break;
+                            }
 
-                        break;
-                    }
-                    case 1:
-                    {
-                        if (itemOpt == null)
-                        {
-                            await battle.Cinematics.NarratorLineAsync("The party politely declines the creature's offer. The demon's only response is to cackle wickedly as they depart. When they looks back, the tent and all traces of the creature are gone.", null);
                             break;
                         }
-                        
-                        result = itemOpt.Roll();
-                        switch (result)
-                        {
-                            case CheckResult.CriticalFailure: // Lose the item
-                            {
-                                await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                          $"{itemOpt.Nominee.Name}'s {item.Name} sinks to the bottom, yet nothing happens.");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    $"Disappointed, the party carries on their way.");
-                            
-                                itemOptNominee.CarriedItems.Remove(item);
+                    case 1: {
+                            if (itemOpt == null) {
                                 break;
                             }
-                            case CheckResult.Failure: // Nothing happens
-                            {
-                                await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                          $"{itemOpt.Nominee.Name} drops the {item.Name} into the well and it floats back up, without effect.");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    $"Disappointed, they retrieve it and prepare to leave.");
-                                break;
-                            }
-                            case CheckResult.Success: // Item is sent to the next party
-                            {
-                                await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                          $"As {itemOpt.Nominee.Name} donates the {item.Name} to the magical well, it emits a grateful hum.");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    $"The party senses that their good deed will be felt for generations to come.");
 
-                                // Save the item to file
-                                var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
-                                creManager.AddTransferredItem(item.ItemName);
+                            result = itemOpt.Roll();
+                            switch (result) {
+                                case CheckResult.CriticalFailure: // Lose the item
+                                {
+                                        await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
+                                                                                  $"{itemOpt.Nominee.Name}'s {item.Name} sinks to the bottom, yet nothing happens.");
+                                        await battle.Cinematics.NarratorLineAsync(
+                                            $"Disappointed, the party carries on their way.");
 
-                                // Lose the item
-                                itemOptNominee.CarriedItems.Remove(item);
-                                break;
-                            }
-                            case CheckResult.CriticalSuccess: // Item is sent to the next party and the current party gets a blessing
-                            {
-                                await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                          $"As {itemOpt.Nominee.Name} donates the {item.Name} to the magical well, the gentle glow of the well expands to englobe the party.");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    $"Everyone receives the blessing of the well, granting them [something] .");
-                                await battle.Cinematics.NarratorLineAsync(
-                                    $"While the troop prepares to depart, {itemOpt.Nominee.Name} wonders if they will ever see their {item.Name} again.");
-                                
-                                // Save the item to file
-                                var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
-                                creManager.AddTransferredItem(item.ItemName);
+                                        itemOptNominee.CarriedItems.Remove(item);
+                                        break;
+                                    }
+                                case CheckResult.Failure: // Nothing happens
+                                {
+                                        await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
+                                                                                  $"{itemOpt.Nominee.Name} drops the {item.Name} into the well and it floats back up, without effect.");
+                                        await battle.Cinematics.NarratorLineAsync(
+                                            $"Disappointed, they retrieve it and prepare to leave.");
+                                        break;
+                                    }
+                                case CheckResult.Success: // Item is sent to the next party
+                                {
+                                        await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
+                                                                                  $"As {itemOpt.Nominee.Name} donates the {item.Name} to the magical well, it emits a grateful hum.");
+                                        await battle.Cinematics.NarratorLineAsync(
+                                            $"The party senses that their good deed will be felt for generations to come.");
 
-                                // Lose the item
-                                itemOptNominee.CarriedItems.Remove(item);
-                                
-                                // Gain a blessing
-                                await battle.Cinematics.NarratorLineAsync("The party gains 'Well Spirit's Blessing', increasing their will saving throws by 1 until they return to town.");
-                                foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                    pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null));
-                                }
-                                break;
+                                        // Save the item to file
+                                        var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
+                                        creManager.AddTransferredItem(item);
+
+                                        // Lose the item
+                                        itemOptNominee.CarriedItems.Remove(item);
+                                        break;
+                                    }
+                                case CheckResult.CriticalSuccess: // Item is sent to the next party and the current party gets a blessing
+                                {
+                                        await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
+                                                                                  $"As {itemOpt.Nominee.Name} donates the {item.Name} to the magical well, the gentle glow of the well expands to englobe the party.");
+                                        await battle.Cinematics.NarratorLineAsync(
+                                            $"While the troop prepares to depart, {itemOpt.Nominee.Name} wonders if they will ever see their {item.Name} again.");
+
+                                        // Save the item to file
+                                        var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
+                                        creManager.AddTransferredItem(item);
+
+                                        // Lose the item
+                                        itemOptNominee.CarriedItems.Remove(item);
+
+                                        // Gain a blessing
+                                        await battle.Cinematics.NarratorLineAsync("The party gains 'Well Spirit's Blessing', increasing their will saving throws by 1 until they return to town.");
+                                        foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
+                                            pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null));
+                                        }
+                                        break;
+                                    }
                             }
+                            break;
                         }
-                        break;
-                    }
-                    case 2:
-                    {
-                        await battle.Cinematics.NarratorLineAsync(
-                            "The party politely declines the creature's offer. The demon's only response is to cackle wickedly as they depart. When they looks back, the tent and all traces of the creature are gone.",
-                            null);
-                        break;
-                    }
+                    case 2: {
+                            await battle.Cinematics.NarratorLineAsync(
+                                "With one last suspicious glance, the party moves on from the mysterious well. Perhaps some mysteries are better off remaining as such?",
+                                null);
+                            break;
+                        }
                 }
             }));
         }

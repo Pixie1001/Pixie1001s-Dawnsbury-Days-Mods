@@ -9,7 +9,7 @@ public class CrossRunEffectsManager
 	[Serializable]
 	public struct RoguelikeExtraData
 	{
-		public List<ItemName> TransferredItems;
+		public List<Item> TransferredItems;
 	}
 	
 	private readonly string _filePath;
@@ -21,10 +21,10 @@ public class CrossRunEffectsManager
 		_extraData = LocalDataStore.Load<RoguelikeExtraData>(_filePath);
 	}
 
-	public void AddTransferredItem(ItemName itemName)
+	public void AddTransferredItem(Item item)
 	{
-		_extraData.TransferredItems ??= new List<ItemName>();
-		_extraData.TransferredItems.Add(itemName);
+		_extraData.TransferredItems ??= new List<Item>();
+		_extraData.TransferredItems.Add(item);
 		Save();
 	}
 
@@ -35,7 +35,7 @@ public class CrossRunEffectsManager
 
 		foreach (var item in _extraData.TransferredItems)
 		{
-			CampaignState.Instance?.CommonLoot.Add(Items.CreateNew(item));
+			CampaignState.Instance?.CommonLoot.Add(item);
 		}
 		
 		_extraData.TransferredItems.Clear();
