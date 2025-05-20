@@ -573,7 +573,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 SCOption drinkOpt = GetBestPartyMember(battle, level, 3, Skill.Medicine);
                 SCOption itemOpt = null;
                 Item item = null;
-                int itemIndex = -1;
 
                 List<string> choices =
                 [
@@ -589,7 +588,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     itemOpt = new SCOption(itemOptNominee, Skill.Occultism, itemOptNominee.Skills.Get(Skill.Occultism), level, -5, null);
 
                     item = itemOptNominee.CarriedItems.GetRandom()!;
-                    itemIndex = itemOptNominee.PersistentCharacterSheet!.CampaignInventory.Backpack.FindIndex(i => i != null && i.Name == item.Name);
                     
                     choices.Insert(1, $"{itemOpt.printInfoTag()} {itemOpt.Nominee.Name} wants to bestow their {item.Name} as an offering to the well spirits.");
                 }
@@ -642,7 +640,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 await battle.Cinematics.NarratorLineAsync(
                                     $"Disappointed, the party carries on their way.");
                             
-                                itemOpt.Nominee.PersistentCharacterSheet!.CampaignInventory.Backpack[itemIndex] = null;
+                                itemOptNominee.CarriedItems.Remove(item);
                                 break;
                             }
                             case CheckResult.Failure: // Nothing happens
@@ -665,7 +663,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 creManager.AddTransferredItem(item.ItemName);
 
                                 // Lose the item
-                                itemOpt.Nominee.PersistentCharacterSheet!.CampaignInventory.Backpack[itemIndex] = null;
+                                itemOptNominee.CarriedItems.Remove(item);
                                 break;
                             }
                             case CheckResult.CriticalSuccess: // Item is sent to the next party and the current party gets a blessing
@@ -682,7 +680,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 creManager.AddTransferredItem(item.ItemName);
 
                                 // Lose the item
-                                itemOpt.Nominee.PersistentCharacterSheet!.CampaignInventory.Backpack[itemIndex] = null;
+                                itemOptNominee.CarriedItems.Remove(item);
                                 
                                 // TODO: receive a blessing
                                 break;
