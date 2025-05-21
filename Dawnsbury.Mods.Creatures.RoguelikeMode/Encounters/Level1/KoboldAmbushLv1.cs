@@ -15,6 +15,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class KoboldAmbushLv1 : Level1Encounter
     {
-        public KoboldAmbushLv1(string filename) : base("Kobald Ambush", filename) { }
+        public KoboldAmbushLv1(string filename) : base("Kobold Ambush", filename) { }
     }
 }

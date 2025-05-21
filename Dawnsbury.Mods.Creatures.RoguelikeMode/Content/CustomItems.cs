@@ -1150,22 +1150,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 qfTB.StartOfCombat = async self => {
                     var dagger = Items.CreateNew(ItemName.Dagger);
                     foreach (Item rune in item.Runes) {
-                        dagger.WithModificationRune(rune.ItemName);
+                        if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, dagger) == null)
+                            dagger.WithModificationRune(rune.ItemName);
                     }
 
                     var hammer = Items.CreateNew(LightHammer);
                     foreach (Item rune in item.Runes) {
-                        hammer.WithModificationRune(rune.ItemName);
+                        if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, hammer) == null)
+                            hammer.WithModificationRune(rune.ItemName);
                     }
 
                     var axe = Items.CreateNew(Hatchet);
                     foreach (Item rune in item.Runes) {
-                        axe.WithModificationRune(rune.ItemName);
+                        if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, axe) == null)
+                            axe.WithModificationRune(rune.ItemName);
                     }
 
                     var shuriken = Items.CreateNew(Shuriken);
                     foreach (Item rune in item.Runes) {
-                        shuriken.WithModificationRune(rune.ItemName);
+                        if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
+                            shuriken.WithModificationRune(rune.ItemName);
                     }
 
                     qfTB.Tag = new List<Item>() { dagger, hammer, axe, shuriken };
@@ -1806,7 +1810,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                         var shuriken = Items.CreateNew(Shuriken);
                                         shuriken.Traits.Add(Trait.EncounterEphemeral);
                                         foreach (Item rune in bandolier.Runes) {
-                                            shuriken.WithModificationRune(rune.ItemName);
+                                            if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
+                                                shuriken.WithModificationRune(rune.ItemName);
                                         }
 
                                         var strike = StrikeRules.CreateStrike(self.Owner, shuriken, RangeKind.Ranged, -1, true);

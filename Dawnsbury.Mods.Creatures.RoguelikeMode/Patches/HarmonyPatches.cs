@@ -333,7 +333,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 Item obj1 = equipment;
                 obj1.Description = obj1.Description + "{b}" + runestone.RuneProperties.Prefix.Capitalize() + ".{/b} " + runestone.RuneProperties.RulesText;
                 equipment.Name = itemTemplate.Name;
-                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending<Item, RuneKind>((Func<Item, RuneKind>)(rune => rune.RuneProperties.RuneKind)))
+                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending(rune => rune.RuneProperties.RuneKind))
                     equipment.Name = obj2.RuneProperties.Prefix + " " + equipment.Name;
                 return false;
             }
@@ -370,8 +370,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     return false;
                 }
 
-                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty)) {
-                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
+                int? propertyRuneSlots = equipment.Runes.FirstOrDefault(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)?.RuneProperties?.FundamentalLevel;
+
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && equipment.Runes.Where(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty).Count() >= propertyRuneSlots) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon cannot support any more property runes.");
+                    return false;
+                }
+
+                if (equipment.Runes.Any((Item rn) => rn.ItemName == runestone.ItemName)) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon already has that property rune.");
                     return false;
                 }
 
@@ -574,13 +581,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                         foreach (AdventurePathHero hero in state.Heroes) {
                             hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour"));
                         }
+                        CampaignState.Autosave();
                     }, "The party gains the Heavenly Favour boon, granting them a permanent +1 bonus to their attack, save and spell DCs and AC."),
                     new LeftMenuButton("Normal Difficulty", () => {
                         state.Tags.Add("corruption level", "0");
+                        CampaignState.Autosave();
 
                     }, "This is the intended difficulty of the roguelike mode, without any additional rules."),
                     new LeftMenuButton("Corruption Level 1", () => {
                         state.Tags.Add("corruption level", "1");
+                        CampaignState.Autosave();
                     }, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities." +
                     "\n\n{b}Beta Content.{/b} Although there should be a minimum amount of bugs, I haven't had time to throughly playtest the difficulty of this mode or add as large as variety of possible modifiers as I'd like. " +
                     "Any feedback on tihs new mode would be greatly appreciated!")
@@ -627,7 +637,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             //}
 
             // Declare campaign tags
-            if (!campaign.Tags.ContainsKey("seed") || campaign.Tags.ContainsKey("new run")) {
+            if (!campaign.Tags.ContainsKey("seed") || (campaign.Tags.ContainsKey("new run") && campaign.Tags["new run"] == "true")) {
                 campaign.Tags.Clear();
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
                 Loader.Seed[0] = campaign.Tags["seed"];
@@ -637,6 +647,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 foreach (AdventurePathHero hero in campaign.Heroes) {
                     hero.CharacterSheet.SelectedFeats.Remove("Power of the Rat Fiend");
                 }
+
+                if (campaign.Tags.ContainsKey("new run") && campaign.Tags["new run"] == "true") {
+                    campaign.Tags["new run"] = "false";
+                }
+                
+                // Apply cross-run effects
+                var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
+                creManager.TransferItems();
+                
+                CampaignState.Autosave();
             } else {
                 Loader.Seed[0] = campaign.Tags["seed"];
             }

@@ -15,6 +15,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class KoboldAmbushLv3 : Level3Encounter
     {
-        public KoboldAmbushLv3(string filename) : base("Kobald Ambush", filename) { }
+        public KoboldAmbushLv3(string filename) : base("Kobold Ambush", filename) { }
     }
 }

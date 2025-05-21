@@ -361,6 +361,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 return effect;
             });
 
+            LongTermEffects.EasyRegister("Well Spirit's Blessing", LongTermEffectDuration.UntilLongRest, (_, _) => {
+                return new QEffect("Well Spirit's Blessing", $"You've been blessed by the spirit of a magic well, increasing and your will saves by +1 until you take a long rest.") {
+                    HideFromPortrait = true,
+                    Illustration = IllustrationName.Bless,
+                    BonusToDefenses = (self, action, def) => def == Defense.Will ? new Bonus(1, BonusType.Untyped, "Well Spirit's Blessing") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null))
+                };
+            });
+
             #region Martial Colosseum Feats
             
             LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.AggressiveBlock].Item2, LongTermEffectDuration.Forever, (_, _) =>

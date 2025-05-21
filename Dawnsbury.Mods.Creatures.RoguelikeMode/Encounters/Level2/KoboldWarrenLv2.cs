@@ -15,6 +15,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class KoboldWarrenLv2 : Level2Encounter
     {
-        public KoboldWarrenLv2(string filename) : base("Kobald Warren", filename) { }
+        public KoboldWarrenLv2(string filename) : base("Kobold Warren", filename) { }
     }
 }
