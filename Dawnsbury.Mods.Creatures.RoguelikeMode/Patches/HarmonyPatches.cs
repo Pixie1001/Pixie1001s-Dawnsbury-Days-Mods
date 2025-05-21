@@ -333,7 +333,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 Item obj1 = equipment;
                 obj1.Description = obj1.Description + "{b}" + runestone.RuneProperties.Prefix.Capitalize() + ".{/b} " + runestone.RuneProperties.RulesText;
                 equipment.Name = itemTemplate.Name;
-                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending<Item, RuneKind>((Func<Item, RuneKind>)(rune => rune.RuneProperties.RuneKind)))
+                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending(rune => rune.RuneProperties.RuneKind))
                     equipment.Name = obj2.RuneProperties.Prefix + " " + equipment.Name;
                 return false;
             }
@@ -370,8 +370,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     return false;
                 }
 
-                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty)) {
-                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only one property rune can be attached to this item at a time.");
+                int? propertyRuneSlots = equipment.Runes.FirstOrDefault(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)?.RuneProperties?.FundamentalLevel;
+
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && equipment.Runes.Where(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty).Count() >= propertyRuneSlots) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon cannot support any more property runes.");
+                    return false;
+                }
+
+                if (equipment.Runes.Any((Item rn) => rn.ItemName == runestone.ItemName)) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon already has that property rune.");
                     return false;
                 }
 
