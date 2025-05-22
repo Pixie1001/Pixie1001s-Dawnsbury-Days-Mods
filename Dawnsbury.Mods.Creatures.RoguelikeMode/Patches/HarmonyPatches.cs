@@ -313,8 +313,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CampaignState), MethodType.Constructor, new Type[] { typeof(List<CharacterSheet>), typeof(AdventurePath) })]
         private static void CampaignStatePatch(CampaignState __instance, List<CharacterSheet> heroes, AdventurePath adventurePath) {
-            if (__instance.AdventurePath != null && __instance.AdventurePath.Id == "RoguelikeMode")
-            __instance.Tags.Add("new run", "true");
+            if (__instance.AdventurePath != null && __instance.AdventurePath.Id == "RoguelikeMode") {
+                __instance.Tags.Add("new run", "true");
+                __instance.Tags.Add("cleanup", "true");
+            }
         }
 
         // AddRuneTo
@@ -602,6 +604,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 if (tooltip != null)
                     Writer.DrawString(tooltip, new Rectangle(620, 400, 1000, 800));
             }
+
+            if (state.InitialCreationStatus == CampaignStateInitialCreationStatus.Complete && state.Tags.ContainsKey("cleanup")) {
+                state.Tags.Remove("cleanup");
+                UtilityFunctions.CleanUnlockFeats(state);
+            }
         }
 
         [HarmonyPrefix]
@@ -612,7 +619,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
             if (state.AdventurePath?.CampaignStops[2].Name == "Random Encounter"
                 || state.Tags.ContainsKey("seed") && state.Tags["seed"] != Loader.Seed[0]
-                || state.Tags.ContainsKey("new run") && state.Tags["new run"] == "true") {
+                || state.Tags.ContainsKey("new run")) {
                 GenerateRun(state);
             }
         }
@@ -627,31 +634,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             EncounterTables.LoadEncounterTables();
             SkillChallengeTables.LoadSkillChallengeTables();
 
-            // Debug for testing
-            //if (campaign.Tags.ContainsKey("new run")) {
-            //    campaign.Tags.Remove("new run");
-            //}
-
-            //if (campaign.Tags.ContainsKey("seed") && !campaign.Tags.ContainsKey("profile slot")) {
-            //    campaign.Tags.Add("profile slot", $"{CampaignState.InstanceProfileNumber}");
-            //}
-
             // Declare campaign tags
-            if (!campaign.Tags.ContainsKey("seed") || (campaign.Tags.ContainsKey("new run") && campaign.Tags["new run"] == "true")) {
+            if (!campaign.Tags.ContainsKey("seed") || campaign.Tags.ContainsKey("new run")) {
                 campaign.Tags.Clear();
                 campaign.Tags.Add("seed", R.Next(100000).ToString());
                 Loader.Seed[0] = campaign.Tags["seed"];
                 campaign.Tags.Add("restarts", "0");
                 campaign.Tags.Add("deaths", "0");
-                // campaign.Tags.Add("profile slot", $"{CampaignState.InstanceProfileNumber}");
-                foreach (AdventurePathHero hero in campaign.Heroes) {
-                    hero.CharacterSheet.SelectedFeats.Remove("Power of the Rat Fiend");
-                }
+                campaign.Tags.Add("cleanup", "true");
 
-                if (campaign.Tags.ContainsKey("new run") && campaign.Tags["new run"] == "true") {
-                    campaign.Tags["new run"] = "false";
-                }
-                
                 // Apply cross-run effects
                 var creManager = new CrossRunEffectsManager(CampaignState.InstanceProfileNumber);
                 creManager.TransferItems();

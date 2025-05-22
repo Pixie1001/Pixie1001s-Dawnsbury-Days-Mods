@@ -90,9 +90,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
             "{b}Lead design, writing, direction and programming: {/b} Pixie1001\n" +
             "{b}Artists: {/b} Pixie1001\n" +
-            "{b}Additional design: {/b} SudoProgramming, DINGLEBOB\n" +
-            "{b}Additional writers: {/b} ...\n" +
-            "{b}Additional programming: {/b} SudoProgramming, DINGLEBOB\n" +
+            "{b}Additional design: {/b} SudoProgramming, DINGLEBOB, El Moondo\n" +
+            "{b}Additional writers: {/b} El Moondo\n" +
+            "{b}Additional programming: {/b} SudoProgramming, DINGLEBOB, El Moondo\n" +
             "{b}Playtesting: {/b} Petr, Beets, SudoProgramming, L-star, RussischerZar, Vinicius Medeiros, FlamingQaz";
 
         internal static Dictionary<CreatureId, Func<Encounter?, Creature>> Creatures = new Dictionary<CreatureId, Func<Encounter?, Creature>>();
