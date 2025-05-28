@@ -50,6 +50,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return false;
         }
 
+
         //internal static void ReplaceSpiderSprite(Creature monster) {
         //    if (monster.Illustration == Illustrations.HuntingSpider) {
         //        monster.Illustration = Illustrations.Bear1;
@@ -67,6 +68,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         //        monster.Illustration = Illustrations.Bear5;
         //    }
         //}
+        internal static void CleanUnlockFeats(CampaignState state) {
+            foreach (var hero in state.Heroes) {
+                hero.CharacterSheet.SelectedFeats.Remove("Power of the Rat Fiend");
+            }
+        }
 
         internal static string GetShopBanter() {
             string? lastEliteName = null;

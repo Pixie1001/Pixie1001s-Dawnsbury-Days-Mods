@@ -114,6 +114,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         //    ;
         //});
 
+        public static SpellId AgonisingDespair = ModManager.RegisterNewSpell("RL_AgonisingDespair", 3, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern(Illustrations.AgonizingDespair, "Agonising Despair", new Trait[] {
+                        Trait.Emotion,
+                        Trait.Enchantment,
+                        Trait.Fear,
+                        Trait.Mental,
+                        Trait.Arcane,
+                        Trait.Divine,
+                        Trait.Occult
+                    }, "Your target's mind tumbles down a deep well of dread, dwelling so intently on deep-seated fears that it's painful.",
+                    $"The target takes {S.HeightenedVariable((level - 1) * 2, 4)}d6 mental damage with a Will saving throw." +
+                    S.FourDegreesOfSuccess("The target is unaffected.",
+                    "The target takes half damage and becomes frightened 1.",
+                    "The target takes full damage and becomes frightened 2.",
+                    "The target takes double damage and becomes frightened 3."),
+            Target.Ranged(12), level, SpellSavingThrow.Standard(Defense.Will))
+            .WithSoundEffect(SfxName.Fear)
+            .WithHeighteningOfDamageEveryLevel(level, 3, inCombat, "2d6")
+            .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Fear(d) + (level - 1) * 7)
+            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                if (result == CheckResult.CriticalSuccess) return;
+                await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, $"{(level - 1) * 2}d6", DamageKind.Mental);
+                target.AddQEffect(QEffect.Frightened(3 - (int)result));
+            });
+        });
+
         public static SpellId LesserDominate = ModManager.RegisterNewSpell("Lesser Dominate", 5, (id, caster, level, inCombat, info) => {
             return Spells.CreateModern((Illustration)IllustrationName.Dominate, "Lesser Dominate", new Trait[] {
                         Trait.Enchantment,
@@ -253,7 +279,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         internal static void LoadSpells() {
 
-            var spells = new List<SpellId>() { WakingNightmare, SharedNightmare };
+            var spells = new List<SpellId>() { AgonisingDespair, LesserDominate, WakingNightmare, SharedNightmare };
 
             ModManager.RegisterActionOnEachSpell(spell => {
                 if (spell.SpellId == SpellId.BoneSpray) {

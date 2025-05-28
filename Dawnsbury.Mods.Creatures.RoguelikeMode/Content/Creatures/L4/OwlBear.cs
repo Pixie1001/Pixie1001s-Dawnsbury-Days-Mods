@@ -124,6 +124,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 {
                     return new CombatAction(self, IllustrationName.Demoralize, "Screeching Advance", [Trait.Auditory, Trait.Emotion, Trait.Fear, Trait.Mental], "Stride twice while using Bloodcurdling Screech. (Any creature in the range during the movement will be affected)", Target.Self())
                     .WithActionCost(2)
+                    .WithSoundEffect(SfxName.BeastRoar)
                     .WithGoodness((t, a, d) => a.PersistentUsedUpResources.UsedUpActions.Contains("Screeching Advance") ? AIConstants.NEVER : AIConstants.ALWAYS)
                     .WithEffectOnSelf(async (action, innerSelf) =>
                     {
@@ -193,7 +194,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 ShortDescription = "The Owlbear forces each enemy within an 80-foot radius to make a DC 20 will save, as per the {i}Fear{/i} spell. They are then immune until the end of the encounter."
             }
                 .WithActionCost(1)
-                .WithGoodness((t, a, d) => a.Battle.AllCreatures.Any(cr => cr.DistanceTo(a) <= 16 && !a.FriendOf(cr) && !cr.HasEffect(QEffectIds.BloodcurdlingScreechImmunity)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
+                .WithGoodness((t, a, d) => a.Battle.AllCreatures.Any(cr => cr.DistanceTo(a) <= 16 && !a.FriendOf(cr) && !cr.HasEffect(QEffectIds.BloodcurdlingScreechImmunity) && !cr.HasTrait(Trait.Indestructible) && !cr.IsImmuneTo(Trait.Mental)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
+                .WithSoundEffect(SfxName.BeastRoar)
                 .WithEffectOnEachTarget(async (bloodcurdlingScreech, attacker, defender, result) =>
                 {
                     BloodcurdlingScreechAgainstCreature(attacker, defender);

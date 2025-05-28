@@ -555,7 +555,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         }
 
         public static QEffect SlipAway() {
-            return new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} The drow arcanist is damaged by an attack. {b}Effect{/b} The drow arcanist makes a free step action and gains +1 AC until the end of their attacker's turn.") {
+            return new QEffect("Slip Away {icon:Reaction}", "{b}Trigger{/b} You're damaged by an attack. {b}Effect{/b} You make a free step action and gains +1 AC until the end of their attacker's turn.") {
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
                     if (action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || !action.Owner.IsAdjacentTo(self.Owner)) {
                         return;

@@ -40,9 +40,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithBasicCharacteristics()
             .WithUnarmedStrike(legAtk)
             .AddQEffect(CommonQEffects.MiniBoss())
-            .AddQEffect(new QEffect() {
-                StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
-            })
+            .AddQEffect(QEffect.DamageWeakness(DamageKind.Good, 5))
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
             .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
             .AddQEffect(QEffect.WebSense())
             .AddQEffect(new QEffect() {
