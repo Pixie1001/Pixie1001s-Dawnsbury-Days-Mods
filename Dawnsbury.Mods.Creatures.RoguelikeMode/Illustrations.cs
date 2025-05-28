@@ -144,6 +144,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Parry = new ModdedIllustration("RoguelikeModeAssets/Icons/Parry.png");
         internal static ModdedIllustration EliteEncounter = new ModdedIllustration("RoguelikeModeAssets/Icons/spellbook.png");
         internal static ModdedIllustration BossEncounter = new ModdedIllustration("RoguelikeModeAssets/Icons/pentagram.png");
+        internal static ModdedIllustration AgonizingDespair = new ModdedIllustration("RoguelikeModeAssets/Icons/AgonizingDespair.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

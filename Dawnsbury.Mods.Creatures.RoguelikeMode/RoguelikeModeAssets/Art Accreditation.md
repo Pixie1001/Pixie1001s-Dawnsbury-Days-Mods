@@ -46,6 +46,7 @@
 	<li>FlailSnail.png (Modified)</li>
 	<li>AngerPhantom.png (Modified)</li>
 	<li>Basilisk.png (Modified)</li>
+	<li>AgonizingDespair.png (Modified)</li>
 </ul>
 
 ### Flaticon.com
