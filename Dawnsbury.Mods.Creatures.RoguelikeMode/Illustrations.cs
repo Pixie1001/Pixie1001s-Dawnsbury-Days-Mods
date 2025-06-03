@@ -77,13 +77,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration DragonWitch = new ModdedIllustration("RoguelikeModeAssets/Enemies/DragonWitch.png");
         internal static ModdedIllustration RedDragon = new ModdedIllustration("RoguelikeModeAssets/Enemies/RedDragon.png");
         internal static ModdedIllustration Medusa = new ModdedIllustration("RoguelikeModeAssets/Enemies/Medusa.png");
+        internal static ModdedIllustration DuplicityDemon = new ModdedIllustration("RoguelikeModeAssets/Enemies/DuplicityDemon.png");
+        internal static ModdedIllustration ShadowWebStalker = new ModdedIllustration("RoguelikeModeAssets/Enemies/ShadowWebStalker.png");
+        internal static ModdedIllustration NightmareWeaver = new ModdedIllustration("RoguelikeModeAssets/Enemies/NightmareWeaver.png");
+        internal static ModdedIllustration Drowhuntress = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowHuntress.png");
+        internal static ModdedIllustration WebWarden = new ModdedIllustration("RoguelikeModeAssets/Enemies/WebWarden.png");
 
         // Bears for Archanophobia Mode
-        internal static ModdedIllustration Bear1 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
-        internal static ModdedIllustration Bear2 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear2.png");
-        internal static ModdedIllustration Bear3 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear3.png");
-        internal static ModdedIllustration Bear4 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear4.png");
-        internal static ModdedIllustration Bear5 = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear5.png");
+        internal static ModdedIllustration Bear1 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
+        internal static ModdedIllustration Bear2 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear2.png");
+        internal static ModdedIllustration ShadowBear2 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/ShadowBear2.png");
+        internal static ModdedIllustration Bear3 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear3.png");
+        internal static ModdedIllustration Bear4 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear4.png");
+        internal static ModdedIllustration Bear5 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear5.png");
 
         // Items
         internal static ModdedIllustration Wand = new ModdedIllustration("RoguelikeModeAssets/Items/Wand.png");

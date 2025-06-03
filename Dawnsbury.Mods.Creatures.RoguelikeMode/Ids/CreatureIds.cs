@@ -72,5 +72,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static CreatureId DrowHuntress { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DrowHuntress");
         internal static CreatureId NightmareWeaver { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_NightmareWeaver");
         internal static CreatureId ShadowWebStalker { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_ShadowWebStalker");
+        internal static CreatureId DuplicityDemon { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DuplicityDemon");
+        internal static CreatureId WebWarden { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_WebWarden");
+        internal static CreatureId DrowHighPriestess { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DrowHighPriestess");
+        internal static CreatureId PrincessOfPandemonium { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_PrincessOfPandemonium");
     }
 }

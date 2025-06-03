@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="61" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="68" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -366,5 +366,47 @@
    <property name="Id" value="Trip Wire Spawn Location"/>
   </properties>
   <image source="CustomCreatures/TripWireSpawnLocation.png" width="256" height="256"/>
+ </tile>
+ <tile id="2054">
+  <properties>
+   <property name="Id" value="Nightmare Weaver"/>
+  </properties>
+  <image source="CustomCreatures/NightmareWeaver.png" width="256" height="256"/>
+ </tile>
+ <tile id="2055">
+  <properties>
+   <property name="Id" value="Duplicity Demon"/>
+  </properties>
+  <image source="CustomCreatures/DuplicityDemon.png" width="256" height="256"/>
+ </tile>
+ <tile id="2056">
+  <properties>
+   <property name="Id" value="Shadow Web Stalker"/>
+  </properties>
+  <image source="CustomCreatures/ShadowWebStalker.png" width="256" height="256"/>
+ </tile>
+ <tile id="2057">
+  <properties>
+   <property name="Id" value="Drow Huntress"/>
+  </properties>
+  <image source="CustomCreatures/DrowHuntress.png" width="256" height="256"/>
+ </tile>
+ <tile id="2058">
+  <properties>
+   <property name="Id" value="Web Warden"/>
+  </properties>
+  <image source="CustomCreatures/WebWarden.png" width="256" height="256"/>
+ </tile>
+ <tile id="2059">
+  <properties>
+   <property name="Id" value="Drow High Priestess"/>
+  </properties>
+  <image source="CustomCreatures/DrowPriestess.png" width="256" height="256"/>
+ </tile>
+ <tile id="2060">
+  <properties>
+   <property name="Id" value="Princess of Pandemonium"/>
+  </properties>
+  <image source="CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
  </tile>
 </tileset>

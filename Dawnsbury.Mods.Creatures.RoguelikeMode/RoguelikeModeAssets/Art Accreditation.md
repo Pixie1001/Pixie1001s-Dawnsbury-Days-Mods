@@ -70,7 +70,7 @@
 	<li>EHighPriestess.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:2010-01-portrait_cendrea.png</li>
 	<li>DragonWitch.png (Modified) By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/wiki/File:2009-8-Quetzalcoat.png</li>
 	<li>Bear1.png (Modified) By Arturo de Frias Marques - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Polar_Bear_AdF.jpg</li>
-	<li>Bear2.png (Modified) By Francis C. Franklin - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:European_Brown_Bear.jpg</li>
+	<li>Bear2.png (Modified) & ShadowBear2.png (Modified) By Francis C. Franklin - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:European_Brown_Bear.jpg</li>
 	<li>Bear3.png (Modified) By LadyofHats - Released into public domain by author, https://commons.wikimedia.org/wiki/File:Closeup_kodiak_bear_hamburg.JPG</li>
 	<li>Bear4.png (Modified) By Yathin S Krishnappa - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg</li>
 	<li>Bear5.png (Modified) By Charles J. Sharp - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Eurasian_brown_bear_(Ursus_arctos_arctos)_female_1.jpg</li>
@@ -135,6 +135,12 @@
 	<li>WinterWolf.png</li>
 	<li>Basilisk.png</li>
 	<li>Medusa.png</li>
+	<li>ShadowWebStalker.png</li>
+	<li>DuplicityDemon.png</li>
+	<li>NightmareWeaver</li>
+	<li>DrowHuntress</li>
+	<li>WebWarden</li>
+	<li>DrowArachnomancer</li>
 </ul>
 
 ## Volunteer Contributions

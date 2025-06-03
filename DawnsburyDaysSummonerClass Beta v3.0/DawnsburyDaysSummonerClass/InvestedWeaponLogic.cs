@@ -168,13 +168,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static void HandleRune(Creature summoner, Item investedWeapon, List<Item> unarmedAttacks, RuneKind type) {
-            Item? propertyRune = investedWeapon.Runes.FirstOrDefault(rune => rune.RuneProperties != null && rune.RuneProperties.RuneKind == type);
+            if (!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows) {
+                return;
+            }
 
-            // Re-add this rune slot
-            if (propertyRune != null && !(!summoner.HeldItems.Contains(investedWeapon) && investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows)) {
+            var runes = investedWeapon.Runes.Where(rune => rune.RuneProperties != null && rune.RuneProperties.RuneKind == type);
+
+            foreach (Item rune in runes) {
                 foreach (Item attack in unarmedAttacks) {
-                    attack.Runes.Add(propertyRune);
-                    propertyRune.RuneProperties.ModifyItem(attack);
+                    if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, attack) == null) {
+                        attack.Runes.Add(rune);
+                        rune.RuneProperties!.ModifyItem(attack);
+                    }
                 }
             }
         }

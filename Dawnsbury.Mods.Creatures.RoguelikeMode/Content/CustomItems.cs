@@ -36,40 +36,17 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
 using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
 using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
-using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using System.IO;
 using System.Buffers.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using FMOD;
-using System.Xml.Linq;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using System.Text.RegularExpressions;
 
@@ -182,6 +159,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 ItemBonus = 1,
             }
             .WithAdditionalDamage("1d6", DamageKind.Mental))
+            .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
+            "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    BonusToAttackRolls = (self, action, d) => {
+                        int bonus = self.Owner.Abilities.Wisdom - int.Max(self.Owner.Abilities.Strength, self.Owner.Abilities.Dexterity);
+                        if (action != null && action.Item != null && action.Item == weapon && bonus > 0) {
+                            return new Bonus(bonus, BonusType.Untyped, "Wisdom");
+                        }
+                        return null;
+                    }
+                });
+            };
+            return item;
+        });
+
+        public static ItemName GreaterScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("GreaterScourgeOfFangs", itemName => {
+            Item item = new Item(itemName, IllustrationName.Whip, "greater scourge of fangs", 7, 360,
+                new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithMainTrait(Trait.Whip)
+            .WithWeaponProperties(new WeaponProperties("2d4", DamageKind.Slashing) {
+                ItemBonus = 1,
+            }
+            .WithAdditionalDamage("2d6", DamageKind.Mental))
             .WithDescription("{i}A coiled three pronged whip favoured by drow priestesses. The weapin is constructed from interlocked copper segments that end in the mechanical heads of vicious clacking serpents, that appear possessed of a have a cruel and malevolent intelligence.{/i}\n\n" +
             "Those that feel their bite are wrackled by incredible pain, suffering an additional 1d6 mental damage.\n\nIn addition, the serpents are eager to assist their wielder, allowing them to attack by willing the snakes to strike using their wisdom modifier.");
 
@@ -1711,7 +1714,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);

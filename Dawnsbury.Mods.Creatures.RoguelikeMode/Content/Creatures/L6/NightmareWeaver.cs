@@ -32,7 +32,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             Item legAtk = new Item(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.DeadlyD6, Trait.Reach }).WithWeaponProperties(new WeaponProperties("2d6", DamageKind.Piercing));
 
-            Creature monster = new Creature(new SpiderIllustration(Illustrations.AbyssalHandmaiden, Illustrations.Bear3), "Nightmare Weaver",
+            Creature monster = new Creature(new SpiderIllustration(Illustrations.NightmareWeaver, Illustrations.Bear3), "Nightmare Weaver",
                 [Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider, ModTraits.SpellcasterMutator],
                 6, 14, 6, new Defenses(22, 11, 17, 14), 95,
             new Abilities(5, 5, 4, 4, 2, 6),
@@ -61,7 +61,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .AddQEffect(new QEffect("Strength from Nightmares", "The nightmare weaver's strike deals +6 damage to frightened creatures, and +2 AC against their attacks.") {
                 BonusToDamage = (self, action, target) => target.HasEffect(QEffectId.Frightened) ? new Bonus(6, BonusType.Untyped, "strength from nightmares") : null,
-                BonusToDefenses = (self, action, def) => action?.Owner?.Occupies != null && action.Owner.HasEffect(QEffectId.Frightened) ? new Bonus(2, BonusType.Untyped, "strength from nightmares") : null,
+                BonusToDefenses = (self, action, def) => action?.Owner?.Occupies != null && def == Defense.AC && action.Owner.HasEffect(QEffectId.Frightened) ? new Bonus(2, BonusType.Untyped, "strength from nightmares") : null,
                 AdditionalGoodness = (self, action, target) => action.HasTrait(Trait.Strike) && target.HasEffect(QEffectId.Frightened) ? 6 : 0
             })
             .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Demon, Ability.Charisma, Trait.Divine).WithSpells(

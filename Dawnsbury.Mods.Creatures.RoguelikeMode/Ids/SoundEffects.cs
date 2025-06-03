@@ -21,12 +21,10 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.Mechanics.Treasure;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class SoundEffects
-    {
+    internal static class SoundEffects {
         // Music
         public static Songname AntipartyTheme = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/battle-theme-194713.mp3", 0.3f);
         public static Songname MotherOfThePoolTheme = ModManager.RegisterNewMusic("RoguelikeModeAssets/Music/MotherOfThePool.mp3", 0.3f);

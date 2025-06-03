@@ -198,6 +198,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return YoungChimera.Create();
                 case var v when v.Equals(CreatureIds.FlailSnail):
                     return FlailSnail.Create();
+                case var v when v.Equals(CreatureIds.DuplicityDemon):
+                    return DuplicityDemon.Create();
+                case var v when v.Equals(CreatureIds.DrowHuntress):
+                    return DrowHuntress.Create();
+                case var v when v.Equals(CreatureIds.ShadowWebStalker):
+                    return ShadowWebStalker.Create();
+                case var v when v.Equals(CreatureIds.NightmareWeaver):
+                    return NightmareWeaver.Create();
+                case var v when v.Equals(CreatureIds.WebWarden):
+                    return WebWarden.Create();
+                case var v when v.Equals(CreatureIds.DrowHighPriestess):
+                    return DrowHighPriestess.Create();
+                case var v when v.Equals(CreatureIds.PrincessOfPandemonium):
+                    return PrincessOfPandemonium.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -310,6 +324,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeMonsterBound);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeBroodNurse);
 
+            // Level 5 creatures - Spider Demons
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DuplicityDemon);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.ShadowWebStalker);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WebWarden);
+
             // Level 5 Creatures - Other
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CorruptedTree);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.MerfolkSeaWitch);
@@ -318,14 +337,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Basilisk);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.FlailSnail);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.PetrifiedGuardian);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowHuntress);
 
             // Level 6 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.YoungWhiteDragon);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeBroodGuard);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.NightmareWeaver);
 
             // Level 7 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Medusa);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowHighPriestess);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.PrincessOfPandemonium);
 
             // Level 8 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Chimera);

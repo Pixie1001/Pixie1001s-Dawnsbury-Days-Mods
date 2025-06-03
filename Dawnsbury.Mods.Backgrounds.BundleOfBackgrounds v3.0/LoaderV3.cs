@@ -497,7 +497,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             return null;
                         }
 
-                        return (ActionPossibility) new CombatAction(self.Owner, IllustrationName.ShieldSpell, "Guard Ally", new Trait[] { Trait.Basic }, "Target ally gains a +1 circumstance bonus to AC until the start of your next turn, so long as they remain adjacent to you.", Target.AdjacentFriend())
+                        return (ActionPossibility) new CombatAction(self.Owner, IllustrationName.ShieldSpell, "Guard Ally", new Trait[] { Trait.Basic },
+                            "{b}Frequency{/b} Once per long rest.\n\nTarget ally gains a +1 circumstance bonus to AC until the start of your next turn, so long as they remain adjacent to you.", Target.AdjacentFriend()) {
+                            ShortDescription = "Target ally gains a +1 circumstance bonus to AC until the start of your next turn, so long as they remain adjacent to you."
+                        }
                         .WithSoundEffect(SfxName.RaiseShield)
                         .WithActionCost(0)
                         .WithEffectOnEachTarget(async (action, user, target, result) => {
@@ -695,7 +698,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Herbalist"),
                 "As a formally trained apothecary or a rural practitioner of folk medicine, you learned the healing properties of various herbs. You're adept at collecting the right natural cures in all sorts of environments and preparing them properly.",
                 "You're trained in {b}Nature{/b}. You gain the {b}Concoct Poultice{/b} ability." +
-                "\n\n{b}Concoct Poultice {icon:Action}.{/b} Concoct a single random potion from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, " +
+                "\n\n{b}Concoct Poultice {icon:Action}.{/b} Once per day, concoct a single random potion from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, " +
                 "quickly rendering itself inert if not used by the end of the encounter.",
                 new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Wisdom), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
@@ -713,7 +716,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         }
 
                         return (ActionPossibility)new CombatAction(self.Owner, BoBAssets.imgs[BoBAssets.ImageId.CONCOCT_POULTICE], "Concoct Poultice", new Trait[] { Trait.Alchemical },
-                            "Concoct a single random potion from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, quickly rendering itself inert if not used by the end of the encounter.", Target.Self()
+                            "{b}Frequency{/b} Once per long rest.\n\nConcoct a single random potion from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, quickly rendering itself inert if not used by the end of the encounter.", Target.Self()
                             .WithAdditionalRestriction(c => {
                                 if (self.Owner.HasFreeHand) {
                                     return null;
@@ -907,7 +910,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
 
             yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Barkeep"),
                 "You have five specialties: hefting barrels, drinking, polishing steins, drinking, and drinking. You worked in a bar, where you learned how to hold your liquor and rowdily socialize.",
-                "You're trained in {b}Diplomacy{/b}. You gain the {b}Moonshine{/b} ability.\n\n{b}Moonshine {icon:Action}.{/b} You rifle through your bags for a bottle of moonshine and pop the cork to find out what the distillory process has produced. " +
+                "You're trained in {b}Diplomacy{/b}. You gain the {b}Moonshine{/b} ability.\n\n{b}Moonshine {icon:Action}.{/b} Once per day, may rifle through your bags for a bottle of moonshine and pop the cork to find out what the distillory process has produced. " +
                 "Your moonshine can be of three distinct kinds, but its magical properties are quickly rendered inert if the beverage is not drunk by the end of the encounter." +
                 "\n•{b}Rotgut.{/b} A powerful dwarven liquor that quickly renders the drinker numbingly drunk." +
                 "\n•{b}Dragon Whisky.{/b} A fiery spirit so strong it's said to turn the drinker's breath to flame." +
@@ -928,7 +931,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         }
 
                         return (ActionPossibility)new CombatAction(self.Owner, BoBAssets.imgs[BoBAssets.ImageId.MOONSHINE], "Moonshine", new Trait[] { Trait.Alchemical },
-                            "You rifle through your bags for a bottle of moonshine and pop the cork to find out what the distillory process has produced. Your moonshine can be of three distinct kinds, but its magical properties are quickly rendered inert if the beverage is not drunk by the end of the encounter.\n\nA free hand is required to hold the moonshine.", Target.Self()
+                            "{b}Frequency{/b} Once per long rest.\n\nYou rifle through your bags for a bottle of moonshine and pop the cork to find out what the distillory process has produced. Your moonshine can be of three distinct kinds, but its magical properties are quickly rendered inert if the beverage is not drunk by the end of the encounter.\n\nA free hand is required to hold the moonshine.", Target.Self()
                             .WithAdditionalRestriction(c => {
                                 if (self.Owner.HasFreeHand) {
                                     return null;

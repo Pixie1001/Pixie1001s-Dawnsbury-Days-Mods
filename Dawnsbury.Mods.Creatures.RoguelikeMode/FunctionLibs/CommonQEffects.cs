@@ -191,7 +191,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                    if (action.Name.Contains($" ({weapon})")) {
                         Affliction poison = Affliction.CreateGiantSpiderVenom(baseDC + attacker.Level);
                         poison.DC = baseDC + attacker.Level;
 
@@ -214,6 +214,57 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static QEffect ShadowWebSicknessAttack(int baseDC, string weapon) {
+            Affliction sws = new Affliction(QEffectIds.ShadowWebSickness, "Shadow Web Sickness", 0,
+                "{b}Stage 1{/b} frightened 1; {b}Stage 2{/b} frightened 1 and dazzled; {b}Stage 3{/b} frightened 1 and blinded", 3, stage => null, qf => {
+                    qf.Owner.AddQEffect(QEffect.Frightened(1).WithExpirationEphemeral());
+
+                    if (qf.Value == 2)
+                        qf.Owner.AddQEffect(QEffect.Dazzled().WithExpirationEphemeral());
+
+                    if (qf.Value == 3)
+                        qf.Owner.AddQEffect(QEffect.Blinded().WithExpirationEphemeral());
+
+                });
+
+            return new QEffect("Shadow Web Sickness", "Set Later") {
+                StateCheck = async self => {
+                    if (self.Description == "Set Later") {
+                        self.Name += $" (DC {baseDC + self.Owner.Level})";
+                        self.Description = $"Enemies damaged by {self.Owner.Name}'s {weapon} attack are afflicted by Shadow Web Sickness: " + "{i}" + $"{sws.StagesDescription}" + "{/i}";
+                    }
+                },
+                AfterYouDealDamage = async (attacker, action, target) => {
+                    if (action.Name.Contains($" ({weapon})")) {
+                        Affliction poison = sws;
+                        poison.DC = baseDC + attacker.Level;
+
+                        await Affliction.ExposeToInjury(poison, attacker, target);
+                    }
+                },
+                AdditionalGoodness = (self, action, target) => {
+                    int dc = baseDC + self.Owner.Level;
+
+                    if (action == null || !(action.Name == weapon || action.HasTrait(Trait.Strike))) {
+                        return 0f;
+                    }
+
+                    if (target != null && !target.HasEffect(QEffectIds.ShadowWebSickness)) {
+                        float val = action.Owner.Level * 2.5f;
+                        if (action.Owner.AI.IsTargetNotWorthwhileToFrightened(target))
+                            val =- 1 * action.Owner.Level;
+                        if (target.HasEffect(QEffectId.Dazzled) || target.IsImmuneTo(Trait.Visual))
+                            val = -1 * action.Owner.Level;
+                        if (target.HasEffect(QEffectId.Blinded) || target.IsImmuneTo(Trait.Visual))
+                            val = -1 * action.Owner.Level;
+                        return Math.Max(0, val);
+                    }
+
+                    return 0f;
+                }
+            };
+        }
+
         public static QEffect SerpentVenomAttack(int baseDC, string? weapon) {
             Affliction serpentVenom = new Affliction(QEffectIds.SerpentVenom, "Serpent Venom", 0,
                 "{b}Stage 1{/b} 1d6 poison damage and enfeebled 1; {b}Stage 2{/b} 2d6 poison damage and enfeebled 2", 2, stage => stage + "d6", qfVenom => qfVenom.Owner.AddQEffect(QEffect.Enfeebled(qfVenom.Value).WithExpirationEphemeral()));
@@ -226,7 +277,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                    if (action.Name.Contains($" ({weapon})")) {
                         Affliction poison = serpentVenom;
                         poison.DC = baseDC + attacker.Level;
 
@@ -277,7 +328,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                    if (action.Name.Contains($" ({weapon})")) {
                         Affliction poison = abyssalRot;
                         poison.DC = baseDC + attacker.Level;
 
@@ -317,7 +368,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name == weapon || action.Name == $"Strike ({weapon})") {
+                    if (action.Name.Contains($" ({weapon})")) {
                         Affliction poison = ratPlague;
                         poison.DC = master.ClassOrSpellDC();
 
