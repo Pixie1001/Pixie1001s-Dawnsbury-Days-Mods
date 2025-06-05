@@ -40,9 +40,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="0Harmony">
-		  <HintPath>0Harmony-unstable.dll</HintPath>
-		</Reference>
 		<Reference Include="Common">
 			<HintPath>C:\Program Files (x86)\Steam\steamapps\common\Dawnsbury Days\Data\Common.dll</HintPath>
 		</Reference>
@@ -70,6 +67,10 @@
 
 	<ItemGroup>
 	  <EditorConfigFiles Remove="D:\Save Files\Code\C-Sharp\Pixie1001s-Dawnsbury-Days-Mods\Dawnsbury.Mods.Creatures.RoguelikeMode\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Lib.Harmony" Version="[2.3.6]" />
 	</ItemGroup>
 
 </Project>
