@@ -212,6 +212,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return DrowHighPriestess.Create();
                 case var v when v.Equals(CreatureIds.PrincessOfPandemonium):
                     return PrincessOfPandemonium.Create();
+                case var v when v.Equals(CreatureIds.DrowBlademaster):
+                    return DrowBlademaster.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -338,6 +340,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.FlailSnail);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.PetrifiedGuardian);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowHuntress);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowBlademaster);
 
             // Level 6 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
@@ -376,6 +379,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterTile(GrantMonsterMutator.Create());
             RegisterTile(TripWire.Create());
             RegisterTile(TripWireSpawnLocation.Create());
+        }
+
+        internal static void ModifyCreatures() {
+            ModManager.RegisterActionOnEachCreature(creature => {
+                if (creature.CreatureId == CreatureId.DemonWebspinner)
+                    creature.Traits.Add(ModTraits.Spider);
+                else if (creature.Name.Contains("Spider") && !creature.Traits.Contains(ModTraits.Spider))
+                    creature.Traits.Add(ModTraits.Spider);
+            });
         }
     }
 }

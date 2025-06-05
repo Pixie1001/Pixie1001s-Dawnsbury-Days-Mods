@@ -142,32 +142,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return effect;
         }
 
-        //public static QEffect AdjustWeakTemplate() {
-        //    return new QEffect() {
-        //        YouAcquireQEffect = (self, nEffect) => {
-        //            if (nEffect.Id == QEffectId.Weak || nEffect.Id == QEffectId.Inferior) {
-        //                string name = "Weak";
-        //                int val = -2;
-        //                if (nEffect.Id == QEffectId.Inferior) {
-        //                    name = "Inferior";
-        //                    val = -4;
-        //                }
-        //                return new QEffect(name, $"You have {val.WithPlus()} to all defenses, attacks, spell save DC, skills and Strike and cantrip damage (double to 2nd level or higher spells).") {
-        //                    Id = QEffectId.Weak,
-        //                    BonusToAttackRolls = (effect, action, defender) => action.HasTrait(Trait.Attack) ? new Bonus(val, BonusType.Untyped, name) : (Bonus)null,
-        //                    BonusToSpellSaveDCs = effect => new Bonus(val, BonusType.Untyped, name),
-        //                    BonusToDamage = (effect, aggressiveAction, defender) => {
-        //                        if (aggressiveAction.HasTrait(Trait.Spell) && !aggressiveAction.HasTrait(Trait.Cantrip) && aggressiveAction.SpellLevel >= 2)
-        //                            return new Bonus(2 * val, BonusType.Untyped, name);
-        //                        return aggressiveAction.HasTrait(Trait.Spell) ? new Bonus(val, BonusType.Untyped, name) : (Bonus)null;
-        //                    }
-        //                };
-        //            }
-        //            return nEffect;
-        //        }
-        //    };
-        //}
-
         //public static QEffect BlocksLoS() {
         //    return new QEffect() {
         //        StateCheck = self => {

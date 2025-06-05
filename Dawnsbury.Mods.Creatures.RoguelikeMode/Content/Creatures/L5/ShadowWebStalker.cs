@@ -72,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     }
                 }
             })
-            .AddQEffect(CommonQEffects.ShadowWebSicknessAttack(20, "fang"))
+            .AddQEffect(CommonQEffects.ShadowWebSicknessAttack(16, "fang"))
             .Builder
             .AddNaturalWeapon(NaturalWeaponKind.Fang, 17, [Trait.Finesse, Trait.AddsInjuryPoison], "2d6+3", DamageKind.Piercing)
             .AddMainAction(you => {

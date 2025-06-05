@@ -82,6 +82,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration NightmareWeaver = new ModdedIllustration("RoguelikeModeAssets/Enemies/NightmareWeaver.png");
         internal static ModdedIllustration Drowhuntress = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowHuntress.png");
         internal static ModdedIllustration WebWarden = new ModdedIllustration("RoguelikeModeAssets/Enemies/WebWarden.png");
+        internal static ModdedIllustration DrowBlademaster = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowBlademaster.png");
 
         // Bears for Archanophobia Mode
         internal static ModdedIllustration Bear1 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
@@ -130,6 +131,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Kama = new ModdedIllustration("RoguelikeModeAssets/Items/Kama.png");
         internal static ModdedIllustration Kusarigama = new ModdedIllustration("RoguelikeModeAssets/Items/Kusarigama.png");
         internal static ModdedIllustration FightingFan = new ModdedIllustration("RoguelikeModeAssets/Items/FightingFan.png");
+        internal static ModdedIllustration MedusaEyeChoker = new ModdedIllustration("RoguelikeModeAssets/Items/MedusaEyeAmulet.png");
+        internal static ModdedIllustration SceptreOfPandemonium = new ModdedIllustration("RoguelikeModeAssets/Items/SceptreOfPandemonium.png");
+        internal static ModdedIllustration SerpentineBow = new ModdedIllustration("RoguelikeModeAssets/Items/SerpentineBow.png");
+        internal static ModdedIllustration RuneOfPandemonium = new ModdedIllustration("RoguelikeModeAssets/Items/RuneOfPandemonium.png");
+        internal static ModdedIllustration RingOfMonsters = new ModdedIllustration("RoguelikeModeAssets/Items/RingOfMonsters.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");

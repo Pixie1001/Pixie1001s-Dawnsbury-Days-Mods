@@ -49,9 +49,11 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using System.Text.RegularExpressions;
+using Dawnsbury.Display.Text;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
+using static HarmonyLib.Code;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class CustomItems {
@@ -230,8 +232,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 }
                                 return 0f;
                             })) {
-                                ShortDescription = "Stride up to twice your speed, then strike. If you travelled at least 20-feet and only in a straight line, the strike deals +1d6 damage."
-                            }
+                            ShortDescription = "Stride up to twice your speed, then strike. If you travelled at least 20-feet and only in a straight line, the strike deals +1d6 damage."
+                        }
                         .WithActionCost(2)
                         .WithSoundEffect(SfxName.Footsteps)
                         .WithEffectOnSelf(async (action, self) => {
@@ -461,6 +463,57 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return item;
         });
 
+        public static ItemName SceptreOfPandemonium { get; } = ModManager.RegisterNewItemIntoTheShop("SceptreOfPandemonium", itemName => {
+            Item item = new Item(itemName, Illustrations.SceptreOfPandemonium, "sceptre of pandemonium", 7, 360,
+                new Trait[] { Trait.Magical, Trait.WizardWeapon, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
+            .WithDescription("{i}...{/i}\n\n" +
+            $"Once per encounter, the rod can be used to cast {AllSpells.CreateModernSpellTemplate(SpellId.Confusion, Trait.Innate).ToSpellLink()} with a DC of 21 or the wielder's spell save DC if its higher.");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    ProvideStrikeModifier = (SoP) => {
+                        if (SoP != weapon || weapon.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
+                            return null;
+                        }
+
+                        var spell = AllSpells.CreateModernSpellTemplate(SpellId.Confusion, Trait.Innate, 4).CombatActionSpell;
+                        spell.WithSpellSavingThrow(null);
+                        spell.WithSavingThrow(new SavingThrow(Defense.Will, Math.Max(21, wielder.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC() ?? 0)));
+                        spell.Owner = wielder;
+                        spell.Item = weapon;
+                        spell.WithEffectOnSelf(async (action, user) => {
+                            action.Item.UseUp();
+                        });
+                        return spell;
+                    },
+                    EndOfCombat = async (self, win) => {
+                        item.RevertUseUp();
+                    }
+                });
+            };
+            return item;
+        });
+
+        public static ItemName RunestoneOfPandemomium { get; } = ModManager.RegisterNewItemIntoTheShop("RunestoneOfPandemomium", itemName => {
+            Item item = new Item(itemName, Illustrations.RuneOfPandemonium, "runestone of {i}pandemonium{/i}", 7, 360,
+               [Trait.Runestone, Trait.Enchantment, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
+            .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
+            .WithRuneProperties(new RuneProperties("pandemonium", RuneKind.WeaponProperty, "This ever shifting runestone, swirling in maddening ever tessellating patterns.",
+            "The weapon deals an extra 1d4 mental damage, and confuses the target until the end of their next turn on a critical hit.", rune => {
+                if (rune.WeaponProperties != null) {
+                    rune.WeaponProperties.WithAdditionalDamage("1d4", DamageKind.Mental).WithOnTarget(async (spell, caster, target, result) => {
+                        if (result == CheckResult.CriticalSuccess) {
+                            target.AddQEffect(QEffect.Confused(false, spell).WithExpirationAtEndOfOwnerTurn());
+                        }
+                    });
+                }
+            }))
+            ;
+            return item;
+        });
+
         public static ItemName StaffOfSpellPenetration { get; } = ModManager.RegisterNewItemIntoTheShop("Staff of Spell Penetration", itemName => {
             Item item = new Item(itemName, Illustrations.StaffOfSpellPenetration, "staff of spell penetration", 2, 40,
                 new Trait[] { Trait.Magical, Trait.Club, Trait.Simple, Trait.WizardWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.CasterWeapon, ModTraits.Roguelike })
@@ -477,7 +530,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             };
             return item;
         });
-
 
         //new Item(itemName, illustration, name, (int) level * 2 - 1, GetWandPrice((int) level * 2 - 1), traits.ToArray())
         //   .WithDescription(desc)
@@ -599,6 +651,56 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         }
                     }
                 });
+            };
+
+            return item;
+        });
+
+        public static ItemName SerpentineBow { get; } = ModManager.RegisterNewItemIntoTheShop("Serpentine Bow", itemName => {
+            Item item = new Item(itemName, Illustrations.SerpentineBow, "serpentine bow", 3, 25,
+                new Trait[] { Trait.Magical, Trait.Propulsive, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+            .WithMainTrait(Trait.CompositeShortbow)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
+            .WithRangeIncrement(12))
+            .WithDescription("{i}This lethal bow is engraved into the shape of a pair of two entwined brass serpents, that seem to lend a portion of their potency venom to each arrow nocked within it.{/i}\n\n...");
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(CommonQEffects.SerpentVenomAttack(wielder.ClassOrSpellDC() - wielder.Level, weapon.Name).WithExpirationEphemeral());
+            };
+
+            return item;
+        });
+
+        public static ItemName MedusaEyeChoker { get; } = ModManager.RegisterNewItemIntoTheShop("MedusaEyeChoker", itemName => {
+            Item item = new Item(itemName, Illustrations.MedusaEyeChoker, "medusa eye choker", 7, 360,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Transmutation, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithWornAt(Trait.Necklace)
+            .WithOncePerDayWhenWornAction((choker, wearer) => {
+                return new CombatAction(wearer, choker.Illustration, "Petrify", [Trait.Arcane, Trait.Transmutation, Trait.Visual, Trait.Manipulate, Trait.InflictsSlow, Trait.Incapacitation, Trait.Basic],
+                    "{b}Frequency{/b} Once per day\n{b}Range{/b} 30 feet\n{b}Target{/b} 1 creature\n{b}Saving throw{/b} Fortitude\n\n" +
+                    "You affix the gaze of the Medusa Eye Choker upon an enemy, turning their flesh to stone." +
+                    S.FourDegreesOfSuccess("The target is unaffected.", "The target is slowed 1 for 1 round", "The target is slowed 1 for 1 minute.", "The target is permanently petrified."), Target.Ranged(6))
+                .WithSoundEffect(SfxName.Stoneskin)
+                .WithSavingThrow(new SavingThrow(Defense.Fortitude, wearer.ClassOrSpellDC()))
+                .WithEffectOnEachTarget(async (action, user, defender, result) => {
+                    if (result == CheckResult.Success) {
+                        defender.AddQEffect(QEffect.Slowed(1).WithExpirationAtEndOfOwnerTurn());
+                    } else if (result == CheckResult.Failure) {
+                        defender.AddQEffect(QEffect.Slowed(1).WithExpirationNever());
+                    } else if (result == CheckResult.CriticalFailure) {
+                        Basilisk.Petrify(defender);
+                        defender.AddQEffect(CommonQEffects.Hazard());
+                    }
+                })
+                ;
+            })
+            .WithDescription("{i}Forged from a trophy from your encounter with the deadly medusa, that you might turn a portion of her cursed power upon your enemies.{/i}\n\nYou may activate the choker once per day to Petrify {icon:Action} a creature.\n\n" +
+            "{b}Frequency{/b} Once per day\n{b}Range{/b} 30 feet\n{b}Target{/b} 1 creature\n{b}Saving throw{/b} Fortitude\n\n" +
+            "You affix the gaze of the Medusa Eye Choker upon an enemy, turning their flesh to stone." +
+            S.FourDegreesOfSuccess("The target is unaffected.", "The target is slowed 1 for 1 round", "The target is slowed 1 for 1 minute.", "The target is permanently petrified."));
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(CommonQEffects.SerpentVenomAttack(wielder.ClassOrSpellDC() - wielder.Level, weapon.Name).WithExpirationEphemeral());
             };
 
             return item;
@@ -921,7 +1023,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName GreaterRobesOfTheWarWizard { get; } = ModManager.RegisterNewItemIntoTheShop("Greater Robes of the War Wizard", itemName => {
-            return new Item(itemName, Illustrations.RobesOfTheWarWizard, "robes of the war wizard, greater", 4, 90,
+            return new Item(itemName, Illustrations.RobesOfTheWarWizard, "greater robes of the war wizard", 4, 90,
                 new Trait[] { Trait.Magical, Trait.UnarmoredDefense, Trait.Armor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
             .WithDescription("{i}This bold red robe is enchanted to collect neither sweat, dust nor grime.{/i}\n\nThe wearer of this armour gains a +3 damage bonus per spell level to non-cantrip cone and emanation spells used against creatures within 15-feet of them.\n\nIn addition, they gain resistance 2 to acid, cold, electricity and fire damage.");
@@ -945,7 +1047,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return new Item(itemName, Illustrations.SpellbanePlate, "spellbane plate", 3, 70,
                 new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
-            .WithDescription("{i}This suit of armour is forged from a strange, mercurial alloy - perhaps a lost relic forged by dwarven smithes during the height of the starborn invasion.{/i}"+
+            .WithDescription("{i}This suit of armour is forged from a strange, mercurial alloy - perhaps a lost relic forged by dwarven smithes during the height of the starborn invasion.{/i}" +
             "\n\nWhile wearing this suit of armour, you gain a +1 item bonus to all spell saving throws, but cannot cast spells of your own.");
         });
 
@@ -1251,7 +1353,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         });
 
         public static ItemName GreaterDeathDrinkerAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("GreaterDeathDrinkerAmulet", itemName => {
-            return new Item(itemName, Illustrations.SpiritBeaconAmulet, "death drinker amulet, greater", 4, 60,
+            return new Item(itemName, Illustrations.SpiritBeaconAmulet, "greater death drinker amulet", 4, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
             .WithDescription("{i}This eerie necklace seems to feed off necrotic energy, storing it within its amethyst gems for some unknowable purpose.{/i}\n\n" +
@@ -1296,8 +1398,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             "While wearing this ring, you gain a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
                 return new CombatAction(user, Illustrations.DemonBoundRing, "Unleash Demon", new Trait[] { Trait.Conjuration, Trait.Magical, Trait.Manipulate },
-                    "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own.\n\n" +
-                    "At the start of your turn, there's a 25% chance that the demon will go slip from your control, turning against the party." +
+                    "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nYou summon a Wrecker Demon whose level is equal to your own (maximum 6).\n\n" +
+                    "At the start of your turn, there's a 25% chance that the demon will slip from your control, turning against the party." +
                     "\n\nImmediately when you cast this spell and then once each turn when you Sustain this spell, you can take two actions as " +
                     "the summoner creature. If you don't Sustain this spell during a turn, the summoned creature will go away." +
                     "\n\nOnce rogue however, the demon can no longer be banished in this way and will persist even after you fall unconscious.",
@@ -1305,11 +1407,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 .WithActionCost(3)
                 .WithSoundEffect(SfxName.DeepNecromancy)
                 .WithEffectOnEachTile(async (action, caster, tiles) => {
-                    Creature demon = MonsterStatBlocks.CreateAbrikandilu();
+                    Creature demon = MonsterStatBlocks.MonsterExemplarsByName["Abrikandilu"];
                     if (caster.Level <= 2) {
                         demon.ApplyWeakAdjustments(false, true);
                     } else if (caster.Level == 3) {
                         demon.ApplyWeakAdjustments(false);
+                    }
+                    if (caster.Level == 5) {
+                        demon.ApplyEliteAdjustments(false);
+                    } else if (caster.Level >= 6) {
+                        demon.ApplyEliteAdjustments(true);
                     }
                     demon.AddQEffect(new QEffect("Bound Demon", $"This demon is bound to {caster.Name}'s will. At the start of its master's turn, there's a 25% chance that it will break free of their control and turn against the party.") {
                         Id = QEffectId.SummonedBy,
@@ -1364,7 +1471,136 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         },
                         WhenMonsterDies = delegate (QEffect casterQf) {
                             if (!demon.DeathScheduledForNextStateCheck) {
+                                demon.DeathScheduledForNextStateCheck = true;
+                            }
+                            casterQf.Owner.Battle.GameLoop.NewStateCheckRequired = true;
+                        }
+                    };
+                    caster.AddQEffect(sustainedeffect);
+                    caster.AddQEffect(new QEffect("Sustaining " + action.Name, "You're sustaining an effect and it will expire if you don't sustain it every turn.", ExpirationCondition.Never, caster, demon.Illustration) {
+                        Id = QEffectId.Sustaining,
+                        Tag = sustainedeffect,
+                        DoNotShowUpOverhead = true,
+                        ProvideContextualAction = (QEffect qf) => (!sustainedeffect.CannotExpireThisTurn) ? new ActionPossibility(new CombatAction(qf.Owner, action.Illustration, "Sustain " + action.Name, new Trait[3]
+                        {
+                            Trait.Concentrate,
+                            Trait.SustainASpell,
+                            Trait.Basic
+                        }, "The duration of " + action.Name + " continues until the end of your next turn.\n\nThe summoned creature takes its turn when you sustain the spell. You choose what actions it takes.",
+                        Target.Self())
+                        .WithEffectOnSelf(async self => {
+                            sustainedeffect.CannotExpireThisTurn = true;
+                            demon.Actions.ResetToFull();
+                            await CommonSpellEffects.YourMinionActs(demon);
+
+                        })).WithPossibilityGroup("Maintain an activity") : null,
+                        StateCheck = delegate (QEffect qf) {
+                            if (sustainedeffect.Owner.Destroyed || !sustainedeffect.Owner.HasEffect(sustainedeffect) || demon.DeathScheduledForNextStateCheck) {
+                                qf.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        }
+                    });
+
+                    caster.Battle.SpawnCreature(demon, caster.OwningFaction, tiles[0]);
+                    item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                    demon.Actions.ResetToFull();
+                    await CommonSpellEffects.YourMinionActs(demon);
+                })
+                ;
+            }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
+            .WithPermanentQEffectWhenWorn((qfCoA, item) => {
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Arcana ? new Bonus(1, BonusType.Item, "Demon Bound Ring") : null;
+            });
+        });
+
+        public static ItemName GreaterDemonBoundRing { get; } = ModManager.RegisterNewItemIntoTheShop("GreaterDemonBoundRing", itemName => {
+            return new Item(itemName, Illustrations.DemonBoundRing, "greater demon bound ring", 7, 360,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
+            "While wearing this ring, you gain a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
+            .WithItemAction((item, user) => {
+                return new CombatAction(user, Illustrations.DemonBoundRing, "Unleash Demon", new Trait[] { Trait.Conjuration, Trait.Manipulate },
+                    "{b}Frequency{/b} once per day\n\n{b}Range{/b} 30 feet\n\nYou summon a random demon bound within the ring whose level is equal to your own.\n\n" +
+                    "At the start of your turn, there's a 15% chance that the demon will slip from your control, turning against the party." +
+                    "\n\nImmediately when you cast this spell and then once each turn when you Sustain this spell, you can take two actions as " +
+                    "the summoner creature. If you don't Sustain this spell during a turn, the summoned creature will go away." +
+                    "\n\nOnce rogue however, the demon can no longer be banished in this way and will persist even after you fall unconscious.",
+                    Target.RangedEmptyTileForSummoning(6))
+                .WithActionCost(3)
+                .WithSoundEffect(SfxName.DeepNecromancy)
+                .WithEffectOnEachTile(async (action, caster, tiles) => {
+
+                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 1, caster.Level + 2) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+
+                    if (list.Count() <= 0) {
+                        caster.Occupies.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
+                        return;
+                    }
+
+                    Creature demon = MonsterStatBlocks.MonsterFactories[list.GetRandom()!.Name](caster.Battle.Encounter, tiles[0]);
+
+                    if (demon.Level - caster.Level >= 2) {
+                        demon.ApplyWeakAdjustments(false, true);
+                    } else if (demon.Level - caster.Level == 1) {
+                        demon.ApplyWeakAdjustments(false);
+                    } else if (demon.Level - caster.Level == -1) {
+                        demon.ApplyEliteAdjustments();
+                    } else if (demon.Level - caster.Level == -2) {
+                        demon.ApplyEliteAdjustments(true);
+                    }
+                    demon.AddQEffect(new QEffect("Bound Demon", $"This demon is bound to {caster.Name}'s will. At the start of its master's turn, there's a 25% chance that it will break free of their control and turn against the party.") {
+                        Id = QEffectId.SummonedBy,
+                        Source = caster,
+                        StateCheck = dominateQf => {
+                            if (dominateQf.Source == null)
+                                return;
+
+                            if (dominateQf.Source.HasEffect(QEffectId.Controlled))
+                                dominateQf.Owner.AddQEffect(new QEffect() { Id = QEffectId.Controlled }.WithExpirationEphemeral());
+
+                            dominateQf.Owner.OwningFaction = dominateQf.Source.OwningFaction;
+                        }
+                    });
+                    demon.EntersInitiativeOrder = false;
+                    demon.Traits.Add(Trait.Minion);
+                    QEffect sustainedeffect = new QEffect {
+                        Id = QEffectId.SummonMonster,
+                        CannotExpireThisTurn = true,
+                        Source = caster,
+                        ExpiresAt = ExpirationCondition.ExpiresAtEndOfSourcesTurn,
+                        CountsAsBeneficialToSource = true,
+                        StateCheck = self => {
+                            if (self.Owner.HasEffect(QEffectId.Confused)) {
+                                demon.AddQEffect(QEffect.Confused(false, CombatAction.CreateSimple(self.Owner, "Summoning Feedback")).WithExpirationEphemeral());
+                            }
+                        },
+                        StartOfYourPrimaryTurn = async (self, creature) => {
+                            int roll = R.NextD20();
+                            if (roll <= 3) {
+                                demon.Traits.Remove(Trait.Minion);
+                                self.WhenExpires = null;
+                                demon.OwningFaction = demon.Battle.Enemy;
+                                demon.EntersInitiativeOrder = true;
+                                demon.RecalculateLandSpeedAndInitiative();
+                                demon.Initiative = DiceFormula.FromText("1d20+" + demon.InitiativeBonus).Roll().Item1;
+                                int index = demon.Battle.InitiativeOrder.FindLastIndex((Creature cr) => cr.Initiative > demon.Initiative) + 1;
+                                if (demon.Battle.GameLoop.InitialInitiativeOrderIsSet) {
+                                    demon.Battle.Log(demon?.ToString() + " rolls for initiative: " + demon.Initiative);
+                                }
+
+                                demon.Battle.InitiativeOrder.Insert(index, demon);
+                                demon.Occupies.Overhead("*breaks free*", Color.DarkRed, $"{caster.Name}'s summoned {demon.Name} breaks free from their control!");
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        },
+                        WhenExpires = delegate {
+                            if (!demon.DeathScheduledForNextStateCheck) {
                                 demon.Occupies.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
+                                demon.DeathScheduledForNextStateCheck = true;
+                            }
+                        },
+                        WhenMonsterDies = delegate (QEffect casterQf) {
+                            if (!demon.DeathScheduledForNextStateCheck) {
                                 demon.DeathScheduledForNextStateCheck = true;
                             }
                             casterQf.Owner.Battle.GameLoop.NewStateCheckRequired = true;
@@ -1387,12 +1623,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             // await CommonSpellEffects.YourMinionActs(demon);
                             demon.Actions.ResetToFull();
                             await CommonSpellEffects.YourMinionActs(demon);
-                            //TBattle battle = demon.Battle;
-                            //Creature oldActiveCreature = battle.ActiveCreature;
-                            //battle.ActiveCreature = demon;
-                            //battle.SmartCenterIfNotVisible?.Invoke(demon.Occupies);
-                            //await demon.Battle.GameLoop.MinionMainPhase(demon);
-                            //battle.ActiveCreature = oldActiveCreature;
 
                         })).WithPossibilityGroup("Maintain an activity") : null,
                         StateCheck = delegate (QEffect qf) {
@@ -1544,7 +1774,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     QEffect transform = new QEffect() {
                         ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn,
                         PreventTakingAction = action => action.HasTrait(Trait.Spell) ? "Cannot cast spells whilst transformed." : null,
-                        BonusToAttackRolls = (self, action, target) => action.HasTrait(Trait.BattleformAttack) ? new Bonus(2, BonusType.Status, "Shifter Furs"): null,
+                        BonusToAttackRolls = (self, action, target) => action.HasTrait(Trait.BattleformAttack) ? new Bonus(2, BonusType.Status, "Shifter Furs") : null,
                         WhenExpires = self => {
                             foreach (Item obj in caster.HeldItems.ToList<Item>())
                                 caster.DropItem(obj);
@@ -1714,7 +1944,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -1834,7 +2064,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         });
                     }
                 });
-                
+
                 if (creature.BaseArmor == null) {
                     return;
                 }
@@ -1878,8 +2108,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             SpellVariant? varient = action.ChosenVariant;
                             DependsOnActionsSpentTarget? vas = action.Target is DependsOnActionsSpentTarget ? (DependsOnActionsSpentTarget)action.Target : null;
 
-                            if (vas != null && !( (action.ActuallySpentActions == 1 && (vas.IfOneAction is EmanationTarget || vas.IfOneAction is ConeAreaTarget)) || (action.ActuallySpentActions == 2 && (vas.IfTwoActions is EmanationTarget || vas.IfTwoActions is ConeAreaTarget))
-                            || (action.ActuallySpentActions == 3 && (vas.IfThreeActions is EmanationTarget || vas.IfThreeActions is ConeAreaTarget))) ) {
+                            if (vas != null && !((action.ActuallySpentActions == 1 && (vas.IfOneAction is EmanationTarget || vas.IfOneAction is ConeAreaTarget)) || (action.ActuallySpentActions == 2 && (vas.IfTwoActions is EmanationTarget || vas.IfTwoActions is ConeAreaTarget))
+                            || (action.ActuallySpentActions == 3 && (vas.IfThreeActions is EmanationTarget || vas.IfThreeActions is ConeAreaTarget)))) {
                                 return null;
                             } else if (vas == null && varient != null && !(varient.TargetInThisVariant is EmanationTarget || varient.TargetInThisVariant is ConeAreaTarget)) {
                                 return null;
@@ -1904,7 +2134,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
                             if (!action.HasTrait(Trait.Spell) || action.HasTrait(Trait.Cantrip) || self.Owner.DistanceTo(target) > 3) {
                                 return null;
-                            } 
+                            }
 
                             SpellVariant? varient = action.ChosenVariant;
                             DependsOnActionsSpentTarget? vas = action.Target is DependsOnActionsSpentTarget ? (DependsOnActionsSpentTarget)action.Target : null;
@@ -2135,7 +2365,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
         }
 
-        internal static ItemName CreateWand(SpellId spellId, int? level, bool baseGame=true) {
+        internal static ItemName CreateWand(SpellId spellId, int? level, bool baseGame = true) {
             Spell baseSpell = AllSpells.TemplateSpells.GetValueOrDefault(spellId);
 
             if (level == null || level < baseSpell.MinimumSpellLevel) {

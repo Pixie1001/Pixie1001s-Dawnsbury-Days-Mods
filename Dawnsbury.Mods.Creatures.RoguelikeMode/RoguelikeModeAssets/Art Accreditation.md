@@ -20,6 +20,7 @@
 	<li>WhisperMail.png</li>
 	<li>SpellbanePlate.png</li>
 	<li>ThrowersBandolier.png</li>
+	<li>MedusaEyeAmulet.png</li>
 </ul>
 
 ### YusufArtun
@@ -34,6 +35,8 @@
 	<li>StaffOfSpellPenetration.png</li>
 	<li>Shuriken.png</li>
 	<li>HookSword.png</li>
+	<li>SceptreOfPandemonium.png</li>
+	<li>SerpentineBow.png</li>
 </ul>
 
 ### Rexard
@@ -60,6 +63,7 @@
 	<li>FightingFan.png by smashingstocks - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/hand-fan_8635537?term=hand+fan&page=1&position=16&origin=search&related_id=8635537)</li>
 	<li>spellbook.png by Smashicons - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/spell-book_10580223?related_id=10580223)</li>
 	<li>pentagram.png by Good Ware - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/pentagram_6766762?term=pentagram&related_id=6766762)</li>
+	<li>RuneOfPandemonium.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/rune_8381636?term=rune&page=2&position=1&origin=search&related_id=8381636)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -141,6 +145,7 @@
 	<li>DrowHuntress</li>
 	<li>WebWarden</li>
 	<li>DrowArachnomancer</li>
+	<li>DrowBlademaster</li>
 </ul>
 
 ## Volunteer Contributions

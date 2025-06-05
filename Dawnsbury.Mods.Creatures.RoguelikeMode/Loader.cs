@@ -108,6 +108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             CreatureList.LoadCreatures();
             CreatureList.LoadObjects();
             CreatureList.LoadTiles();
+            CreatureList.ModifyCreatures();
             LTEs.LoadLongTermEffects();
             //LTEs.LoadBoons();
             //ScriptHooks.LoadHooks();
