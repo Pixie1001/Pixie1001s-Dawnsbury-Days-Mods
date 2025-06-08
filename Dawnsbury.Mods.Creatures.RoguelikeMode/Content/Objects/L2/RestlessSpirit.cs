@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             int radius = 1;
             QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
-            Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()) {
+            Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object, ModTraits.Haunt }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()) {
                 SpawnAsGaia = true
             }
             .WithTactics(Tactic.DoNothing)
@@ -74,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                         caster.Battle.RemoveCreatureFromGame(self.Owner);
                                                     }
                                                 }),
-                                                (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
+                                                (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation, ModTraits.Haunt },
                                                 "{b}Range{/b} 20 feet\n{b}Target{/b} 1 living creature\n{b}Saving throw{/b} Will\n\nYou direct the spirit to haunt an enemy, using your Occultism DC." + S.FourDegreesOfSuccess(
                                                 "You take 1d6 negative damage and become frightened 2.",
                                                 "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
@@ -177,7 +177,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     if (section.PossibilitySectionId != PossibilitySectionId.InvisibleActions || self.Owner.Skills.Get(Skill.Occultism) <= 6) {
                         return null;
                     }
-                    ActionPossibility ap = (ActionPossibility)new CombatAction(self.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation },
+                    ActionPossibility ap = (ActionPossibility)new CombatAction(self.Owner, Illustrations.RestlessSpirit, "Command Spirits", new Trait[] { Trait.Manipulate, Trait.Auditory, Trait.Basic, Trait.Incapacitation, ModTraits.Haunt },
                     "{b}Range{/b} 20 feet\n{b}Target{/b} 1 living creature\n{b}Saving throw{/b} Will\n\nYou direct the spirit to haunt an enemy, using your Occultism DC." + S.FourDegreesOfSuccess("You take 1d6 negative damage and become frightened 2.",
                     "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
                     "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),

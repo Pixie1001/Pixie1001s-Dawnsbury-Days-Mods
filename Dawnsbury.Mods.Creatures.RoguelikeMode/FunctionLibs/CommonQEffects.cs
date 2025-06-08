@@ -500,10 +500,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     .WithProjectileCone(IllustrationName.Web, 5, ProjectileKind.Cone)
                     .WithSoundEffect(SfxName.AeroBlade)
                     .WithActionCost(1)
-                    .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(new Item(IllustrationName.Web, "Web", new Trait[] { Trait.Attack, Trait.Unarmed, Trait.Finesse, Trait.Ranged })), Checks.DefenseDC(Defense.AC)))
+                    .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(new Item(IllustrationName.Web, "Web", [Trait.Attack, Trait.Unarmed, Trait.Finesse, Trait.Ranged])), Checks.DefenseDC(Defense.AC)))
                     .WithGoodnessAgainstEnemy((targeting, attacker, defender) => {
 
-                        if (defender.QEffects.FirstOrDefault(qf => qf.Name.StartsWith("Webbed (")) != null || self.UsedThisTurn) {
+                        if (defender.QEffects.FirstOrDefault(qf => qf.Name != null && qf.Name.StartsWith("Webbed (")) != null || self.UsedThisTurn) {
                             return int.MinValue;
                         }
 

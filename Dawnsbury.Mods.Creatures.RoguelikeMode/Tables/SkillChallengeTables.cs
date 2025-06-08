@@ -379,7 +379,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 SCOption opt3 = GetBestPartyMember(battle, level, -4, Skill.Arcana, Skill.Occultism);
             
                 List<string> choices = new List<string>() {
-                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they might be able to nurse the creature back to health",
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they might be able to nurse the creature back to health.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests beseeching the unicorn to use the last of its strength to aid the party with a blessing.",
                     $"{opt3.printInfoTag()} With an uneasy glance, {opt3.Nominee.Name} apprehensively mentions that the dying creature's horn could be used to forge a powerful Alicorn weapon."
                 };
@@ -435,7 +435,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 $"{opt3.Nominee} uses the unicorn's carcass to forge...",
                                 $"An easily handled Alicorn Dagger. {Illustrations.AlicornDagger.IllustrationAsIconString}", $"A stout Alicorn Pike for the martially inclined. {Illustrations.AlicornPike.IllustrationAsIconString}"
                             );
-                            await battle.Cinematics.NarratorLineAsync($"The party gains an Alicorn {(chosenWeapon.Index == 0 ? "Dagger" : "Pike")}, but {opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until they return to turn.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The party gains an Alicorn {(chosenWeapon.Index == 0 ? "Dagger" : "Pike")}, but {opt3.Nominee.Name} was inflicted by a Unicorn's Curse, reducing their max HP by 5, and their saving throws by 1 until they return to town.", null);
                             Item AlicornWeapon;
                             if (chosenWeapon.Index == 0) {
                                 AlicornWeapon = Items.CreateNew(CustomItems.AlicornDagger);

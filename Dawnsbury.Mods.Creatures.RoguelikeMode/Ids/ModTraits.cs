@@ -64,6 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait Parry = ModManager.RegisterTrait("RL_Parry", new TraitProperties("Parry", true, "This weapon can be used defensively to block attacks."));
         internal static Trait Twin = ModManager.RegisterTrait("RL_Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
         internal static Trait Monstrous = ModManager.RegisterTrait("RL_Monstrous", new TraitProperties("Monstrous", false));
+        internal static Trait Haunt = ModManager.RegisterTrait("RL_Haunt", new TraitProperties("Haunt", true));
 
         // Mutator Traits
         internal static Trait UniversalMutator { get; } = ModManager.RegisterTrait("UniversalMutator", new TraitProperties("UniversalMutator", false));
