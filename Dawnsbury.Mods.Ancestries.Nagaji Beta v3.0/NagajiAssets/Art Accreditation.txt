@@ -2,4 +2,6 @@ Whip.png: Origional art drawn by me.
 
 BlightBomb.png: Origional image has been altered. Created by Unity Asset Store user 'Sahil Gandhi'. Please support the origional artist here: https://assetstore.unity.com/packages/2d/gui/icons/2d-items-set-handpainted-210729
 
+EnvenomStrike.png and SerpentcoilSlam.png (altered): Paid assets created by gamedevmarket.net user 'Rexard'. Please support the origional artist here: https://www.gamedevmarket.net/member/rexard
+
 RaiseNeck.png and all the good looking custom portraits found in the Steamworkshop mod: Origional image has been altered. Artwork by Otoniel Denova, and commissioned as offical Dawnsbury Days artwork.

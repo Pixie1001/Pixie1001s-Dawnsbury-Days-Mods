@@ -120,18 +120,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         List<Item> unarmedAttacks = new List<Item>() { self.Owner.UnarmedStrike };
                         self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike));
                         foreach (Item weapon in unarmedAttacks) {
-                            weapon.WeaponProperties.DamageDieCount = self.Owner.UnarmedStrike.WeaponProperties.DamageDieCount;
-                            weapon.WeaponProperties.ItemBonus = self.Owner.UnarmedStrike.WeaponProperties.ItemBonus;
+                            weapon.WeaponProperties!.DamageDieCount = self.Owner.UnarmedStrike.WeaponProperties.DamageDieCount;
+                            weapon.WeaponProperties!.ItemBonus = self.Owner.UnarmedStrike.WeaponProperties.ItemBonus;
                         }
                     }
                 },
-                BonusToSkillChecks = (Func<Skill, CombatAction, Creature?, Bonus?>)((skill, action, creature) => {
+                BonusToSkillChecks = (skill, action, creature) => {
                     if (action.Owner.BaseName == "Pseudocreature") {
                         return null;
                     }
 
-                    Item naturalWeapon1 = action.Owner.UnarmedStrike;
-                    Item naturalWeapon2 = action.Owner.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee)?.AdditionalUnarmedStrike;
+                    Item naturalWeapon1 = action.Owner!.UnarmedStrike;
+                    Item? naturalWeapon2 = action.Owner?.QEffects?.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf?.AdditionalUnarmedStrike?.WeaponProperties?.Melee == true)?.AdditionalUnarmedStrike;
 
                     Trait[] traits = naturalWeapon2 == null ? naturalWeapon1.Traits.ToArray() : naturalWeapon1.Traits.Concat(naturalWeapon2.Traits).ToArray();
 
@@ -155,7 +155,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return new Bonus(naturalWeapon1.WeaponProperties.ItemBonus, BonusType.Item, $"{action.Name} Trait");
                     }
                     return null;
-                }),
+                },
             };
         }
 

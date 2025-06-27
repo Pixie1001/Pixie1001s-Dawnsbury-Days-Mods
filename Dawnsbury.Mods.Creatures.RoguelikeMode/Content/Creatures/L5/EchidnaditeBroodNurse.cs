@@ -91,7 +91,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 qfTech.AfterYouAreHealed = async (self, action, amount) => {
                     if (action?.Owner?.CreatureId == CreatureIds.EchidnaditeBroodNurse && action.Name != "Brood Nurse") {
                         self.Owner.AddQEffect(new QEffect("Divine Hide", "You gain a +2 bonus to AC.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, action.Owner, IllustrationName.MagicHide) {
-                            BonusToDefenses = (thisQf, _, def) => def == Defense.AC ? new Bonus(2, BonusType.Untyped, thisQf.Name) : null,
+                            BonusToDefenses = (thisQf, _, def) => def == Defense.AC ? new Bonus(2, BonusType.Untyped, thisQf.Name ?? "") : null,
                             Key = "Divine Hide"
                         });
 

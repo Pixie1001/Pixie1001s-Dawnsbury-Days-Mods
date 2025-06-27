@@ -51,27 +51,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
-using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
 using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-//using System.Drawing;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
-using Dawnsbury.Campaign.LongTerm;
-using System.Runtime.Serialization;
-using System.Text.RegularExpressions;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
 
@@ -1592,7 +1575,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     if (!eidolon.Destroyed) {
                         Possibility output = (Possibility)(ActionPossibility)new CombatAction(self.Owner, illDismiss, "Dismiss Eidolon", new Trait[] {
-                            tSummoner, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Teleportation, spellList
+                            tSummoner, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Teleportation, Trait.Basic, spellList
                         },
                             "Dismiss your eidolon, protecting it and yourself from harm.", Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(qfSummonerBond)))
                         .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
@@ -1915,7 +1898,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     traits.Add(alignment[i]);
             }
             traits = traits.Concat(subclass.eidolonTraits).ToList();
-            //traits.Add(Trait.Conjuration);
             traits.Add(tEidolon);
 
             if (summoner.Battle.Encounter.Name == "24. Living Spell") {
@@ -1938,9 +1920,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
             }
 
-            return new Creature(illustration1, name1, (IList<Trait>)traits, level, perception, speed1, defenses, hp, abilities, skills)
+            return new Creature(illustration1, name1, traits, level, perception, speed1, defenses, hp, abilities, skills)
                 .WithProficiency(Trait.Unarmed, (level >= 5 ? (level >= 13 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
-                .WithProficiency(Trait.Spell, level < 9 ? Proficiency.Trained : level < 17 ? Proficiency.Master : Proficiency.Master )
+                .WithProficiency(Trait.Spell, level < 9 ? Proficiency.Trained : level < 17 ? Proficiency.Expert : Proficiency.Master )
                 .WithProficiency(Trait.UnarmoredDefense, (level >= 11 ? (level >= 19 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
                 .WithEntersInitiativeOrder(false)
                 //.WithSpellProficiencyBasedOnSpellAttack(summoner.ClassOrSpellDC() - 10, abilities1.Strength >= abilities1.Dexterity ? Ability.Strength : Ability.Dexterity)
@@ -2485,7 +2467,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 return output;
             } else {
                 Possibility tandemStrike = (Possibility)(ActionPossibility)new CombatAction(self, illTandemStrike, "Enable Tandem Strike",
-                new Trait[] { tSummoner, tTandem },
+                new Trait[] { tSummoner, tTandem, Trait.Basic },
                 "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next strike action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single strike action.",
                 (Target)Target.Self()) {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next strike action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single strike action."
@@ -2556,7 +2538,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 return output;
             } else {
                 Possibility tandemMove = (Possibility)(ActionPossibility)new CombatAction(self, illTandemMovement, "Enable Tandem Movement",
-                new Trait[] { tSummoner, tTandem },
+                new Trait[] { tSummoner, tTandem, Trait.Basic },
                 "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next stride action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single stride action.",
                 (Target)Target.Self()) {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next stride action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single stride action."
@@ -2626,7 +2608,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 return output;
             } else {
                 Possibility actTogether = (Possibility)(ActionPossibility)new CombatAction(self, illActTogether, "Enable Act Together",
-                new Trait[] { tSummoner, tTandem },
+                new Trait[] { tSummoner, tTandem, Trait.Basic },
                 "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action.",
                 (Target)Target.Self()) {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action."

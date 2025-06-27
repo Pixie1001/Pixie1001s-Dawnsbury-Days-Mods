@@ -1069,7 +1069,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                     tileQEffect2.ExpiresAt = ExpirationCondition.Immediately;
                                 }
                             };
-                            item7.QEffects.Add(tileQEffect2);
+                            item7.AddQEffect(tileQEffect2);
                         }
                     })),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.WintersClutch].Item2)!)

@@ -25,7 +25,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowBlademaster {
         public static Creature Create() {
-            int poisonDC = 17;
             return new Creature(Illustrations.DrowBlademaster, "Drow Blademaster", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.MeleeMutator },
                 5, 13, 6, new Defenses(22, 9, 15, 12), 75,
             new Abilities(3, 5, 3, 0, 2, 1), new Skills(acrobatics: 13, athletics: 10, stealth: 12, intimidation: 10, deception: 12))
@@ -109,7 +108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         },
                         Tag = (user.HeldItems[0], user.HeldItems[1]),
                         StateCheck = (qf) => {
-                            if (!qf.Owner.HeldItems.Contains(((ValueTuple<Item, Item>)qf.Tag).Item1) || !qf.Owner.HeldItems.Contains(((ValueTuple<Item, Item>)qf.Tag).Item2)) {
+                            if (!qf.Owner.HeldItems.Contains(((ValueTuple<Item, Item>)qf.Tag!).Item1) || !qf.Owner.HeldItems.Contains(((ValueTuple<Item, Item>)qf.Tag).Item2)) {
                                 qf.ExpiresAt = ExpirationCondition.Immediately;
                             }
                         }

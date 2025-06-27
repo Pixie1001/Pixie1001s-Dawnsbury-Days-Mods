@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy)) {
                             ShortDescription = "Deal 3d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. The Drow Renegade cannot use this attack again for 1d4 rounds."
                         }
-                        .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr.Level + cr.Abilities.Charisma + 4 + 10))
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, cr => cr != null ? cr.Level + cr.Abilities.Charisma + 4 + 10 : 10))
                         .WithActionCost(2)
                         .WithProjectileCone(IllustrationName.Moonbeam, 15, ProjectileKind.Cone)
                         .WithSoundEffect(SfxName.DivineLance)

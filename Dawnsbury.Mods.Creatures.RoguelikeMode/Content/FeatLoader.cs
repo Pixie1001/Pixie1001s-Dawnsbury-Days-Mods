@@ -75,6 +75,7 @@ using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using System.Xml.Linq;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Archetypes;
+using Dawnsbury.Core.StatBlocks.Monsters.L_1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -160,7 +161,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             && !((action.Item != null
                             && action.Item.HasTrait(Trait.MonkWeapon)
                             && action.Item.HasTrait(Trait.Bow)
-                            && !action.Item.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow }.Contains(action.Item.MainTrait))
+                            && !action.Item.HasTrait(Trait.Advanced)) || new Trait?[] { Trait.Longbow, Trait.Shortbow }.Contains(action?.Item?.MainTrait))
                             ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;  
 
                     })) {
@@ -223,7 +224,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 if (stance.Owner.QEffects.Any(qf => qf.Key == "Peafowl Stance Step Used")) return;
                                 if (action.HasTrait(Trait.Strike) && action.Item != null && action.Item.HasTrait(Trait.Sword) && action.Item.HasTrait(Trait.MonkWeapon) && !action.Item.HasTrait(Trait.TwoHanded)) {
                                     // Add a temp QF to limit use until next round
-                                    if (await stance.Owner.Battle.AskForConfirmation(stance.Owner, stance.Illustration, "Would you like to use your one free step action per round provided by Peafowl Stance?", "Yes")) {
+                                    if (await stance.Owner.Battle.AskForConfirmation(stance.Owner, stance.Illustration!, "Would you like to use your one free step action per round provided by Peafowl Stance?", "Yes")) {
                                         await stance.Owner.StepAsync("Peafowl Stance", false, true);
                                         stance.Owner.AddQEffect(new QEffect() { Key = "Peafowl Stance Step Used" }.WithExpirationAtStartOfOwnerTurn());
                                     }
@@ -278,7 +279,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             echidnaDiety.Traits.Add(ModTraits.Roguelike);
 
-            AllFeats.All.Find(ft => ft.FeatName == FeatName.Cleric).Subfeats.Add(echidnaDiety);
+            AllFeats.All.Find(ft => ft.FeatName == FeatName.Cleric)?.Subfeats?.Add(echidnaDiety);
             yield return echidnaDiety;
 
             yield return new Feat(PowerOfTheRatFiend, null, "", [], null);
@@ -435,7 +436,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         }
 
         internal static void SpawnRatFamiliar(Creature master) {
-            Creature rat = MonsterStatBlocks.CreateGiantRat();
+            Creature rat = GiantRat.CreateGiantRat();
             rat.MainName = master.MainName + "'s Rat Familiar";
             rat.Level = master.Level - 2;
             rat.MaxHP += (master.Level - 1) * 3;

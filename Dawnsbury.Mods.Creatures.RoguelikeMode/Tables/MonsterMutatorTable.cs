@@ -189,11 +189,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             mutators.Add(new MonsterArchetype("Impervious", [ModTraits.UniversalMutator], creature => {
                 QEffect effect = new QEffect(icon + "Impervious", "") {
+                    StateCheckLayer = 1,
                     StateCheck = (self) => {
                         self.Description = $"This creature cannot be harmed by mere physical attacks, granting them resistence {3 + self.Owner.Level} against bludgeoning, piercing and slashing damage.";
-                        self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, self.Owner.Level + 3);
-                        self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, self.Owner.Level + 3);
-                        self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Bludgeoning, self.Owner.Level + 3);
+
+                        DamageKind[] resList = [DamageKind.Bludgeoning, DamageKind.Slashing, DamageKind.Piercing];
+
+                        foreach (DamageKind dmgKind in resList) {
+                            Resistance? weakness = self.Owner.WeaknessAndResistance.Weaknesses.MaxBy(res => res.DamageKind == dmgKind ? res.Value : 0);
+                            int weakVal = weakness.DamageKind == dmgKind ? weakness.Value : 0;
+                            if (self.Owner.Level + 3 > weakVal)
+                                self.Owner.WeaknessAndResistance.AddResistance(dmgKind, self.Owner.Level + 3 - weakVal);
+                            else {
+                                self.Owner.WeaknessAndResistance.Weaknesses.Remove(weakness);
+                                self.Owner.WeaknessAndResistance.AddWeakness(dmgKind, weakVal - (self.Owner.Level + 3));
+                            }
+                        }
+
+                        //int slashingWeakness = self.Owner.WeaknessAndResistance.Weaknesses.MaxBy(res => res.DamageKind == DamageKind.Slashing ? res.Value : 0) ?
+
+                        //if (self.Owner.WeaknessAndResistance.Weaknesses.MaxBy(res => res.DamageKind == DamageKind.Slashing ? res.Value : 0)?.DamageKind == DamageKind.Slashing)
+                        //self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Slashing, self.Owner.Level + 3);
+                        //self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Piercing, self.Owner.Level + 3);
+                        //self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Bludgeoning, self.Owner.Level + 3);
                     }
                 };
 

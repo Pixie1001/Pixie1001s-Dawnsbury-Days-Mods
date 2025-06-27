@@ -15,7 +15,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.OrcShaman256,
                 "Pikeman",
-                [Trait.Orc, Trait.Humanoid, Trait.Lawful, ModTraits.MeleeMutator],
+                [Trait.Orc, Trait.Humanoid, Trait.Lawful, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
                 1, 10, 5,
                 new Defenses(16, 10, 7, 4),
                 20,
@@ -24,8 +24,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .WithBasicCharacteristics()
             .AddQEffect(QEffect.AttackOfOpportunity())
             .AddQEffect(CommonQEffects.MonsterPush());
-
-            creature.UnarmedStrike = null;
 
             UtilityFunctions.AddNaturalWeapon(creature, "pike", IllustrationName.Halberd, 9, [Trait.Reach, Trait.Shove], "1d6+3", DamageKind.Piercing);
 

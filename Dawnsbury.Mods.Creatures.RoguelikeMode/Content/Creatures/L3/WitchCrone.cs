@@ -81,12 +81,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     } else if (owner.Battle.Encounter.CharacterLevel == 4) {
                         summon.ApplyEliteAdjustments();
                     }
-                    summon.AddQEffect(new QEffect(self.Name, "This creature's behaviour has been altered by a powerful curse. Once broken, it will revert to its natural behaviour and flee.") {
+                    summon.AddQEffect(new QEffect(self.Name!, "This creature's behaviour has been altered by a powerful curse. Once broken, it will revert to its natural behaviour and flee.") {
                         Innate = false,
                         Source = owner,
                         Illustration = owner.Illustration,
                         StateCheckWithVisibleChanges = async self => {
-                            if (!self.Source.Alive) {
+                            if (!self.Source!.Alive) {
                                 self.Owner.Occupies.Overhead($"*{self.Owner.Name} flees!*", Color.Green, $"With the curse broken, {self.Owner.Name} flees from the fight.");
                                 self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                             }

@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.FlailSnail,
                 "Flail Snail",
-                [Trait.Animal, ModTraits.MeleeMutator],
+                [Trait.Animal, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
                 5, 15, 3,
                 new Defenses(23, 16, 8, 12),
                 60,
@@ -60,7 +60,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 },
                 StateCheck = (QEffect effect) =>
                 {
-                    if (!effect.Owner.Occupies.QEffects.Any((tileEffect) => tileEffect.BalanceDC != 0 && tileEffect.BalanceDC >= GetDC(effect.Owner)))
+                    if (!effect.Owner.Occupies.TileQEffects.Any((tileEffect) => tileEffect.BalanceDC != 0 && tileEffect.BalanceDC >= GetDC(effect.Owner)))
                     {
                         var tileEffect = new TileQEffect(effect.Owner.Occupies);
 
@@ -180,7 +180,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 });
             })
             .Done();
-            creature.UnarmedStrike = null;
 
             creature = UtilityFunctions.AddNaturalWeapon(creature, "eye flail", IllustrationName.Flail, 15, [Trait.Sweep, Trait.Forceful], "2d8+6", DamageKind.Bludgeoning, null);
             
@@ -225,23 +224,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             }
 
             return null;
-        }
-
-        private struct DragonType
-        {
-            public Defense Defense;
-
-            public string Description;
-
-            public DamageKind DamageKind;
-
-            public IllustrationName Illustration;
-
-            public SfxName SoundEffect;
-
-            public Target Target;
-
-            public Trait[] Traits;
         }
 
         #region Methods

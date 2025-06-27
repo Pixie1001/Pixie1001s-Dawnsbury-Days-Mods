@@ -38,6 +38,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         CampaignState.Instance.Tags.Add("SeenBebilithSpawn", "true");
                         var advisor1 = self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToList().GetRandom();
                         var advisor2 = self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr != advisor1).ToList().GetRandom();
+                        if (advisor1 == null || advisor2 == null) return;
                         advisor1.Battle.Cinematics.EnterCutscene();
                         Sfxs.Play(SoundEffects.BebilithHiss, 0.5f);
                         await advisor1.Battle.Cinematics.LineAsync(self.Owner, "Krahhh...!", null);

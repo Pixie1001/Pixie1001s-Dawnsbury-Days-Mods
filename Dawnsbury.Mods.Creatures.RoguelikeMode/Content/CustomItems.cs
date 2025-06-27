@@ -2261,6 +2261,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             // Wands
             ModManager.RegisterActionOnEachCreature(creature => {
+                foreach (Item item in creature.HeldItems.Concat(creature.CarriedItems)) {
+                    if (item.HasTrait(ModTraits.Wand) && item.IsUsedUp) {
+                        item.Illustration = new UsedUpIllustration(item.Illustration, "used", Color.MediumPurple);
+                    }
+                }
+
                 creature.AddQEffect(new QEffect() {
                     StateCheck = (qf) => {
                         Creature wandHolder = qf.Owner;
@@ -2300,7 +2306,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         Possibility spellPossibility = Possibilities.CreateSpellPossibility(spell.CombatActionSpell);
                                         spellPossibility.PossibilitySize = PossibilitySize.Full;
                                         if (used != null && used.Tag != (object)true) {
-                                            spellPossibility.Illustration = new ScrollIllustration(IllustrationName.Broken, spellPossibility.Illustration);
+                                            spellPossibility.Illustration = new DualIllustration(Illustrations.Overcharge, spellPossibility.Illustration);
                                             spellPossibility.Caption += " (Overcharge)";
                                         }
                                         if ((spellPossibility as SubmenuPossibility) == null) {
@@ -2310,7 +2316,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                             action.SpellcastingSource = wandHolder.Spellcasting.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
 
                                             if (used != null && used.Tag != (object)true) {
-                                                action.Illustration = new ScrollIllustration(IllustrationName.Broken, action.Illustration);
+                                                action.Illustration = new DualIllustration(Illustrations.Overcharge, action.Illustration);
                                                 action.Name += " (Overcharge)";
                                                 action.Description += "\n\n{b}Overcharged.{/b} Overcharging your wand to cast this spell has a 50% chance of permanantly destroying it.";
                                             }
@@ -2330,7 +2336,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                                                 if (used != null && used.Tag != (object)true) {
                                                     if (firstLoop) {
-                                                        action.Illustration = new ScrollIllustration(IllustrationName.Broken, action.Illustration);
+                                                        action.Illustration = new DualIllustration(Illustrations.Overcharge, action.Illustration);
                                                         action.Name += " (Overcharge)";
                                                         action.Description += "\n\n{b}Overcharged.{/b} Overcharging your wand to cast this spell has a 50% chance of permanently destroying it.";
                                                     }
@@ -2346,6 +2352,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                                             if (used == null) {
                                                 wand.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                                                wand.Illustration = new UsedUpIllustration(wand.Illustration, "used", Color.MediumPurple);
                                             } else {
                                                 used.Tag = true;
                                                 (CheckResult, string) result = Checks.RollFlatCheck(10);

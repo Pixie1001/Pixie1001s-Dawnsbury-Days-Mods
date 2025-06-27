@@ -78,18 +78,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             var freeTiles = monster.Battle.Map.AllTiles.Where(t => t.IsTrulyGenuinelyFreeToEveryCreature && t.DistanceTo(monster.Occupies) <= 3 && t.HasLineOfEffectToIgnoreLesser(monster.Occupies) != CoverKind.Blocked).ToList();
             for (int i = 0; i < 3; i++) {
                 Tile tile = monster.Occupies;
+                if (tile == null) return;
                 if (freeTiles.Count > 0) {
                     tile = freeTiles.GetRandom();
-                    freeTiles.Remove(tile);
+                    freeTiles.Remove(tile!);
                 }
                 var duplicate = Create();
                 CopiableCharacteristics.CopyFromTo(monster, duplicate);
                 duplicate.TakeDamage(monster.Damage);
                 duplicates.Add(duplicate);
-                monster.Battle.SpawnCreature(duplicate, monster.OwningFaction, tile);
+                monster.Battle.SpawnCreature(duplicate, monster.OwningFaction, tile!);
             }
 
             var origional = duplicates.GetRandom();
+            if (origional == null) return;
             foreach (Creature duplicate in duplicates.ToList()) {
                 var effect = new QEffect("Duplicate",
                     "The duplicity demon is hiding within these duplicates. The duplicates are destroyed by upon taking damage. " +

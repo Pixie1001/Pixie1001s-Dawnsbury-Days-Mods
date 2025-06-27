@@ -83,7 +83,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     action.ShortDescription += " and inflict 1d6 persistent bleed damage.";
                     action.Illustration = new SideBySideIllustration(action.Illustration, IllustrationName.PersistentBleed);
                     action.WithGoodnessAgainstEnemy((target, attacker, defender) => {
-                        return defender.QEffects.FirstOrDefault(qf => qf.Name.Contains(" persistent " + DamageKind.Bleed.ToString().ToLower() + " damage")) != null ? (8 + attacker.Abilities.Strength) * 1.1f : (4.5f + attacker.Abilities.Strength) * 1.1f;
+                        return defender.QEffects.FirstOrDefault(qf => qf.Name != null && qf.Name.Contains(" persistent " + DamageKind.Bleed.ToString().ToLower() + " damage")) != null ? (8 + attacker.Abilities.Strength) * 1.1f : (4.5f + attacker.Abilities.Strength) * 1.1f;
                     });
 
                     return (ActionPossibility)action;

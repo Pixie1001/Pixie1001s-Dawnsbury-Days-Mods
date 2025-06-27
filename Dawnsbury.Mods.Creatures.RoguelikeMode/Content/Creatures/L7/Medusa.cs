@@ -133,7 +133,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     .WithProjectileCone(IllustrationName.Dominate, 5, ProjectileKind.Ray)
                     .WithEffectOnEachTarget(async (action, caster, defender, result) => {
                         if (result <= CheckResult.Failure) {
-                            if (!defender.QEffects.Any(qf => qf.Id == QEffectId.Slowed))
+                            if (!defender.Actions.ActionsUsed.Contains(ActionDisplayStyle.Slowed))
                                 defender.Actions.UseUpActions(1, ActionDisplayStyle.Slowed, action);
 
                             defender.AddQEffect(new QEffect("Partial Petrification", "You're slowed 1 until the end of the encounter. If partially petrified again, you become fully petrified. A medusa's gaze is permanent, and suffering such a fate immediately causes the party to lose the encounter.") {

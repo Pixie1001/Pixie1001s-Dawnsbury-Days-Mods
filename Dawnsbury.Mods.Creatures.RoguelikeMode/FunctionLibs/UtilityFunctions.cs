@@ -12,9 +12,6 @@ using Dawnsbury.Core;
 using Dawnsbury.Display.Illustrations;
 using Microsoft.Xna.Framework;
 using System.Text;
-using System.IO;
-using System.Buffers.Text;
-using static System.Net.Mime.MediaTypeNames;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Animations.Movement;
@@ -30,6 +27,8 @@ using Dawnsbury.Campaign.Path;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.IO;
+using Dawnsbury.Display.Text;
+using Dawnsbury.Phases.Menus.CampaignViews;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -382,4 +381,39 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             Primitives.DrawImageNative(Center, rectangle, color, scale, scaleUp, scaleBgColor);
         }
     }
+
+    public record UsedUpIllustration(Illustration main, string msg, Color rectColor) : ScrollIllustration(IllustrationName.None, main)
+    {
+        // 1298
+        //  - (rectangle.Height / 2)
+        // + (rectangle1.Height / 2) - (height * 2)
+        public override string IllustrationAsIconString => Center.IllustrationAsIconString;
+
+        public override void DrawImage(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
+            Primitives.DrawImage(main, rectangle, color, scale, scaleUp, scaleBgColor);
+
+            Rectangle rectangle1 = new Rectangle(rectangle.X + 1, rectangle.Y + 2, rectangle.Width - 2, rectangle.Height - 40 - 2);
+            int height = Math.Max(20, rectangle1.Height / 4);
+            Rectangle rectangle6 = new Rectangle(rectangle1.X, rectangle1.Top + (height / 2 + rectangle1.Height / 2), rectangle1.Width, height);
+            Primitives.FillRectangle(rectangle6, rectColor.Alpha(200));
+            Writer.DrawString($"{{b}}{msg}{{/b}}", rectangle6, new Color?(Color.White), alignment: Writer.TextAlignment.Middle);
+        }
+
+        public override void DrawImageNative(Rectangle rectangle, Color? color, bool scale, bool scaleUp, Color? scaleBgColor) {
+            Primitives.DrawImageNative(main, rectangle, color, scale, scaleUp, scaleBgColor);
+
+            Rectangle rectangle1 = new Rectangle(rectangle.X + 1, rectangle.Y + 2, rectangle.Width - 2, rectangle.Height - 40 - 2);
+            int height = Math.Max(20, rectangle1.Height / 4);
+            Rectangle rectangle6 = new Rectangle(rectangle1.X, rectangle1.Top + (height / 2 + rectangle1.Height / 2), rectangle1.Width, height);
+            Primitives.FillRectangleNative(rectangle6, rectColor.Alpha(200));
+            Writer.DrawStringNative($"{{b}}{msg}{{/b}}", rectangle6, new Color?(Color.White), alignment: Writer.TextAlignment.Middle);
+        }
+    }
+
+    //        Rectangle rectangle1 = new Rectangle(rectangle.X + 1, rectangle.Y + 2, rectangle.Width - 2, rectangle.Height - 40 - 2);
+
+    //int height = rectangle1.Height / 4;
+    //Rectangle rectangle6 = new Rectangle(rectangle1.X, rectangle1.Bottom - height - height, rectangle1.Width, height);
+    //    Primitives.FillRectangleNative(rectangle6, Color.Red.Alpha(200));
+    //    Writer.DrawStringNative("{b}used up{/b}", rectangle6, new Color? (Color.White), alignment: Writer.TextAlignment.Middle);
 }

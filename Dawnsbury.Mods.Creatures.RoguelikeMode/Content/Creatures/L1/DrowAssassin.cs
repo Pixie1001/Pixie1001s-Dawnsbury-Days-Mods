@@ -71,6 +71,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     StartOfCombat = async self => {
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.PersistentCharacterSheet != null).ToList();
                         Creature target = party.GetRandom();
+                        if (target == null) return;
                         //Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
 
                         self.Owner.AddQEffect(new QEffect {
@@ -97,6 +98,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         });
                         await self.Owner.Battle.GameLoop.Turn(self.Owner, false);
                         self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectId.Slowed || qf.Id == QEffectIds.Lurking);
+                        self.Owner.Actions.ActedThisEncounter = false;
                     }
 
                 })

@@ -581,7 +581,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     new LeftMenuButton("Easy Difficulty", () => {
                         state.Tags.Add("corruption level", "-1");
                         foreach (AdventurePathHero hero in state.Heroes) {
-                            hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour"));
+                            hero.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour")!);
                         }
                         CampaignState.Autosave();
                     }, "The party gains the Heavenly Favour boon, granting them a permanent +1 bonus to their attack, save and spell DCs and AC."),
@@ -593,14 +593,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     new LeftMenuButton("Corruption Level 1", () => {
                         state.Tags.Add("corruption level", "1");
                         CampaignState.Autosave();
-                    }, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities." +
-                    "\n\n{b}Beta Content.{/b} Although there should be a minimum amount of bugs, I haven't had time to throughly playtest the difficulty of this mode or add as large as variety of possible modifiers as I'd like. " +
-                    "Any feedback on tihs new mode would be greatly appreciated!")
+                    }, "Enemies encountered during regular encounters in this difficulty sometimes have unique templates, granting them additional abilities.")
                 ]);
 
                 Writer.DrawString("Choose your Difficulty", new Rectangle(10, 10, Root.ScreenWidth, 400), Color.Black, BitmapFontGroup.Mia48Font);
 
-                string? tooltip = (string)Type.GetType("Dawnsbury.Display.MouseOver, Dawnsbury Days").GetProperty("MouseOverMenuTooltip", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null);
+                string? tooltip = (string)Type.GetType("Dawnsbury.Display.MouseOver, Dawnsbury Days")?.GetProperty("MouseOverMenuTooltip", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
                 if (tooltip != null)
                     Writer.DrawString(tooltip, new Rectangle(620, 400, 1000, 800));
             }
@@ -702,10 +700,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     if (encounterType == ModEnums.EncounterType.NORMAL) {
                         removed += 1;
                     } else if (encounterType == ModEnums.EncounterType.ELITE) {
-                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.GrimTendrils);
+                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(path[i], IllustrationName.GrimTendrils);
                     } else if (encounterType == ModEnums.EncounterType.BOSS) {
                         //typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.Evil);
-                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.Evil);
+                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(path[i], IllustrationName.Evil);
                     } else if (encounterType == ModEnums.EncounterType.EVENT) {
                         SkillChallengeTables.chosenEvents.Add(i, SkillChallengeTables.events[rand.Next(0, SkillChallengeTables.events.Count())]);
                         SkillChallengeTables.events.Remove(SkillChallengeTables.chosenEvents[i]);
@@ -713,7 +711,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 }
             }
 
-            (path[path.Count - 1] as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+            (path[path.Count - 1] as DawnsburyStop)!.CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
                     "{b}Stats{/b}\n" +
                     "{b}Deaths:{/b} " + campaign.Tags["deaths"] + "\n" +
                     "{b}Restarts:{/b} " + campaign.Tags["restarts"] +

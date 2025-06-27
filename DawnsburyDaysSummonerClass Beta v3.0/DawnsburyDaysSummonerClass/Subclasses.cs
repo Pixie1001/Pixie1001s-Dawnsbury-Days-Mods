@@ -1562,12 +1562,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         StateCheck = self => {
                             self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Fire, int.Max(1, eidolon.Level / 2));
                             self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Cold, int.Max(1, eidolon.Level / 2));
-                        },
-                        YouAreDealtDamage = async (self, a, damage, d) => {
-                            if (damage.Power != null && damage.Power.HasTrait(Trait.Water)) {
-                                return new IncreaseDamageModification(int.Max(1, eidolon.Level / 2), "water weakness");
-                            }
-                            return null;
+                            self.Owner.WeaknessAndResistance.Weaknesses.Add(new SpecialResistance("water", (action, kind) => action != null && action.HasTrait(Trait.Water), 5, null));
                         }
                     });
                     break;

@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     Option? expandBane = options.FirstOrDefault(o => o.Text == "Increase Bane radius");
                     if (expandBane != null) {
                         QEffect bane = creature.QEffects.FirstOrDefault(qf => qf.Name == "Bane");
-                        (int, bool) temp = ((int, bool))bane.Tag;
+                        (int, bool) temp = ((int, bool))bane?.Tag!;
                         int radius = temp.Item1;
 
                         expandBane.AiUsefulness.MainActionUsefulness = 0f;

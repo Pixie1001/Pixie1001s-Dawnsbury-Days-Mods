@@ -75,7 +75,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         
                         int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
 
-                        if ((bool)strike.CanBeginToUse(self.Owner) && (strike.Target as CreatureTarget).IsLegalTarget(self.Owner, action.Owner).CanBeUsed && await self.Owner.AskToUseReaction($"{action.Owner.Name} is attempting to attack you in melee. Would you like to retaliate with thrashing tentacles?")) {
+                        if ((bool)strike.CanBeginToUse(self.Owner) && (strike.Target as CreatureTarget)!.IsLegalTarget(self.Owner, action.Owner).CanBeUsed && await self.Owner.AskToUseReaction($"{action.Owner.Name} is attempting to attack you in melee. Would you like to retaliate with thrashing tentacles?")) {
                             if (strike.CanBeginToUse(action.Owner)) {
                                 await strike.AllExecute();
                                 self.Owner.Actions.AttackedThisManyTimesThisTurn = map;

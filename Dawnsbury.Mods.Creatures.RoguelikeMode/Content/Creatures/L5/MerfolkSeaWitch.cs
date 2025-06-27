@@ -78,7 +78,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             var hots = HeartOfTheStorm.Create(radius, dc);
                             caster.Battle.SpawnCreature(hots, caster.Battle.Gaia, tiles[0]);
                             foreach (Tile tile in self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(hots.Occupies) <= radius)) {
-                                tile.QEffects.Add(CommonQEffects.Maelstrom(dc, tile, hots));
+                                tile.AddQEffect(CommonQEffects.Maelstrom(dc, tile, hots));
                             }
                             caster.AddQEffect(new QEffect("Channeling Maelstrom", "The Merfolk Sea Witch is channeling a destructive maelstrom, which she can move up to 10-feet each round, and will remain until she's defeated.") { Innate = false, Illustration = IllustrationName.TidalHands });
                             await caster.Battle.Cinematics.PlayCutscene(async cin => {
@@ -152,7 +152,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         .WithEffectOnEachTile(async (action, caster, tiles) => {
                             var hots = self.Owner.Battle.AllCreatures.First(cr => cr.BaseName == "Heart of the Storm");
                             foreach (Tile tile in self.Owner.Battle.Map.AllTiles) {
-                                tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
+                                tile.RemoveAllQEffects(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
                             }
 
                             await hots.MoveTo(tiles[0], action, new MovementStyle() {
@@ -164,7 +164,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             });
 
                             foreach (Tile tile in self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(hots.Occupies) <= radius)) {
-                                tile.QEffects.Add(CommonQEffects.Maelstrom(dc, tile, hots));
+                                tile.AddQEffect(CommonQEffects.Maelstrom(dc, tile, hots));
                             }
                         })
                         ;

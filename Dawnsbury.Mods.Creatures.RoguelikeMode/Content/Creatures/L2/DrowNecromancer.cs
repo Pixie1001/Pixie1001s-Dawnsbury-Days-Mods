@@ -74,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                         float levelBonus = defender.Level / 2;
 
-                        if (defender.HeldItems.Count > 0 && defender.HeldItems.MaxBy(item => item.WeaponProperties?.RangeIncrement).WeaponProperties?.RangeIncrement <= bestScore) {
+                        if (defender.HeldItems.Count > 0 && defender.HeldItems.MaxBy(item => item.WeaponProperties?.RangeIncrement)?.WeaponProperties?.RangeIncrement <= bestScore) {
                             return 7 + levelBonus;
                         } else if (bestScore > defender.Speed) {
                             return 3;

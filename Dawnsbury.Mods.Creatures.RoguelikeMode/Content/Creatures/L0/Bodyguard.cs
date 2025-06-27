@@ -15,7 +15,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.OrcBrute256,
                 "Bodyguard",
-                [Trait.Orc, Trait.Humanoid, Trait.Lawful, ModTraits.MeleeMutator],
+                [Trait.Orc, Trait.Humanoid, Trait.Lawful, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
                 0, 9, 5,
                 new Defenses(16, 9, 3, 6),
                 18,
@@ -25,8 +25,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .WithBasicCharacteristics()
             .AddQEffect(CommonQEffects.MonsterKnockdown())
             .AddHeldItem(new Item(ItemName.SteelShield, IllustrationName.SteelShield, "Steel Shield", 0, 0, Trait.Shield, Trait.Martial).WithMainTrait(Trait.SteelShield).WithShieldProperties(5));
-
-            creature.UnarmedStrike = null;
 
             UtilityFunctions.AddNaturalWeapon(creature, "flail", IllustrationName.Flail, 7, [Trait.Disarm, Trait.Sweep, Trait.Trip], "1d6+2", DamageKind.Bludgeoning);
 

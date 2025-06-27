@@ -78,6 +78,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         });
                         await self.Owner.Battle.GameLoop.Turn(self.Owner, false);
                         self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectId.Slowed);
+                        self.Owner.Actions.ActedThisEncounter = false;
                     }
                 })
                 .AddQEffect(new QEffect("Seek Vulnerability", "The Unseen Guardian's obliviating aura quickly falls apart as soon as a creatre's attention begins to settle on it, distrupting the magic. Successful seek attempts against a detected Unseen Guardian instead fully reveal it to all of the seeker's allies.") {

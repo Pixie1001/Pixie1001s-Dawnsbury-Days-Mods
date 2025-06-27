@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.Ardamok,
                 "Ardamok",
-                [Trait.Animal, ModTraits.MeleeMutator],
+                [Trait.Animal, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
                 2, 6, 5,
                 new Defenses(18, 11, 6, 4),
                 30,
@@ -180,7 +180,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             })
             .Done();
 
-            creature.UnarmedStrike = null;
             creature = UtilityFunctions.AddNaturalWeapon(creature, "tail", IllustrationName.Tail, 11, [Trait.Reach], "1d4+4", DamageKind.Bludgeoning, null);
             creature = UtilityFunctions.AddNaturalWeapon(creature, "beak", IllustrationName.Jaws, 11, [], "1d10+4", DamageKind.Piercing, null);
             creature = UtilityFunctions.AddNaturalWeapon(creature, "claw", IllustrationName.DragonClaws, 11, [Trait.Agile], "1d8+4", DamageKind.Slashing, null);

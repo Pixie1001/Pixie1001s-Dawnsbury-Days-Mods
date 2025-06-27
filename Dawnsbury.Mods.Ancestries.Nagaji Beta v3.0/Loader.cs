@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
 using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
@@ -36,46 +30,16 @@ using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
 using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
 using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
-using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Ancestries.Nagaji.ModEnums;
-using Dawnsbury.Campaign.Path;
+using Dawnsbury.Core.Tiles;
 
 namespace Dawnsbury.Mods.Ancestries.Nagaji {
-
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class ModEnums {
-        //public enum CreatureId {
-        //    UNSEEN_GUARDIAN
-        //}
-    }
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class Loader {
         internal static string flavourText = "With a mix of humanoid and serpentine features, nagaji are heralds, companions, and servitors of powerful nagas. They hold a deep reverence for holy areas and spiritual truths, " +
@@ -91,11 +55,16 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         // Feats
         internal static FeatName ftHoodedNagaji = ModManager.RegisterFeatName("Hooded Nagaji");
         internal static FeatName ftSacredNagaji = ModManager.RegisterFeatName("Sacred Nagaji");
+        internal static FeatName ftVenomSpit = ModManager.RegisterFeatName("Venom Spit");
+        internal static FeatName ftHypnoticLure = ModManager.RegisterFeatName("Hypnotic Lure");
+        internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
 
         // Illustrations
         internal static ModdedIllustration illBlightBomb = new ModdedIllustration("NagajiAssets/BlightBomb.png");
         internal static ModdedIllustration illWhip = new ModdedIllustration("NagajiAssets/Whip.png");
         internal static ModdedIllustration illRaiseNeck = new ModdedIllustration("NagajiAssets/RaiseNeck.png");
+        internal static ModdedIllustration illEnvenomStrike = new ModdedIllustration("NagajiAssets/EnvenomStrike.png");
+        internal static ModdedIllustration illSerpentcoilSlam = new ModdedIllustration("NagajiAssets/SerpentcoilSlam.png");
 
         [DawnsburyDaysModMainMethod]
         public static void LoadMod() {
@@ -157,8 +126,9 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             yield return new TrueFeat(ModManager.RegisterFeatName("Powerful Tail"), 1, "Your serpentine tail is formed from powerful corded muscles, allowing you to slam it into your enemies with great force.",
                 "Your tail attack loses the finesse trait, but increases from 1d6 to 1d8 bludgeoning damage and gains the shove trait.", new Trait[] { tNagaji, Trait.Homebrew }, null)
             .WithOnCreature((sheet, creature) => {
-                Item? tail = creature.FindQEffect(qfFangs).AdditionalUnarmedStrike;
-                tail.WeaponProperties.DamageDieSize = 8;
+                Item? tail = creature.FindQEffect(qfFangs)?.AdditionalUnarmedStrike;
+                if (tail == null) return;
+                tail.WeaponProperties!.DamageDieSize = 8;
                 tail.Traits.Remove(Trait.Finesse);
                 tail.Traits.Add(Trait.Shove);
             })
@@ -182,10 +152,10 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             yield return new TrueFeat(ModManager.RegisterFeatName("Nagaji Venom Lore"), 1, "You've studied the closely guarded secrets of naga venom, allowing you to enhance poisons in your possession.",
                 "The first bomb with the poison trait that you throw each day deals an additional die of damage, thanks to your modifications." +
                 "\n\nIn addition, you are trained with bombs and for the purpose of determining your proficiency, bombs are simple weapons for you.", new Trait[] { tNagaji, Trait.Homebrew, Trait.Poison }, null)
-            .WithOnSheet((Action<CalculatedCharacterSheetValues>) (sheet => {
+            .WithOnSheet(sheet => {
                 sheet.Proficiencies.Set(Trait.Bomb, Proficiency.Trained);
                 sheet.Proficiencies.AddProficiencyAdjustment((Func<List<Trait>, bool>)(item => item.Contains(Trait.Bomb)), Trait.Simple);
-            }))
+            })
             .WithOnCreature(creature => {
                 creature.AddQEffect(new QEffect("Nagaji Venom Lore", "Bombs with the poison trait deal an additional damage die.") {
                     StartOfCombat = async self => {
@@ -205,17 +175,18 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         }
                         if (action.Item != null && action.Item.WeaponProperties != null && action.Item.HasTrait(Trait.Bomb) && action.Item.HasTrait(Trait.Poison)) {
                             owner.PersistentUsedUpResources.UsedUpActions.Add("Nagaji Venom Lore");
-                            owner.QEffects.FirstOrDefault(qf => qf.Name == "Nagaji Venom Lore").Name += " (Expended)";
+                            owner.QEffects.FirstOrDefault(qf => qf.Name == "Nagaji Venom Lore")!.Name += " (Expended)";
                         }
                     }
                 });
             });
 
             // Level 5
-            yield return new TrueFeat(ModManager.RegisterFeatName("Hypnotic Lure {icon:TwoActions}"), 5, "Your unblinking gaze is so intense it can befuddle the mind of others, drawing your victims toward you even against their better judgment.",
+            yield return new TrueFeat(ftHypnoticLure, 5, "Your unblinking gaze is so intense it can befuddle the mind of others, drawing your victims toward you even against their better judgment.",
                 "{b}Frequency{/b} once per encounter\n\nYou stare at a creature within 30 feet. The target must attempt a Will save against the higher of your class DC or spell DC.\n\n{b}Success{/b} The target is unaffected.\n{b}Failure{/b} On its turn, the target must " +
                 "spend its first action to approach you. It can't Delay or take reactions until it has done so.\n{b}Critical Failure{/b} The target must use all its actions on its next turn to approach you. It can't Delay or take any " +
                 "reactions until it has reached a space that's adjacent to you (or as close to you as possible if it reaches an impassable barrier).", new Trait[] { Trait.Concentrate, Trait.Enchantment, Trait.Mental, tNagaji, Trait.Occult, Trait.Visual }, null)
+            .WithActionCost(2)
             .WithOnCreature(creature => {
                 creature.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
@@ -223,54 +194,79 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                             return null;
                         }
 
-                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Dominate, "Hypnotic Lure", new Trait[] { Trait.Concentrate, Trait.Enchantment, Trait.Mental, tNagaji, Trait.Occult, Trait.Visual },
-                            "{b}Frequency{/b} once per encounter\n\nStare at a creature within 30 feet. The target must attempt a Will save against the higher of your class DC or spell DC.\n\n{b}Success{/b} The target is unaffected.\n{b}Failure{/b} On its turn, the target must " +
-                            "spend its first action to approach you. It can't Delay or take reactions until it has done so.\n{b}Critical Failure{/b} The target must use all its actions on its next turn to approach you. It can't Delay or take any " +
-                            "reactions until it has reached a space that's adjacent to you (or as close to you as possible if it reaches an impassable barrier).",
-                            Target.Ranged(6)) {
-                            ShortDescription = "30 foot range; Will save; On a failured save, command target creature to move towards you on its next turn as per the {i}command{/i} spell."
+                        if (self.Owner.HasFeat(ftHypnoticGaze)) {
+                            var menu = new SubmenuPossibility(IllustrationName.Dominate, "Hypnotic Lure");
+                            menu.PossibilityGroup = Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS;
+                            var section = new PossibilitySection("Hypnotic Lure");
+                            menu.Subsections.Add(section);
+                            section.AddPossibility(HypnoticAction());
+                            section.AddPossibility(HypnoticAction(true));
+
+                            return menu;
                         }
-                        .WithSoundEffect(SfxName.SnakeHiss)
-                        .WithActionCost(2)
-                        .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.ClassOrSpellDC()))
-                        .WithEffectOnEachTarget(async (action, user, target, result) => {
-                            if (result == CheckResult.Success || result == CheckResult.CriticalSuccess) {
-                                return;
+
+                        return HypnoticAction();
+
+                        ActionPossibility HypnoticAction(bool gaze=false) {
+
+                            List<Trait> traits = [Trait.Concentrate, Trait.Enchantment, Trait.Mental, tNagaji, Trait.Occult, Trait.Visual];
+                            if (gaze)
+                                traits.Add(Trait.Basic);
+
+                            return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Dominate, "Hypnotic " + (!gaze ? "Lure" : "Gaze"), traits.ToArray(),
+                                $"{{b}}Frequency{{/b}} {(!gaze ? "once per encounter" : "once per day")}\n{(!gaze ? "{b}Range{/b} 30 feet" : "{b}Area{/b} 30 foot cone")}\n\nThe target must attempt a Will save against the higher of your class DC or spell DC.\n\n" +
+                                S.FourDegreesOfSuccess(null, "The target is unaffected.", "On its turn, the target must spend its first action to approach you. It can't Delay or take reactions until it has done so.",
+                                "The target must use all its actions on its next turn to approach you. It can't Delay or take any reactions until it has reached a space that's adjacent to you (or as close to you as possible if it reaches an impassable barrier)." +
+                                (!gaze ? "" : "{b}Special.{/b} Although hypnotic Gaze can only be used once per day, using it does not prevent you from using Hypnotic Lure in future encounters.")),
+                                !gaze ? Target.Ranged(6) : Target.Cone(6))
+                            {
+                                ShortDescription = "30 foot range; Will save; On a failure save, command target creature to move towards you on its next turn as per the {i}command{/i} spell."
                             }
+                            .WithSoundEffect(SfxName.SnakeHiss)
+                            .WithActionCost(2)
+                            .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.ClassOrSpellDC()))
+                            .WithEffectOnSelf(user => {
+                                user.AddQEffect(new QEffect() { Id = qfHypnoticLureUsed, ExpiresAt = ExpirationCondition.Never });
+                                if (gaze)
+                                    user.PersistentUsedUpResources.UsedUpActions.Add("Hynptic Gaze");
 
-                            int num = 1;
+                            })
+                            .WithEffectOnEachTarget(async (action, user, target, result) => {
+                                if (result == CheckResult.Success || result == CheckResult.CriticalSuccess) return;
 
-                            if (result == CheckResult.CriticalFailure) {
+                                int num = 1;
+
+                                if (result == CheckResult.CriticalFailure)
                                 num = 3;
-                            }
 
-                            target.AddQEffect(new QEffect("Hypnotic Lure", "This creature will approach you for the given number of actions on its next turn. It can't take reactions until then.", ExpirationCondition.ExpiresAtEndOfYourTurn, user, (Illustration)IllustrationName.Dominate) {
-                                CannotExpireThisTurn = true,
-                                Value = num,
-                                Id = QEffectId.Commanded,
-                                Tag = "APPROACH",
-                                CountsAsADebuff = true,
-                                StateCheck = (Action<QEffect>)(sc => sc.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
-                                    Id = QEffectId.CannotTakeReactions
-                                }))
-                            });
-                        })
-                        .WithEffectOnSelf(user => {
-                            user.AddQEffect(new QEffect() { Id = qfHypnoticLureUsed, ExpiresAt = ExpirationCondition.Never });
-                        });
+                                target.AddQEffect(new QEffect("Hypnotic Lure", "This creature will approach you for the given number of actions on its next turn. It can't take reactions until then.", ExpirationCondition.ExpiresAtEndOfYourTurn, user, (Illustration)IllustrationName.Dominate) {
+                                    CannotExpireThisTurn = true,
+                                    Value = num,
+                                    Id = QEffectId.Commanded,
+                                    Tag = "APPROACH",
+                                    CountsAsADebuff = true,
+                                    StateCheck = sc => sc.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
+                                    {
+                                        Id = QEffectId.CannotTakeReactions
+                                    })
+                                });
+                            }));
+                        }
                     }
                 });
             })
             .WithIllustration(IllustrationName.Dominate);
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("Skin Split {icon:TwoActions}"), 5, "You claw open the top layer of your scales and peel off the premature shed in order to remove harmful substances from your skin.", "{b}Frequency{/b} once per day\n\nImmediately end all persistent damage from effects that coat your skin, such as fire and acid damage.", new Trait[] { tNagaji }, null)
+            yield return new TrueFeat(ModManager.RegisterFeatName("Skin Split"), 5, "You claw open the top layer of your scales and peel off the premature shed in order to remove harmful substances from your skin.",
+                "{b}Frequency{/b} once per day\n\nImmediately end all persistent damage from effects that coat your skin, such as fire and acid damage.", new Trait[] { tNagaji }, null)
+            .WithActionCost(2)
             .WithOnCreature(creature => {
                 creature.AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Skin Split")) {
                             return null;
                         }
-                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Soothe, "Skin Split", new Trait[] { tNagaji },
+                        return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Soothe, "Skin Split", new Trait[] { tNagaji },
                             "{b}Frequency{/b} once per day\n\nImmediately end all persistent damage from effects that coat your skin, such as fire and acid damage.",
                             Target.Self()) {
                             ShortDescription = "Immediately end all persistent damage from effects that coat your skin, such as fire and acid damage."
@@ -280,13 +276,13 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         .WithEffectOnSelf(user => {
                             user.RemoveAllQEffects(qf => qf.Key == "PersistentDamage:" + DamageKind.Fire.ToString() || qf.Key == "PersistentDamage:" + DamageKind.Acid.ToString());
                             user.PersistentUsedUpResources.UsedUpActions.Add("Skin Split");
-                        });
+                        })).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
                     }
                 });
             })
             .WithIllustration(IllustrationName.Soothe);
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("Venom Spit"), 5, "You've learned the art of lobbing toxic spittle at vulnerable spots on your foes, especially the eyes.",
+            yield return new TrueFeat(ftVenomSpit, 5, "You've learned the art of lobbing toxic spittle at vulnerable spots on your foes, especially the eyes.",
                 "You gain a venomous spit ranged unarmed attack with a range increment of 10 feet that deals 1d4 poison damage. On a critical hit, the target takes persistent poison damage " +
                 "equal to the number of weapon damage dice. Your spit doesn't have a weapon group, nor a critical specialization effect.\n\n{b}Special{/b} If you have the hooded nagaji heritage, " +
                 "in addition to your venomous spit's normal critical hit effect, the target is also dazzled until the start of your next turn.", new Trait[] { tNagaji }, null)
@@ -295,7 +291,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                     creature.AddQEffect(new QEffect() {
                         YouHaveCriticalSpecialization = (self, item, action, target) => {
                             if (item.Name == "Venomous Spit") {
-                                int damage = item.WeaponProperties.DamageDieCount;
+                                int damage = item.WeaponProperties!.DamageDieCount;
                                 target.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(self.Owner, 1));
                                 return true;
                             }
@@ -312,7 +308,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                     }.WithRangeIncrement(2)),
                     YouHaveCriticalSpecialization = (self, item, action, target) => {
                         if (item.Name == "Venomous Spit") {
-                            int damage = item.WeaponProperties.DamageDieCount;
+                            int damage = item.WeaponProperties!.DamageDieCount;
                             target.AddQEffect(QEffect.PersistentDamage($"{damage}", DamageKind.Poison));
                             return true;
                         }
@@ -334,7 +330,135 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                 })
                 .WithRulesBlockForSpell(SpellId.FleetStep, tNagaji),
             })
-            .WithPrerequisite(sheet => sheet.HasFeat(nagajiSpellFamiliarity), "at least one innate spell from a nagaji heritage or ancestry feat");
+            .WithPrerequisite(sheet => sheet.HasFeat(nagajiSpellFamiliarity), "You must know at least one innate spell from a nagaji heritage or ancestry feat");
+
+            // Level 9
+            yield return new TrueFeat(ModManager.RegisterFeatName("Envenom Strike"), 9, "With careful practice you've learnt to use your venomous spit to coat you and your allies' weapons.",
+                $"You spit venom onto a weapon you're holding or a weapon held by a willing creature within 30 feet; you can also use this ability to envenom your nagaji fangs unarmed attack. " +
+                $"If the next Strike with the chosen weapon before the start of your next turn hits and deals damage, the Strike deals an additional 2d6 poison damage.",
+                [ tNagaji ], null)
+            .WithActionCost(1)
+            .WithIllustration(illEnvenomStrike)
+            .WithOnCreature(creature => {
+                creature.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        if (self.Owner.QEffects.Any(qf => qf.Key == "Envenom Strike Used Up")) return null;
+
+                        return new ActionPossibility(new CombatAction(creature, illEnvenomStrike, "Envenom Strike", [tNagaji],
+                            $"{{b}}Frequency{{/b}} once per encounter\n{{b}}Range{{/b}} 30 feet\n\nYou spit venom onto {(self.Owner.HasFeat(ftSacredNagaji) ? "" :  "your fangs or ")}" +
+                            $"a weapon held by you or an ally within range. If the next Strike with the chosen weapon before the start of your next turn hits and deals damage, the Strike " +
+                            $"deals an additional 2d6 poison damage.", Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((a, d) => (a == d && !a.HasFeat(ftSacredNagaji)) || d.HeldItems.Any(item => item.WeaponProperties != null) ? Usability.Usable : Usability.NotUsableOnThisCreature("no eligable weapon")))
+                            .WithActionCost(1)
+                            .WithSoundEffect(SfxName.AcidSplash)
+                            .WithProjectileCone(illEnvenomStrike, 7, ProjectileKind.Cone)
+                            .WithEffectOnSelf(async (action, user) => user.AddQEffect(new QEffect() { Key = "Envenom Strike Used Up" }))
+                            .WithEffectOnEachTarget(async (action, user, target, _) => {
+                                List<Item> weapons = target.HeldItems.Where(item => item.WeaponProperties != null).ToList();
+                                if (user == target && !user.HasFeat(ftSacredNagaji)) {
+                                    Item? fangs = user.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike?.Name == "fangs")?.AdditionalUnarmedStrike;
+                                    if (fangs != null)
+                                        weapons.Add(fangs);
+                                }
+
+                                if (weapons.Count < 1)
+                                    return;
+
+                                string[] options = weapons.ConvertAll(item => item.Name).ToArray();
+
+                                var choice = options.Count() > 1 ? (await user.AskForChoiceAmongButtons(action.Illustration, "Which weapon would you like to envenom?", options) as ChoiceButtonOption).Caption : options[0];
+
+                                Item? chosenWeapon = null;
+
+                                if (choice == "fangs" && target == user)
+                                    chosenWeapon = user.FindQEffect(qfFangs)?.AdditionalUnarmedStrike;
+
+                                if (chosenWeapon == null)
+                                    chosenWeapon = target.HeldItems.FirstOrDefault(item => item.WeaponProperties != null && item.Name == choice);
+
+                                if (chosenWeapon == null) {
+                                    Sfxs.Play(SfxName.SpellFail);
+                                    target.Occupies.Overhead("ERROR", Color.Red, "Envenom strike failed becaused selected weapon could not be found. Please report this to the mod author.");
+                                    return;
+                                };
+
+                                var effect = new QEffect($"Envenom Strike ({chosenWeapon.Name})", $"The next successful strike made with your {chosenWeapon.Name} will deal an additional 2d6 poison damage.", ExpirationCondition.Never, user, action.Illustration) { Tag = false }.WithExpirationOneRoundOrRestOfTheEncounter(user, false);
+
+                                effect.AddExtraKindedDamageOnStrike = (strike, defender) => {
+                                    if (!strike.HasTrait(Trait.Strike) || strike.Item != chosenWeapon) return null;
+
+                                    effect.ExpiresAt = ExpirationCondition.Immediately;
+                                    effect.Tag = true;
+
+                                    return new KindedDamage(DiceFormula.FromText("2d6", "Envenomed Strike"), DamageKind.Poison);
+                                };
+
+                                target.AddQEffect(effect);
+                            })
+                            ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
+                    }
+                });
+            })
+            .WithPrerequisite(sheet => sheet.HasFeat(ftVenomSpit) || sheet.HasFeat(ftHoodedNagaji), "You must possess a Strike from a nagaji heritage or ancestry feat that deals poison damage.");
+
+            yield return new TrueFeat(ftHypnoticGaze, 9, "You can widen your field of vision, allowing you to affect more creatures with your Hypnotic Lure.",
+                $"Once per day, when you use Hypnotic Lure, you can affect all creatures in a 30- foot cone, rather than one creature within 30 feet.",
+                [tNagaji], null)
+            .WithPermanentQEffect("Once per day, when you use Hypnotic Lure, you can instead affect all creatures in a 30-foot cone.", qf => { })
+            .WithPrerequisite(ftHypnoticLure, "Hypnotic Lure");
+
+            yield return new TrueFeat(ModManager.RegisterFeatName("NagajiSerpentcoilSlam", "Serpentcoil Slam"), 9, "Your uniquely flexible physiology has allowed you to develop special techniques against flying foes.",
+                $"Make a melee Strike against a flying creature; if you hit, you use your neck or coils to smash the creature into the ground. " +
+                $"In addition to the normal effects of your Strike, the creature moves to the nearest unoccupied ground space adjacent to you and can't Fly, levitate, or otherwise leave the ground for 1 round. " +
+                $"On a critical hit, it can't Fly, levitate, or otherwise leave the ground for the rest of the encounter.",
+                [tNagaji], null)
+            .WithActionCost(1)
+            .WithIllustration(illSerpentcoilSlam)
+            .WithPermanentQEffect("Once per encounter, you can attempt to ground a flying creature with a strike.", effect => {
+                effect.ProvideStrikeModifier = item => {
+                    if (effect.Owner.QEffects.Any(qf => qf.Key == "Serpentcoil Slam Used Up")) return null;
+
+                    if (item == null) return null;
+
+                    var strike = effect.Owner.CreateStrike(item!);
+
+                    if (strike.HasTrait(Trait.Ranged)) return null;
+
+                    strike.Name = "Serpentcoil Slam";
+                    strike.Illustration = new SideBySideIllustration(strike.Illustration, illSerpentcoilSlam);
+                    strike.Description = StrikeRules.CreateBasicStrikeDescription2(strike.StrikeModifiers, additionalSuccessText: "The target is dragged to the nearest unnocupied ground space adjacent to you and cannot fly until the end of the round.", additionalCriticalSuccessText: "As success, but the target cannot fly for the rest of the encounter instead.");
+                    strike.Traits.Add(Trait.Basic);
+                    strike.StrikeModifiers.OnEachTarget = async (caster, target, checkResult) => {
+                        caster.AddQEffect(new QEffect() { Key = "Serpentcoil Slam Used Up" });
+
+                        if (checkResult >= CheckResult.Success) {
+                            if (!target.IsAdjacentTo(caster) || target.Occupies.Kind == TileKind.Chasm) {
+                                var newTile = target.Battle.Map.AllTiles.Where(t => t.Kind != TileKind.Chasm && t.IsGenuinelyFreeTo(target) && t.DistanceTo(caster.Occupies) == 1).ToList().MinBy(t => t.DistanceTo(target.Occupies));
+                                target.TranslateTo(newTile!);
+                                Sfxs.Play(SfxName.ElementalBlastEarth);
+                                await CommonAnimations.CreateConeAnimation(caster.Battle, newTile!.ToCenterVector(), [newTile], 10, ProjectileKind.Cone, IllustrationName.ElementEarth);
+                            }
+
+                            var innateFlying = target.QEffects.Any(qf => qf.Id == QEffectId.Flying && qf.ExpiresAt == ExpirationCondition.Never);
+
+                            target.AddQEffect(new QEffect("Serpentcoil Slam", "You cannot fly or leap.", ExpirationCondition.Never, caster, illSerpentcoilSlam) {
+                                Tag = innateFlying,
+                                StateCheckLayer = 1,
+                                StateCheck = (self) => {
+                                    self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectId.Flying);
+                                },
+                                PreventTakingAction = action => action.ActionId == ActionId.Leap ? "Grounded by serpentcoil slam" : null,
+                                WhenExpires = self => {
+                                    if (!self.Owner.HasEffect(QEffectId.Flying) && (bool?)self.Tag == true)
+                                        self.Owner.AddQEffect(QEffect.Flying());
+                                }
+                            }.WithExpirationOneRoundOrRestOfTheEncounter(caster, checkResult == CheckResult.CriticalSuccess));
+                        }
+                    };
+                    ((CreatureTarget)strike.Target).WithAdditionalConditionOnTargetCreature((self, target) => target.HasEffect(QEffectId.Flying) ? Usability.Usable : Usability.NotUsableOnThisCreature("no fly speed"));
+                    ((CreatureTarget)strike.Target).WithAdditionalConditionOnTargetCreature((self, target) => self.Battle.Map.AllTiles.Any(t => t.Kind != TileKind.Chasm && t.IsGenuinelyFreeTo(target) && t.DistanceTo(self.Occupies) == 1) ? Usability.Usable : Usability.NotUsableOnThisCreature("no unoccupied space available to slam the creature into"));
+                    return strike;
+                };
+            });
         }
 
         private static IEnumerable<Feat> LoadHeritages() {
@@ -347,7 +471,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         Sfx = SfxName.AcidSplash, VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.AcidSplash )
                     }.WithRangeIncrement(2)),
                     AfterYouDealDamage = async (user, action, target) => {
-                        if (action.Item != null && action.Item.Name == "venomous spit" && action.CheckResult == CheckResult.CriticalSuccess) {
+                        if (action.Item != null && action.Item.Name == "venomous spit" && action.CheckResult == CheckResult.CriticalSuccess && action.TrueDamageFormula != null) {
                             int damage = action.TrueDamageFormula.ToString()[0] - '0';
                             target.AddQEffect(QEffect.PersistentDamage($"{damage}", DamageKind.Poison));
                         }
@@ -359,7 +483,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                 "You gain a +2 circumstance bonus on your Fortitude or Reflex DC against attempts to Grapple or Trip you. This bonus also applies to saving throws against effects that would grab you, restrain you." +
                 "\n\nInstead of fangs, your unarmed attack is your tail, which deals bludgeoning damage.")
             .WithOnCreature((sheet, creature) => {
-                creature.FindQEffect(qfFangs).AdditionalUnarmedStrike = new Item(illWhip, "tail", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning));
+                creature.FindQEffect(qfFangs)!.AdditionalUnarmedStrike = new Item(illWhip, "tail", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning));
 
                 creature.AddQEffect(new QEffect() {
                     BonusToDefenses = (self, action, defence) => {
@@ -403,15 +527,17 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) {
                             return null;
                         }
-                        return (ActionPossibility)new CombatAction(self.Owner, illRaiseNeck, "Raise Neck", new Trait[] { },
-                            "You raise your head into a striking position. The fangs Strike granted by your nagaji ancestry gains a reach of 10 feet until the end of your turn.", Target.Self())
+                        return new ActionPossibility(new CombatAction(self.Owner, illRaiseNeck, "Raise Neck", new Trait[] { },
+                            "You raise your head into a striking position. The fangs Strike granted by your nagaji ancestry gains a reach of 10 feet until the end of your turn.", Target.Self()) {
+                            ShortDescription = "Your fangs gain reach until the end of your turn."
+                        }
                         .WithActionCost(1)
                         .WithEffectOnSelf(async (action, user) => {
-                            self.Owner.FindQEffect(qfFangs).AdditionalUnarmedStrike.Traits.Add(Trait.Reach);
+                            self.Owner.FindQEffect(qfFangs)?.AdditionalUnarmedStrike?.Traits.Add(Trait.Reach);
                             user.AddQEffect(new QEffect("Raised Neck", "Your fangs gain reach until the end of your turn.", ExpirationCondition.ExpiresAtEndOfYourTurn, user, action.Illustration) {
-                                WhenExpires = self => self.Owner.FindQEffect(qfFangs).AdditionalUnarmedStrike.Traits.Remove(Trait.Reach)
+                                WhenExpires = self => self.Owner.FindQEffect(qfFangs)?.AdditionalUnarmedStrike?.Traits.Remove(Trait.Reach)
                             });
-                        });
+                        })).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
                     },
                 });
             });

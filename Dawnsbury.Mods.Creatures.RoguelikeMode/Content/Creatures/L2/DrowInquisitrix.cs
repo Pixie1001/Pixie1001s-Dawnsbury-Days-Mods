@@ -53,7 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .AddQEffect(QEffect.SneakAttack("1d4"))
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
-                        if (self.Owner.Spellcasting.PrimarySpellcastingSource.Spells.FirstOrDefault(spell => spell.SpellId == SpellId.Harm) == null) {
+                        if (self.Owner.Spellcasting?.PrimarySpellcastingSource.Spells.FirstOrDefault(spell => spell.SpellId == SpellId.Harm) == null) {
                             return null;
                         }
 
@@ -64,7 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 //if (result >= CheckResult.Success) {
                                 //    await CommonSpellEffects.DealDirectDamage(a.Spellcasting.PrimarySpellcastingSource.Spells.First(spell => spell.SpellId == SpellId.Harm), DiceFormula.FromText("1d8"), d, result, DamageKind.Negative);
                                 //}
-                                a.Spellcasting.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Harm);
+                                a.Spellcasting?.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Harm);
                             }
                         };
 

@@ -19,7 +19,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.HappyTree256,
                 "Corrupted Tree",
-                [Trait.Plant, Trait.Evil, Trait.Chaotic],
+                [Trait.Plant, Trait.Evil, Trait.Chaotic, Trait.NoPhysicalUnarmedAttack],
                 5, 15, 0,
                 new Defenses(19, 16, 8, 12),
                 60,
@@ -70,7 +70,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 });
             })
             .Done();
-            creature.UnarmedStrike = null;
 
             creature = UtilityFunctions.AddNaturalWeapon(creature, "branch", IllustrationName.Branch, 13, [Trait.Shove], "2d6+6", DamageKind.Bludgeoning);
             
@@ -81,7 +80,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.ProtectorTree,
                 "Root",
-                [Trait.Plant, Trait.Evil, Trait.Chaotic],
+                [Trait.Plant, Trait.Evil, Trait.Chaotic, Trait.NoPhysicalUnarmedAttack],
                 1, 10, 6,
                 new Defenses(16, 10, 7, 4),
                 12,
@@ -95,8 +94,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Slashing, 3))
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 3))
             .AddQEffect(QEffect.MonsterKnockdown());
-
-            creature.UnarmedStrike = null;
 
             creature = UtilityFunctions.AddNaturalWeapon(creature, "root", IllustrationName.Branch, 9, [Trait.Trip, Trait.Knockdown], "1d6+3", DamageKind.Piercing);
 

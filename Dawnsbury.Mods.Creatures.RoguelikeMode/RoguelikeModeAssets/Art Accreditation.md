@@ -50,6 +50,7 @@
 	<li>AngerPhantom.png (Modified)</li>
 	<li>Basilisk.png (Modified)</li>
 	<li>AgonizingDespair.png (Modified)</li>
+	<li>Overcharge.png</li>
 </ul>
 
 ### Flaticon.com

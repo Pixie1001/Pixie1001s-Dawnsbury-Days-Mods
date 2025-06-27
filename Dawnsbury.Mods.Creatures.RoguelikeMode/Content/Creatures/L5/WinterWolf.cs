@@ -74,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 1)
                         return null;
 
-                    var strike = effect.Owner.CreateStrike(effect.Owner.PrimaryWeapon).WithActionCost(0); ;
+                    var strike = effect.Owner.CreateStrike(effect.Owner.PrimaryWeapon!).WithActionCost(0); ;
 
                     if (!strike.CanBeginToUse(attacker) || !(strike.Target as CreatureTarget)!.IsLegalTarget(effect.Owner, attacker)) {
                         return null;
@@ -84,7 +84,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         return null;
 
                     effect.Owner.Occupies.Overhead("avenging bite!", Color.LightBlue, effect.Owner?.ToString() + " uses avenging bite!");
-                    strike.ChosenTargets = ChosenTargets.CreateSingleTarget(attacker);
+                    strike.ChosenTargets = ChosenTargets.CreateSingleTarget(attacker!);
                     await strike.AllExecute();
                     return null;
                 };
