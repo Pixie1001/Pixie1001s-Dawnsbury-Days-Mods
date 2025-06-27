@@ -214,10 +214,10 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                                 traits.Add(Trait.Basic);
 
                             return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Dominate, "Hypnotic " + (!gaze ? "Lure" : "Gaze"), traits.ToArray(),
-                                $"{{b}}Frequency{{/b}} {(!gaze ? "once per encounter" : "once per day")}\n{(!gaze ? "{b}Range{/b} 30 feet" : "{b}Area{/b} 30 foot cone")}\n\nThe target must attempt a Will save against the higher of your class DC or spell DC.\n\n" +
+                                $"{{b}}Frequency{{/b}} {(!gaze ? "once per encounter" : "once per day")}\n{(!gaze ? "{b}Range{/b} 30 feet" : "{b}Area{/b} 30 foot cone")}\n\nThe target must attempt a Will save against the higher of your class DC or spell DC." +
                                 S.FourDegreesOfSuccess(null, "The target is unaffected.", "On its turn, the target must spend its first action to approach you. It can't Delay or take reactions until it has done so.",
                                 "The target must use all its actions on its next turn to approach you. It can't Delay or take any reactions until it has reached a space that's adjacent to you (or as close to you as possible if it reaches an impassable barrier)." +
-                                (!gaze ? "" : "{b}Special.{/b} Although hypnotic Gaze can only be used once per day, using it does not prevent you from using Hypnotic Lure in future encounters.")),
+                                (!gaze ? "" : "\n\n{b}Special.{/b} Although hypnotic Gaze can only be used once per day, using it does not prevent you from using Hypnotic Lure in future encounters.")),
                                 !gaze ? Target.Ranged(6) : Target.Cone(6))
                             {
                                 ShortDescription = "30 foot range; Will save; On a failure save, command target creature to move towards you on its next turn as per the {i}command{/i} spell."
