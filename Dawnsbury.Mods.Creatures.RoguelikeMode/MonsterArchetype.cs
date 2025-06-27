@@ -42,18 +42,21 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Display.Controls.Statblocks;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode
 {
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class MonsterArchetype {
         private string name;
+        public string description;
         public Trait[] AppliesTo { get; }
-        private Action<Creature> adjustment;
+        private Action<MonsterArchetype, Creature> adjustment;
+        private static string icon = $"{((Illustration)IllustrationName.Tentacle).IllustrationAsIconString} ";
 
-        public MonsterArchetype(string name, Trait[] appliesTo, Action<Creature> adjustment) {
+        public MonsterArchetype(string name, string desc, Trait[] appliesTo, Action<MonsterArchetype, Creature> adjustment) {
             this.name = name;
+            this.description = desc;
             this.adjustment = adjustment;
             this.AppliesTo = appliesTo;
         }
@@ -63,13 +66,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         }
 
         public void Apply(Creature creature) {
-            adjustment(creature);
+            adjustment(this, creature);
             creature.MainName = "{Purple}" + this.name + "{/Purple} " + creature.MainName;
             creature.Illustration = new SameSizeDualIllustration(creature.Illustration, Illustrations.MutatedBorder);
+
+            CreatureStatblock.CreatureStatblockSectionGenerators.Add(new CreatureStatblockSectionGenerator("{Purple}" + icon + "Monster Archetype" + "{/Purple}", monster => monster == creature ? $"{{b}}{this.name}.{{/b}} {this.description}" : null));
         }
     }
-
-
-
-
 }
