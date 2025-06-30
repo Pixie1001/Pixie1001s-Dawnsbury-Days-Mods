@@ -131,9 +131,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 "so long as the feat or ability doesn't require a single, specific Strike." +
                 "\n\nSpecial When you select this feat, you become trained in the longbow, shortbow, and any simple and martial bows with the monk trait. At later levels, your proficancy with these weapons scales with your unarmed attacks.",
                 [Trait.Monk, Trait.Stance, ModTraits.Roguelike], null)
-            .WithIllustration(IllustrationName.Shortbow)
+            .WithIllustration(Illustrations.MonasticArcherStance)
             .WithOnSheet(sheet => {
-                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial) && item.Contains(Trait.Bow) || item.Contains(Trait.Longbow) || item.Contains(Trait.Shortbow), Trait.Simple);
+                sheet.Proficiencies.AddProficiencyAdjustment((item) => (item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial) && item.Contains(Trait.Bow)) || item.ContainsOneOf([Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow]), Trait.Simple);
             })
             .WithOnCreature(you => {
                 if (!you.HasFeat(MonasticWeaponry))
@@ -141,7 +141,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             })
             .WithPermanentQEffect(null, (qfMAS) => {
                 qfMAS.ProvideMainAction = self => {
-                    return new ActionPossibility(new CombatAction(self.Owner, IllustrationName.Shortbow, "Monastic Archer Stance", [Trait.Monk, Trait.Stance],
+                    return new ActionPossibility(new CombatAction(self.Owner, Illustrations.MonasticArcherStance, "Monastic Archer Stance", [Trait.Monk, Trait.Stance],
                         "Enter a stance.\n\nWhile in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead.\n\nYou can't enter this stance if you're wearing armour.",
                         Target.Self().WithAdditionalRestriction(self => {
                             if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance))
@@ -154,14 +154,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     }
                     .WithActionCost(1)
                     .WithEffectOnSelf(user => {
-                        var stance = KineticistCommonEffects.EnterStance(user, IllustrationName.Shortbow,
+                        var stance = KineticistCommonEffects.EnterStance(user, Illustrations.MonasticArcherStance,
                             "Monastic Archer Stance", "While in this stance, you can use your monk feats or monk abilities " +
                             "that normally require unarmed attacks with longbows, shortsbows and monk bows instead.", QEffectIds.MonasticArcherStance);
                         stance.PreventTakingAction = action => action.HasTrait(Trait.Strike)
                             && !((action.Item != null
                             && action.Item.HasTrait(Trait.MonkWeapon)
                             && action.Item.HasTrait(Trait.Bow)
-                            && !action.Item.HasTrait(Trait.Advanced)) || new Trait?[] { Trait.Longbow, Trait.Shortbow }.Contains(action?.Item?.MainTrait))
+                            && !action.Item.HasTrait(Trait.Advanced)) || new Trait?[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(action?.Item?.MainTrait))
                             ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;  
 
                     })) {
@@ -491,7 +491,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         }
 
                         if (user.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
-                            Item? bow = user.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow }.Contains(wpn.MainTrait));
+                            Item? bow = user.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
                             if (bow != null) {
                                 CombatAction combatAction = StrikeRules.CreateStrike(user, bow, RangeKind.Ranged, -1, true);
                                 if (combatAction.CanBeginToUse(user) && (bow.HasTrait(Trait.TwoHanded) || user.HasFreeHand)) {
@@ -554,7 +554,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     List<CombatAction> shurikenThrows = new List<CombatAction>();
                                     foreach ((Item?, Item) shuriken in uniqueShurikens) {
                                         var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, -1, true).WithActionCost(0);
-                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             if (shuriken.Item1 != null)
                                                 shuriken.Item1.StoredItems.Remove(shuriken.Item2);
@@ -575,7 +575,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         }
 
                                         var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0);
-                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             user.AddHeldItem(shuriken);
                                         });
@@ -588,10 +588,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     }
                                 }
                             } else if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
-                                Item? bow = self.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow }.Contains(wpn.MainTrait));
+                                Item? bow = self.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
                                 if (bow != null) {
                                     var combatAction = self.CreateStrike(bow);
-                                    (combatAction.Target as CreatureTarget).CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties.RangeIncrement / 2));
+                                    (combatAction.Target as CreatureTarget)?.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties.RangeIncrement / 2));
                                     combatAction.WithActionCost(0);
                                     GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
                                 }
@@ -641,7 +641,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                         if (self.HasEffect(QEffectId.StunningFist) && (chosenCreatures.Count == 1 || chosenCreatures.Count == 2 && chosenCreatures[0] == chosenCreatures[1])) {
                             if (chosenCreatures[0].HP < hpBefore) {
-                                var stunningFistAction = CombatAction.CreateSimpleIncapacitation(self, "Stunning Fist", self.MaximumSpellRank);
+                                var stunningFistAction = CombatAction.CreateSimple(self, "Stunning Fist", Trait.Incapacitation);
                                 var stunningFistResult = CommonSpellEffects.RollSavingThrow(chosenCreatures[0], stunningFistAction, Defense.Fortitude, self.Proficiencies.Get(Trait.Monk).ToNumber(self.ProficiencyLevel) + self.Abilities.Get(self.Abilities.KeyAbility) + 10);
                                 if (stunningFistResult <= CheckResult.Failure) {
                                     chosenCreatures[0].AddQEffect(QEffect.Stunned(stunningFistResult == CheckResult.CriticalFailure ? 3 : 1));
