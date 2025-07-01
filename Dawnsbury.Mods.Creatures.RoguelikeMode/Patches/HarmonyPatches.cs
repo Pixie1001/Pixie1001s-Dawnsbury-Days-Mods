@@ -346,7 +346,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(RunestoneRules), "AddRuneTo")]
         private static void AddRuneToPostfixPatch(Item runestone, Item equipment) {
-            if (equipment.HasTrait(Trait.SpecificMagicWeapon)) {
+            if (equipment.HasTrait(Trait.SpecificMagicWeapon) && equipment.HasTrait(ModTraits.Roguelike)) {
                 equipment.Price += Items.GetItemTemplate(equipment.ItemName).Price;
             }
         }
