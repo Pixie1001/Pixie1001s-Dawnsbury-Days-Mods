@@ -400,11 +400,11 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             })
             .WithPrerequisite(sheet => sheet.HasFeat(ftVenomSpit) || sheet.HasFeat(ftHoodedNagaji), "You must possess a Strike from a nagaji heritage or ancestry feat that deals poison damage.");
 
-            yield return new TrueFeat(ftHypnoticGaze, 9, "You can widen your field of vision, allowing you to affect more creatures with your Hypnotic Lure.",
-                $"Once per day, when you use Hypnotic Lure, you can affect all creatures in a 30- foot cone, rather than one creature within 30 feet.",
-                [tNagaji], null)
-            .WithPermanentQEffect("Once per day, when you use Hypnotic Lure, you can instead affect all creatures in a 30-foot cone.", qf => { })
-            .WithPrerequisite(ftHypnoticLure, "Hypnotic Lure");
+            //yield return new TrueFeat(ftHypnoticGaze, 9, "You can widen your field of vision, allowing you to affect more creatures with your Hypnotic Lure.",
+            //    $"Once per day, when you use Hypnotic Lure, you can affect all creatures in a 30- foot cone, rather than one creature within 30 feet.",
+            //    [tNagaji], null)
+            //.WithPermanentQEffect("Once per day, when you use Hypnotic Lure, you can instead affect all creatures in a 30-foot cone.", qf => { })
+            //.WithPrerequisite(ftHypnoticLure, "Hypnotic Lure");
 
             yield return new TrueFeat(ModManager.RegisterFeatName("NagajiSerpentcoilSlam", "Serpentcoil Slam"), 9, "Your uniquely flexible physiology has allowed you to develop special techniques against flying foes.",
                 $"Make a melee Strike against a flying creature; if you hit, you use your neck or coils to smash the creature into the ground. " +

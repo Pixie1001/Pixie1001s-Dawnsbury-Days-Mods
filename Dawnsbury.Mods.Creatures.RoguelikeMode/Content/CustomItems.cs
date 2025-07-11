@@ -1063,7 +1063,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Mask)
             .WithDescription("{i}This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.{/i}\n\n" +
-            "The wearer of this mask has their MaxHP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and fineese properties. " +
+            "The wearer of this mask has their Max HP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and finesse properties. " +
             "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wear may consume it to heal for an amount of hit points " +
             "equal to damage dealt.\n\n{b}Note.{/b} To unequip this cursed item, simply place it in the common loot field at the bottom of the character sheets. It won't despawn between encounters.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {

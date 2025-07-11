@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription">Stumbling upon a strange dilapidated shrine, the party is forced to scatter amongst the stalagmites as they hear a procession of lavender skinned pilgrams marching up to conduct some strange, esoteric ritual.
+  <property name="EncounterDescription">Stumbling upon a strange dilapidated shrine, the party is forced to scatter amongst the stalagmites as they hear a procession of lavender skinned pilgrims marching up to conduct some strange, esoteric ritual.
 
 Yet as the procession wanders away, something still feels off...</property>
   <property name="EncounterGroup" value="Roguelike"/>
@@ -9,7 +9,7 @@ Yet as the procession wanders away, something still feels off...</property>
   <property name="EncounterName" value="Hide and Seek"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <tileset firstgid="128" source="CustomCreatures.tsx"/>
  <imagelayer id="4" name="Image Layer 1">
   <image source="HideAndSeek.jpg" width="3840" height="3840"/>
  </imagelayer>
@@ -40,9 +40,9 @@ Yet as the procession wanders away, something still feels off...</property>
 0,0,0,0,0,0,22,16,0,0,0,0,0,0,0,
 0,0,0,0,0,22,0,22,0,0,0,0,16,91,0,
 0,0,0,0,22,0,0,0,0,0,91,0,0,0,0,
-0,0,0,0,0,0,0,126,0,0,0,0,0,0,0,
-0,0,0,0,0,0,126,141,129,0,0,0,0,0,0,
-0,0,0,0,0,0,0,126,0,0,0,0,0,91,22,
+0,0,0,0,0,0,0,129,0,0,0,0,0,0,0,
+0,0,0,0,0,0,129,144,132,0,0,0,0,0,0,
+0,0,0,0,0,0,0,129,0,0,0,0,0,91,22,
 0,0,0,0,0,0,0,0,0,0,0,91,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,37,0,
 38,0,0,0,91,0,0,0,0,0,0,0,0,0,0,
@@ -59,9 +59,9 @@ Yet as the procession wanders away, something still feels off...</property>
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2163,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2163,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

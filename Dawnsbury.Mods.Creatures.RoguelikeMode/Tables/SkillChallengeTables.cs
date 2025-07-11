@@ -289,13 +289,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.", null);
                             await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
+                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1)!);
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The group are scared, hungry and desperate… Yet {opt2.Nominee.Name}'s words remind them of who they used to be.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The group are scared, hungry and desperate... Yet {opt2.Nominee.Name}'s words remind them of who they used to be.", null);
                             await battle.Cinematics.NarratorLineAsync($"Thanking {opt2.Nominee.Name} for their kindness and directions they shuffle on, seeking refuge in Dawnsbury.", null);
                             await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1));
+                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
                             }
                         }
                         break;
@@ -304,7 +304,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"The slaves accept the party's offer of aid with wary eyes, before departing, unwilling to push their luck any further against an armed group.", null);
                         await battle.Cinematics.NarratorLineAsync("The party lost {b}" + level * 5 + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                         foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                            pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1));
+                            pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
                         }
                         battle.CampaignState.CommonGold -= level * 5;
                         break;
@@ -479,15 +479,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     await battle.Cinematics.NarratorLineAsync($"Yet upon seeing them, the creature merely sneers and tells them to be gone. It seems they do not possess the treasure neccessary to place a wager in the foul creature's game.", null);
                     return;
                 }
-            
-                await battle.Cinematics.NarratorLineAsync($"The thing is clearly a demon, yet its offer cannot be ignored. The terms are simple, a game of skill, guile and chance. If the party wins, it will share its power to help them on their journey. If they lose, they must surrender their {wageredItem.Name} to the fiend's collection.", null);
+
+                var itemName = $"{{b}}{wageredItem.Name} {wageredItem.Illustration.IllustrationAsIconString}.{{/b}}";
+
+
+                await battle.Cinematics.NarratorLineAsync($"The thing is clearly a demon, yet its offer cannot be ignored. The terms are simple, a game of skill, guile and chance. If the party wins, it will share its power to help them on their journey. If they lose, they must surrender their {itemName} to the fiend's collection.", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 1, Skill.Deception);
                 SCOption opt2 = GetBestPartyMember(battle, level, 3, Skill.Thievery);
                 SCOption opt3 = GetBestPartyMember(battle, level, -2, Skill.Religion);
             
                 List<string> choices = new List<string>() {
-                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they should accept the fiend's challenge, wager their {wageredItem.Name} for a chance at demonic power.",
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they should accept the fiend's challenge, wager their {itemName} for a chance at demonic power.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests using some sleight of hand to rig the game in their favour.",
                     $"{opt3.printInfoTag()} {opt3.Nominee.Name} claims no good can come of dealing with demons. The fiend must be banished so that it might tempt travellers no more.",
                     "The party declines the suspicious creature's offer."
@@ -502,13 +505,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} boldly thunks the {wageredItem.Name} down on the small table, accepting the creature's wager.", null);
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} boldly thunks the {itemName} down on the small table, accepting the creature's wager.", null);
                         result = opt1.Roll();
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} is a shrewd player, diligently stumbling through the rules of the odd card game, but the thing is better.", null);
-                            await battle.Cinematics.NarratorLineAsync($"After several tense bouts, {opt1.Nominee.Name} is soon completely out of bone chips... And then quick as lightning, the creature looms high with victorious grin on its muzzle, snatches up the {wageredItem.Name}...", null);
+                            await battle.Cinematics.NarratorLineAsync($"After several tense bouts, {opt1.Nominee.Name} is soon completely out of bone chips... And then quick as lightning, the creature looms high with victorious grin on its muzzle, snatches up the {itemName}...", null);
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"...And the party finds themselves once again standing in the cold open cavern, with no tent or rodent-like demon in tight.", null);
-                            await battle.Cinematics.NarratorLineAsync($"The party's {wageredItem.Name} has been lost.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The party's {itemName} has been lost.", null);
                             container.Remove(wageredItem);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);

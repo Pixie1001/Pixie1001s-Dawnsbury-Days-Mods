@@ -245,13 +245,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithIllustration(IllustrationName.Bird256)
             .WithPrerequisite(sheet => sheet.HasFeat(MonasticWeaponry), "You must have the Monastic Weaponry feat.");
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("RL_AdvancedMonasticWeaponry", "Advanced Monastic Weaponry"), 6, "Your rigorous training regimen allows you to wield complex weaponry with ease.",
-                "For the purposes of proficiency, you treat advanced monk weapons as if they were martial monk weapons.",
-                [Trait.Monk, ModTraits.Roguelike], null)
-            .WithOnSheet(sheet => {
-                sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Advanced), Trait.Simple);
-            })
-            .WithPrerequisite(sheet => sheet.HasFeat(MonasticWeaponry), "You must have the Monastic Weaponry feat.");
+            //yield return new TrueFeat(ModManager.RegisterFeatName("RL_AdvancedMonasticWeaponry", "Advanced Monastic Weaponry"), 6, "Your rigorous training regimen allows you to wield complex weaponry with ease.",
+            //    "For the purposes of proficiency, you treat advanced monk weapons as if they were martial monk weapons.",
+            //    [Trait.Monk, ModTraits.Roguelike], null)
+            //.WithOnSheet(sheet => {
+            //    sheet.Proficiencies.AddProficiencyAdjustment((item) => item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Advanced), Trait.Simple);
+            //})
+            //.WithPrerequisite(sheet => sheet.HasFeat(MonasticWeaponry), "You must have the Monastic Weaponry feat.");
 
             var nightmareDomain = ClericClassFeatures.CreateDomain(NightmareDomain, "You fill minds with horror and dread.", SpellLoader.WakingNightmare, SpellLoader.SharedNightmare);
             nightmareDomain.Traits.Add(ModTraits.Roguelike);
