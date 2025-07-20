@@ -163,7 +163,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static SpellId VomitSwarm = ModManager.RegisterNewSpell("RL_VomitSwarm", 2, (id, caster, level, inCombat, info) => {
-            return Spells.CreateModern(Illustrations.VomitSwarm, "Vomit Swarm", [Trait.Evocation, Trait.Arcane, Trait.Occult, Trait.Primal, ModTraits.Roguelike],
+            Trait[] traits = null;
+            if (AllSpells.All.Any(spell => spell.Name == "Vomit Swarm"))
+                traits = [Trait.Evocation, ModTraits.Roguelike];
+            else
+                traits = [Trait.Evocation, Trait.Arcane, Trait.Occult, Trait.Primal, ModTraits.Roguelike];
+
+            return Spells.CreateModern(Illustrations.VomitSwarm, "Vomit Swarm", traits,
                 "You belch forth a swarm of magical vermin.",
                 $"The vermin swarm over anyone in the area, dealing {S.HeightenedVariable(level, 2)}d8 piercing damage (basic Reflex save mitigates). A creature that fails its saving throw also becomes sickened 1. ",
             Target.Cone(6), 2, SpellSavingThrow.Basic(Defense.Reflex))
