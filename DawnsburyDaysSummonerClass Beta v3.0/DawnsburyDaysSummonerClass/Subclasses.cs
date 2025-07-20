@@ -673,7 +673,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
 
             eidolon.AddQEffect(new QEffect() {
-                ProvideMainAction = (Func<QEffect, Possibility>)(qfEidolon => {
+                ProvideMainAction = qfEidolon => {
                     Creature summoner = GetSummoner(qfEidolon.Owner);
                     int dice = 1 + (summoner.Level + 1) / 2;
                     CombatAction breathWeapon = new CombatAction(qfEidolon.Owner, IllustrationName.BreathWeapon, "Breath Weapon", traits, "{b}Range{/b} " +
@@ -698,7 +698,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         self.AddQEffect(new QEffect("Recharging Fire Breath", "This creature can't use Fire Breath until the value counts down to zero.", ExpirationCondition.CountsDownAtEndOfYourTurn, self, (Illustration)IllustrationName.Recharging) {
                             Id = QEffectId.Recharging,
                             CountsAsADebuff = true,
-                            PreventTakingAction = (Func<CombatAction, string>)(ca => !(ca.Name == "Breath Weapon") ? (string)null : "This ability is recharging."),
+                            PreventTakingAction = ca => !(ca.Name == "Breath Weapon") ? null : "This ability is recharging.",
                             Value = num
                         });
                     })
@@ -717,7 +717,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     return output;
-                }),
+                },
             });
 
             if (eidolon.Level >= 7) {
@@ -729,9 +729,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Target.Self().WithAdditionalRestriction((Func<Creature, string>)(self => {
                                 if (!self.CanMakeBasicUnarmedAttack && self.QEffects.All<QEffect>(qf => qf.AdditionalUnarmedStrike == null))
                                     return "You must be able to attack to use Draconic Frenzy.";
-                                foreach (Item obj in self.MeleeWeapons.Where<Item>((Func<Item, bool>)(weapon => weapon.HasTrait(Trait.Unarmed)))) {
+                                foreach (Item obj in self.MeleeWeapons.Where(weapon => weapon.HasTrait(Trait.Unarmed))) {
                                     if (self.CreateStrike(obj).CanBeginToUse(self).CanBeUsed)
-                                        return (string)null;
+                                        return null;
                                 }
                                 return "There is no nearby enemy or you can't make attacks.";
                             })))

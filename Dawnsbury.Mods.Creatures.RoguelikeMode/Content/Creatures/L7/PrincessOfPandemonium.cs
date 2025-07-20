@@ -106,10 +106,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     var telegraphCandidates = caster.Battle.AllCreatures.Where(cr => cr.Alive && cr.OwningFaction.EnemyFactionOf(caster.OwningFaction) && cr.PersistentCharacterSheet != null).ToList();
                     if (telegraphCandidates.Count > 0) {
                         var target = telegraphCandidates.GetRandom();
-                        target.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
+                        target!.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
                             Id = QEffectIds.ImpendingPandemonium,
                         });
-                        target.Occupies.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}.");
+                        target.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}.");
                     }
                 }
             })
@@ -126,15 +126,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     var telegraphCandidates = caster.Battle.AllCreatures.Where(cr => cr.Alive && cr.OwningFaction.EnemyFactionOf(caster.OwningFaction) && cr.PersistentCharacterSheet != null && cr != telegraph).ToList();
                     if (telegraphCandidates.Count > 0) {
                         var target = telegraphCandidates.GetRandom();
-                        target.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.Never, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
+                        target!.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.Never, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
                             Id = QEffectIds.ImpendingPandemonium,
                         }.WithExpirationAtEndOfSourcesNextTurn(caster, false));
-                        target.Occupies.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}.");
+                        target.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}.");
                     }
                     if (telegraph != null) {
                         telegraph.RemoveAllQEffects(qf => qf.Id == QEffectIds.ImpendingPandemonium && qf.Source == caster);
                         telegraph.AddQEffect(QEffect.Confused(false, action).WithExpirationAtStartOfSourcesTurn(caster, 1));
-                        telegraph.Occupies.Overhead("*confused*", Color.PaleVioletRed, telegraph.Name + $" becomes confused.");
+                        telegraph.Overhead("*confused*", Color.PaleVioletRed, telegraph.Name + $" becomes confused.");
 
                         await CommonAnimations.CreateConeAnimation(telegraph.Battle, telegraph.Occupies.ToCenterVector(), telegraph.Battle.Map.AllTiles.Where(t => t.DistanceTo(telegraph.Occupies) <= 2).ToList(), 15, ProjectileKind.Cone, IllustrationName.Confusion);
                         foreach (Creature creature in telegraph.Battle.AllCreatures.Where(cr => cr.DistanceTo(telegraph) <= 2 && cr.EnemyOf(caster) && cr != telegraph && !cr.HasEffect(QEffectId.OutOfCombat))) {

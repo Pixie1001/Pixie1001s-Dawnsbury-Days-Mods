@@ -115,7 +115,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     } else {
                         curse.ExpiresAt = ExpirationCondition.Immediately;
                         Sfxs.Play(SfxName.ChillTouch);
-                        attacker.Occupies.Overhead("*curse triggered*", Color.PaleVioletRed, $"{attacker.Name} triggered the Web Warden's Curse!");
+                        attacker.Overhead("*curse triggered*", Color.PaleVioletRed, $"{attacker.Name} triggered the Web Warden's Curse!");
                         await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("10d10", "Web warden's curse"), attacker, CheckResult.Failure, DamageKind.Negative);
                     }
                 };

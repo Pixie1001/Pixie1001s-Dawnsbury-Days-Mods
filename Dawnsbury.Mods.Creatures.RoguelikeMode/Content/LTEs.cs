@@ -30,6 +30,7 @@ using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Display;
+using Dawnsbury.Core.StatBlocks.Monsters.L_1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -165,7 +166,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = IllustrationName.AngelicWings,
                     ExpiresAt = ExpirationCondition.Never,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour")),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour")!),
                     BonusToAttackRolls = (self, action, target) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
                     BonusToDefenses = (self, action, def) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
                     BonusToSpellSaveDCs = (self) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
@@ -177,7 +178,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = Illustrations.Unicorn,
                     ExpiresAt = ExpirationCondition.Never,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")!),
                     StartOfCombat = async self => {
                         Creature companion = CreatureList.Creatures[CreatureIds.UnicornFoal](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
@@ -199,7 +200,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = IllustrationName.GiantRat256,
                     ExpiresAt = ExpirationCondition.Never,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")!),
                     StartOfCombat = async self => {
                         FeatLoader.SpawnRatFamiliar(self.Owner);
                     },
@@ -215,17 +216,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             if (R.NextD20() <= 15) {
                                 return;
                             }
-                            var rat = MonsterStatBlocks.CreateGiantRat();
+                            var rat = GiantRat.CreateGiantRat();
                             if (owner.Level == 2) {
                                 rat = rat.ApplyEliteAdjustments();
                             } else if (owner.Level == 3) {
                                 rat = rat.ApplyEliteAdjustments(true);
                             }
                             owner.Battle.SpawnCreature(rat, defender.OwningFaction, defender.Occupies);
-                            owner.Occupies.Overhead("Curse of the Rat Fiend!", Color.Red, $"A giant rat crawls up out of {defender.Name}'s corpse, thanks to the curse of the Rat Fiend.");
+                            owner.Overhead("Curse of the Rat Fiend!", Color.Red, $"A giant rat crawls up out of {defender.Name}'s corpse, thanks to the curse of the Rat Fiend.");
                         }
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend")),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend")!),
                 };
             });
 
@@ -234,7 +235,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = Illustrations.DrowRenegade,
                     ExpiresAt = ExpirationCondition.Never,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")!),
                     StartOfCombat = async self => {
                         Creature companion = CreatureList.Creatures[CreatureIds.DrowRenegade](self.Owner.Battle.Encounter);
                         self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
@@ -257,7 +258,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.MaxHP);
                         self.Owner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, val))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, val)!)
                 };
             });
 
@@ -270,7 +271,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         self.Owner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
                     },
                     BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(-1, BonusType.Untyped, "Unicorn's Curse") : null,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null)!)
                 };
             });
 
@@ -280,7 +281,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Illustration = IllustrationName.Bless,
                     StartOfCombat = async self => self.Owner.MaxHP += 5,
                     BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(1, BonusType.Untyped, "Unicorn's Blessing") : null,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null)!)
                 };
             });
 
@@ -290,7 +291,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Illustration = IllustrationName.Fear,
                     Value = val,
                     BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(-val, BonusType.Status, "Guilt") : null,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, val))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, val)!)
                 };
             });
 
@@ -301,7 +302,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     Value = val,
                     BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(val, BonusType.Status, "Hope") : null,
                     BonusToAttackRolls = (self, action, target) => new Bonus(val, BonusType.Status, "Hope"),
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", name, val))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", name, val)!)
                 };
             });
 
@@ -310,7 +311,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = IllustrationName.DeviseAStratagem,
                     BonusToInitiative = self => new Bonus(1, BonusType.Untyped, "Information Sharing"),
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing"))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing")!)
                 };
             });
 
@@ -319,7 +320,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Sneak64,
                     BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Compromised Route"),
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route"))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route")!)
                 };
             });
 
@@ -331,7 +332,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     StateCheck = self => {
                         self.Owner.WeaknessAndResistance.AddImmunity(DamageKind.Poison);
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote"))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote")!)
                 };
             });
 
@@ -344,7 +345,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         self.Owner.AddQEffect(QEffect.Enfeebled(1).WithExpirationEphemeral());
                         self.Owner.AddQEffect(QEffect.Stupefied(1).WithExpirationEphemeral());
                     },
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse"))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse")!)
                 };
             });
 
@@ -366,7 +367,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Bless,
                     BonusToDefenses = (self, action, def) => def == Defense.Will ? new Bonus(1, BonusType.Untyped, "Well Spirit's Blessing") : null,
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null))
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null)!)
                 };
             });
 
@@ -397,8 +398,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 }
                                 else
                                 {
-                                    chosenCreature3.Occupies.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
-                                    chosenCreature3.AddQEffect(QEffect.Frightened(1));
+                                    chosenCreature3!.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
+                                    chosenCreature3!.AddQEffect(QEffect.Frightened(1));
                                 }
                             }
                         }
@@ -534,7 +535,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                             {
                                                 BonusToAllSpeeds = (QEffect _) => new Bonus(2, BonusType.Circumstance, "Rapid Response")
                                             });
-                                            await medic.StrideAsync("Choose where to Stride with Rapid Response (towards " + ally?.ToString() + ").", allowStep: false, maximumFiveFeet: false, ally.Occupies, allowCancel: false, allowPass: true);
+                                            await medic.StrideAsync("Choose where to Stride with Rapid Response (towards " + ally?.ToString() + ").", allowStep: false, maximumFiveFeet: false, ally!.Occupies, allowCancel: false, allowPass: true);
                                         }
                                     }
                                 }
@@ -576,7 +577,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             QEffect qEffect2 = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Sickened);
                             if (qEffect2 != null)
                             {
-                                int dc = (int)qEffect2.Tag;
+                                var dc = (int)qEffect2.Tag!;
                                 switch (CommonSpellEffects.RollSavingThrow(cr, action, Defense.Fortitude, dc))
                                 {
                                     case CheckResult.Failure:
@@ -643,8 +644,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 }
                                 else
                                 {
-                                    chosenCreature3.Occupies.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
-                                    chosenCreature3.AddQEffect(QEffect.Frightened(1));
+                                    chosenCreature3.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
+                                    chosenCreature3!.AddQEffect(QEffect.Frightened(1));
                                 }
                             }
                         }
@@ -670,7 +671,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     {
                         if (caster.Level >= 6)
                         {
-                            await caster.SingleTileMove(targets.ChosenTile, spell);
+                            await caster.SingleTileMove(targets.ChosenTile!, spell);
                         }
                         else
                         {
@@ -738,7 +739,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     {
                         foreach (Creature chosenCreature in targets.ChosenCreatures)
                         {
-                            await chosenCreature.StrideAsync("Four Winds: " + chosenCreature?.ToString() + " may Stride up to " + 5 * (chosenCreature.Speed / 2) + " feet.", allowStep: false, maximumFiveFeet: false, null, allowCancel: false, allowPass: true, maximumHalfSpeed: true);
+                            await chosenCreature.StrideAsync("Four Winds: " + chosenCreature.ToString() + " may Stride up to " + 5 * (chosenCreature.Speed / 2) + " feet.", allowStep: false, maximumFiveFeet: false, null, allowCancel: false, allowPass: true, maximumHalfSpeed: true);
                         }
                     })),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.FourWinds].Item2)!)
@@ -920,7 +921,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         new SpellVariant("Spines", "Spines", IllustrationName.VariantLine30).WithNewTarget(Target.ThirtyFootLine())
                     ])
                     .WithSavingThrow(new(Defense.Reflex, qfSelf.Owner.ClassOrSpellDC()))
-                    .WithCreateVariantDescription((int _, SpellVariant? variant) => (variant.Id == "Shards") ? ("Deal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 slashing damage in a 15-foot cone (basic Reflex save mitigates), and a creature that critically fails takes 1d6 persistent bleed damage.") : ("Deal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 piercing damage in a 30-foot line (basic Reflex save mitigates), and a creature that critically fails is clumsy 1 until the start of your next turn."))
+                    .WithCreateVariantDescription((int _, SpellVariant? variant) => (variant!.Id == "Shards") ? ("Deal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 slashing damage in a 15-foot cone (basic Reflex save mitigates), and a creature that critically fails takes 1d6 persistent bleed damage.") : ("Deal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 piercing damage in a 30-foot line (basic Reflex save mitigates), and a creature that critically fails is clumsy 1 until the start of your next turn."))
                     .WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 2, "The damage increases by 1d6.")
                     .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result)
                     {
@@ -982,7 +983,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             item9.Die();
                         }
 
-                        DifficultSpells.CreateProtectorTree(caster3, targets.ChosenTile, timberSentinel: true);
+                        DifficultSpells.CreateProtectorTree(caster3, targets.ChosenTile!, timberSentinel: true);
                     })),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.TimberSentinel].Item2)!)
                 };
@@ -1062,7 +1063,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 }.GetRandom(),
                                 TransformsTileIntoDifficultTerrain = true
                             };
-                            tileQEffect2.AfterDamageIsDealtHere = delegate (DamageKind damageKind)
+                            tileQEffect2.AfterDamageIsDealtHereAsync = async (damageKind) =>
                             {
                                 if (damageKind == DamageKind.Fire)
                                 {

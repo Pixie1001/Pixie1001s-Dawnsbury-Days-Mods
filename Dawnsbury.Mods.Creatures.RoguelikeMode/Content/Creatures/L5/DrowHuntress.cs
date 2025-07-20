@@ -59,7 +59,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         }
 
                         if (bestTile != null) {
-                            self.Owner.Occupies.Overhead("*shadow step*", Color.Purple, $"{self.Owner.Name} uses {{b}}Shadow Step{{/b}}.");
+                            self.Owner.Overhead("*shadow step*", Color.Purple, $"{self.Owner.Name} uses {{b}}Shadow Step{{/b}}.");
                             self.Owner.TranslateTo(bestTile);
                             self.Owner.AnimationData.ColorBlink(Color.DarkSlateBlue);
                             Sfxs.Play(SfxName.PhaseBolt);

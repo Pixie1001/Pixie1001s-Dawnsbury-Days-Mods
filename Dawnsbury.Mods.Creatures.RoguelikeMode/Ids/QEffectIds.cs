@@ -98,8 +98,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static QEffectId ShadowWebSickness { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ShadowWebSickness");
         internal static QEffectId WebWardensCurse { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_WebWardensCurse");
         internal static QEffectId ImpendingPandemonium { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ImpendingPandemonium");
-
-
+        internal static QEffectId BlessedOfEchidna { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_BlessedOfEchidna");
 
         // Tile Effects IDs
         internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");

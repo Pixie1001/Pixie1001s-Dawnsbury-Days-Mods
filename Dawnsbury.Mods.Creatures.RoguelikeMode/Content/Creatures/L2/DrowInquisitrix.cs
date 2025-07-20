@@ -90,7 +90,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                     bonusDmg += DiceFormula.FromText(dmgSource.Item1).ExpectedValue;
                                 }
                             }
-                            return defender.HasTrait(Trait.Undead) ? -100f : 4.5f + action.TrueDamageFormula.ExpectedValue + bonusDmg;
+                            return defender.HasTrait(Trait.Undead) ? -100f : 4.5f + (action.TrueDamageFormula?.ExpectedValue ?? 0) + bonusDmg;
                         });
 
                         return (ActionPossibility)action;

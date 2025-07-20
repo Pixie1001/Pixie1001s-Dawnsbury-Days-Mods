@@ -266,7 +266,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
         private static void RegisterEncounter<T>(string filename, string key) where T : Encounter
         {
-            RegisteredEncounters.RegisteredEncounterInfo registeredEncounterInfo = new RegisteredEncounters.RegisteredEncounterInfo(() => (Encounter)Activator.CreateInstance(typeof(T), filename));
+            RegisteredEncounters.RegisteredEncounterInfo registeredEncounterInfo = new RegisteredEncounters.RegisteredEncounterInfo(() => (Encounter)Activator.CreateInstance(typeof(T), filename)!);
             RegisteredEncounters.RegisteredEncountersBySimpleFilename.Add(key, registeredEncounterInfo);
             RegisteredEncounters.RegisteredEncountersByType.Add(typeof(T), registeredEncounterInfo);
         }

@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
@@ -20,9 +13,6 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
@@ -34,40 +24,17 @@ using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
-using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
-using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using System.IO;
-using static HarmonyLib.Code;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.Mechanics.Damage;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.StatBlocks;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -160,23 +127,54 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 target.OwningFaction = caster.OwningFaction;
                 target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", result == CheckResult.CriticalFailure ? ExpirationCondition.CountsDownAtEndOfYourTurn : ExpirationCondition.ExpiresAtEndOfYourTurn, caster, (Illustration)IllustrationName.Dominate) {
                     Value = result == CheckResult.CriticalFailure ? 2 : 0,
-                    StateCheck = (Action<QEffect>)(qf => {
-                        if (caster.Alive)
+                    StateCheck = qf => {
+                        if (caster?.Alive == true)
                             return;
-                        qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
-                        if (qf.Owner.OwningFaction != caster.OwningFaction)
+                        qf.Owner.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                        if (qf.Owner.OwningFaction != caster!.OwningFaction)
                             return;
                         qf.Owner.OwningFaction = originalFaction;
                         qf.ExpiresAt = ExpirationCondition.Immediately;
-                    }),
+                    },
                     WhenExpires = self => {
-                        self.Owner.Occupies.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the domination.");
-                        if (self.Owner.OwningFaction != caster.OwningFaction)
+                        self.Owner.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the domination.");
+                        if (self.Owner.OwningFaction != caster!.OwningFaction)
                             return;
                         self.Owner.OwningFaction = originalFaction;
                     }
                 });
             }));
+        });
+
+        public static SpellId SummonMonster = ModManager.RegisterNewSpell("RL_SummonMonster", 2, (id, caster, level, inCombat, info) => {
+            int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
+            return Spells.CreateModern(Illustrations.SummonMonster, "Summon Monster", [Trait.Conjuration, Trait.Summon],
+                    "You conjure a monstrous ally to fight for you.",
+                    "You summon a monstrous creature whose level is " + S.HeightenedVariable(maxLevel, -1) + " or less." + Level1Spells.SummonRulesText + S.HeightenText(level, 1, inCombat,
+                    "{b}Heightened (2nd){/b} The maximum level of the summoned creature is 1.\n{b}Heightened (3rd){/b} The maximum level of the summoned creature is 2." +
+                    "\n{b}Heightened (4th){/b} The maximum level of the summoned creature is 3.\n{b}Heightened (5th){/b} The maximum level of the summoned creature is 5."),
+                    Target.RangedEmptyTileForSummoning(6), level, null)
+                .WithActionCost(3)
+                .WithHeighteningSpecial(Heightening.FromSpecificLevels(2, 3, 4, 5))
+                .WithSoundEffect(SfxName.Summoning)
+                .WithVariants(CreateSummoningVariants(cr => (cr.HasTrait(Trait.Beast) || cr.HasTrait(Trait.Animal)) && !cr.HasTrait(Trait.Celestial) && !cr.HasTrait(Trait.Aquatic), maxLevel))
+                .WithCreateVariantDescription((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant!.Id]))
+                .WithEffectOnChosenTargets(async (spell, caster, targets) => { await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile!); });
+        });
+
+        public static SpellId VomitSwarm = ModManager.RegisterNewSpell("RL_VomitSwarm", 2, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern(Illustrations.VomitSwarm, "Vomit Swarm", [Trait.Evocation, Trait.Arcane, Trait.Occult, Trait.Primal, ModTraits.Roguelike],
+                "You belch forth a swarm of magical vermin.",
+                $"The vermin swarm over anyone in the area, dealing {S.HeightenedVariable(level, 2)}d8 piercing damage (basic Reflex save mitigates). A creature that fails its saving throw also becomes sickened 1. ",
+            Target.Cone(6), 2, SpellSavingThrow.Basic(Defense.Reflex))
+            .WithSoundEffect(SoundEffects.VomitSwarm)
+            .WithHeighteningOfDamageEveryLevel(level, 2, inCombat, "1d8")
+            .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Sicken(d) + level * 4.5f)
+            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                if (result < CheckResult.Success)
+                    target.AddQEffect(QEffect.Sickened(1, spell.SpellcastingSource?.GetSpellSaveDC() ?? 10));
+                await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, level + "d8", DamageKind.Piercing);
+            });
         });
 
         public static SpellId WakingNightmare = ModManager.RegisterNewSpell("WakingNightmare", 1, (id, caster, level, inCombat, info) => {
@@ -279,7 +277,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         internal static void LoadSpells() {
 
-            var spells = new List<SpellId>() { AgonisingDespair, LesserDominate, WakingNightmare, SharedNightmare };
+            var spells = new List<SpellId>() { VomitSwarm, SummonMonster, AgonisingDespair, LesserDominate, WakingNightmare, SharedNightmare };
 
             ModManager.RegisterActionOnEachSpell(spell => {
                 if (spell.SpellId == SpellId.BoneSpray) {
@@ -298,9 +296,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         cr.RegeneratePossibilities();
                         foreach (PossibilitySection section in cr.Possibilities.Sections) {
                             if (section.Possibilities.Any(pos => pos is ActionPossibility
-                            && (pos as ActionPossibility).CombatAction.HasTrait(Trait.Attack)
-                            && ((pos as ActionPossibility)?.CombatAction.Target as CreatureTarget)?.RangeKind == RangeKind.Ranged
-                            && ((pos as ActionPossibility)?.CombatAction.Target as CreatureTarget).CreatureTargetingRequirements.Any(r => r is MaximumRangeCreatureTargetingRequirement && cr.DistanceTo(nearestEnemy) <= (r as MaximumRangeCreatureTargetingRequirement).Range))) {
+                            && (pos as ActionPossibility)!.CombatAction.HasTrait(Trait.Attack)
+                            && ((pos as ActionPossibility)!.CombatAction.Target as CreatureTarget)!.RangeKind == RangeKind.Ranged
+                            && ((pos as ActionPossibility)!.CombatAction.Target as CreatureTarget)!.CreatureTargetingRequirements.Any(r => r is MaximumRangeCreatureTargetingRequirement && cr.DistanceTo(nearestEnemy!) <= (r as MaximumRangeCreatureTargetingRequirement)!.Range))) {
                                 hasRangedAttack = true;
                             }
                         }
@@ -353,7 +351,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                 if (spell.SpellId == SpellId.FlourishingFlora) {
                     spell.WithGoodnessAgainstEnemy((t, a, d) => 5f * spell.SpellLevel);
-                    spell.Variants.ForEach(v => v.GoodnessModifier = (ai, utility) => {
+                    spell.Variants?.ForEach(v => v.GoodnessModifier = (ai, utility) => {
                         if (v.Id == "CACTI") {
                             return utility;
                         } else if (v.Id == "FLOWERS") {
@@ -373,7 +371,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         string[] reactions = new string[] { "attack of opportunity", "reactive strike", "stand still", "hunted prey",
                             "glimpse of redemption", "retributive strike", "liberating step", "implement's interruption", "ring bell",
                             "amulet's abeyance", "weapon", "amulet", "bell" };
-                        if (d.QEffects.Any(qf => reactions.Any(str => qf.Name.ToLower().StartsWith(str)))) {
+                        if (d.QEffects.Any(qf => reactions.Any(str => qf.Name != null && qf.Name.ToLower().StartsWith(str)))) {
                             score += 3 * a.Level;
                         }
                         return score;
@@ -454,6 +452,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             //        }));
             //});
+        }
+
+        public static SpellVariant[] CreateSummoningVariants(Func<Creature, bool> filter, int maximumSummonLevel) {
+            return (from animal in MonsterStatBlocks.MonsterExemplars
+                    where filter(animal) && animal.Level <= maximumSummonLevel && !animal.HasTrait(Trait.NonSummonable)
+                    orderby animal.Level, animal.Name
+                    select new SpellVariant(animal.Name, animal.Name + " (level " + animal.Level + ")", animal.Illustration) {
+                        GoodnessModifier = (ai, original) => original + animal.Level * 20
+                    }).ToArray();
         }
     }
 }

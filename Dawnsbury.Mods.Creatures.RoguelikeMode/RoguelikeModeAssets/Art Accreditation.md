@@ -37,6 +37,7 @@
 	<li>HookSword.png</li>
 	<li>SceptreOfPandemonium.png</li>
 	<li>SerpentineBow.png</li>
+	<li>Quills.png</li>
 </ul>
 
 ### Rexard
@@ -44,7 +45,6 @@
 <ul>
 	<li>Automoton.png (Modified)</li>
 	<li>CrawlingHand.png (Modified)</li>
-	<li>BrinyBolt.png (Modified)</li>
 	<li>KrakenMail.png (Modified)</li>
 	<li>FlailSnail.png (Modified)</li>
 	<li>AngerPhantom.png (Modified)</li>
@@ -52,6 +52,8 @@
 	<li>AgonizingDespair.png (Modified)</li>
 	<li>Overcharge.png (Modified)</li>
 	<li>MonasticArcherStance.png (Modified)</li>
+	<li>VomitSwarm.png (Modified)</li>
+	<li>SummonMonster.png (Modified)</li>
 </ul>
 
 ### Flaticon.com
@@ -148,6 +150,7 @@
 	<li>WebWarden</li>
 	<li>DrowArachnomancer</li>
 	<li>DrowBlademaster</li>
+	<li>BebilithMinor</li>
 </ul>
 
 ## Volunteer Contributions

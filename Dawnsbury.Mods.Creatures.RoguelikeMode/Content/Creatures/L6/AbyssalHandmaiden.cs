@@ -118,9 +118,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 CheckResult result = CommonSpellEffects.RollSavingThrow(you, action, Defense.Will, dc);
                                 if (result < CheckResult.Success) {
                                     you.AddQEffect(QEffect.Confused(false, action).WithExpirationAtStartOfOwnerTurn());
-                                    you.Occupies.Overhead("*madness*", Color.Crimson, $"{you.Name} succumbs to madness!");
+                                    you.Overhead("*madness*", Color.Crimson, $"{you.Name} succumbs to madness!");
                                 } else {
-                                    you.Occupies.Overhead("*resisted*", Color.Crimson, $"{you.Name} resisted the {monster.Name}'s madness aura!");
+                                    you.Overhead("*resisted*", Color.Crimson, $"{you.Name} resisted the {monster.Name}'s madness aura!");
                                 }
                             }
                         } else {

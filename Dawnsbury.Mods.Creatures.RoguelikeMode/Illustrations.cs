@@ -83,6 +83,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Drowhuntress = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowHuntress.png");
         internal static ModdedIllustration WebWarden = new ModdedIllustration("RoguelikeModeAssets/Enemies/WebWarden.png");
         internal static ModdedIllustration DrowBlademaster = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowBlademaster.png");
+        internal static ModdedIllustration BebilithMinor = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithMinor.png");
 
         // Bears for Archanophobia Mode
         internal static ModdedIllustration Bear1 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
@@ -159,6 +160,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration AgonizingDespair = new ModdedIllustration("RoguelikeModeAssets/Icons/AgonizingDespair.png");
         internal static ModdedIllustration Overcharge = new ModdedIllustration("RoguelikeModeAssets/Icons/Overcharge.png");
         internal static ModdedIllustration MonasticArcherStance = new ModdedIllustration("RoguelikeModeAssets/Icons/MonasticArcherStance.png");
+        internal static ModdedIllustration VomitSwarm = new ModdedIllustration("RoguelikeModeAssets/Icons/VomitSwarm.png");
+        internal static ModdedIllustration SummonMonster = new ModdedIllustration("RoguelikeModeAssets/Icons/SummonMonster.png");
+        internal static ModdedIllustration Quills = new ModdedIllustration("RoguelikeModeAssets/Icons/Quills.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

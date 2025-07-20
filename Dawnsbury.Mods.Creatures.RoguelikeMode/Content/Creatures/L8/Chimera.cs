@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
             var creature = new Creature(Illustrations.Chimera,
                 "Chimera",
-                [Trait.Beast, Trait.Evil, Trait.Chaotic, ModTraits.MeleeMutator],
+                [Trait.Beast, Trait.Evil, Trait.Chaotic, ModTraits.MeleeMutator, Trait.NoPhysicalUnarmedAttack],
                 8, 16, 8,
                 new Defenses(27, 18, 16, 14),
                 135,
@@ -217,7 +217,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 });
             })
             .Done();
-            creature.UnarmedStrike = null;
 
             creature = UtilityFunctions.AddNaturalWeapon(creature, "dragon jaws", IllustrationName.Jaws, 20, [], "2d6+9", DamageKind.Piercing, (weaponProperties) => weaponProperties.WithAdditionalDamage("2d6", chosenBreathWeapon.DamageKind));
             creature = UtilityFunctions.AddNaturalWeapon(creature, "goat horns", IllustrationName.Horn, 20, [], "2d10+9", DamageKind.Piercing, null);
@@ -243,7 +242,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 {
                     itemList.RemoveAt(0);
                     int map = attacker.Actions.AttackedThisManyTimesThisTurn;
-                    attacker.Occupies.Overhead(overhead, Color.White);
+                    attacker.Overhead(overhead, Color.White);
 
                     for (int i = 0; i < numberOfStrikes; i++)
                     {

@@ -52,7 +52,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 StateCheck = self => {
                     if (!self.Owner.Battle.AllCreatures.Any(cr => cr.Alive && cr.CreatureId == CreatureIds.MerfolkSeaWitch)) {
                         foreach (Tile tile in self.Owner.Battle.Map.AllTiles) {
-                            tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
+                            tile.RemoveAllQEffects(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
                         }
                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                     }
@@ -63,10 +63,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 qfTechnical.Source = hazard;
                 qfTechnical.Innate = false;
                 qfTechnical.StartOfYourPrimaryTurn = async (self, owner) => {
-                    if (owner.DistanceTo(self.Source.Occupies) <= radius) {
-                        //SavingThrow st = new SavingThrow();
-                        //CommonSpellEffects.DealBasicDamage();
-
+                    if (owner.DistanceTo(self.Source!.Occupies) <= radius) {
                         CombatAction ca = new CombatAction(hazard, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion], "", Target.Ranged(100))
                         .WithActionCost(0)
                         .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
@@ -80,6 +77,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                         if (owner.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon") && owner.Battle.AllCreatures.Any(cr => cr.DistanceTo(qfTechnical.Source.Occupies) <= radius && cr.Traits.Any(t => t.HumanizeTitleCase2() == "Summoner"))) {
                             QEffect bond = owner.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
+                            if (bond?.Source == null) return;
                             ca.Target = Target.Emanation(radius).WithIncludeOnlyIf((area, target) => {
                                 return target == owner || target == bond.Source;
                             });

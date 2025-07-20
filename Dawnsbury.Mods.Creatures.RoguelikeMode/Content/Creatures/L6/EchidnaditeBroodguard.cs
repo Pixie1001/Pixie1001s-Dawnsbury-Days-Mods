@@ -72,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(new QEffect("Monstrous Assault", "The Echidna Brood Guard deals an additional 1d6 damage against enemies that are adjacent to a monstrous ally.") {
                 YouDealDamageWithStrike = (self, action, diceFormula, defender) => {
                     if (action.HasTrait(Trait.Strike) && defender.Battle.AllCreatures.Any(cr => cr.IsAdjacentTo(defender) && CommonQEffects.IsMonsterAlly(self.Owner, cr))) {
-                        defender.Occupies.Overhead("monstrous assault!", Color.Gainsboro);
+                        defender.Overhead("monstrous assault!", Color.Gainsboro);
                         return diceFormula.Add(DiceFormula.FromText("1d6", "Monstrous Assault"));
                     }
                     return diceFormula;
@@ -97,7 +97,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                         .WithAdditionalConditionOnTargetCreature((a, d) => d.HeldItems.Any(hi => !hi.HasTrait(Trait.Grapplee) && !hi.HasTrait(Trait.Shield) && d.GetProficiency(hi) > d.Level) ? Usability.Usable : Usability.CommonReasons.TargetHasNoWeapon)
                                     )
                                     .WithGoodness((t, a, d) => AIConstants.ALWAYS)
-                                    .WithItem(monster.PrimaryWeapon)
+                                    .WithItem(monster.PrimaryWeapon!)
                                     .WithActionCost(1)
                                     .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), TaggedChecks.DefenseDC(Defense.Reflex)))
                                     .WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr) {

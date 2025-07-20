@@ -241,7 +241,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 {
                     itemList.RemoveAt(0);
                     int map = attacker.Actions.AttackedThisManyTimesThisTurn;
-                    attacker.Occupies.Overhead(overhead, Color.White);
+                    attacker.Overhead(overhead, Color.White);
 
                     for (int i = 0; i < numberOfStrikes; i++)
                     {

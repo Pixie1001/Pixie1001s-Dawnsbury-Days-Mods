@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.Crocodile,
                 "Crocodile",
-                [Trait.Animal, ModTraits.MeleeMutator],
+                [Trait.Animal, ModTraits.MeleeMutator, Trait.NoPhysicalUnarmedAttack],
                 2, 7, 4,
                 new Defenses(17, 9, 7, 5),
                 30,
@@ -63,8 +63,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 });
             })
             .Done();
-
-            creature.UnarmedStrike = null;
             creature = UtilityFunctions.AddNaturalWeapon(creature, "jaws", IllustrationName.Jaws, 10, [Trait.Grab], "1d10+4", DamageKind.Piercing, null);
             creature = UtilityFunctions.AddNaturalWeapon(creature, "tail", IllustrationName.Tail, 10, [], "1d6+4", DamageKind.Bludgeoning, null);
 

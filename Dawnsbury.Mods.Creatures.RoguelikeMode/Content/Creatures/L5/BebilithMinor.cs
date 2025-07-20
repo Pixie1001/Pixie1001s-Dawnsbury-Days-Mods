@@ -18,21 +18,21 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class BebilithSpawn {
+
+    public class BebilithMinor {
         public static Creature Create() {
-            return new Creature(new SpiderIllustration(Illustrations.BebilithSpawn, Illustrations.Bear2), "Bebilith Spawn", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Beast, Trait.Fiend, ModTraits.Spider, ModTraits.MeleeMutator }, 2, 5, 6, new Defenses(17, 11, 8, 8), 40,
-            new Abilities(4, 3, 3, 0, 2, 0), new Skills(acrobatics: 7, stealth: 7, athletics: 8))
-            .WithCreatureId(CreatureIds.BebilithSpawn)
-            .WithProficiency(Trait.Melee, Proficiency.Expert)
-            .WithProficiency(Trait.Ranged, Proficiency.Trained)
+            return new Creature(new SpiderIllustration(Illustrations.BebilithMinor, Illustrations.Bear2), "Bebilith, Minor",
+               [Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Beast, Trait.Fiend, ModTraits.Spider, ModTraits.MeleeMutator],
+               level: 5, perception: 9, speed: 6, new Defenses(21, fort: 11, reflex: 9, will: 12), hp: 95,
+            new Abilities(6, 3, 4, 0, 3, 0), new Skills(acrobatics: 10, stealth: 10, athletics: 13))
+            .WithCreatureId(CreatureIds.BebilithMinor)
+            .WithProficiency(Trait.Melee, Proficiency.Master)
+            .WithProficiency(Trait.Ranged, Proficiency.Expert)
             .WithCharacteristics(false, true)
-            .WithUnarmedStrike(new Item(IllustrationName.Jaws, "maw", new Trait[] { Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)))
-            .WithAdditionalUnarmedStrike(new Item(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), "stabbing appendage", new Trait[] { Trait.Agile, Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
-            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 3))
-            .AddQEffect(new QEffect() {
-                StateCheck = self => self.Owner.WeaknessAndResistance.AddWeakness(DamageKind.Good, 5)
-            })
+            .WithUnarmedStrike(new Item(IllustrationName.Jaws, "maw", new Trait[] { Trait.Melee, Trait.Unarmed, Trait.Brawling, Trait.Grab }).WithWeaponProperties(new WeaponProperties("2d8", DamageKind.Piercing)))
+            .WithAdditionalUnarmedStrike(new Item(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), "stabbing appendage", new Trait[] { Trait.Agile, Trait.Melee, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("2d6", DamageKind.Piercing)))
+            .AddQEffect(QEffect.DamageWeakness(DamageKind.Good, 5))
+            .AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, 5))
             .AddQEffect(new QEffect() {
                 StateCheckWithVisibleChanges = async self => {
                     if (self.Owner.Battle.Encounter.CharacterLevel <= 3 && CampaignState.Instance != null && CampaignState.Instance.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Tags.TryGetValue("SeenBebilithSpawn", out string val) == false) {
@@ -52,9 +52,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(new QEffect("Webwalk", "This creature moves through webs unimpeded.") { Id = QEffectId.IgnoresWeb })
             .AddQEffect(QEffect.WebSense())
             .AddQEffect(QEffect.AttackOfOpportunity())
-            .AddQEffect(CommonQEffects.PreyUpon())
-            .AddQEffect(CommonQEffects.AbyssalRotAttack(16, "1d8", "maw"))
-            .AddQEffect(CommonQEffects.WebAttack(16));
+            .AddQEffect(CommonQEffects.AbyssalRotAttack(20, "1d12", "maw"))
+            .AddQEffect(CommonQEffects.WebAttack(20))
+            .AddQEffect(QEffect.MonsterGrab());
         }
     }
 }

@@ -16,6 +16,8 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.StatBlocks.Monsters.L2;
+using Dawnsbury.Core.StatBlocks.Monsters.L4;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
@@ -52,19 +54,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 Creature newForm = null;
                                 switch (rand) {
                                     case 0:
-                                        newForm = MonsterStatBlocks.CreateAbrikandilu();
+                                        newForm = Abrikandilu.CreateAbrikandilu();
                                         break;
                                     case 1:
-                                        newForm = MonsterStatBlocks.CreateBarghest();
+                                        newForm = Barghest.CreateBarghest();
                                         break;
                                     case 2:
-                                        newForm = MonsterStatBlocks.CreateDretch();
+                                        newForm = Dretch.CreateDretch();
                                         break;
                                     case 3:
                                         newForm = BebilithSpawn.Create();
                                         break;
                                     default:
-                                        newForm = MonsterStatBlocks.CreateAbrikandilu();
+                                        newForm = Abrikandilu.CreateAbrikandilu();
                                         break;
                                 }
                                 if (newForm.Level - caster.Level >= 4) {

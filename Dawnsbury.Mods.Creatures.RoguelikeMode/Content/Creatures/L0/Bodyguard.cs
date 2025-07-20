@@ -5,6 +5,7 @@ using Dawnsbury.Core;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.Mechanics;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -23,10 +24,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 new Skills(athletics: 6, intimidation: 4))
             .WithCreatureId(CreatureIds.Bodyguard)
             .WithBasicCharacteristics()
-            .AddQEffect(CommonQEffects.MonsterKnockdown())
+            .AddQEffect(QEffect.MonsterKnockdown())
             .AddHeldItem(new Item(ItemName.SteelShield, IllustrationName.SteelShield, "Steel Shield", 0, 0, Trait.Shield, Trait.Martial).WithMainTrait(Trait.SteelShield).WithShieldProperties(5));
 
-            UtilityFunctions.AddNaturalWeapon(creature, "flail", IllustrationName.Flail, 7, [Trait.Disarm, Trait.Sweep, Trait.Trip], "1d6+2", DamageKind.Bludgeoning);
+            UtilityFunctions.AddNaturalWeapon(creature, "flail", IllustrationName.Flail, 7, [Trait.Disarm, Trait.Sweep, Trait.Trip, Trait.Knockdown], "1d6+2", DamageKind.Bludgeoning);
 
             return creature;
         }

@@ -8,7 +8,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class CorruptedSwampLv2 : Level2Encounter
     {
-        public CorruptedSwampLv2(string filename) : base("Corrupted Swamp", filename, null)
+        public CorruptedSwampLv2(string filename) : base("Corrupted Swamp", filename)
         {
         }
     }

@@ -52,12 +52,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches {
             // use normal reflection or helper methods in <AccessTools> to find the method/constructor
             // you want to patch and return its MethodInfo/ConstructorInfo
             //
-            return Type.GetType("Dawnsbury.Core.Mechanics.Targeting.Areas, Dawnsbury Days")
+            return Type.GetType("Dawnsbury.Core.Mechanics.Targeting.Areas, Dawnsbury Days")!
                     .GetMethod("DetermineTiles", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
                         typeof(CloseAreaTarget),
                         typeof(Tile),
                         typeof(Vector2)
-                    });
+                    })!;
         }
 
        // TODO: Fix up so riptide will work

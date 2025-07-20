@@ -40,7 +40,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
             List<Creature> eggs = battle.AllCreatures.Where(cr => cr.Illustration == Illustrations.DemonicPustule).ToList();
             for (int i = 0; i < 4; i++) {
-                eggs.Remove(eggs.GetRandom());
+                eggs.Remove(eggs.GetRandom()!);
             }
             foreach (Creature egg in eggs) {
                 battle.RemoveCreatureFromGame(egg);
@@ -80,18 +80,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task AntipartyCutscene(TBattle battle) {
             Creature priestess = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.DrowPriestess);
+            if (priestess == null) return;
             priestess.MainName = "Princess Melantha";
             priestess.Subtitle = "High Priestess and First Princess of House Vextra";
 
             Creature inquisitrix = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.DrowInquisitrix);
+            if (inquisitrix == null) return;
             inquisitrix.MainName = "Princess Amethyst";
             inquisitrix.Subtitle = "Royal Torturer and Second Princess of House Vextra";
 
             Creature mage = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && (cr.CreatureId == CreatureIds.DrowShadowcaster || cr.CreatureId == CreatureIds.DrowArcanist));
+            if (mage == null) return;
             mage.MainName = "Prince Valdis";
             mage.Subtitle = "Court Mage and First Prince of House Vextra";
 
             Creature guard = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.DrowTempleGuard);
+            if (guard == null) return;
             guard.MainName = "Royal Protector Kauth";
             guard.Subtitle = "Royal Protector of House Vextra";
 
@@ -108,10 +112,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task DriderGeneralCutscene(TBattle battle) {
             Creature drider = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.Drider);
+            if (drider == null) return;
             drider.MainName = "General Licinia";
             drider.Subtitle = "High Lady Commander, Chosen of the Demon Queen of Spiders";
 
             Creature inquisitrix = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.DrowInquisitrix);
+            if (inquisitrix == null) return;
             inquisitrix.MainName = "Strategist Fausta";
             inquisitrix.Subtitle = "Licinia's Personal Strategist";
 
@@ -126,6 +132,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task HandmaidenCutscene(TBattle battle) {
             Creature handmaiden = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.AbyssalHandmaiden);
+            if (handmaiden == null) return;
             handmaiden.Subtitle = "Handmaiden of the Spider Queen";
 
             battle.Cinematics.EnterCutscene();
@@ -140,12 +147,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task WitchCoven(TBattle battle) {
             Creature crone = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.WitchCrone);
+            if (crone == null) return;
             crone.Subtitle = "Crone of the Wilds";
 
             Creature maiden = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.WitchMaiden);
+            if (maiden == null) return;
             maiden.Subtitle = "Maiden of the Lost";
 
             Creature mother = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.WitchMother);
+            if (mother == null) return;
             mother.Subtitle = "Mother of the Pool";
 
             battle.Cinematics.EnterCutscene();
@@ -154,13 +164,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             await battle.Cinematics.LineAsync(maiden, "Fire burn and cauldron bubble.", null);
             await battle.Cinematics.LineAsync(crone, "For a charm of powerful trouble.", null);
 
-            if (battle.CampaignState != null && battle.CampaignState.AdventurePath.CampaignStops.Any(stop => stop.Name == "Mother of the Pool")) {
+            if (battle.CampaignState != null && battle.CampaignState.AdventurePath!.CampaignStops.Any(stop => stop.Name == "Mother of the Pool")) {
                 await battle.Cinematics.LineAsync(mother, "Have you reconsidered my offer, children? Face me upon the hour of the witch at your peril.", null);
             }
-            if (battle.CampaignState != null && battle.CampaignState.AdventurePath.CampaignStops.Any(stop => stop.Name == "Maiden of the Lost")) {
+            if (battle.CampaignState != null && battle.CampaignState.AdventurePath!.CampaignStops.Any(stop => stop.Name == "Maiden of the Lost")) {
                 await battle.Cinematics.LineAsync(maiden, "I'm sorry our paths must cross again like this. Alas I must keep to the word of my contract. I hope you understand.", null);
             }
-            if (battle.CampaignState != null && battle.CampaignState.AdventurePath.CampaignStops.Any(stop => stop.Name == "Crone of the Wilds")) {
+            if (battle.CampaignState != null && battle.CampaignState.AdventurePath!.CampaignStops.Any(stop => stop.Name == "Crone of the Wilds")) {
                 await battle.Cinematics.LineAsync(crone, "Haha! I told you you hadn't seen the last of old Agatha, vermin!", null);
             }
             await battle.Cinematics.LineAsync(mother, "I curse thee once with the doubt of your hubris.", null);
@@ -172,6 +182,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task MaidenOfTheLost(TBattle battle) {
             Creature maiden = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.WitchMaiden);
+            if (maiden == null) return;
             maiden.Subtitle = "Maiden of the Lost";
 
             battle.Cinematics.EnterCutscene();
@@ -186,6 +197,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task MotherOfThePool(TBattle battle) {
             Creature witch = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.WitchMother);
+            if (witch == null) return;
             witch.Subtitle = "Mother of the Pool";
 
             battle.Cinematics.EnterCutscene();
@@ -199,6 +211,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task CroneOfTheWilds(TBattle battle) {
             Creature witch = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.WitchCrone);
+            if (witch == null) return;
             witch.Subtitle = "Crone of the Wilds";
 
             battle.Cinematics.EnterCutscene();
@@ -211,6 +224,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public async static Task CourtOfTheCorralQueen(TBattle battle) {
             Creature witch = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureIds.MerfolkSeaWitch);
+            if (witch == null) return;
             witch.MainName = "Queen Ursula";
             witch.Subtitle = "The Coral Queen";
 

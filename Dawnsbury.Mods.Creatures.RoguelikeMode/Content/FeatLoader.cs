@@ -591,7 +591,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 Item? bow = self.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
                                 if (bow != null) {
                                     var combatAction = self.CreateStrike(bow);
-                                    (combatAction.Target as CreatureTarget)?.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties.RangeIncrement / 2));
+                                    (combatAction.Target as CreatureTarget)?.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties!.RangeIncrement / 2));
                                     combatAction.WithActionCost(0);
                                     GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
                                 }

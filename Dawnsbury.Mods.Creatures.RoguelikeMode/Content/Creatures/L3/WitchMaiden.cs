@@ -64,6 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             StartOfYourPrimaryTurn = async (qfCurse, victim) => {
                                 if (victim.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon")) {
                                     QEffect bond = victim.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP");
+                                    if (bond == null) return;
                                     CombatAction action = new CombatAction(self.Owner, self.Illustration ?? IllustrationName.None, "Curse of Agony", new Trait[] { Trait.Curse, Trait.Mental, Trait.Arcane, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion }, "", Target.Emanation(100).WithIncludeOnlyIf((area, target) => {
                                         return target == victim || target == bond.Source;
                                     }))
@@ -75,7 +76,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                     action.ChosenTargets.ChosenCreatures.Add(bond?.Source!);
                                     await action.AllExecute();
                                     return;
-                                } else if (victim.Traits.Any(t => t.HumanizeTitleCase2() == "Summoner") && victim.Battle.AllCreatures.Any(cr => cr.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon") && cr.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP").Source == victim)) {
+                                } else if (victim.Traits.Any(t => t.HumanizeTitleCase2() == "Summoner") && victim.Battle.AllCreatures.Any(cr => cr.Traits.Any(t => t.HumanizeTitleCase2() == "Eidolon") && cr.QEffects.FirstOrDefault(qf => qf.Id.HumanizeTitleCase2() == "Summoner_Shared HP")?.Source == victim)) {
                                     return;
                                 }
                                 CombatAction action2 = new CombatAction(self.Owner, self.Illustration!, "Curse of Agony", new Trait[] { Trait.Curse, Trait.Mental, Trait.Arcane }, "", Target.Uncastable());

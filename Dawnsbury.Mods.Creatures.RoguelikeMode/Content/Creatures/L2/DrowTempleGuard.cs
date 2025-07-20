@@ -56,7 +56,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(2, BonusType.Untyped, "Blood Ward", true) : null,
                         AfterYouTakeDamage = async (self, amount, kind, action, crit) => {
                             if (action?.Owner?.Occupies == null || action?.Owner.OwningFaction == self.Owner.OwningFaction) return;
-                            await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self.Owner, "Blood Ward"), DiceFormula.FromText("1d6", "Blood Ward"), action.Owner, CheckResult.Success, DamageKind.Negative);
+                            await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self.Owner, "Blood Ward"), DiceFormula.FromText("1d6", "Blood Ward"), action!.Owner, CheckResult.Success, DamageKind.Negative);
                             Sfxs.Play(SfxName.Necromancy);
                         }
                     });

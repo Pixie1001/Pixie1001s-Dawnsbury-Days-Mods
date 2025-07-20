@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class OwlBear
     {
-        private static string BloodcurdlingScreechDescription = "Each creature in an 80-foot emanation must attempt a DC 20 Will save.Regardless of the result, creatures are temporarily immune for 1 minute.\n\n{b}Critical Success{/b} The creature is unaffected.\n{b}Success{/b} The creature is frightened 1.\n{b}Failure{/b} The creature is frightened 2.\n{b}Critical Failure{/b} The creature is fleeing for 1 round and frightened 3.";
+        // private static string BloodcurdlingScreechDescription = "Each creature in an 80-foot emanation must attempt a DC 20 Will save.Regardless of the result, creatures are temporarily immune for 1 minute.\n\n{b}Critical Success{/b} The creature is unaffected.\n{b}Success{/b} The creature is frightened 1.\n{b}Failure{/b} The creature is frightened 2.\n{b}Critical Failure{/b} The creature is fleeing for 1 round and frightened 3.";
 
         public static Creature Create()
         {

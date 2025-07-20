@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class TestPile {
         public static Creature Create() {
-            int radius = 2;
+            // int radius = 2;
             QEffect qfCurrentDC = new QEffect() { Value = 17 };
 
             Creature hazard = new Creature(Illustrations.RestlessSpirit, "Test Pile", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())

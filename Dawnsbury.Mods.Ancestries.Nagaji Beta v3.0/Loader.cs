@@ -58,6 +58,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         internal static FeatName ftVenomSpit = ModManager.RegisterFeatName("Venom Spit");
         internal static FeatName ftHypnoticLure = ModManager.RegisterFeatName("Hypnotic Lure");
         internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
+        internal static FeatName ftNagajiVenomLore = ModManager.RegisterFeatName("Nagaji Venom Lore");
 
         // Illustrations
         internal static ModdedIllustration illBlightBomb = new ModdedIllustration("NagajiAssets/BlightBomb.png");
@@ -66,19 +67,21 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         internal static ModdedIllustration illEnvenomStrike = new ModdedIllustration("NagajiAssets/EnvenomStrike.png");
         internal static ModdedIllustration illSerpentcoilSlam = new ModdedIllustration("NagajiAssets/SerpentcoilSlam.png");
 
+        internal static ItemName blightBomb = ModManager.RegisterNewItemIntoTheShop("blight bomb", itemName => {
+            return new Item(itemName, illBlightBomb, "blight bomb (lesser)", 1, 3, new Trait[] { Trait.Alchemical, Trait.Bomb, Trait.Consumable, Trait.Poison, Trait.Splash, Trait.Thrown, Trait.Martial })
+            .WithDescription("Blight bombs contain volatile toxic chemicals that rot flesh.")
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Poison) { }
+                .WithRangeIncrement(4)
+                .WithAdditionalSplashDamage(1)
+                .WithAdditionalPersistentDamage("1d4", DamageKind.Poison)
+            );
+        });
+
         [DawnsburyDaysModMainMethod]
         public static void LoadMod() {
             AddFeats(CreateFeats());
 
-            ItemName blightBomb = ModManager.RegisterNewItemIntoTheShop("blight bomb", itemName => {
-                return new Item(itemName, illBlightBomb, "blight bomb (lesser)", 1, 3, new Trait[] { Trait.Alchemical, Trait.Bomb, Trait.Consumable, Trait.Poison, Trait.Splash, Trait.Thrown, Trait.Martial })
-                .WithDescription("Blight bombs contain volatile toxic chemicals that rot flesh.")
-                .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Poison) {  }
-                    .WithRangeIncrement(4)
-                    .WithAdditionalSplashDamage(1)
-                    .WithAdditionalPersistentDamage("1d4", DamageKind.Poison)
-                );
-            });
+            ItemName[] list = [blightBomb];
         }
 
         private static void AddFeats(IEnumerable<Feat> feats) {
@@ -149,15 +152,15 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                 creature.AddQEffect(QEffect.Swimming());
             });
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("Nagaji Venom Lore"), 1, "You've studied the closely guarded secrets of naga venom, allowing you to enhance poisons in your possession.",
+            yield return new TrueFeat(ftNagajiVenomLore, 1, "You've studied the closely guarded secrets of naga venom, allowing you to enhance poisons in your possession.",
                 "The first bomb with the poison trait that you throw each day deals an additional die of damage, thanks to your modifications." +
                 "\n\nIn addition, you are trained with bombs and for the purpose of determining your proficiency, bombs are simple weapons for you.", new Trait[] { tNagaji, Trait.Homebrew, Trait.Poison }, null)
             .WithOnSheet(sheet => {
                 sheet.Proficiencies.Set(Trait.Bomb, Proficiency.Trained);
-                sheet.Proficiencies.AddProficiencyAdjustment((Func<List<Trait>, bool>)(item => item.Contains(Trait.Bomb)), Trait.Simple);
+                sheet.Proficiencies.AddProficiencyAdjustment(item => item.Contains(Trait.Bomb), Trait.Simple);
             })
             .WithOnCreature(creature => {
-                creature.AddQEffect(new QEffect("Nagaji Venom Lore", "Bombs with the poison trait deal an additional damage die.") {
+                creature.AddQEffect(new QEffect("Nagaji Venom Lore", "The first bomb with the poison trait that you throw each day deals an additional damage die.") {
                     StartOfCombat = async self => {
                         if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Nagaji Venom Lore")) {
                             self.Name += " (Expended)";
@@ -333,6 +336,47 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             .WithPrerequisite(sheet => sheet.HasFeat(nagajiSpellFamiliarity), "You must know at least one innate spell from a nagaji heritage or ancestry feat");
 
             // Level 9
+            yield return new TrueFeat(ModManager.RegisterFeatName("Venomous Secrets"), 9, "You've studied the secrets of infamous nagaji poisoners, allowing you to smuggle and brew lethal toxins using seemingly innocuous herbs and fungi.",
+                "Up to twice per day, you may draw a hidden Blight Bomb (moderate) as {icon:FreeAction} free action.", new Trait[] { tNagaji, Trait.Homebrew, Trait.Poison }, null)
+            .WithActionCost(0)
+            .WithIllustration(illBlightBomb)
+            .WithOnCreature(creature => {
+                creature.AddQEffect(new QEffect("Venomous Secrets (x2)", $"You may produce a hidden {{i}}blight bomb (moderate){illBlightBomb.IllustrationAsIconString}{{/i}} as a {{icon:FreeAction}} free action twice per day.") {
+                    StartOfCombat = async self => {
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:2")) {
+                            self.Name = "Venomous Secrets (Expended)";
+                        } else if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1")) {
+                            self.Name = "Venomous Secrets (x1)";
+                        }
+                    },
+                    ProvideMainAction = self => {
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:2")) return null;
+
+                        bool used = self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1");
+
+                        return new ActionPossibility(new CombatAction(self.Owner, illBlightBomb, $"Venomous Secrets (x{(used ? "1" : "2")})", [tNagaji], $"Draw a {{i}}blight bomb (moderate){illBlightBomb.IllustrationAsIconString}{{/i}}.", Target.Self().WithAdditionalRestriction(cr => cr.HasFreeHand ? null : "no free hand"))
+                            .WithActionCost(0)
+                            .WithSoundEffect(SfxName.AcidSplash)
+                            .WithEffectOnSelf(user => {
+                                var bomb = Items.CreateNew(blightBomb).WithModification(ItemModification.Create("moderate-bomb"));
+                                bomb.Traits.Add(Trait.EncounterEphemeral);
+                                creature.AddHeldItem(bomb);
+                                creature.Occupies.Overhead($"*drew {bomb.Name}*", Color.Green);
+                                if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1")) {
+                                    self.Name = "Venomous Secrets (Expended)";
+                                    self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Venomous Secrets:2");
+                                }
+                                else {
+                                    self.Name = "Venomous Secrets (x1)";
+                                    self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Venomous Secrets:1");
+                                }
+                            })
+                        ) .WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
+                    },
+                });
+            })
+            .WithPrerequisite(ftNagajiVenomLore, "Nagaji Venom Lore");
+
             yield return new TrueFeat(ModManager.RegisterFeatName("Envenom Strike"), 9, "With careful practice you've learnt to use your venomous spit to coat you and your allies' weapons.",
                 $"You spit venom onto a weapon you're holding or a weapon held by a willing creature within 30 feet; you can also use this ability to envenom your nagaji fangs unarmed attack. " +
                 $"If the next Strike with the chosen weapon before the start of your next turn hits and deals damage, the Strike deals an additional 2d6 poison damage.",

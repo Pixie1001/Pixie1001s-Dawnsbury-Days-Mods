@@ -13,6 +13,7 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.StatBlocks.Monsters.L1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
@@ -20,12 +21,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class IceFont {
         public static Creature Create() {
-            Creature hazard = MonsterStatBlocks.CreateElementalFont("Ice", IllustrationName.FontOfIce, "Ice Mephit");
+            Creature hazard = ElementalFont.CreateElementalFont("Ice", IllustrationName.FontOfIce, "Ice Mephit");
             hazard.RemoveAllQEffects(qf => qf.Name == "Summoning Font");
             hazard.AddQEffect(new QEffect("Summoning Font", "At the beginning of your turn, summon " + ("Ice Mephit").WithIndefiniteArticle() + ". Then you can't summon mephits for 1d4 rounds.") {
                 StartOfYourPrimaryTurn = async (QEffect qfSelf, Creature self) => {
                     if (!self.QEffects.Any((QEffect qf) => qf.Id == QEffectId.Recharging)) {
-                        Creature creature = MonsterStatBlocks.CreateIceMephit();
+                        Creature creature = Mephit.CreateIceMephit();
                         if (self.Level <= 0) {
                             creature.ApplyWeakAdjustments(false);
                         } else if (self.Level >= 3) {

@@ -72,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                                 //await self.Battle.GameLoop.FullCast(deathDamage);
 
                                 Sfxs.Play(SfxName.PhaseBolt);
-                                master.Occupies.Overhead("*master link feedback*", Color.Violet, $"{master.Name} suffers 2d10 mental damage from the psychic shock of losing their bonded Homunculus.");
+                                master.Overhead("*master link feedback*", Color.Violet, $"{master.Name} suffers 2d10 mental damage from the psychic shock of losing their bonded Homunculus.");
                                 await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self, "Master Link Death"), DiceFormula.FromText("2d10"), master, CheckResult.Success, DamageKind.Mental);
                             }
                         }

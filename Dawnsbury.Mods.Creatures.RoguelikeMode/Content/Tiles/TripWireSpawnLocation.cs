@@ -42,10 +42,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 CommonTraps.AddWhenCreatureEnters(trap, OnTrigger, (enterer) => !enterer.HasEffect(QEffectId.Flying));
                 CommonTraps.AddDisableDeviceOption(trap, DC - 2, OnTrigger);
 
-                trap.AfterDamageIsDealtHere = dmg => { };
+                trap.AfterDamageIsDealtHereAsync = async dmg => { };
 
                 trap.StateCheck += self => {
-                    if (self.AfterDamageIsDealtHere == null) return;
+                    if (self.AfterDamageIsDealtHereAsync == null) return;
                     int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
                     seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;
                     seed += self.Owner.Battle.Map.AllTiles.IndexOf(self.Owner);
@@ -53,7 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     Random rand = new Random(seed);
 
                     if (rand.Next(0, 3) == 0) {
-                        self.AfterDamageIsDealtHere = null;
+                        self.AfterDamageIsDealtHereAsync = null;
                     } else {
                         self.ExpiresAt = ExpirationCondition.Immediately;
                     }

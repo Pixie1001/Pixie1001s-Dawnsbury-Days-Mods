@@ -46,8 +46,6 @@ using Dawnsbury.Phases.Menus.CampaignViews;
 using System.IO;
 using Dawnsbury.Display.Controls.Listbox;
 using Dawnsbury.Display.Controls;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework;
 using Dawnsbury.Core.Coroutines.Options;
 using static System.Net.Mime.MediaTypeNames;
 using Dawnsbury.Campaign.LongTerm;
@@ -170,11 +168,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(TBattle), "EndTheGame")]
         private static void BattlePhaseDrawPatch(TBattle __instance, bool victory, string reason) {
-            if (__instance.CampaignState == null || __instance.CampaignState.AdventurePath.Id != "RoguelikeMode") {
+            if (__instance.CampaignState == null || __instance.CampaignState?.AdventurePath?.Id != "RoguelikeMode") {
                 return;
             }
 
-            (__instance.CampaignState.AdventurePath.CampaignStops.Last() as DawnsburyStop).CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+            (__instance.CampaignState?.AdventurePath?.CampaignStops?.Last() as DawnsburyStop)!.CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
             "{b}Stats{/b}\n" +
             "{b}Deaths:{/b} " + __instance.CampaignState.Tags["deaths"] + "\n" +
             "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] + "\n" +
@@ -194,14 +192,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPostfix]
         [HarmonyPatch(typeof(IngameMenuPhase), "Draw")]
         private static void IngameMenuPhaseDrawPatch(IngameMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
-            TBattle? battle = (TBattle?)__instance.GetType().GetField("battleInProgress", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).GetValue(__instance);
-            bool fromCampaignScreen = (bool)__instance.GetType().GetField("fromCampaignScreen", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).GetValue(__instance);
+            TBattle? battle = (TBattle?)__instance.GetType().GetField("battleInProgress", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)?.GetValue(__instance)!;
+            bool fromCampaignScreen = (bool)__instance.GetType().GetField("fromCampaignScreen", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)?.GetValue(__instance)!;
 
             if (battle == null) {
                 return;
             }
 
-            if (battle.CampaignState == null || battle.CampaignState.AdventurePath.Id != "RoguelikeMode") {
+            if (battle.CampaignState == null || battle?.CampaignState?.AdventurePath?.Id != "RoguelikeMode") {
                 return;
             }
 
@@ -211,7 +209,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
             if (!fromCampaignScreen && battle != null) {
                 // Draw over restart button
-                Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
+                Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")!
                     .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
                         typeof(Rectangle),
                         typeof(string),
@@ -220,7 +218,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                         typeof(BitmapFontGroup),
                         typeof(string),
                         typeof(Color),
-                    })
+                    })?
                     .Invoke(null, new object[] { new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 + num1 * 2, __instance.Window.Width - 20, height), "Restart encounter (Recorded))", () => {
                         Sfxs.Play(SfxName.Button);
                         Root.PushPhase((GamePhase)new ConfirmationDialogPhase("Restart encounter? The number of times you restarted will be recorded at the end of the run.", "Restart", "No", (Action)(() => {
@@ -243,7 +241,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
 
                 // Draw over return to menu button
-                Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")
+                Type.GetType("Dawnsbury.Display.UI, Dawnsbury Days")!
                     .GetMethod("DrawUIButton", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, new[] {
                         typeof(Rectangle),
                         typeof(string),
@@ -252,7 +250,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                         typeof(BitmapFontGroup),
                         typeof(string),
                         typeof(Color),
-                    }).Invoke(null, new object[] {
+                    })?.Invoke(null, new object[] {
                         new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 * 3 + num1 * 5, __instance.Window.Width - 20, height), "Exit to menu (Recorded)", () => {
                         Sfxs.Play(SfxName.Button);
                         if (fromCampaignScreen) {
@@ -333,10 +331,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 if (equipment.Description != "")
                     equipment.Description += "\n";
                 Item obj1 = equipment;
-                obj1.Description = obj1.Description + "{b}" + runestone.RuneProperties.Prefix.Capitalize() + ".{/b} " + runestone.RuneProperties.RulesText;
+                obj1.Description = obj1.Description + "{b}" + runestone?.RuneProperties?.Prefix.Capitalize() + ".{/b} " + runestone?.RuneProperties?.RulesText;
                 equipment.Name = itemTemplate.Name;
-                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending(rune => rune.RuneProperties.RuneKind))
-                    equipment.Name = obj2.RuneProperties.Prefix + " " + equipment.Name;
+                foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending(rune => rune?.RuneProperties?.RuneKind))
+                    equipment.Name = obj2.RuneProperties?.Prefix + " " + equipment.Name;
                 return false;
             }
             return true;
@@ -356,6 +354,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         private static bool AttachSubitemPatch(ref SubitemAttachmentResult __result, Item runestone, Item? equipment) {
             var allowedRunes = new RuneKind[] { RuneKind.WeaponPotency, RuneKind.WeaponStriking, RuneKind.WeaponProperty };
             if (equipment?.ItemName == CustomItems.ThrowersBandolier && runestone.RuneProperties != null && allowedRunes.Contains(runestone.RuneProperties.RuneKind)) {
+                var runesOfThisTypeAlready = equipment.Runes.Count(itm => itm.RuneProperties!.RuneKind == runestone.RuneProperties.RuneKind);
+
                 if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && !equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)) {
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only +1, +2 or +3 weapons can be enchanted with weapon property runes.");
                     return false;
@@ -384,11 +384,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     return false;
                 }
 
-                equipment.WithModification(new ItemModification(ItemModificationKind.Rune) { ItemName = runestone.ItemName });
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && runesOfThisTypeAlready >= (equipment.WeaponProperties?.ItemBonus ?? 0) || runesOfThisTypeAlready > 0 && runestone.RuneProperties.RuneKind != RuneKind.WeaponProperty) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.SwapOrUpgradeRune, null);
+                    return false;
+                }
+
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlaceAsSubitem, null, delegate {
-                    //equipment.WithModification(new ItemModification(ItemModificationKind.Rune) {
-                    //    ItemName = runestone.ItemName
-                    //});
+                    equipment.WithModification(new ItemModification(ItemModificationKind.Rune) {
+                        ItemName = runestone.ItemName
+                    });
+                    // RunestoneRules.AddRuneTo(Items.CreateNew(runestone.ItemName), equipment);
                     Sfxs.Play(SfxName.AttachRune);
                 });
                 return false;
@@ -431,7 +436,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         [HarmonyPostfix]
         [HarmonyPatch("ChooseProfilePhase", "Draw")]
         private static void ChooseProfilePhaseDrawPatch(object __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
-            Savegame?[] profiles = (Savegame?[]) Type.GetType("Dawnsbury.Phases.Menus.StoryMode.ChooseProfilePhase, Dawnsbury Days").GetProperty("Profiles").GetValue(__instance);
+            Savegame?[] profiles = (Savegame?[]) Type.GetType("Dawnsbury.Phases.Menus.StoryMode.ChooseProfilePhase, Dawnsbury Days")?.GetProperty("Profiles")?.GetValue(__instance);
 
             if (profiles == null) {
                 return;
@@ -439,7 +444,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
             int i = 0;
             foreach (Savegame? save in profiles) {
-                if (save != null && UtilityFunctions.DiedThisRun(save.CampaignState)) {
+                if (save != null && UtilityFunctions.DiedThisRun(save.CampaignState!)) {
                     int h = 200;
                     int w = 200;
                     int padding = 10;
@@ -466,7 +471,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
 
             string desc = comment + "\n\n" + (unlimitedBuyAndSell ? "The Adventurer's Dawn buys any items, and sells all items of level " + level.ToString() + " or lower. {i}(You can sell back items for a full refund before an adventure path begins.){/i}" : "The Adventurer's Dawn buys any items {b}at half price{/b}, and sells all items of level " + level.ToString() + " or lower.");
-            __result.GetType().GetProperty("Description", BindingFlags.Instance | BindingFlags.Public).SetValue(__result, desc);
+            __result.GetType()?.GetProperty("Description", BindingFlags.Instance | BindingFlags.Public)?.SetValue(__result, desc);
         }
 
         [HarmonyPostfix]
@@ -477,8 +482,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             }
 
             if (item.ItemName == CustomItems.StaffOfSpellPenetration) {
-                Func<Item, bool> carried = (Func<Item, bool>)__instance.GetType().GetProperty("Carried", BindingFlags.Instance | BindingFlags.Public).GetValue(__instance);
-                __result = carried(item);
+                Func<Item, bool> carried = (Func<Item, bool>)__instance.GetType()?.GetProperty("Carried", BindingFlags.Instance | BindingFlags.Public)?.GetValue(__instance);
+                __result = carried!(item);
             }
         }
 
@@ -540,11 +545,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 if (__instance.CurrentView is PartyView) {
                     Illustrations.FailedRun.DrawImage(new Rectangle(padding, padding, w, h), null, false, false, null);
-                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is LevelUpStop) {
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView)?.AdventurePath.SelectedItem as CampaignStopListboxItem)?.Stop is LevelUpStop) {
                     Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
-                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is LongRestCampaignStop) {
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView)?.AdventurePath.SelectedItem as CampaignStopListboxItem)?.Stop is LongRestCampaignStop) {
                     Illustrations.FailedRun.DrawImage(new Rectangle(Root.ScreenWidth - padding - w, padding, w, h), null, false, false, null);
-                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView).AdventurePath.SelectedItem as CampaignStopListboxItem).Stop is DawnsburyStop) {
+                } else if (__instance.CurrentView is AdventurePathView && ((__instance.CurrentView as AdventurePathView)?.AdventurePath.SelectedItem as CampaignStopListboxItem)?.Stop is DawnsburyStop) {
                     Illustrations.FailedRun.DrawImage(new Rectangle((Root.ScreenWidth + w) / 2, Root.ScreenHeight - h - 100, w, h), null, false, false, null);
                 } else if (__instance.CurrentView is ShopView) {
                     return;
@@ -566,7 +571,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 //Writer.DrawString("Corruption Level", rectangle2, Color.Black, BitmapFontGroup.Mia48Font, Writer.TextAlignment.TopLeft, degrading: true);
 
-                int width = LeftMenu.LEFT_MENU_WIDTH - 20;
+                // int width = LeftMenu.LEFT_MENU_WIDTH - 20;
+
                 // Root.ScreenWidth / 2 - width / 2, 
 
                 //UI.DrawUIButton(new Rectangle(10, 400 + 1 * 210, width, 200), "Normal Difficulty", () => {

@@ -42,7 +42,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 await CommonEncounterFuncs.StandardEncounterSetup(battle);
                 Creature succubus = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy && cr.CreatureId == CreatureId.Succubus);
-                succubus.Spellcasting.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Dominate);
+                succubus!.Spellcasting!.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Dominate);
                 //ca.SpellcastingSource = succubus.Spellcasting.PrimarySpellcastingSource;
                 succubus.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellLoader.LesserDominate], 5);
                 succubus.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellLoader.LesserDominate], 5);

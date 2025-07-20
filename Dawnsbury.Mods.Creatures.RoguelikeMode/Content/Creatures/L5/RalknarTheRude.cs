@@ -58,7 +58,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         anger.Description = $"Ralknar's anger is at {anger.Value}.";
                     }
 
-                    defender.Occupies.Overhead("Ralknar's anger is building!", Color.Red, "Ralknar's anger is building!");
+                    defender.Overhead("Ralknar's anger is building!", Color.Red, "Ralknar's anger is building!");
 
                     return null;
                 }

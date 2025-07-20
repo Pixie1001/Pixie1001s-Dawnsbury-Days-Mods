@@ -42,7 +42,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             chosenEvents.Clear();
 
             events.Add(new SkillChallenge("Cursed Relic", async (level, battle) => {
-                Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom(), lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
+                Item cursedItem = LootTables.RollWearable(GetParty(battle).GetRandom()!, lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
                 await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.", null);
                 await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.", null);
                 await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}, bereft of dust and seemingly abandoned by those it was bequeathed upon...", null);
@@ -69,13 +69,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         result = opt1.Roll();
                         if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Heavenly light bathes the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}, banishing the evil energy lurking within!", null);
-                            battle.CampaignState.CommonLoot.Add(cursedItem);
+                            battle.CampaignState?.CommonLoot.Add(cursedItem);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name}'s attempts to cleanse the item do not go unnoticed. Barely a moment passes before the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
-                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse"));
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse")!);
                         }
                         break;
                     case 1:
@@ -88,13 +88,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             foreach (Item rune in cursedItem.Runes) {
                                 rune.Price = 0;
                             }
-                            battle.CampaignState.CommonLoot.Add(cursedItem);
+                            battle.CampaignState?.CommonLoot.Add(cursedItem);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several labourious hours, {opt2.Nominee.Name} tenetatively reaches out to put their theory to the test... Holding it aloft for several promising moment passes before the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString} abruptly explodes into " +
                                 $"a cloud of sickly black smoke and violently drives itself down {opt1.Nominee.Name}'s throat!", null);
                             await battle.Cinematics.NarratorLineAsync($"Though the party manages to rouse {opt1.Nominee.Name} several hours later, they appear afflicted by a sickly pallour.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has been cursed with Clumsy, Enfeebled and Stupified 1 until their next long rest.", null);
-                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse"));
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lingering Curse")!);
                         }
                         break;
                     case 2:
@@ -104,9 +104,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"A series of complicated clauses and entreaties soon follow as {opt3.Nominee.Name} negotiates with sinister, lascivious voice eminating from the {{b}}{cursedItem.Name.CapitalizeEachWord()}{{/b}} {cursedItem.Illustration.IllustrationAsIconString}.", null);
                             await battle.Cinematics.NarratorLineAsync("And then, all at once before the party even fully realises what they've agreed to, a deal is struck. Each party members gains {b}Drained 2{/b}.", null);
                             foreach (Creature pm in GetParty(battle)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drained", null, 2));
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drained", null, 2)!);
                             }
-                            battle.CampaignState.CommonLoot.Add(cursedItem);
+                            battle.CampaignState?.CommonLoot.Add(cursedItem);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"And yet, {opt3.Nominee.Name}'s attempts to treat with the demon remain unanswered until the party reluctantly gives up and moves on, disappointed but quietly relieved.", null);
                         }
@@ -141,20 +141,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} returns with several tonics of healing concocted from the strange mushroom's sap.", null);
                             if (level == 1) {
                                 await battle.Cinematics.NarratorLineAsync($"The party gained a {{b}}lesser healing potion {Items.CreateNew(ItemName.LesserHealingPotion).Illustration.IllustrationAsIconString}.{{/b}}", null);
-                                battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             } else if (level == 2) {
                                 await battle.Cinematics.NarratorLineAsync($"The party gained {{b}}lesser healing potion x2 {Items.CreateNew(ItemName.LesserHealingPotion).Illustration.IllustrationAsIconString}.{{/b}}", null);
-                                battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
-                                battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             } else if (level == 3) {
                                 await battle.Cinematics.NarratorLineAsync($"The party gained a {{b}}moderate healing potion{{/b}} {Items.CreateNew(ItemName.ModerateHealingPotion).Illustration.IllustrationAsIconString} and a {{b}}lesser healing potion{{/b}} {Items.CreateNew(ItemName.LesserHealingPotion).Illustration.IllustrationAsIconString}.", null);
-                                battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
-                                battle.CampaignState.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             }
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} was poised by a puff of spores!", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.", null);
-                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1));
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1)!);
                         }
                         break;
                     case 1:
@@ -163,11 +163,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushroom's trill happily, illuminating the cavern in eerie bioluminescent light as a thin cobweb of Mycelium roots emerge from the ground to form a cocoon around {opt2.Nominee.Name} as they kneel.", null);
                             await battle.Cinematics.NarratorLineAsync($"In exchange for spreading their spores to distant caverns, the mushrooms will cleans {opt2.Nominee.Name}'s body of harmful organisms. They gains the Mushroom Symbiote ability, protecting them from poisons for the rest of the adventure.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote"));
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote")!);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushrooms are angered by {opt2.Nominee.Name}'s meager offering, expelling a large cloud of poisonous spores!", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 2));
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 2)!);
                         }
                         break;
                     case 2:
@@ -202,7 +202,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"They talk for many hours, but it isn't until the two groups have long parted ways and the party begin to feel watchful eyes raising the hair on their necks, that they begin to realise her information is subtly but all too insidiously wrong...", null);
                             await battle.Cinematics.NarratorLineAsync("The enemy knows you're coming. Each member of the party gains {b}Compromised Route{/b}, reducing their inititive by 1.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route", null, null));
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route", null, null)!);
                             }
                         } else if (result == CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.", null);
@@ -210,7 +210,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Though initially cautious, the renegades eventually warm up to {opt1.Nominee.Name} and before long the party finds themselves engrossed in conversation with the group, swapping war stories and critical intel alike.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing", null, null));
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing", null, null)!);
                             }
                         }
                         break;
@@ -223,7 +223,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"It isn't until the group hears the clicking of mandibles, their earnest guide nowhere to be seen, that they realise too late that they've been led into a trap.", null);
                             await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1));
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1)!);
                             }
                         } else if (result == CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The renegades thank {opt2.Nominee.Name} for their kind and illuminating words, but reluctantly insist they cannot spare any among their group to aid them in their quest.", null);
@@ -231,7 +231,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The renegades seem inspired by {opt2.Nominee.Name}'s words, one amongst their number steadfastly plunging her gleaming blade into the gloomy obsidian rocks as she pledges to hasten them on their journey.", null);
                             await battle.Cinematics.NarratorLineAsync($"A Drow Renegade will aid {opt2.Nominee.Name} in battle until she perishes, or the party returns to town.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion", null, null));
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion", null, null)!);
                         }
                         break;
                     case 2:
@@ -256,7 +256,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     "{DimGray}{b}" + $"[Lose {level * 5} gold]" + "{/b}{/DimGray} Despite the slave's aggression, the party offers what little they can all the same."
                 };
             
-                if (battle.CampaignState.CommonGold < level * 5) {
+                if (battle.CampaignState?.CommonGold < level * 5) {
                     choices.RemoveAt(choices.Count - 1);
                 }
             
@@ -276,7 +276,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"The escaped slaves are no match for a group of trained adventurers, and before long the rest are send fearfully scuyrrying away into the cavern... The cooling bodies of their friend's a grim reminder of the party's failure.", null);
                             await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Guilt 2{/b}, reducing their Will saves by 2 until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, 2));
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, 2)!);
                             }
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mob fearfully skitters away from {opt1.Nominee.Name}, their hungry eyes lingering on the party's supply packs and then their weapons...", null);
@@ -289,13 +289,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the {Loader.UnderdarkName} prove themselves too cruel for soft words and lofty ideals. Sensing weakness, the desperate slaves surge forwards, enveloping {opt2.Nominee.Name} before the party has time to step in.", null);
                             await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1)!);
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 1)!);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The group are scared, hungry and desperate... Yet {opt2.Nominee.Name}'s words remind them of who they used to be.", null);
                             await battle.Cinematics.NarratorLineAsync($"Thanking {opt2.Nominee.Name} for their kindness and directions they shuffle on, seeking refuge in Dawnsbury.", null);
                             await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
                             }
                         }
                         break;
@@ -304,9 +304,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"The slaves accept the party's offer of aid with wary eyes, before departing, unwilling to push their luck any further against an armed group.", null);
                         await battle.Cinematics.NarratorLineAsync("The party lost {b}" + level * 5 + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                         foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                            pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
+                            pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
                         }
-                        battle.CampaignState.CommonGold -= level * 5;
+                        battle.CampaignState!.CommonGold -= level * 5;
                         break;
                 }
             }));
@@ -339,7 +339,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} seems to be making good progress, until they encounter a rune of acid arrow cleverly disguised as a rune of stinking cloud...", null);
                             await battle.Cinematics.NarratorLineAsync($"The misstep triggers a chain reaction, leaving {opt1.Nominee.Name} severely injured.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} gains Injured 2, reducing their max HP by 20% until they rest.", null);
-                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2));
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2)!);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It takes several hour to completely dismantle the traps and ensure the Duergar haven't left any nasty surprises.", null);
                             await battle.Cinematics.NarratorLineAsync($"But when {opt1.Nominee.Name} is done, the party continues with several new scrolls to show for it, diligently copied from the traps.", null);
@@ -350,8 +350,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             Item scroll2 = LootTables.RollScroll(itemLevel, itemLevel, item => item.HasTrait(Trait.Evocation));
             
                             await battle.Cinematics.NarratorLineAsync($"The party gained a {scroll1.Name} and {scroll2.Name}.", null);
-                            battle.CampaignState.CommonLoot.Add(scroll1);
-                            battle.CampaignState.CommonLoot.Add(scroll2);
+                            battle.CampaignState?.CommonLoot.Add(scroll1);
+                            battle.CampaignState?.CommonLoot.Add(scroll2);
                         }
                         break;
                     case 1:
@@ -360,7 +360,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The only warning {opt2.Nominee.Name} gets is a low buzzing drone, before the traps abruptly detonate.", null);
                             await battle.Cinematics.NarratorLineAsync(opt2.Nominee.Name + " gains {b}Injured 2{/b}, reducing their max HP by 20% until they rest.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2));
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Injured", null, 2)!);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Yet the traps remain dormant as {opt2.Nominee.Name} continues to expertly leap, tip toe and crawl their way past the rest of the traps.", null);
                             await battle.Cinematics.NarratorLineAsync($"Inside, they quickly locate the mechanism to disable the traps, allowing the party to safely continue their journey.", null);
@@ -375,7 +375,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 await battle.Cinematics.NarratorLineAsync("What could possibly have driven such a pure creature to wander into a place such as this?", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 2, Skill.Medicine, Skill.Nature);
-                SCOption opt2 = GetBestPartyMember(battle, level, 2, (user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet.IdentityChoice.Alignment) ? 2 : 0, Skill.Diplomacy);
+                SCOption opt2 = GetBestPartyMember(battle, level, 2, (user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet!.IdentityChoice!.Alignment) ? 2 : 0, Skill.Diplomacy);
                 SCOption opt3 = GetBestPartyMember(battle, level, -4, Skill.Arcana, Skill.Occultism);
             
                 List<string> choices = new List<string>() {
@@ -403,7 +403,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"Though things seem uncertain at times, the unicorn eventually begins to regain its celestial glow... Finally regaining enough strength to magically restore itself back to health.", null);
                             await battle.Cinematics.NarratorLineAsync($"Nuzzling up to {opt1.Nominee.Name}'s cheek fondly, it seems determined to repay the party by fighting along their side until they're able to safely guide it back to the surface.", null);
                             await battle.Cinematics.NarratorLineAsync($"The Unicorn Foal will aid {opt1.Nominee.Name} in battle until it perishes, or the party returns to town.", null);
-                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion", null, null));
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion", null, null)!);
                         }
                         break;
                     case 1:
@@ -417,7 +417,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync("The beautiful creature seems to glow momentarily with a warm light that bathes the party... When it finally fades, the creature's eyes do not open.", null);
                             await battle.Cinematics.NarratorLineAsync("The party gains 'Unicorn Blessing', increasing their max HP by 5 and their saving throws by 1 until they return to town.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null));
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null)!);
                             }
                         }
                         break;
@@ -448,9 +448,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             if (level >= 3) {
                                 AlicornWeapon = AlicornWeapon.WithModificationPlusOneStriking();
                             }
-                            battle.CampaignState.CommonLoot.Add(AlicornWeapon);
+                            battle.CampaignState?.CommonLoot.Add(AlicornWeapon);
                         }
-                        opt3.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null));
+                        opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Curse", null, null)!);
                         break;
                 }
             }));
@@ -459,10 +459,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 List<(List<Item>, Item)> items = new List<(List<Item>, Item)>();
                 foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                     if (pm.CarriedItems.Count > 0)
-                        items.Add((pm.CarriedItems, pm.CarriedItems.MaxBy(i => i.Price)));
+                        items.Add((pm.CarriedItems, pm.CarriedItems.MaxBy(i => i.Price)!));
                 }
-                if (battle.CampaignState.CommonLoot.Count > 0)
-                    items.Add((battle.CampaignState.CommonLoot, battle.CampaignState.CommonLoot.MaxBy(i => i.Price)));
+                if (battle.CampaignState?.CommonLoot.Count > 0)
+                    items.Add((battle.CampaignState.CommonLoot, battle.CampaignState.CommonLoot.MaxBy(i => i.Price))!);
             
                 Item? wageredItem = null;
                 List<Item> container = null;
@@ -512,16 +512,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"After several tense bouts, {opt1.Nominee.Name} is soon completely out of bone chips... And then quick as lightning, the creature looms high with victorious grin on its muzzle, snatches up the {itemName}...", null);
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"...And the party finds themselves once again standing in the cold open cavern, with no tent or rodent-like demon in tight.", null);
                             await battle.Cinematics.NarratorLineAsync($"The party's {itemName} has been lost.", null);
-                            container.Remove(wageredItem);
+                            container?.Remove(wageredItem);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);
                             await battle.Cinematics.NarratorLineAsync($"And yet, the creature's creed and hubris is ultimately its downfall. Feigning, {opt1.Nominee.Name} lures the thing into a false sense of security, overplaying its hand so that it might claim its prize all the sooner.", null);
                             await battle.Cinematics.NarratorLineAsync($"And all at once, a large stack of bone chips are reluctantly swept towards their side of the table.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
-                            if (!opt1.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
+                            if (!opt1.Nominee.PersistentCharacterSheet!.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
                                 opt1.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
-                            opt1.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null));
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null)!);
                         }
                         break;
                     case 1:
@@ -532,16 +532,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"The tent begins to dissolve, deforming into swarm of rats that nibble and crawl across the party, as the creature's eyes glow with baleful power, as it proclaims {opt2.Nominee.Name} a cheater!", null);
                             await battle.Cinematics.NarratorLineAsync($"The rats, along with the demon and its treasure vanish as quickly as they come. And yet {opt2.Nominee.Name} is left with a feeling of great dread, their eyes twitching towards the dark corners of the cavern in paranoia, as if something is watching them from the shadows.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has been inflicted by the Rat Fiend's Curse, facing a 25% chance for a Giant Rat to crawl out of the corpse of any enemy they defeat until their next rest.", null);
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null));
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null)!);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);
             
                             await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, {opt2.Nominee.Name}'s superior guile and sleight of hand makes victory an inevitability.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
-                            if (!opt2.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
+                            if (!opt2.Nominee.PersistentCharacterSheet!.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
                                 opt2.Nominee.PersistentCharacterSheet.Calculated.Sheet.SelectedFeats.Add("Power of the Rat Fiend", new FeatSelectedChoice(AllFeats.All.First(ft => ft.FeatName == FeatLoader.PowerOfTheRatFiend), null));
-                            opt2.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null));
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend", null, null)!);
                         }
                         break;
                     case 2:
@@ -552,13 +552,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"The creature is eventually beaten back, but not before lunging towards {opt3.Nominee.Name} and sinking its rotten teeth deep into their arm.", null);
                             await battle.Cinematics.NarratorLineAsync($"When all is said and done, instead of an oozing wound, there is only the cursed mark of a snarling rat tattooed into their flesh.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} has been inflicted by the Rat Fiend's Curse, facing a 25% chance for a Giant Rat to crawl out of the corpse of any enemy they defeat until their next long rest.", null);
-                            opt3.Nominee.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null));
+                            opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null)!);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The fiend screeches in agony before {opt2.Nominee.Name}'s holy symbol - the very fabric of the tent bursting apart into swarms of grotesquely gauged rats as its sorcery is undone!", null);
                             await battle.Cinematics.NarratorLineAsync($"With one last forlorn look towards its treasure, the demon cravenly skitters away, leaving its ill gotten horde behind for the taking.", null);
                             int gold = 30 * level;
                             await battle.Cinematics.NarratorLineAsync($"The party gains {gold} gold from the various coins and shiny trinkets in the creature's treasure hoard.", null);
-                            battle.CampaignState.CommonGold += 30;
+                            battle.CampaignState!.CommonGold += 30;
                             battle.Encounter.RewardGold = 30;
                         }
                         break;
@@ -611,16 +611,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                         PrintResult(result) +
                                         $"{drinkOpt.Nominee.Name} confidently took a swig and is now puking in a corner.");
                                     await battle.Cinematics.NarratorLineAsync(
-                                        $"{itemOpt.Nominee.Name} has become sickened 1 for the duration of the next encounter.");
-                                    drinkOpt.Nominee.LongTermEffects.Add(
-                                        WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1));
+                                        $"{itemOpt!.Nominee.Name} has become sickened 1 for the duration of the next encounter.");
+                                    drinkOpt.Nominee.LongTermEffects?.Add(
+                                        WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1)!);
                                     break;
                                 case >= CheckResult.Success:
                                     var reward = Items.CreateNew(ItemName.PotionOfQuickness);
                                     await battle.Cinematics.NarratorLineAsync($"{drinkOpt.Nominee.Name} takes a confident swig...");
                                     await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"They feel reinvigorated! Better bottle some up for later.");
                                     await battle.Cinematics.NarratorLineAsync($"The party gains a {reward.Name}.");
-                                    battle.CampaignState.CommonLoot.Add(reward);
+                                    battle.CampaignState!.CommonLoot.Add(reward);
                                     break;
                             }
 
@@ -636,17 +636,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 case CheckResult.CriticalFailure: // Lose the item
                                 {
                                         await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                                  $"{itemOpt.Nominee.Name}'s {item.Name} sinks to the bottom, yet nothing happens.");
+                                                                                  $"{itemOpt.Nominee.Name}'s {item!.Name} sinks to the bottom, yet nothing happens.");
                                         await battle.Cinematics.NarratorLineAsync(
                                             $"Disappointed, the party carries on their way.");
 
-                                        itemOptNominee.CarriedItems.Remove(item);
+                                        itemOptNominee!.CarriedItems.Remove(item);
                                         break;
                                     }
                                 case CheckResult.Failure: // Nothing happens
                                 {
                                         await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                                  $"{itemOpt.Nominee.Name} drops the {item.Name} into the well and it floats back up, without effect.");
+                                                                                  $"{itemOpt.Nominee.Name} drops the {item!.Name} into the well and it floats back up, without effect.");
                                         await battle.Cinematics.NarratorLineAsync(
                                             $"Disappointed, they retrieve it and prepare to leave.");
                                         break;
@@ -654,7 +654,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 case CheckResult.Success: // Item is sent to the next party
                                 {
                                         await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                                  $"As {itemOpt.Nominee.Name} donates the {item.Name} to the magical well, it emits a grateful hum.");
+                                                                                  $"As {itemOpt.Nominee.Name} donates the {item!.Name} to the magical well, it emits a grateful hum.");
                                         await battle.Cinematics.NarratorLineAsync(
                                             $"The party senses that their good deed will be felt for generations to come.");
 
@@ -663,13 +663,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                         creManager.AddTransferredItem(item);
 
                                         // Lose the item
-                                        itemOptNominee.CarriedItems.Remove(item);
+                                        itemOptNominee!.CarriedItems.Remove(item);
                                         break;
                                     }
                                 case CheckResult.CriticalSuccess: // Item is sent to the next party and the current party gets a blessing
                                 {
                                         await battle.Cinematics.NarratorLineAsync(PrintResult(result) +
-                                                                                  $"As {itemOpt.Nominee.Name} donates the {item.Name} to the magical well, the gentle glow of the well expands to englobe the party.");
+                                                                                  $"As {itemOpt.Nominee.Name} donates the {item!.Name} to the magical well, the gentle glow of the well expands to englobe the party.");
                                         await battle.Cinematics.NarratorLineAsync(
                                             $"While the troop prepares to depart, {itemOpt.Nominee.Name} wonders if they will ever see their {item.Name} again.");
 
@@ -678,12 +678,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                         creManager.AddTransferredItem(item);
 
                                         // Lose the item
-                                        itemOptNominee.CarriedItems.Remove(item);
+                                        itemOptNominee!.CarriedItems.Remove(item);
 
                                         // Gain a blessing
                                         await battle.Cinematics.NarratorLineAsync("The party gains 'Well Spirit's Blessing', increasing their will saving throws by 1 until they return to town.");
                                         foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
-                                            pm.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null));
+                                            pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null)!);
                                         }
                                         break;
                                     }

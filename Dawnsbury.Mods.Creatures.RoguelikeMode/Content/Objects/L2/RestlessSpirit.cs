@@ -80,9 +80,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                 "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
                                                 "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),
                                                 Target.Ranged(4).WithAdditionalConditionOnTargetCreature(new LivingCreatureTargetingRequirement()))
-                                                .WithSpellInformation((qfContextActions.Owner.Level + 1) / 2, null, null)
+                                                .WithSpellInformation((qfContextActions.Owner.Level + 1) / 2, "", null)
                                                 .WithActionCost(2)
-                                                .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster.Skills.Get(Skill.Occultism) + 10))
+                                                .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster != null ? caster.Skills.Get(Skill.Occultism) + 10 : 10))
                                                 .WithSoundEffect(SfxName.MajorNegative)
                                                 .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
                                                 .WithEffectOnEachTarget(async (spell, caster, target, result) => {
@@ -99,7 +99,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                     } else if (result == CheckResult.CriticalFailure) {
                                                         Faction originalFaction = target.OwningFaction;
                                                         target.OwningFaction = caster.OwningFaction;
-                                                        target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
+                                                        target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
                                                             CountsAsADebuff = true,
                                                             Value = 1,
                                                             Id = QEffectId.Slowed,
@@ -109,7 +109,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                             StateCheck = qf => {
                                                                 if (caster.Alive)
                                                                     return;
-                                                                qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                                                                qf.Owner.Overhead("end of control", Color.Lime, caster.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
                                                                 if (qf.Owner.OwningFaction != caster.OwningFaction)
                                                                     return;
                                                                 qf.Owner.OwningFaction = originalFaction;
@@ -182,9 +182,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     "The hazard is destroyed and the target gains frightened 1.", "The hazard is destroyed and the target gains frightened 2.",
                     "The hazard is destroyed and the target gains the controlled condition until the end of their next turn."),
                     Target.Ranged(4).WithAdditionalConditionOnTargetCreature(new LivingCreatureTargetingRequirement()).WithAdditionalConditionOnTargetCreature((a, d) => a.IsAdjacentTo(hazard) ? Usability.Usable : Usability.NotUsable("Must be adjacent to the restless soul to command it.")))
-                    .WithSpellInformation((self.Owner.Level + 1) / 2, null, null)
+                    .WithSpellInformation((self.Owner.Level + 1) / 2, "", null)
                     .WithActionCost(2)
-                    .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster.Skills.Get(Skill.Occultism) + 10))
+                    .WithSavingThrow(new SavingThrow(Defense.Will, caster => caster != null ? caster.Skills.Get(Skill.Occultism) + 10 : 10))
                     .WithSoundEffect(SfxName.MajorNegative)
                     .WithProjectileCone(Illustrations.RestlessSpirit, 10, ProjectileKind.Cone)
                     .WithGoodnessAgainstEnemy((t, a, d) => {
@@ -204,7 +204,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         } else if (result == CheckResult.CriticalFailure) {
                             Faction originalFaction = target.OwningFaction;
                             target.OwningFaction = caster.OwningFaction;
-                            target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
+                            target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, IllustrationName.Dominate) {
                                 CountsAsADebuff = true,
                                 Value = 1,
                                 Id = QEffectId.Slowed,
@@ -214,7 +214,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 StateCheck = qf => {
                                     if (caster.Alive)
                                         return;
-                                    qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
+                                    qf.Owner.Overhead("end of control", Color.Lime, caster.ToString() + " died and so can no longer dominate " + target?.ToString() + ".");
                                     if (qf.Owner.OwningFaction != caster.OwningFaction)
                                         return;
                                     qf.Owner.OwningFaction = originalFaction;

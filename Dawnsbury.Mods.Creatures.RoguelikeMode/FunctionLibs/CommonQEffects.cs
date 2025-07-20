@@ -85,11 +85,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
 
                     if (action.HasTrait(Trait.Mental) && !(action.SpellId != SpellId.None && action.Owner.HeldItems.Any(item => item.ItemName == CustomItems.StaffOfSpellPenetration)) && defence != Defense.AC) {
-                        return new Bonus(2, BonusType.Status, self.Name);
+                        return new Bonus(2, BonusType.Status, self.Name!);
                     }
 
                     if (action.SpellId != SpellId.None && !action.Owner.HasEffect(QEffectId.SpellPenetration) && defence != Defense.AC) {
-                        return new Bonus(1, BonusType.Status, self.Name);
+                        return new Bonus(1, BonusType.Status, self.Name!);
                     }
 
                     return null;
@@ -103,15 +103,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 Id = QEffectIds.Stalked,
                 StateCheck = self => {
                     if (self.Owner.HasEffect(QEffectId.Dying)) {
-                        List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsHumanControlled).ToList();
+                        List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsPlayer).ToList();
                         Creature newTarget = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList().FirstOrDefault(c => c.Alive);
                         if (newTarget != null) {
-                            newTarget.AddQEffect(Stalked(self.Source));
+                            newTarget.AddQEffect(Stalked(self.Source!));
                         }
                         self.ExpiresAt = ExpirationCondition.Immediately;
                     }
 
-                    if (!self.Source.Alive) {
+                    if (!self.Source!.Alive) {
                         self.ExpiresAt = ExpirationCondition.Immediately;
                     }
                 },
@@ -363,40 +363,41 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
-        public static QEffect MonsterKnockdown()
-        {
-            return new QEffect("Knockdown", "When your Strike hits, you can spend an action to trip without a trip check.", ExpirationCondition.Never, null, IllustrationName.None)
-            {
-                Innate = true,
-                ProvideMainAction = delegate (QEffect qfGrab)
-                {
-                    Creature monster = qfGrab.Owner;
-                    IEnumerable<Creature> source = monster.Battle.AllCreatures.Where(delegate (Creature cr)
-                    {
-                        CombatAction combatAction2 = monster.Actions.ActionHistoryThisTurn.LastOrDefault()!;
-                        return (combatAction2 != null && combatAction2.CheckResult >= CheckResult.Success && combatAction2.HasTrait(Trait.Trip) && combatAction2.ChosenTargets.ChosenCreature == cr);
-                    });
+        //public static QEffect MonsterKnockdown()
+        //{
+        //    return new QEffect("Knockdown", "When your Strike hits, you can spend an action to trip without a trip check.", ExpirationCondition.Never, null, IllustrationName.None)
+        //    {
+        //        Innate = true,
+        //        ProvideMainAction = delegate (QEffect qfGrab)
+        //        {
+        //            Creature monster = qfGrab.Owner;
+        //            IEnumerable<Creature> source = monster.Battle.AllCreatures.Where(delegate (Creature cr)
+        //            {
+        //                CombatAction combatAction2 = monster.Actions.ActionHistoryThisTurn.LastOrDefault()!;
+        //                return (combatAction2 != null && combatAction2.CheckResult >= CheckResult.Success && combatAction2.HasTrait(Trait.Trip) && combatAction2.ChosenTargets.ChosenCreature == cr);
+        //            });
 
-                    return new SubmenuPossibility(IllustrationName.Trip, "Knockdown")
-                    {
-                        Subsections =
-                    {
-                        new PossibilitySection("Knockdown")
-                        {
-                            Possibilities = source.Select((Func<Creature, Possibility>)delegate(Creature lt)
-                            {
-                                CombatAction combatAction = new CombatAction(monster, IllustrationName.Trip, "Trip " + lt.Name, [Trait.Melee], "Trip the target.", Target.Melee((Target t, Creature a, Creature d) => (!d.HasEffect(QEffectId.Unconscious) && !d.HasEffect(QEffectId.Prone)) ? 1.07374182E+09f : (-2.14748365E+09f)).WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable)).WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr)
-                                {
-                                    d.AddQEffect(QEffect.Prone());
-                                });
-                                return new ActionPossibility(combatAction);
-                            }).ToList()
-                        }
-                    }
-                    };
-                }
-            };
-        }
+        //            return new SubmenuPossibility(IllustrationName.Trip, "Knockdown")
+        //            {
+        //                Subsections =
+        //            {
+        //                new PossibilitySection("Knockdown")
+        //                {
+        //                    Possibilities = source.Select((Func<Creature, Possibility>)delegate(Creature lt)
+        //                    {
+        //                        CombatAction combatAction = new CombatAction(monster, IllustrationName.Trip, "Trip " + lt.Name, [Trait.Melee], "Trip the target.", Target.ReachWithAnyWeapon((t, a, d) => (!d.HasEffect(QEffectId.Unconscious) && !d.HasEffect(QEffectId.Prone)) ? AIConstants.ALWAYS : AIConstants.NEVER)
+        //                            .WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable)).WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr)
+        //                        {
+        //                            d.AddQEffect(QEffect.Prone());
+        //                        });
+        //                        return new ActionPossibility(combatAction);
+        //                    }).ToList()
+        //                }
+        //            }
+        //            };
+        //        }
+        //    };
+        //}
 
         public static QEffect MonsterPush()
         {
@@ -420,7 +421,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         {
                             Possibilities = source.Select((Func<Creature, Possibility>)delegate(Creature lt)
                             {
-                                CombatAction combatAction = new CombatAction(monster, IllustrationName.Shove, "Shove" + lt.Name, [Trait.Melee], "Shove the target.", Target.Melee((Target t, Creature a, Creature d) => (a.Actions.ActionsLeft == 1 && PushTileIsFree(a, d) && !d.HasEffect(QEffectId.Unconscious)) ? 1.07374182E+09f : (-2.14748365E+09f)).WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable)).WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr)
+                                CombatAction combatAction = new CombatAction(monster, IllustrationName.Shove, "Shove" + lt.Name, [Trait.Melee], "Shove the target.", Target.ReachWithWeaponOfTrait(Trait.Shove)
+                                    .WithInnerGoodness((t, a, d) => (a.Actions.ActionsLeft == 1 && PushTileIsFree(a, d) && !d.HasEffect(QEffectId.Unconscious)) ? AIConstants.ALWAYS : AIConstants.NEVER)
+                                    .WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (d != lt) ? Usability.CommonReasons.TargetIsNotPossibleForComplexReason : Usability.Usable))
+                                .WithEffectOnEachTarget(async delegate(CombatAction ca, Creature a, Creature d, CheckResult cr)
                                 {
                                     await monster.PushCreature(d, 1);
                                 });
@@ -514,7 +518,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         float score = 2.5f;
 
                         // Dramatic opening attack bonus
-                        if ((bool)self.Tag == false) {
+                        if ((bool?)self.Tag == false) {
                             score += 10f;
                         }
 
@@ -539,7 +543,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                                 Tag = 14 + caster.Level,
                                 ProvideContextualAction = self => {
                                     CombatAction combatAction = new CombatAction(self.Owner, (Illustration)IllustrationName.Escape, "Escape from " + caster?.ToString() + "'s webs.", new Trait[] {
-                                        Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({baseDC + caster.Level}) of the webs.",
+                                        Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({baseDC + caster!.Level}) of the webs.",
                                         Target.Self((_, ai) => ai.EscapeFrom(caster))) {
                                         ActionId = ActionId.Escape
                                     };
@@ -618,10 +622,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                             }),
                             PreventTakingAction = (Func<CombatAction, string>)(action => {
                                 if (action.HasTrait(Trait.Impulse))
-                                    return (string)null;
+                                    return null!;
                                 if (action.HasTrait(Trait.Fire))
                                     return "You can't use fire actions underwater.";
-                                return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : (string)null;
+                                return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : null!;
                             })
                         };
                     }
@@ -671,7 +675,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
 
                     if (await effect.Owner.AskToUseReaction($"Your ally {action.Owner.Name} has failed the spider queen with their incompetence. Would you like discipline them, dealing 1d6 slashing damage to allow them to reroll their attack with a +1 bonus?")) {
-                        effect.Owner.Occupies.Overhead("*cruel taskmistress*", Color.Green,
+                        effect.Owner.Overhead("*cruel taskmistress*", Color.Green,
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b} to punish " + action.Owner.Name + " for their failure.",
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b}",
                                 effect.Owner.Name + " uses {b}Cruel Taskmistress{/b} on " + action.Owner.Name + " as a reaction {icon:Reaction}.\n\nThis inflcits " + damage + " {b}mental{/b} damage on the target, but allows them to reroll their attack with a +1 bonus and take the best result.");
@@ -694,7 +698,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
                         int newValue = R.NextD20();
                         if (newValue > breakdown.D20Roll) {
-                            action.Owner.Occupies.Overhead("", Color.Black,
+                            action.Owner.Overhead("", Color.Black,
                                 $"{action.Owner.Name} rerolls their attack and takes the new result: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}.\n\nThey have taken the new higher value.");
@@ -703,7 +707,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                             breakdown.D20Roll = newValue;
                             breakdown.FirstD20Roll = newValue;
                         } else {
-                            action.Owner.Occupies.Overhead("", Color.Black,
+                            action.Owner.Overhead("", Color.Black,
                                 $"{action.Owner.Name} rerolls their attack and takes the origional result: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}",
                                 $"{action.Owner.Name} rerolls their attack: {breakdown.D20Roll} > {newValue}.\n\nThey have taken the origional higher value.");
@@ -736,20 +740,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
             effect.AddGrantingOfTechnical(filter, qf => {
                 qf.YouAreDealtDamage = async (qfAlly, attacker, damageStuff, defender) => {
-                    if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 3 || effect.Owner.DistanceTo(defender) > 3)
+                    if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 3 || effect.Owner.DistanceTo(defender) > 3 || effect.Owner?.PrimaryWeapon == null)
                         return null;
 
                     if (!effect.Owner.CreateStrike(effect.Owner.PrimaryWeapon).CanBeginToUse(attacker)) {
                         return null;
                     }
 
-                    if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker?.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + (baseReduction + effect.Owner.Level).ToString() + " of that damage?"))
+                    if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + (baseReduction + effect.Owner.Level).ToString() + " of that damage?"))
                         return null;
 
                     List<Tile> validStepTiles = effect.Owner.Battle.Map.AllTiles.Where(t => t.IsFree && t.IsAdjacentTo(effect.Owner.Occupies) && t.DistanceTo(attacker.Occupies) < 3 && attacker.HasLineOfEffectTo(attacker.Occupies) < CoverKind.Blocked).ToList();
 
-                    effect.Owner.Occupies.Overhead("retributive strike!", Color.Orange, effect.Owner?.ToString() + " uses retributive strike!");
-                    effect.Owner.AddQEffect(new QEffect(ExpirationCondition.Never) {
+                    effect.Owner.Overhead("retributive strike!", Color.Orange, effect.Owner?.ToString() + " uses retributive strike!");
+                    effect.Owner!.AddQEffect(new QEffect(ExpirationCondition.Never) {
                         StateCheckWithVisibleChanges = async qfStrikeBack => {
                             qfStrikeBack.StateCheckWithVisibleChanges = null;
                             qfStrikeBack.ExpiresAt = ExpirationCondition.Immediately;
@@ -828,7 +832,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
                     if (await defender.AskToUseReaction($"Use your reaction to have {protector.Name} take {damageStuff.Amount} damage instead of you?")) {
                         Sfxs.Play(SfxName.Abjuration);
-                        defender.Occupies.Overhead("mother's protection", Color.Crimson, $"{defender.Name } used Mother's Protection to transfer their wounds to {protector.Name}.");
+                        defender.Overhead("mother's protection", Color.Crimson, $"{defender.Name } used Mother's Protection to transfer their wounds to {protector.Name}.");
                         await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(defender.Battle.Pseudocreature, "Mother's Protection"), DiceFormula.FromText(damageStuff.Amount.ToString()), protector, CheckResult.Failure, DamageKind.Untyped);
 
                         return new ReduceDamageModification(damageStuff.Amount, $"Protected by {protector.Name}");
@@ -840,7 +844,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         }
 
         public static QEffect BlessedOfEchidna() {
-            return new QEffect("Blessed of Echidna", "You automatically critically succeed against all save effects from allied animals and beasts.") {
+            return new QEffect("Blessed of the Echidna", "You automatically critically succeed against all save effects from allied animals and beasts.") {
+                Id = QEffectIds.BlessedOfEchidna,
                 AfterYouMakeSavingThrow = (self, action, breakdown) => {
                     if (IsMonsterAlly(self.Owner, action.Owner))
                         breakdown.CheckResult = CheckResult.CriticalSuccess;
@@ -901,6 +906,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             effect.AddGrantingOfTechnical(cr => effect.Owner.Battle.InitiativeOrder.Contains(cr), qf => {
                 qf.StartOfYourPrimaryTurn = async (tmp, owner) => {
                     List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder.Where(cr => cr.AliveOrUnconscious).ToList();
+
+                    if (effect.Owner.Battle.ActiveCreature == null) return;
 
                     // Skip if boss isn't going on your next turn
                     if (initOrder.IndexOf(effect.Owner) != initOrder.IndexOf(effect.Owner.Battle.ActiveCreature) - 1) {

@@ -67,7 +67,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     internal class Level1Encounter : Encounter
     {
 
-        public Level1Encounter(string name, string filename, List<Item> rewards = null) : base(name, filename, rewards, 0) {
+        public Level1Encounter(string name, string filename, List<Item>? rewards = null) : base(name, filename, rewards, 0) {
             this.CharacterLevel = 1;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0) {

@@ -15,6 +15,8 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.StatBlocks.Monsters.L_1;
+using Dawnsbury.Core.StatBlocks.Monsters.L1;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
@@ -64,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         return true;
                     }).ToList();
                     Tile spawnPt = spawnPoints[R.Next(0, spawnPoints.Count)];
-                    var options = new List<Creature>() { MonsterStatBlocks.CreateGiantRat(), HuntingSpider.Create(), MonsterStatBlocks.CreateVenomousSnake(), MonsterStatBlocks.CreateWolf() };
+                    var options = new List<Creature>() { GiantRat.CreateGiantRat(), HuntingSpider.Create(), VenomousSnake.CreateVenomousSnake(), Wolf.CreateWolf() };
                     Creature summon = options[R.Next(options.Count)];
                     summon.AddQEffect(new QEffect() {
                         AdditionalGoodness = (self, action, target) => {
@@ -87,7 +89,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         Illustration = owner.Illustration,
                         StateCheckWithVisibleChanges = async self => {
                             if (!self.Source!.Alive) {
-                                self.Owner.Occupies.Overhead($"*{self.Owner.Name} flees!*", Color.Green, $"With the curse broken, {self.Owner.Name} flees from the fight.");
+                                self.Owner.Overhead($"*{self.Owner.Name} flees!*", Color.Green, $"With the curse broken, {self.Owner.Name} flees from the fight.");
                                 self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                             }
                         }
@@ -97,7 +99,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         cin.EnterCutscene();
                         summon.Battle.SmartCenter(summon.Occupies.X, summon.Occupies.Y);
                         Sfxs.Play(SfxName.BeastRoar, 0.75f);
-                        summon.Occupies.Overhead("*Curse of Skittering Paws*", Color.White, $"{summon.Name} is drawn to aid the coven by the curse of skittering paws.");
+                        summon.Overhead("*Curse of Skittering Paws*", Color.White, $"{summon.Name} is drawn to aid the coven by the curse of skittering paws.");
                         await cin.WaitABit();
                         cin.ExitCutscene();
                     });

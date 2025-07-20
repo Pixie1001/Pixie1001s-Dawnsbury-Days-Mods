@@ -53,7 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 WhenExpires = async self => {
                     if (self.Value == 0) {
                         self.Owner.Battle.SmartCenter(self.Owner.Occupies.X, self.Owner.Occupies.Y);
-                        self.Owner.Occupies.Overhead($"Escaped!", Color.Black, "The treasure demon escaped with its loot!");
+                        self.Owner.Overhead($"Escaped!", Color.Black, "The treasure demon escaped with its loot!");
                         self.Owner.AnimationData.ColorBlink(Color.White);
                         Sfxs.Play(SfxName.SpellFail);
                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
@@ -67,11 +67,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     for (int i = 0; i < self.Owner.Battle.Encounter.CharacterLevel; i++) {
                         amount += R.NextD20();
                     }
-                    self.Owner.Occupies.Overhead($"{amount} gold", Color.Goldenrod, "The party looted {b}" + amount + " gold{/b} from the treasure demon.");
+                    self.Owner.Overhead($"{amount} gold", Color.Goldenrod, "The party looted {b}" + amount + " gold{/b} from the treasure demon.");
                     self.Tag = amount;
                 },
                 EndOfCombat = async (self, victory) => {
-                    if (victory && self.Tag != null) {
+                    if (victory && self.Tag != null && self.Owner.Battle.CampaignState != null) {
                         self.Owner.Battle.CampaignState.CommonGold += (int)self.Tag;
                     }
                 }

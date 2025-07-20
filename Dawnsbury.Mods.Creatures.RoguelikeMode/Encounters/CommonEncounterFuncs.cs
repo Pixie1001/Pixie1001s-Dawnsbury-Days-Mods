@@ -184,7 +184,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 return;
             }
 
-            rewards.Add(LootTables.RollConsumable(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
+            rewards.Add(LootTables.RollConsumable(LootTables.Party![R.Next(0, LootTables.Party.Count())], levelRange));
             int bonusConsumable = R.NextD20();
             if (bonusConsumable >= 18) {
                 rewards.Add(LootTables.RollConsumable(LootTables.Party[R.Next(0, LootTables.Party.Count())], levelRange));
@@ -200,7 +200,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             Sfxs.BeginSong(Songname.Battle);
             if (battle.CampaignState != null && battle.CampaignState.Tags.ContainsKey("TreasureDemonEncounters")) {
                 var treasureDemonEncounters = battle.CampaignState.Tags["TreasureDemonEncounters"].Split(", ");
-                bool addTD = false;
                 foreach (string index in treasureDemonEncounters) {
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
@@ -208,20 +207,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                         Creature td = CreatureList.Creatures[CreatureIds.TreasureDemon](battle.Encounter);
                         if (battle.Encounter.CharacterLevel == 1) td.ApplyWeakAdjustments(false);
                         else if (battle.Encounter.CharacterLevel == 3) td.ApplyEliteAdjustments();
-                        battle.SpawnCreature(td, enemyFaction, freeTile);
+                        battle.SpawnCreature(td, enemyFaction, freeTile!);
                     }
                 }
             }
 
             foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && (cr.HasEffect(QEffectId.Weak) || cr.HasEffect(QEffectId.Inferior)))) {
                 QEffect effect = enemy.HasEffect(QEffectId.Weak) ? enemy.FindQEffect(QEffectId.Weak) : enemy.FindQEffect(QEffectId.Inferior);
+                if (effect == null) return;
                 string name = "Weak";
                 int val = -2;
                 if (effect.Id == QEffectId.Inferior) {
                     name = "Inferior";
                     val = -4;
                 }
-
                 effect.Description = $"You have {val.WithPlus()} to all defenses, attacks, spell save DC, skills and Strike and cantrip damage (double to 2nd level or higher spells).";
                 effect.BonusToDamage = (effect, aggressiveAction, defender) => {
                     if (aggressiveAction.HasTrait(Trait.Spell) && !aggressiveAction.HasTrait(Trait.Cantrip) && aggressiveAction.SpellLevel >= 2)
@@ -279,7 +278,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
             Creature looter = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsPlayer);
 
-            ChoiceButtonOption choice = await looter.AskForChoiceAmongButtons(IllustrationName.ChestOpen, text, itemOptions.Select(o => o.Key).ToArray());
+            ChoiceButtonOption choice = await looter!.AskForChoiceAmongButtons(IllustrationName.ChestOpen, text, itemOptions.Select(o => o.Key).ToArray());
 
             foreach (var option in itemOptions) {
                 if (option.Key == choice.Caption) {

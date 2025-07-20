@@ -93,7 +93,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     Random rand = new Random(seed);
 
                     if (list.Count() <= 0) {
-                        self.Owner.Occupies.Overhead("*summon failed*", Color.White, $"There are no valid monsters for {self.Owner.Name} to be bonded to.");
+                        self.Owner.Overhead("*summon failed*", Color.White, $"There are no valid monsters for {self.Owner.Name} to be bonded to.");
                         return;
                     }
 

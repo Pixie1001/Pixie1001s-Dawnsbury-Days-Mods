@@ -83,7 +83,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker?.Name.ToString() + " is about to attack " + defender?.Name.ToString() + ". Use Avenging Bite to strike them?"))
                         return null;
 
-                    effect.Owner.Occupies.Overhead("avenging bite!", Color.LightBlue, effect.Owner?.ToString() + " uses avenging bite!");
+                    effect.Owner.Overhead("avenging bite!", Color.LightBlue, effect.Owner?.ToString() + " uses avenging bite!");
                     strike.ChosenTargets = ChosenTargets.CreateSingleTarget(attacker!);
                     await strike.AllExecute();
                     return null;

@@ -39,7 +39,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 WhenExpires = async self => {
                     if (self.Value == 0) {
                         self.Owner.Battle.SmartCenter(self.Owner.Occupies.X, self.Owner.Occupies.Y);
-                        self.Owner.Occupies.Overhead($"Hatched!", Color.DarkRed, $"{self.Owner.Name} hatches into a Bebilith Spawn!");
+                        self.Owner.Overhead($"Hatched!", Color.DarkRed, $"{self.Owner.Name} hatches into a Bebilith Spawn!");
                         self.Owner.AnimationData.ColorBlink(Color.White);
                         Sfxs.Play(SoundEffects.EggHatch);
                         Tile pos = self.Owner.Occupies;

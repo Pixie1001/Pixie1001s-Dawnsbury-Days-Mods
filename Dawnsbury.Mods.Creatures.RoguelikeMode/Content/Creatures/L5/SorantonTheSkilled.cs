@@ -228,7 +228,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                                                 target.AddQEffect(new("Used Extra Riposte", "Soranton the Skilled has used his extra Riposte reaction.", ExpirationCondition.CountsDownAtStartOfSourcesTurn, target, IllustrationName.ReactionUsedUp));
                                             }
 
-                                            target.Occupies.Overhead("Riposte!", Color.Black, "Soranton used Riposte.");
+                                            target.Overhead("Riposte!", Color.Black, "Soranton used Riposte.");
 
                                             if (user.PrimaryWeapon != null)
                                             {

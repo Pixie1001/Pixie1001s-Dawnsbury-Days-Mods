@@ -76,7 +76,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     Random rand = new Random();
 
                     if (list.Count() <= 0) {
-                        caster.Occupies.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
+                        caster.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
                         return;
                     }
 

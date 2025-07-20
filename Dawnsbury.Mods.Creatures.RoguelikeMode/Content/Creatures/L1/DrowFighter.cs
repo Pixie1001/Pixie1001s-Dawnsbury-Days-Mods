@@ -110,7 +110,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 nEffect.CounteractLevel = qf.CounteractLevel;
                                 qf.Owner.AddQEffect(nEffect);
                                 qf.Owner.RemoveAllQEffects(qf2 => qf2.Id == QEffectIds.LethargyPoison);
-                                qf.Owner.Occupies.Overhead("*lethargy poison converted to slowed 1*", Color.Black);
+                                qf.Owner.Overhead("*lethargy poison converted to slowed 1*", Color.Black);
                             }
                         });
 

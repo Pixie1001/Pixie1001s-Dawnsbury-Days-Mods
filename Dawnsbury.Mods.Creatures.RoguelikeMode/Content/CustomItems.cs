@@ -52,6 +52,7 @@ using System.Text.RegularExpressions;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using static HarmonyLib.Code;
+using Dawnsbury.Core.StatBlocks.Monsters.L1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -97,7 +98,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing));
 
             item.ProvidesItemAction = (wielder, wpn) => {
-                if (wielder.QEffects.Any(qf => qf.Id == QEffectIds.Parry && qf.Tag == wpn)) return null;
+                if (wielder.QEffects.Any(qf => qf.Id == QEffectIds.Parry && qf.Tag == wpn)) return null!;
 
                 return (ActionPossibility)new CombatAction(wielder, new SideBySideIllustration(Illustrations.Parry, wpn.Illustration), $"Parry ({item.Name})", [], "You raise your weapon to parry oncoming attacks, granting yourself a +1 circumstance bonus to AC.", Target.Self())
                 .WithSoundEffect(SfxName.RaiseShield)
@@ -339,12 +340,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     ProvideContextualAction = self => {
                                         CombatAction combatAction = new CombatAction(self.Owner, (Illustration)IllustrationName.Escape, "Escape from " + caster?.ToString() + "'s webs.", new Trait[] {
                                             Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({(caster != null ? caster.ClassOrSpellDC() : 0)}) of the webs.",
-                                            Target.Self((_, ai) => ai.EscapeFrom(caster))) {
+                                            Target.Self((_, ai) => ai.EscapeFrom(caster!))) {
                                             ActionId = ActionId.Escape
                                         };
 
                                         ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
-                                            new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(caster.ClassOrSpellDC())),
+                                            new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(caster!.ClassOrSpellDC())),
                                             new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.FlatDC(caster.ClassOrSpellDC())),
                                             new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(caster.ClassOrSpellDC()))
                                         }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
@@ -420,12 +421,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     ProvideContextualAction = self => {
                                         CombatAction combatAction = new CombatAction(self.Owner, (Illustration)IllustrationName.Escape, "Escape from " + caster?.ToString() + "'s webs.", new Trait[] {
                                             Trait.Attack, Trait.AttackDoesNotTargetAC }, $"Make an unarmed attack, Acrobatics check or Athletics check against the escape DC ({baseDC + (caster != null ? caster.Level : 0)}) of the webs.",
-                                            Target.Self((_, ai) => ai.EscapeFrom(caster))) {
+                                            Target.Self((_, ai) => ai.EscapeFrom(caster!))) {
                                             ActionId = ActionId.Escape
                                         };
 
                                         ActiveRollSpecification activeRollSpecification = (new ActiveRollSpecification[] {
-                                            new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(baseDC + caster.Level)),
+                                            new ActiveRollSpecification(Checks.Attack(Item.Fist()), Checks.FlatDC(baseDC + caster!.Level)),
                                             new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.FlatDC(baseDC + caster.Level)),
                                             new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Acrobatics), Checks.FlatDC(baseDC + caster.Level))
                                         }).MaxBy(roll => roll.DetermineBonus(combatAction, self.Owner, null).TotalNumber);
@@ -484,7 +485,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         spell.Owner = wielder;
                         spell.Item = weapon;
                         spell.WithEffectOnSelf(async (action, user) => {
-                            action.Item.UseUp();
+                            action.Item?.UseUp();
                         });
                         return spell;
                     },
@@ -553,8 +554,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                             if (await effect.Owner.AskToUseReaction((damage.Power != null ? "{b}" + a.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" :
                                 "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 3}?")) {
-                                effect.Owner.Occupies.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
-                                qf.Owner.Occupies.Overhead($"*{3 + effect.Owner.Level} damage negated*", Color.Black);
+                                effect.Owner.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
+                                qf.Owner.Overhead($"*{3 + effect.Owner.Level} damage negated*", Color.Black);
                                 Sfxs.Play(SfxName.Abjuration, 1f);
                                 return new ReduceDamageModification(3 + effect.Owner.Level, "Protective Amulet");
                             }
@@ -591,8 +592,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             if (await effect.Owner.AskToUseReaction((damage.Power != null ? "{b}" + a.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" :
                                 "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes the protective powers of your Protective Amulet.\nUse your reaction to reduce the damage by {effect.Owner.Level + 1}?")) {
                                 item.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
-                                effect.Owner.Occupies.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
-                                qf.Owner.Occupies.Overhead($"*{effect.Owner.Level + 1} damage negated*", Color.Black);
+                                effect.Owner.Overhead("*uses protective amulet*", Color.Black, $"{effect.Owner.Name} holds up their protective amulet to shield {qf.Owner.Name} from harm.");
+                                qf.Owner.Overhead($"*{effect.Owner.Level + 1} damage negated*", Color.Black);
                                 Sfxs.Play(SfxName.Abjuration, 1f);
                                 return new ReduceDamageModification(effect.Owner.Level + 1, "Protective Amulet");
                             }
@@ -715,7 +716,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithDescription("{i}Smoke constantly belches from this longsword.{/i}\n\nAny hit with this sword deals 1 extra fire damage.\n\n" +
             "You can use a special action while holding the sword to command the blade's edges to light on fire.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the sword deals 1d6 extra fire damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
-            item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Fire));
+            item.WeaponProperties?.AdditionalDamage.Add(("1", DamageKind.Fire));
             return item;
         });
 
@@ -727,7 +728,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithDescription("{i}Sparks of crackling electricity arc from this warhammer, and the head thrums with distant thunder.{/i}\n\nAny hit with this hammer deals 1 extra electricity damage.\n\n" +
             "You can use a special action while holding the hammer to transform the sparks into lightning bolts.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the hammer deals 1d6 extra electricity damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
-            item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Electricity));
+            item.WeaponProperties?.AdditionalDamage.Add(("1", DamageKind.Electricity));
             return item;
         });
 
@@ -740,7 +741,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithDescription("{i}The yew of this bow is cold to the touch, and its arrows pool with fog as they're nocked.{/i}\n\nAny hit with this bow deals 1 extra cold damage.\n\n" +
             "You can use a special action while holding the bow to coat the bow in fridgid icy scales.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
             " of your turn, the bow deals 1d6 extra cold damage instead of just 1. After you use this action, you can't use it again until the end of the encounter.");
-            item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Cold));
+            item.WeaponProperties?.AdditionalDamage.Add(("1", DamageKind.Cold));
             return item;
         });
 
@@ -753,7 +754,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithDescription("{i}Sparks of crackling electricity arc from this crossbow.{/i}\n\nAny hit with this crossbow deals 1 extra electricity damage.\n\n" +
             "You can use a special action while holding the crossbow to fire a crackling bolt of lightning in a great arc.\n\n{b}Activate {icon:Action}.{/b} concentrate, manipulate; {b}Effect.{/b} Each creature in a 30-foot line " +
             "suffers 2d6 electricity damage, mitigated by a basic Reflex save. After you use this action, you can't use it again until the end of the encounter.");
-            item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Electricity));
+            item.WeaponProperties?.AdditionalDamage.Add(("1", DamageKind.Electricity));
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 wielder.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
@@ -811,7 +812,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithDescription("{i}This viper shaped handcrossbow hisses and sizzles against the air.{/i}\n\nAny hit with this crossbow deals 1 extra acid damage.\n\n" +
             "You can use a special action while holding the crossbow to cause it to launch great splattering globlets of acid.\n\n{b}Activate {icon:Action}.{/b} concentrate, manipulate; {b}Effect.{/b} The weapon gains 1d6 acid splash damage until the end of your turn.\n\n" +
             "After you use this action, you can't use it again until the end of the encounter.");
-            item.WeaponProperties.AdditionalDamage.Add(("1", DamageKind.Acid));
+            item.WeaponProperties?.AdditionalDamage.Add(("1", DamageKind.Acid));
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 wielder.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
@@ -828,7 +829,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         .WithSoundEffect(SfxName.AcidSplash)
                         .WithEffectOnSelf(user => {
                             // Effect
-                            weapon.WeaponProperties.AdditionalSplashDamageFormula = "1d6";
+                            weapon.WeaponProperties!.AdditionalSplashDamageFormula = "1d6";
                             weapon.WeaponProperties.AdditionalSplashDamageKind = DamageKind.Acid;
                             weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
 
@@ -838,7 +839,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 Tag = weapon,
                                 WhenExpires = (self) => {
                                     Item weapon = self.Tag as Item;
-                                    weapon.WeaponProperties.AdditionalSplashDamageFormula = null;
+                                    weapon!.WeaponProperties!.AdditionalSplashDamageFormula = null;
                                 }
                             });
                             // Run end of combat cleanup
@@ -947,13 +948,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         .WithSoundEffect(SfxName.DazzlingFlash)
                         .WithEffectOnChosenTargets(async (spell, caster, targets) => {
                             Tile target = targets.ChosenTile;
+                            if (target == null) return;
                             if (!target.IsTrulyGenuinelyFreeTo(caster)) {
                                 target = target.GetShuntoffTile(caster);
                             }
                             caster.TranslateTo(target);
                             caster.AnimationData.ColorBlink(Color.LightGoldenrodYellow);
                             caster.Battle.SmartCenterAlways(target);
-                            spell.Item.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
+                            spell.Item?.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
                         });
 
                         return (ActionPossibility)action;
@@ -1112,7 +1114,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         return;
                     }
                     if (item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
-                        self.Owner.Occupies.Overhead("no companion", Color.Green, "The spider hatchling is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
+                        self.Owner.Overhead("no companion", Color.Green, "The spider hatchling is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
                     } else {
                         self.Id = QEffectId.AnimalCompanionController;
                         // TODO: Replace with proper animal companion stats
@@ -1230,13 +1232,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)new ActionPossibility(new CombatAction(owner, (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.FreeAction), "Move on your own",
                         [Trait.Basic], "{i}You leave your mature animal companion to its own devices. It will do what's right.{/i}\n\nTake 1 action as your animal companion. You can only spend this action to move or to make a Strike.\n\nYou can't command your animal companion and leave it to move in its own in the same turn.",
                         (Target)Target.Self()
-                        .WithAdditionalRestriction((Func<Creature, string>)(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null)))
+                        .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : null))
                         .WithActionCost(0)
                         .WithEffectOnSelf((Func<Creature, Task>)(async caster => {
                             self.UsedThisTurn = true;
                             animalCompanion.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
                                 Id = QEffectId.MoveOnYourOwn,
-                                PreventTakingAction = (Func<CombatAction, string>)(ca => !ca.HasTrait(Trait.Move) && !ca.HasTrait(Trait.Strike) && ca.ActionId != ActionId.EndTurn ? "You can only move or make a Strike." : (string)null)
+                                PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && !ca.HasTrait(Trait.Strike) && ca.ActionId != ActionId.EndTurn ? "You can only move or make a Strike." : null
                             });
                             await CommonSpellEffects.YourMinionActs(animalCompanion);
                         })), PossibilitySize.Half))
@@ -1290,46 +1292,46 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     SubmenuPossibility menu = new SubmenuPossibility(Illustrations.ThrowersBandolier, "Thrower's Bandolier");
                     menu.Subsections.Add(new PossibilitySection("Thrower's Bandolier"));
 
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[0].Illustration, "Draw Dagger", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)[0].Name} from your thrower's bandolier.",
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![0].Illustration, "Draw Dagger", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)![0].Name} from your thrower's bandolier.",
                     Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)[0].Duplicate();
+                        Item item = (qfTB.Tag as List<Item>)![0].Duplicate();
                         item.Traits.Add(Trait.EncounterEphemeral);
                         user.HeldItems.Add(item);
                     }));
 
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[1].Illustration, "Draw Light Hammer", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)[1].Name} from your thrower's bandolier.",
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![1].Illustration, "Draw Light Hammer", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)![1].Name} from your thrower's bandolier.",
                     Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)[1].Duplicate();
+                        Item item = (qfTB.Tag as List<Item>)![1].Duplicate();
                         item.Traits.Add(Trait.EncounterEphemeral);
                         user.HeldItems.Add(item);
                     }));
 
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[2].Illustration, "Draw Hatchet", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)[2].Name} from your thrower's bandolier.",
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![2].Illustration, "Draw Hatchet", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)![2].Name} from your thrower's bandolier.",
                     Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)[2].Duplicate();
+                        Item item = (qfTB.Tag as List<Item>)![2].Duplicate();
                         item.Traits.Add(Trait.EncounterEphemeral);
                         user.HeldItems.Add(item);
                     }));
 
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)[3].Illustration, "Draw Shuriken", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)[3].Name} from your thrower's bandolier.\n\n{{b}}Special{{/b}} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action.",
+                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![3].Illustration, "Draw Shuriken", new Trait[] { Trait.Manipulate, Trait.Basic },
+                    $"Draw a {(qfTB.Tag as List<Item>)![3].Name} from your thrower's bandolier.\n\n{{b}}Special{{/b}} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action.",
                     Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
                     .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)[3].Duplicate();
+                        Item item = (qfTB.Tag as List<Item>)![3].Duplicate();
                         item.Traits.Add(Trait.EncounterEphemeral);
                         user.HeldItems.Add(item);
                     }));
@@ -1455,18 +1457,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 demon.Initiative = DiceFormula.FromText("1d20+" + demon.InitiativeBonus).Roll().Item1;
                                 int index = demon.Battle.InitiativeOrder.FindLastIndex((Creature cr) => cr.Initiative > demon.Initiative) + 1;
                                 if (demon.Battle.GameLoop.InitialInitiativeOrderIsSet) {
-                                    demon.Battle.Log(demon?.ToString() + " rolls for initiative: " + demon.Initiative);
+                                    demon.Battle.Log(demon?.ToString() + " rolls for initiative: " + demon!.Initiative);
                                 }
 
                                 demon.Battle.InitiativeOrder.Insert(index, demon);
-                                demon.Occupies.Overhead("*breaks free*", Color.DarkRed, $"{caster.Name}'s summoned {demon.Name} breaks free from their control!");
+                                demon.Overhead("*breaks free*", Color.DarkRed, $"{caster.Name}'s summoned {demon.Name} breaks free from their control!");
                                 self.ExpiresAt = ExpirationCondition.Immediately;
                             }
                         },
                         WhenExpires = delegate {
                             if (!demon.DeathScheduledForNextStateCheck) {
-                                demon.Occupies.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
-                                demon.DeathScheduledForNextStateCheck = true;
+                                demon.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
+                                demon!.DeathScheduledForNextStateCheck = true;
                             }
                         },
                         WhenMonsterDies = delegate (QEffect casterQf) {
@@ -1533,7 +1535,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 1, caster.Level + 2) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
 
                     if (list.Count() <= 0) {
-                        caster.Occupies.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
+                        caster.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
                         return;
                     }
 
@@ -1585,18 +1587,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 demon.Initiative = DiceFormula.FromText("1d20+" + demon.InitiativeBonus).Roll().Item1;
                                 int index = demon.Battle.InitiativeOrder.FindLastIndex((Creature cr) => cr.Initiative > demon.Initiative) + 1;
                                 if (demon.Battle.GameLoop.InitialInitiativeOrderIsSet) {
-                                    demon.Battle.Log(demon?.ToString() + " rolls for initiative: " + demon.Initiative);
+                                    demon.Battle.Log(demon?.ToString() + " rolls for initiative: " + demon?.Initiative);
                                 }
 
-                                demon.Battle.InitiativeOrder.Insert(index, demon);
-                                demon.Occupies.Overhead("*breaks free*", Color.DarkRed, $"{caster.Name}'s summoned {demon.Name} breaks free from their control!");
+                                demon!.Battle.InitiativeOrder.Insert(index, demon);
+                                demon.Overhead("*breaks free*", Color.DarkRed, $"{caster.Name}'s summoned {demon.Name} breaks free from their control!");
                                 self.ExpiresAt = ExpirationCondition.Immediately;
                             }
                         },
                         WhenExpires = delegate {
                             if (!demon.DeathScheduledForNextStateCheck) {
-                                demon.Occupies.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
-                                demon.DeathScheduledForNextStateCheck = true;
+                                demon.Overhead("*banished*", Color.Black, demon?.ToString() + " is banished because its summoner didn't sustain the summoning spell.");
+                                demon!.DeathScheduledForNextStateCheck = true;
                             }
                         },
                         WhenMonsterDies = delegate (QEffect casterQf) {
@@ -1671,11 +1673,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         CombatAction summon = new CombatAction(caster, Illustrations.HornOfTheHunt, "Summon Hunting Hound", [Trait.UsableEvenWhenUnconsciousOrParalyzed], "", Target.RangedEmptyTileForSummoning(100))
                         .WithActionCost(0)
                         .WithEffectOnEachTile(async (_, _, subtiles) => {
-                            Creature wolf = MonsterStatBlocks.CreateWolf();
+                            Creature wolf = Wolf.CreateWolf();
                             wolf.AddQEffect(CommonQEffects.CantOpenDoors());
                             wolf.AddQEffect(new QEffect("Call of the Hunt", $"This creature is compelled to attack {d.Name} and will vanish after its task is complete.", ExpirationCondition.Never, d, Illustrations.HornOfTheHunt) {
                                 StateCheck = self => {
-                                    if (!self.Source.AliveOrUnconscious || !self.Owner.Alive) {
+                                    if (self.Source == null || !self.Source.AliveOrUnconscious || !self.Owner.Alive) {
                                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                                     }
                                 },
@@ -1732,7 +1734,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                     mark.Tag = wolves;
                     mark.StateCheck = self => {
-                        if (!(self.Tag as List<Creature>).Any(cr => cr.Alive)) {
+                        if (!(self.Tag as List<Creature>)!.Any(cr => cr.Alive)) {
                             self.ExpiresAt = ExpirationCondition.Immediately;
                         }
                     };
@@ -1789,7 +1791,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             if (victory != true) {
                                 return;
                             }
-                            self.WhenExpires(self);
+                            if (self.WhenExpires != null)
+                                self.WhenExpires(self);
                         },
                     };
 
@@ -1870,7 +1873,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ;
             }, (_, _) => true)
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
-                qfCoA.BonusToSkillChecks = (skill, action, d) => action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "shifter furs") : null;
+                qfCoA.BonusToSkillChecks = (skill, action, d) => d != null && action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "shifter furs") : null;
                 qfCoA.Id = QEffectId.IntimidatingGlare;
                 qfCoA.EndOfCombat = async (self, won) => {
                     ItemModification used = item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay);
@@ -2026,7 +2029,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     menu.Subsections.Add(subsection);
                                     foreach ((Item?, Item) shuriken in uniqueShurikens) {
                                         var strike = StrikeRules.CreateStrike(self.Owner, shuriken.Item2, RangeKind.Ranged, -1, true);
-                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        (strike.Target as CreatureTarget)!.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             if (shuriken.Item1 != null)
                                                 // RunestoneRules.RecreateWithUnattachedSubitem(shuriken.Item1, shuriken.Item2, false);
@@ -2048,7 +2051,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         }
 
                                         var strike = StrikeRules.CreateStrike(self.Owner, shuriken, RangeKind.Ranged, -1, true);
-                                        (strike.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                                        (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             user.AddHeldItem(shuriken);
                                         });
@@ -2223,7 +2226,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         .WithSoundEffect(SfxName.Abjuration)
                                         .WithEffectOnSelf(user => {
                                             // Effect
-                                            weapon.WeaponProperties.AdditionalDamage[0] = ("1d6", weapon.WeaponProperties.AdditionalDamage[0].Item2);
+                                            weapon.WeaponProperties!.AdditionalDamage[0] = ("1d6", weapon.WeaponProperties.AdditionalDamage[0].Item2);
                                             weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
 
                                             // Show effect
@@ -2232,7 +2235,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                 Tag = weapon,
                                                 WhenExpires = (self) => {
                                                     Item weapon = self.Tag as Item;
-                                                    weapon.WeaponProperties.AdditionalDamage[0] = ("1", weapon.WeaponProperties.AdditionalDamage[0].Item2);
+                                                    weapon!.WeaponProperties!.AdditionalDamage[0] = ("1", weapon.WeaponProperties.AdditionalDamage[0].Item2);
                                                 }
                                             });
                                             // Run end of combat cleanup
@@ -2296,8 +2299,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                             return null;
                                         }
 
-                                        Spell spell = (Spell)item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.CustomPermanent && mod.Tag != null && mod.Tag is Spell).Tag;
-                                        spell = spell.Duplicate(wandHolder, spell.SpellLevel, true);
+                                        Spell spell = (Spell)item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.CustomPermanent && mod.Tag != null && mod.Tag is Spell)?.Tag;
+                                        spell = spell?.Duplicate(wandHolder, spell.SpellLevel, true);
 
                                         if (spell == null) {
                                             return null;
@@ -2310,10 +2313,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                             spellPossibility.Caption += " (Overcharge)";
                                         }
                                         if ((spellPossibility as SubmenuPossibility) == null) {
-                                            CombatAction action = (spellPossibility as ActionPossibility).CombatAction;
+                                            CombatAction action = (spellPossibility as ActionPossibility)!.CombatAction;
                                             action.Owner = wandHolder;
                                             action.Item = wand;
-                                            action.SpellcastingSource = wandHolder.Spellcasting.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
+                                            action.SpellcastingSource = wandHolder.Spellcasting?.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
 
                                             if (used != null && used.Tag != (object)true) {
                                                 action.Illustration = new DualIllustration(Illustrations.Overcharge, action.Illustration);
@@ -2323,16 +2326,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         } else {
                                             SubmenuPossibility spellVars = spellPossibility as SubmenuPossibility;
                                             bool firstLoop = true;
-                                            foreach (var varient in spellVars.Subsections[0].Possibilities) {
+                                            foreach (var varient in spellVars!.Subsections[0].Possibilities) {
                                                 CombatAction action;
                                                 if (varient is ChooseActionCostThenActionPossibility) {
-                                                    action = (varient as ChooseActionCostThenActionPossibility).CombatAction;
+                                                    action = (varient as ChooseActionCostThenActionPossibility)!.CombatAction;
                                                 } else {
-                                                    action = (varient as ChooseVariantThenActionPossibility).CombatAction;
+                                                    action = (varient as ChooseVariantThenActionPossibility)!.CombatAction;
                                                 }
                                                 action.Owner = wandHolder;
                                                 action.Item = wand;
-                                                action.SpellcastingSource = wandHolder.Spellcasting.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
+                                                action.SpellcastingSource = wandHolder.Spellcasting?.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
 
                                                 if (used != null && used.Tag != (object)true) {
                                                     if (firstLoop) {
@@ -2356,7 +2359,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                             } else {
                                                 used.Tag = true;
                                                 (CheckResult, string) result = Checks.RollFlatCheck(10);
-                                                wandHolder.Occupies.Overhead(result.Item1 >= CheckResult.Success ? "Overcharge success!" : $"{wand.Name} was destoyed!", result.Item1 >= CheckResult.Success ? Color.Green : Color.Red, result.Item2, result.Item1 <= CheckResult.Failure ? $"{wand.Name} was permanantly destroyed from being overcharged!" : null);
+                                                wandHolder.Overhead(result.Item1 >= CheckResult.Success ? "Overcharge success!" : $"{wand.Name} was destoyed!", result.Item1 >= CheckResult.Success ? Color.Green : Color.Red, result.Item2, result.Item1 <= CheckResult.Failure ? $"{wand.Name} was permanantly destroyed from being overcharged!" : null);
                                                 if (result.Item1 <= CheckResult.Failure) {
                                                     Sfxs.Play(SoundEffects.WandOverload, 1.2f);
                                                     wandHolder.HeldItems.Remove(wand);
@@ -2374,6 +2377,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         internal static ItemName CreateWand(SpellId spellId, int? level, bool baseGame = true) {
             Spell baseSpell = AllSpells.TemplateSpells.GetValueOrDefault(spellId);
+
+            if (baseSpell == null) return ItemName.None;
 
             if (level == null || level < baseSpell.MinimumSpellLevel) {
                 level = baseSpell.MinimumSpellLevel;

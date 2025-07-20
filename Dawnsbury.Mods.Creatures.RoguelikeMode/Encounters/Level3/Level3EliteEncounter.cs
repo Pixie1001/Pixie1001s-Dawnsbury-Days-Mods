@@ -12,7 +12,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
     internal class Level3EliteEncounter : Encounter
     {
 
-        public Level3EliteEncounter(string name, string filename, List<(Item, string)>? eliteRewards = null, List<Item> rewards=null) : base(name, filename, rewards, 0) {
+        public Level3EliteEncounter(string name, string filename, List<(Item, string)>? eliteRewards = null, List<Item>? rewards=null) : base(name, filename, rewards, 0) {
             this.CharacterLevel = 3;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.ELITE);
             if (eliteRewards == null && Rewards.Count == 0) {

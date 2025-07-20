@@ -153,7 +153,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (action != null && action.Owner.Occupies != null && action.Owner.IsAdjacentTo(qfTakeDamage.Owner) && await qfTakeDamage.Owner.AskToUseReaction($"{action.Owner} spilled your blood. Use Freezing Blood to deal 1d6 cold damage and slow them?"))
                         {
-                            qfTakeDamage.Owner.Occupies.Overhead("Freezing Blood", Color.LightSkyBlue, $"{qfTakeDamage.Owner.Name}'s Freezing Blood spills out, slowing and chilling {action.Owner.Name}.");
+                            qfTakeDamage.Owner.Overhead("Freezing Blood", Color.LightSkyBlue, $"{qfTakeDamage.Owner.Name}'s Freezing Blood spills out, slowing and chilling {action.Owner.Name}.");
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Freezing Blood"), action.Owner, CheckResult.Success, DamageKind.Cold);
                             action.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationAtEndOfOwnerTurn());
                         }

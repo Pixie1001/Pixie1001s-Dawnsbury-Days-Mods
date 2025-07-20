@@ -415,4 +415,16 @@
   </properties>
   <image source="CustomCreatures/DrowBlademaster.png" width="256" height="256"/>
  </tile>
+ <tile id="2062">
+  <properties>
+   <property name="Id" value="Bebilith, Minor"/>
+  </properties>
+  <image source="CustomCreatures/BebilithMinor.png" width="256" height="256"/>
+ </tile>
+ <tile id="2063">
+  <properties>
+   <property name="Id" value="Echidnadite Priestess"/>
+  </properties>
+  <image source="CustomCreatures/EHighPriestess.png" width="256" height="256"/>
+ </tile>
 </tileset>

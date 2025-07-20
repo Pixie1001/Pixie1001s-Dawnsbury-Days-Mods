@@ -41,9 +41,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             QEffect effect = new QEffect("Interactable", "You can use Medicine, Nature and Occultism to interact with this mushroom.") {
                 WhenMonsterDies = self => {
-                    foreach (Tile tile in self.Tag as List<Tile>) {
-                        if (tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
-                            tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.ChokingSpores);
+                    foreach (Tile tile in (self.Tag as List<Tile>)!) {
+                        if (tile.TileQEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
+                            tile.RemoveAllQEffects(qf => qf.TileQEffectId == QEffectIds.ChokingSpores);
                         }
                     }
                 },
@@ -79,14 +79,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                                     await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Choking Spores"), caster, CheckResult.Success, DamageKind.Poison);
                                                                 }
                                                             }
-                                                            if (result >= CheckResult.Success) {
-                                                                //foreach (Tile tile in self.Tag as List<Tile>) {
-                                                                //    if (tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
-                                                                //        tile.QEffects.RemoveAll(qf => qf.TileQEffectId == QEffectIds.ChokingSpores);
-                                                                //    }
-                                                                //}
+                                                            if (result >= CheckResult.Success && self.WhenMonsterDies != null)
                                                                 self.WhenMonsterDies(self);
-                                                            }
                                                             if (result == CheckResult.Success) {
                                                                 target.AddQEffect(new QEffect("Soothed", "The choking mushroom has stopped emitting spores.") {
                                                                     Value = 2,
@@ -155,7 +149,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                                 foreach (Creature ally in caster.Battle.AllCreatures.Where(cr => cr.OwningFaction.AlliedFactionOf(caster.OwningFaction) && cr.DistanceTo(caster) <= 1)) {
                                                                     options.Add(new CreatureOption(ally, $"Heal {ally.Name} with pollen.", async() => {
                                                                         await ally.HealAsync(DiceFormula.FromText($"{(result == CheckResult.Success ? "2" : "3")}d6", "Harvest Mushroom"), CombatAction.CreateSimple(target, "Harvest Mushroom"));
-                                                                        ally.Occupies.Overhead("*healed*", Color.Green, $"{ally.Name} was healed by {caster.Name} using healing pollen.");
+                                                                        ally.Overhead("*healed*", Color.Green, $"{ally.Name} was healed by {caster.Name} using healing pollen.");
                                                                         ally.AddQEffect(new QEffect("Inoculating Spores", "You're inoculated against the effects of the choking spores.", ExpirationCondition.Never, self.Owner, new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.ChokingMushroom)) {
                                                                             Id = QEffectIds.MushroomInoculation
                                                                         });
@@ -183,8 +177,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     }
 
                     // Apply poison to tiles
-                    foreach (Tile tile in self.Tag as List<Tile>) {
-                        if (!tile.QEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
+                    foreach (Tile tile in (self.Tag as List<Tile>)!) {
+                        if (!tile.TileQEffects.Any(qf => qf.TileQEffectId == QEffectIds.ChokingSpores)) {
                             TileQEffect spores = new TileQEffect(tile) {
                                 Name = "Choking Spores",
                                 VisibleDescription = "Toxic spores used by Choking Mushrooms to hunt for nutrients. Suffer 1d4 poison damage vs. a Basic (DC 17) fort save after entering or starting your turn within the spores, that inflicts sickened 1 on a critical failure.",

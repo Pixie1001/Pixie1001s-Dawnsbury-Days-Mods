@@ -136,7 +136,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             duplicate.Traits.Add(Trait.NoDeathOverhead);
             duplicate.Traits.Add(Trait.NoDeathScream);
             Sfxs.Play(SfxName.PhaseBolt);
-            duplicate.Occupies.Overhead("*disbelieved*", Color.Violet, duplicate.Name + " was revealed as an illusion!");
+            duplicate.Overhead("*disbelieved*", Color.Violet, duplicate.Name + " was revealed as an illusion!");
             duplicate.Battle.RemoveCreatureFromGame(duplicate);
         }
     }

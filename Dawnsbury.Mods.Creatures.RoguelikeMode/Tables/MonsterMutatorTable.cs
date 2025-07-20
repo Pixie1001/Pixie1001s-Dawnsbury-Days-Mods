@@ -286,7 +286,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             Sfxs.Play(SfxName.BeastRoar);
                             self.Owner.Battle.SpawnCreature(newForm, self.Owner.OwningFaction, pos);
                             await CommonSpellEffects.DealDirectSplashDamage(null, DiceFormula.FromText((newForm.MaxHP / 2).ToString(), "Mooncursed"), newForm, DamageKind.Untyped);
-                            pos.Overhead("mooncursed", Color.Aqua, $"{self.Owner.Name}'s curse activates, causing them to assume the form of a{("aeiouAEIOU".IndexOf(newForm.Name[0]) >= 0 ? "n" : "")} {newForm.Name}!");
+                            self.Owner.Overhead("mooncursed", Color.Aqua, $"{self.Owner.Name}'s curse activates, causing them to assume the form of a{("aeiouAEIOU".IndexOf(newForm.Name[0]) >= 0 ? "n" : "")} {newForm.Name}!");
                         }
                     }
                 };
@@ -298,25 +298,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 creature.AddQEffect(effect);
                 switch (creature.CreatureId) {
                     case var v when v.Equals(CreatureIds.DrowArcanist):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.AcidArrow], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.AcidArrow], 2);
                         break;
                     case var v when v.Equals(CreatureIds.DrowShadowcaster):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.Fear], 3);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.Fear], 3);
                         break;
                     case var v when v.Equals(CreatureIds.DrowNecromancer):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.AnimateDead], 3);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.AnimateDead], 3);
                         break;
                     case var v when v.Equals(CreatureIds.DrowPriestess):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.SuddenBlight], 3);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.SuddenBlight], 3);
                         break;
                     case var v when v.Equals(CreatureIds.MerfolkBrineBlade):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 2);
                         break;
                     case var v when v.Equals(CreatureIds.DevotedCultist):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 1);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 1);
                         break;
                     case var v when v.Equals(CreatureIds.DrowInquisitrix):
-                        creature.Spellcasting.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        break;
+                    case var v when v.Equals(CreatureIds.EchidnaditeBroodNurse):
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        break;
+                    case var v when v.Equals(CreatureIds.EchidnaditePriestess):
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        break;
+                    case var v when v.Equals(CreatureIds.NightmareWeaver):
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
                         break;
                 }
             }));

@@ -193,7 +193,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             IList<Tile>? tiles = Pathfinding.Floodfill(self, self.Battle, pathfindingDescription);
 
             if (tiles == null) {
-                self.Occupies.Overhead("cannot move", Color.White);
+                self.Overhead("cannot move", Color.White);
                 return null;
             }
 

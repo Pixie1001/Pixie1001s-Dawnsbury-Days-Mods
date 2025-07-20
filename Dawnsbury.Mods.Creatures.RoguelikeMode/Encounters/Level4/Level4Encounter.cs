@@ -9,7 +9,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class Level4Encounter : Encounter {
 
-        public Level4Encounter(string name, string filename, List<Item> rewards = null) : base(name, filename, rewards, 0) {
+        public Level4Encounter(string name, string filename, List<Item>? rewards = null) : base(name, filename, rewards, 0) {
             this.CharacterLevel = 4;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
             if (Rewards.Count == 0) {
