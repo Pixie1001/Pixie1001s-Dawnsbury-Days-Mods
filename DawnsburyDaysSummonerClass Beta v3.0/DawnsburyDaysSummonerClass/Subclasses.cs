@@ -747,7 +747,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     }
                                     if (action2.CheckResult == CheckResult.CriticalSuccess) {
                                         if (self2.RemoveAllQEffects(qf => qf.Name == "Recharging Fire Breath") > 0) {
-                                            self.Occupies.Overhead("{b}{i}breath weapon recharged{/i}{/b}", Color.White, self?.ToString() + "'s breath weapon has recharged.");
+                                            self.Overhead("{b}{i}breath weapon recharged{/i}{/b}", Color.White, self?.ToString() + "'s breath weapon has recharged.");
                                         }
                                     }
                                 }

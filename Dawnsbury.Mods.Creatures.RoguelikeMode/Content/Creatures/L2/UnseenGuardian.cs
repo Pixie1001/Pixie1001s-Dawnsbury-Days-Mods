@@ -27,12 +27,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         Creature creature = self.Self;
 
                         if (creature.HasEffect(QEffectIds.Lurking)) {
-                            return options.Where(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption).ToList().GetRandom();
+                            return R.ChooseAtRandom(options.Where(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption).ToArray());
                         }
 
                         QEffectId[] rootEffects = new QEffectId[] { QEffectId.Grabbed, QEffectId.Grappled, QEffectId.Restrained, QEffectId.Immobilized };
 
-                        return creature.Actions.ActionsLeft == 1 && !creature.QEffects.Any(qf => rootEffects.Contains(qf.Id)) && creature.Battle.AllCreatures.All(enemy => !enemy.EnemyOf(creature) || creature.DetectionStatus.EnemiesYouAreHiddenFrom.Contains(enemy)) && !creature.DetectionStatus.Undetected ? options.Where(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption).ToList().GetRandom() : null;
+                        return creature.Actions.ActionsLeft == 1 && !creature.QEffects.Any(qf => rootEffects.Contains(qf.Id)) && creature.Battle.AllCreatures.All(enemy => !enemy.EnemyOf(creature) || creature.DetectionStatus.EnemiesYouAreHiddenFrom.Contains(enemy)) && !creature.DetectionStatus.Undetected ? R.ChooseAtRandom(options.Where(opt => opt.OptionKind == OptionKind.MoveHere && opt.Text == "Sneak" && opt is TileOption).ToArray()) : null;
                     };
                 })
                 .WithProficiency(Trait.Weapon, Proficiency.Trained)

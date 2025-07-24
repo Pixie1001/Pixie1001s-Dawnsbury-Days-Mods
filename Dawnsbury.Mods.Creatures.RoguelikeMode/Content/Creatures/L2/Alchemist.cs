@@ -48,7 +48,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             return AIConstants.NEVER;
                         }
 
-                        return 9.3f + (float)Random.Shared.NextDouble();
+                        // TODO: Replace this with .NextAI
+                        return 9.3f + R.NextFloat();
                     })
                     .WithSoundEffect(Audio.SfxName.DrinkPotion)
                     .WithEffectOnSelf(async (Creature user) =>
@@ -84,10 +85,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (resistance != null)
                         {
-                            return 7f + (float)Random.Shared.NextDouble() - resistance.Value;
+                            return 7f + R.NextFloat() - resistance.Value;
                         }
 
-                        return 7f + (float)Random.Shared.NextDouble();
+                        return 7f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -140,10 +141,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (resistance != null)
                         {
-                            return 7f + (float)Random.Shared.NextDouble() - resistance.Value * 1.5f;
+                            return 7f + R.NextFloat() - resistance.Value * 1.5f;
                         }
 
-                        return 7f + (float)Random.Shared.NextDouble();
+                        return 7f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -176,10 +177,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (resistance != null)
                         {
-                            return 7f + (float)Random.Shared.NextDouble() - resistance.Value;
+                            return 7f + R.NextFloat() - resistance.Value;
                         }
 
-                        return 7f + (float)Random.Shared.NextDouble();
+                        return 7f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -209,7 +210,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             return AIConstants.NEVER;
                         }
 
-                        return hitPointRatio + 9f + (float)Random.Shared.NextDouble();
+                        return hitPointRatio + 9f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -241,10 +242,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (resistance != null)
                         {
-                            return 9f + (float)Random.Shared.NextDouble() - resistance.Value;
+                            return 9f + R.NextFloat() - resistance.Value;
                         }
 
-                        return 9f + (float)Random.Shared.NextDouble();
+                        return 9f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -285,10 +286,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (resistance != null)
                         {
-                            return 9f + (float)Random.Shared.NextDouble() - resistance.Value;
+                            return 9f + R.NextFloat() - resistance.Value;
                         }
 
-                        return 9f + (float)Random.Shared.NextDouble();
+                        return 9f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -320,10 +321,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (resistance != null)
                         {
-                            return 7f + (float)Random.Shared.NextDouble() - resistance.Value;
+                            return 7f + R.NextFloat() - resistance.Value;
                         }
 
-                        return 7f + (float)Random.Shared.NextDouble();
+                        return 7f + R.NextFloat();
                     })
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
@@ -348,7 +349,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             return AIConstants.NEVER;
                         }
 
-                        return 9.35f + (float)Random.Shared.NextDouble();
+                        return 9.35f + R.NextFloat();
                     })
                     .WithSoundEffect(Audio.SfxName.DrinkPotion)
                     .WithEffectOnSelf(async (Creature user) =>
@@ -406,7 +407,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Fear))
                     .WithSoundEffect(Audio.SfxName.Fear)
-                    .WithGoodnessAgainstEnemy((Target _, Creature _, Creature target) => !target.HasEffect(QEffectId.Frightened) ? 9f + (float)Random.Shared.NextDouble() : AIConstants.NEVER)
+                    .WithGoodnessAgainstEnemy((Target _, Creature _, Creature target) => !target.HasEffect(QEffectId.Frightened) ? 9f + R.NextFloat() : AIConstants.NEVER)
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
                         await CommonSpellEffects.DealAttackRollDamage(action, user, target, result, ModifyDamageString(effect.Owner, "2d4"), DamageKind.Mental);
@@ -435,7 +436,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Sickened))
                     .WithSoundEffect(Audio.SfxName.AcidSplash)
-                    .WithGoodnessAgainstEnemy((Target _, Creature _, Creature target) => !target.HasEffect(QEffectId.Sickened) ? 9f + (float)Random.Shared.NextDouble() : AIConstants.NEVER)
+                    .WithGoodnessAgainstEnemy((Target _, Creature _, Creature target) => !target.HasEffect(QEffectId.Sickened) ? 9f + R.NextFloat() : AIConstants.NEVER)
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
                         await CommonSpellEffects.DealAttackRollDamage(action, user, target, result, ModifyDamageString(effect.Owner, "2d4"), DamageKind.Poison);
@@ -464,7 +465,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.ConeOfCold))
                     .WithSoundEffect(Audio.SfxName.RayOfFrost)
-                    .WithGoodnessAgainstEnemy((Target _, Creature _, Creature target) => target.QEffects.FirstOrDefault((effect) => effect.Name != null && effect.Name.StartsWith("Slowed")) == null ? 9.1f + (float)Random.Shared.NextDouble() : AIConstants.NEVER)
+                    .WithGoodnessAgainstEnemy((Target _, Creature _, Creature target) => target.QEffects.FirstOrDefault((effect) => effect.Name != null && effect.Name.StartsWith("Slowed")) == null ? 9.1f + R.NextFloat() : AIConstants.NEVER)
                     .WithEffectOnEachTarget(async (CombatAction action, Creature user, Creature target, CheckResult result) =>
                     {
                         await CommonSpellEffects.DealAttackRollDamage(action, user, target, result, ModifyDamageString(effect.Owner, "2d4"), DamageKind.Cold);

@@ -58,6 +58,7 @@
             DEMONIC_PUSTULE,
             TEST_PILE,
             Maelstrom,
+            NIGHTMARE_GROWTH
         }
 
         internal enum EncounterType

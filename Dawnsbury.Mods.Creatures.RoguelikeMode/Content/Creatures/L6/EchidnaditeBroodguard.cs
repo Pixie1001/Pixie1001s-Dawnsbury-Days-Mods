@@ -24,7 +24,6 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using System.Threading;
 using System;
-using static System.Collections.Specialized.BitVector32;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.StatBlocks;

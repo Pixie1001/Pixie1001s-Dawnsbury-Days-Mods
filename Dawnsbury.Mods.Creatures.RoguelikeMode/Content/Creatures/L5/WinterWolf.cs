@@ -69,7 +69,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 Innate = true
             };
 
-            effect.AddGrantingOfTechnical(cr => cr.FriendOf(effect.Owner), qf => {
+            effect.AddGrantingOfTechnical(cr => cr.FriendOfAndNotSelf(effect.Owner), qf => {
                 qf.YouAreDealtDamage = async (qfAlly, attacker, damageStuff, defender) => {
                     if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 1)
                         return null;

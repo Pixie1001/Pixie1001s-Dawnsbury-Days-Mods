@@ -73,14 +73,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                     var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 4, caster.Level - 1) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
 
-                    Random rand = new Random();
-
                     if (list.Count() <= 0) {
                         caster.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
                         return;
                     }
 
-                    Creature demon = MonsterStatBlocks.MonsterFactories[list[rand.Next(0, list.Count())].Name](caster.Battle.Encounter, targets.ChosenTile!);
+                    Creature demon = MonsterStatBlocks.MonsterFactories[list[R.Next(0, list.Count())].Name](caster.Battle.Encounter, targets.ChosenTile!);
 
                     if (demon.Level - caster.Level >= 0) {
                         demon.ApplyWeakAdjustments(false, true);

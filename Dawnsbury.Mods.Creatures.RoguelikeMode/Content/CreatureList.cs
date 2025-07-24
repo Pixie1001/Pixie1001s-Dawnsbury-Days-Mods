@@ -154,6 +154,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return BebilithMinor.Create();
                 case var v when v.Equals(CreatureIds.EchidnaditePriestess):
                     return EchidnaditePriestess.Create();
+                case var v when v.Equals(CreatureIds.CavernBeast):
+                    return DeepBeast.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -181,6 +183,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return DemonicPustule.Create();
                 case ModEnums.ObjectId.TEST_PILE:
                     return TestPile.Create();
+                case ModEnums.ObjectId.NIGHTMARE_GROWTH:
+                    return NightmareGrowth.Create();
                 default:
                     throw new NotSupportedException($"The object id '{id}' is not supported");
             }
@@ -278,6 +282,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Sigbin);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.WinterWolf);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Basilisk);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CavernBeast);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.FlailSnail);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.PetrifiedGuardian);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowHuntress);
@@ -315,7 +320,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RESTLESS_SPIRIT);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.DEMONIC_PUSTULE);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE, "TestPile");
-        }
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.NIGHTMARE_GROWTH);        }
 
         internal static void LoadTiles() {
             RegisterTile(GrantMonsterMutator.Create());

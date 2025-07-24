@@ -203,7 +203,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 foreach (string index in treasureDemonEncounters) {
                     if (Int32.TryParse(index, out int result) && result != 0 && result == battle.CampaignState.UpcomingEncounterStop.Index) {
                         Faction enemyFaction = battle.AllCreatures.First(cr => cr.OwningFaction.IsEnemy).OwningFaction;
-                        Tile freeTile = battle.Map.AllTiles.Where(t => t.IsFree).Concat(battle.Map.AllTiles.Where(t => t.IsFree && DistanceToNearestPartyMember(t, battle) <= 5 && DistanceToNearestPartyMember(t, battle) > 2)).ToList().GetRandom();
+                        var tileList = battle.Map.AllTiles.Where(t => t.IsFree).Concat(battle.Map.AllTiles.Where(t => t.IsFree && DistanceToNearestPartyMember(t, battle) <= 5 && DistanceToNearestPartyMember(t, battle) > 2)).ToList();
+                        Tile freeTile = tileList[R.Next(tileList.Count)];
                         Creature td = CreatureList.Creatures[CreatureIds.TreasureDemon](battle.Encounter);
                         if (battle.Encounter.CharacterLevel == 1) td.ApplyWeakAdjustments(false);
                         else if (battle.Encounter.CharacterLevel == 3) td.ApplyEliteAdjustments();

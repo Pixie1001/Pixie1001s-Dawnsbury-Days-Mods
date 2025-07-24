@@ -1539,7 +1539,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         return;
                     }
 
-                    Creature demon = MonsterStatBlocks.MonsterFactories[list.GetRandom()!.Name](caster.Battle.Encounter, tiles[0]);
+                    Creature demon = MonsterStatBlocks.MonsterFactories[list[R.Next(list.Count())].Name](caster.Battle.Encounter, tiles[0]);
 
                     if (demon.Level - caster.Level >= 2) {
                         demon.ApplyWeakAdjustments(false, true);

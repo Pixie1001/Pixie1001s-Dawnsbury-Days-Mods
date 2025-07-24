@@ -80,7 +80,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 Tile tile = monster.Occupies;
                 if (tile == null) return;
                 if (freeTiles.Count > 0) {
-                    tile = freeTiles.GetRandom();
+                    tile = R.ChooseAtRandom(freeTiles.ToArray());
                     freeTiles.Remove(tile!);
                 }
                 var duplicate = Create();
@@ -90,7 +90,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 monster.Battle.SpawnCreature(duplicate, monster.OwningFaction, tile!);
             }
 
-            var origional = duplicates.GetRandom();
+            var origional = R.ChooseAtRandom(duplicates.ToArray());
             if (origional == null) return;
             foreach (Creature duplicate in duplicates.ToList()) {
                 var effect = new QEffect("Duplicate",

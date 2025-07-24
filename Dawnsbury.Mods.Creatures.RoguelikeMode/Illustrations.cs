@@ -84,6 +84,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration WebWarden = new ModdedIllustration("RoguelikeModeAssets/Enemies/WebWarden.png");
         internal static ModdedIllustration DrowBlademaster = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowBlademaster.png");
         internal static ModdedIllustration BebilithMinor = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithMinor.png");
+        internal static ModdedIllustration DeepBeast = new ModdedIllustration("RoguelikeModeAssets/Enemies/DeepBeast.png");
 
         // Bears for Archanophobia Mode
         internal static ModdedIllustration Bear1 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
@@ -145,6 +146,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration RestlessSpirit = new ModdedIllustration("RoguelikeModeAssets/Terrain/RestlessSouls.png");
         internal static ModdedIllustration DemonicPustule = new ModdedIllustration("RoguelikeModeAssets/Terrain/DemonicPustule.png");
         internal static ModdedIllustration TripWire = new ModdedIllustration("RoguelikeModeAssets/Terrain/TripWire.png");
+        internal static ModdedIllustration NightmareGrowth = new ModdedIllustration("RoguelikeModeAssets/Terrain/NightmareGrowth.png");
 
         // Icons
         internal static ModdedIllustration RitualOfAscension = new ModdedIllustration("RoguelikeModeAssets/Icons/RitualOfAscension.png");

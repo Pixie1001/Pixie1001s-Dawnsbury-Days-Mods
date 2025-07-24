@@ -319,14 +319,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
                         break;
                     case var v when v.Equals(CreatureIds.EchidnaditeBroodNurse):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellLoader.SummonMonster], 5);
                         break;
                     case var v when v.Equals(CreatureIds.EchidnaditePriestess):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.Confusion], 4);
                         break;
                     case var v when v.Equals(CreatureIds.NightmareWeaver):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.PhantasmalKiller], 4);
                         break;
+                    //case var v when v.Equals(CreatureIds.DrowA):
+                    //    creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.WyvernSting], 5);
+                    //    break;
                 }
             }));
 

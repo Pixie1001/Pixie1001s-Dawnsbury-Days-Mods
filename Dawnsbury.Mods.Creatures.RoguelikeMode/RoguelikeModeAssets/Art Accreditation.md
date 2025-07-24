@@ -54,6 +54,7 @@
 	<li>MonasticArcherStance.png (Modified)</li>
 	<li>VomitSwarm.png (Modified)</li>
 	<li>SummonMonster.png (Modified)</li>
+	<li>DeepBeast.png (Modified)</li>
 </ul>
 
 ### Flaticon.com
@@ -68,6 +69,7 @@
 	<li>spellbook.png by Smashicons - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/spell-book_10580223?related_id=10580223)</li>
 	<li>pentagram.png by Good Ware - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/pentagram_6766762?term=pentagram&related_id=6766762)</li>
 	<li>RuneOfPandemonium.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/rune_8381636?term=rune&page=2&position=1&origin=search&related_id=8381636)</li>
+	<li>NightmareGrowth.png by Revicon - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/tree_228654?term=spooky+tree&page=1&position=4&origin=search&related_id=228654)</li>
 </ul>
 
 ## Creative Commons Artwork

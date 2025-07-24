@@ -9,6 +9,7 @@ using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Auxiliary;
 using Dawnsbury.Audio;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
@@ -22,8 +23,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
             if (itemList.Count > 0)
             {
-                Rewards.Add(itemList[Random.Shared.Next(0, itemList.Count)]);
-                Rewards.Add(itemList[Random.Shared.Next(0, itemList.Count)]);
+                Rewards.Add(itemList[R.Next(0, itemList.Count)]);
+                Rewards.Add(itemList[R.Next(0, itemList.Count)]);
             }
             else
             {
@@ -58,7 +59,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
                     if (itemList.Count > 0)
                     {
-                        caster.AddHeldItem(itemList[Random.Shared.Next(0, itemList.Count)]);
+                        caster.AddHeldItem(itemList[R.Next(0, itemList.Count)]);
                     }
                     else
                     {

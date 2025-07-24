@@ -355,9 +355,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             var allowedRunes = new RuneKind[] { RuneKind.WeaponPotency, RuneKind.WeaponStriking, RuneKind.WeaponProperty };
             if (equipment?.ItemName == CustomItems.ThrowersBandolier && runestone.RuneProperties != null && allowedRunes.Contains(runestone.RuneProperties.RuneKind)) {
                 var runesOfThisTypeAlready = equipment.Runes.Count(itm => itm.RuneProperties!.RuneKind == runestone.RuneProperties.RuneKind);
+                var numPropertyRunes = equipment.Runes.Where(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty).Count();
+                int? propertyRuneSlots = equipment.Runes.FirstOrDefault(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)?.RuneProperties?.FundamentalLevel;
 
                 if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && !equipment.Runes.Any(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)) {
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Only +1, +2 or +3 weapons can be enchanted with weapon property runes.");
+                    return false;
+                }
+
+                if (equipment.Runes.Any((Item rn) => rn.ItemName == runestone.ItemName)) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon already has that property rune.");
+                    return false;
+                }
+
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && runesOfThisTypeAlready >= propertyRuneSlots || runesOfThisTypeAlready > 0 && runestone.RuneProperties.RuneKind != RuneKind.WeaponProperty) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.SwapOrUpgradeRune, null);
                     return false;
                 }
 
@@ -372,20 +384,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     return false;
                 }
 
-                int? propertyRuneSlots = equipment.Runes.FirstOrDefault(r => r.RuneProperties?.RuneKind == RuneKind.WeaponPotency)?.RuneProperties?.FundamentalLevel;
-
-                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && equipment.Runes.Where(r => r.RuneProperties?.RuneKind == RuneKind.WeaponProperty).Count() >= propertyRuneSlots) {
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && numPropertyRunes >= propertyRuneSlots) {
                     __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon cannot support any more property runes.");
-                    return false;
-                }
-
-                if (equipment.Runes.Any((Item rn) => rn.ItemName == runestone.ItemName)) {
-                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "This weapon already has that property rune.");
-                    return false;
-                }
-
-                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty && runesOfThisTypeAlready >= (equipment.WeaponProperties?.ItemBonus ?? 0) || runesOfThisTypeAlready > 0 && runestone.RuneProperties.RuneKind != RuneKind.WeaponProperty) {
-                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.SwapOrUpgradeRune, null);
                     return false;
                 }
 
@@ -641,7 +641,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             // Declare campaign tags
             if (!campaign.Tags.ContainsKey("seed") || campaign.Tags.ContainsKey("new run")) {
                 campaign.Tags.Clear();
-                campaign.Tags.Add("seed", R.Next(100000).ToString());
+                campaign.Tags.Add("seed", R.NextVisualOnly(100000).ToString());
                 Loader.Seed[0] = campaign.Tags["seed"];
                 campaign.Tags.Add("restarts", "0");
                 campaign.Tags.Add("deaths", "0");
@@ -697,7 +697,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 if (path[i] is EncounterCampaignStop) {
                     fightNum += 1;
                     ModEnums.EncounterType encounterType = level == 4 && fightNum == 3 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 || level == 4 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
-                    if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.Next(0, 8) <= 3) {
+                    if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.NextVisualOnly(0, 8) <= 3) {
                         campaign.Tags["TreasureDemonEncounters"] += $"{i}, ";
                     }
                     path[i] = GenerateRandomEncounter(rand, removed, level, encounterType, campaign);

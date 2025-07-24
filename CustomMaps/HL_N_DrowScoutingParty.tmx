@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="While progressing towards their destination, the party encounters a drow patrol roaming the cavernous passages... Likely on the watch for slaves, or perhaps expecting interlopers from the surface come to investigate the ley lines? Regardless, their only option now is to fight."/>
-  <property name="EncounterGroup" value="Roguelike"/>
-  <property name="EncounterLevel" type="int" value="2"/>
-  <property name="EncounterName" value="Drow Patrol"/>
+  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterGroup" value="Roguelike (High Level)"/>
+  <property name="EncounterLevel" type="int" value="6"/>
+  <property name="EncounterName" value="Drow Hunting Party"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="128" source="CustomCreatures.tsx"/>
@@ -38,14 +38,14 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,91,91,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,91,0,
+0,0,0,0,0,0,0,0,0,0,0,2183,0,0,0,
+0,0,0,2189,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,91,0,0,0,0,0,0,0,137,0,0,0,0,0,
-0,91,0,0,0,130,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,131,0,0,0,0,0,0,0,
+0,91,0,0,0,0,0,0,0,0,2185,0,0,0,0,
+0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2185,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -57,14 +57,14 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,115,0,0,0,
+0,0,0,2166,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,2166,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,2166,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
