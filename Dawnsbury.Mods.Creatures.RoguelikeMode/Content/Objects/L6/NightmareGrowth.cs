@@ -34,6 +34,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             Creature hazard = new Creature(Illustrations.NightmareGrowth, "Nightmare Growth", new List<Trait>() { Trait.Object, Trait.Indestructible, Trait.NoDeathOverhead }, 6, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
             .WithTactics(Tactic.DoNothing)
+            .WithSpawnAsGaia()
             .WithEntersInitiativeOrder(false)
             .AddQEffect(QEffect.FullImmunity())
             .AddQEffect(new QEffect() { Id = QEffectId.SeeInvisibility })

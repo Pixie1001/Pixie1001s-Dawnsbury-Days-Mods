@@ -57,8 +57,6 @@ using Microsoft.Xna.Framework;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
-using Dawnsbury.Modding;
-using Dawnsbury.Core.Mechanics;
 using Microsoft.Xna.Framework.Graphics;
 using static System.Collections.Specialized.BitVector32;
 using System.Reflection.Metadata.Ecma335;
@@ -865,12 +863,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         .WithNoSaveFor((action, target) => target.OwningFaction == action.Owner.OwningFaction || target.QEffects.FirstOrDefault(qf => qf.Name == "Immunity to " + ActionId.Demoralize.HumanizeTitleCase2() + " by " + action.Owner.Name) != null)
                         .WithEffectOnEachTarget(async (action, self, target, checkResult) => {
                             if (target.OwningFaction == action.Owner.OwningFaction) {
-                                target.Occupies.Overhead("{b}{i}unaffected{/i}{/b}", Color.White, target?.ToString() + " is an ally.");
+                                target.Overhead("{b}{i}unaffected{/i}{/b}", Color.White, target?.ToString() + " is an ally.");
                                 return;
                             }
 
                             if (target.QEffects.FirstOrDefault(qf => qf.Name == "Immunity to " + ActionId.Demoralize.HumanizeTitleCase2() + " by " + self.Name) != null) {
-                                target.Occupies.Overhead("{b}{i}unaffected{/i}{/b}", Color.White, target?.ToString() + " has already been demoralized this combat.");
+                                target.Overhead("{b}{i}unaffected{/i}{/b}", Color.White, target?.ToString() + " has already been demoralized this combat.");
                                 return;
                             }
 
@@ -924,7 +922,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + action.Owner.Name + "{/b} uses {b}" + action.Name + "{/b} which provokes Dutiful Retaliation.\nUse your reaction {icon:Reaction} to make an attack of opportunity?")) {
                             int map = eidolon.Actions.AttackedThisManyTimesThisTurn;
-                            eidolon.Occupies.Overhead("*dutiful devotion*", Color.White);
+                            eidolon.Overhead("*dutiful devotion*", Color.White);
                             await eidolon.MakeStrike(action.Owner, eidolon.UnarmedStrike, 0);
                             eidolon.Actions.AttackedThisManyTimesThisTurn = map;
                         }
@@ -1086,7 +1084,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     List<Creature> auraHavers = self.Battle.AllCreatures.Where(c => c.OwningFaction == self.OwningFaction && c.QEffects.FirstOrDefault(qf => qf.Name == "Whimsical Aura") != null && c.DistanceTo(self) <= 3).ToList();
                                     if (auraHavers.Count > 0) {
                                         effect.Tag = true;
-                                        self.Occupies.Overhead("*+5ft status bonus to speed*", Color.White);
+                                        self.Overhead("*+5ft status bonus to speed*", Color.White);
                                     }
                                 },
                                 BonusToAllSpeeds = qf => (bool)qf.Tag == true ? new Bonus(1, BonusType.Status, "Whimsical Aura") : null,
@@ -1444,10 +1442,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                         case 3:
                                             if (self.Owner.HasTrait(Trait.Undead)) {
                                                 if (self.Owner.Level < eidolon.Level) {
-                                                    self.Owner.Occupies.Overhead("*vaporised*", Color.AliceBlue, $"{self.Owner.Name} was vaporised by Soul Wrench, destroying it instantly.");
+                                                    self.Owner.Overhead("*vaporised*", Color.AliceBlue, $"{self.Owner.Name} was vaporised by Soul Wrench, destroying it instantly.");
                                                     self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                                                 } else {
-                                                    self.Owner.Occupies.Overhead("*soul tearing*", Color.AliceBlue, $"{self.Owner.Name}'s essence was too powerful for {eidolon.Name} to destroy.");
+                                                    self.Owner.Overhead("*soul tearing*", Color.AliceBlue, $"{self.Owner.Name}'s essence was too powerful for {eidolon.Name} to destroy.");
                                                     CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText($"{eidolon.Level * 2}"), self.Owner, CheckResult.Success, DamageKind.Force);
                                                 }
                                                 self.ExpiresAt = ExpirationCondition.Immediately;
@@ -1499,20 +1497,20 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             soulSiphon.CannotExpireThisTurn = true;
                             if (result == CheckResult.CriticalSuccess) {
                                 target.RemoveAllQEffects(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon);
-                                target.Occupies.Overhead("*escaped soul wrench*", Color.White, $"{target.Name} tugged their soul free of {eidolon.Name}'s grasp.");
+                                target.Overhead("*escaped soul wrench*", Color.White, $"{target.Name} tugged their soul free of {eidolon.Name}'s grasp.");
                                 await target.Battle.GameLoop.StateCheck();
                             } else if (result == CheckResult.Failure) {
                                 soulSiphon.Value += 1;
                                 if (soulSiphon.Value > 3) {
                                     soulSiphon.Value = 3;
                                 }
-                                target.Occupies.Overhead("*soul wrench increased by 1*", Color.White, $"{target.Name}'s soul wrench has increased to stage {soulSiphon.Value}.");
+                                target.Overhead("*soul wrench increased by 1*", Color.White, $"{target.Name}'s soul wrench has increased to stage {soulSiphon.Value}.");
                             } else if (result == CheckResult.CriticalFailure) {
                                 soulSiphon.Value += 2;
                                 if (soulSiphon.Value > 3) {
                                     soulSiphon.Value = 3;
                                 }
-                                target.Occupies.Overhead("*soul wrench increased by 2*", Color.White, $"{target.Name}'s soul wrench has increased to stage {soulSiphon.Value}.");
+                                target.Overhead("*soul wrench increased by 2*", Color.White, $"{target.Name}'s soul wrench has increased to stage {soulSiphon.Value}.");
                             }
                         });
                     }

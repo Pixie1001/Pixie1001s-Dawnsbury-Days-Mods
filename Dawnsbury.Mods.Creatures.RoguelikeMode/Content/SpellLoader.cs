@@ -295,16 +295,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
 
                 if (spell.SpellId == SpellId.TrueStrike) {
-                    // Gain goodness based on strike possiblities and their goodness?
                     spell.Target = Target.Self((cr, ai) => {
+                        if (cr.OwningFaction == null || cr.OwningFaction.IsPlayer) return 0f;
+
                         bool hasRangedAttack = false;
                         Creature nearestEnemy = cr.Battle.AllCreatures.MinBy(enemy => enemy.EnemyOf(cr) ? (float)enemy.DistanceTo(cr) : 1000f);
-                        cr.RegeneratePossibilities();
+                        if (nearestEnemy == null) return 0f;
+                        //cr.RegeneratePossibilities();
                         foreach (PossibilitySection section in cr.Possibilities.Sections) {
                             if (section.Possibilities.Any(pos => pos is ActionPossibility
+                            && (pos as ActionPossibility)!.CombatAction?.Target is CreatureTarget
                             && (pos as ActionPossibility)!.CombatAction.HasTrait(Trait.Attack)
                             && ((pos as ActionPossibility)!.CombatAction.Target as CreatureTarget)!.RangeKind == RangeKind.Ranged
-                            && ((pos as ActionPossibility)!.CombatAction.Target as CreatureTarget)!.CreatureTargetingRequirements.Any(r => r is MaximumRangeCreatureTargetingRequirement && cr.DistanceTo(nearestEnemy!) <= (r as MaximumRangeCreatureTargetingRequirement)!.Range))) {
+                            && ((pos as ActionPossibility)!.CombatAction.Target as CreatureTarget)!.CreatureTargetingRequirements.Any(r => r is MaximumRangeCreatureTargetingRequirement && cr.DistanceTo(nearestEnemy) <= (r as MaximumRangeCreatureTargetingRequirement)!.Range))) {
                                 hasRangedAttack = true;
                             }
                         }
