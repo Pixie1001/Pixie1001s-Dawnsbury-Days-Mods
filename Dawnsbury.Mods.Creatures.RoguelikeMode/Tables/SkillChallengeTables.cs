@@ -42,7 +42,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             chosenEvents.Clear();
 
             events.Add(new SkillChallenge("Cursed Relic", async (level, battle) => {
-                Item cursedItem = LootTables.RollWearable(R.ChooseAtRandom(GetParty(battle).ToArray())!, lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
+                Item cursedItem = LootTables.RollWearable(UtilityFunctions.ChooseAtRandom(GetParty(battle).ToArray())!, lvl => CommonEncounterFuncs.Between(lvl, 3, Math.Max(3, level + 1)));
                 await battle.Cinematics.NarratorLineAsync($"As the party decends further into the winding depths of the {Loader.UnderdarkName}, they emerge into a small chamber that bears the telltale marks of a demonic ritual.", null);
                 await battle.Cinematics.NarratorLineAsync("Jagged profane symbols hewn in crusting blood sprawl across the cavern floor in great rings, alongside the rotting remains of several manacled corpses.", null);
                 await battle.Cinematics.NarratorLineAsync($"...and in the centre, a {PrintItemName(cursedItem)}, bereft of dust and seemingly abandoned by those it was bequeathed upon...", null);
@@ -587,12 +587,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 ];
 
                 var partyMembersWithCarriedItems = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr.CarriedItems.Count > 0);
-                var itemOptNominee = R.ChooseAtRandom(partyMembersWithCarriedItems.ToArray());
+                var itemOptNominee = UtilityFunctions.ChooseAtRandom(partyMembersWithCarriedItems.ToArray());
 
                 if (itemOptNominee != null) {
                     itemOpt = new SCOption(itemOptNominee, Skill.Occultism, itemOptNominee.Skills.Get(Skill.Occultism), level, -5, null);
 
-                    item = R.ChooseAtRandom(itemOptNominee.CarriedItems.ToArray())!;
+                    item = UtilityFunctions.ChooseAtRandom(itemOptNominee.CarriedItems.ToArray())!;
 
                     choices.Insert(1, $"{itemOpt.printInfoTag()} {itemOpt.Nominee.Name} wants to bestow their {item.Name} as an offering to the well spirits.");
                 }

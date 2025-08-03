@@ -219,7 +219,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                         typeof(string),
                         typeof(Color),
                     })?
-                    .Invoke(null, new object[] { new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 + num1 * 2, __instance.Window.Width - 20, height), "Restart encounter (Recorded))", () => {
+                    .Invoke(null, new object[] { new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 + num1 * 3, __instance.Window.Width - 20, height), "Restart encounter (Recorded)", () => {
                         Sfxs.Play(SfxName.Button);
                         Root.PushPhase((GamePhase)new ConfirmationDialogPhase("Restart encounter? The number of times you restarted will be recorded at the end of the run.", "Restart", "No", (Action)(() => {
                             ImprovedStack<GamePhase> phaseStack3 = Root.PhaseStack;
@@ -251,7 +251,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                         typeof(string),
                         typeof(Color),
                     })?.Invoke(null, new object[] {
-                        new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 * 3 + num1 * 5, __instance.Window.Width - 20, height), "Exit to menu (Recorded)", () => {
+                        new Rectangle(__instance.Window.X + 10, __instance.Window.Y + 10 + num2 * 3 + num1 * 6, __instance.Window.Width - 20, height), "Exit to menu (Recorded)", () => {
                         Sfxs.Play(SfxName.Button);
                         if (fromCampaignScreen) {
                             Sfxs.StopVoice();

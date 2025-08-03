@@ -28,9 +28,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class UnicornFoal {
         public static Creature Create() {
             return new Creature(Illustrations.Unicorn, "Unicorn, Foal", new List<Trait>() { Trait.Chaotic, Trait.Good, Trait.Beast, Trait.Fey }, 1, 10, 8, new Defenses(17, 8, 6, 9), 20,
-            new Abilities(3, 3, 3, 0, 3, 4), new Skills(acrobatics: 8, stealth: 9)) {
-                SpawnAsFriends = true
-            }
+            new Abilities(3, 3, 3, 0, 3, 4), new Skills(acrobatics: 8, stealth: 9))
+            .WithSpawnAsGaiaFriends()
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
                     Creature monster = self.Self;

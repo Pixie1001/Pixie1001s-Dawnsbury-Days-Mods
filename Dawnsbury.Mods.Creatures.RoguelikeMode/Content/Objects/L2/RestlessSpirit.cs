@@ -29,9 +29,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             int radius = 1;
             QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
-            Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object, ModTraits.Haunt }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()) {
-                SpawnAsGaia = true
-            }
+            Creature hazard = new Creature(Illustrations.RestlessSpirit, "Restless Spirit", new List<Trait>() { Trait.Object, ModTraits.Haunt }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            .WithSpawnAsGaia()
             .WithTactics(Tactic.DoNothing)
             .WithEntersInitiativeOrder(false)
             .AddQEffect(qfCurrentDC)

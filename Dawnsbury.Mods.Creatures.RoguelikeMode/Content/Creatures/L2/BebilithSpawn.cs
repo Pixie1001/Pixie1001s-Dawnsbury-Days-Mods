@@ -37,8 +37,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 StateCheckWithVisibleChanges = async self => {
                     if (self.Owner.Battle.Encounter.CharacterLevel <= 3 && CampaignState.Instance != null && CampaignState.Instance.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Tags.TryGetValue("SeenBebilithSpawn", out string val) == false) {
                         CampaignState.Instance.Tags.Add("SeenBebilithSpawn", "true");
-                        var advisor1 = R.ChooseAtRandom(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToArray());
-                        var advisor2 = R.ChooseAtRandom(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr != advisor1).ToArray());
+                        var advisor1 = R.ChooseAtRandomVisualOnly(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToArray());
+                        var advisor2 = R.ChooseAtRandomVisualOnly(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr != advisor1).ToArray());
                         if (advisor1 == null || advisor2 == null) return;
                         advisor1.Battle.Cinematics.EnterCutscene();
                         Sfxs.Play(SoundEffects.BebilithHiss, 0.5f);

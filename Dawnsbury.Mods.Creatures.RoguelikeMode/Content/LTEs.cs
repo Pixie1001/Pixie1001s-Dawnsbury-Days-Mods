@@ -1060,7 +1060,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                     IllustrationName.SnowTile2,
                                     IllustrationName.SnowTile3,
                                     IllustrationName.SnowTile4
-                                }.GetRandom(),
+                                }.GetRandomVisualOnly(),
                                 TransformsTileIntoDifficultTerrain = true
                             };
                             tileQEffect2.AfterDamageIsDealtHereAsync = async (damageKind) =>

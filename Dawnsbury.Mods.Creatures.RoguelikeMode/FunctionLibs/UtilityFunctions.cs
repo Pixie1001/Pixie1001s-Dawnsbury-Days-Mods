@@ -34,6 +34,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class UtilityFunctions {
 
+        internal static T? ChooseAtRandom<T>(List<T> list) {
+            var max = list.Count();
+            if (max == 0)
+                return default(T);
+            return list[R.Next(0, max)];
+        }
+
+        internal static T? ChooseAtRandom<T>(T[] list)
+        {
+            var max = list.Count();
+            if (max == 0)
+                return default(T);
+            return list[R.Next(0, max)];
+        }
+
         internal static bool DiedThisRun(CampaignState save) {
             if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_HideDeathIcon")) {
                 return false;

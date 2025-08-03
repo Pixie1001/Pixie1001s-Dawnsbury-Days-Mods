@@ -11,6 +11,7 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using FmodForFoxes;
@@ -40,7 +41,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
             List<Creature> eggs = battle.AllCreatures.Where(cr => cr.Illustration == Illustrations.DemonicPustule).ToList();
             for (int i = 0; i < 4; i++) {
-                eggs.Remove(R.ChooseAtRandom(eggs.ToArray())!);
+                eggs.Remove(UtilityFunctions.ChooseAtRandom(eggs.ToArray())!);
             }
             foreach (Creature egg in eggs) {
                 battle.RemoveCreatureFromGame(egg);

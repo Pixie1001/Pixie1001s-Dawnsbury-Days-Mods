@@ -105,7 +105,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                     var telegraphCandidates = caster.Battle.AllCreatures.Where(cr => cr.Alive && cr.OwningFaction.EnemyFactionOf(caster.OwningFaction) && cr.PersistentCharacterSheet != null).ToList();
                     if (telegraphCandidates.Count > 0) {
-                        var target = R.ChooseAtRandom(telegraphCandidates.ToArray());
+                        var target = UtilityFunctions.ChooseAtRandom(telegraphCandidates.ToArray());
                         target!.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.ExpiresAtEndOfSourcesTurn, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
                             Id = QEffectIds.ImpendingPandemonium,
                         });
@@ -125,7 +125,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     var telegraph = caster.Battle.AllCreatures.FirstOrDefault(cr => cr.FindQEffect(QEffectIds.ImpendingPandemonium)?.Source == caster);
                     var telegraphCandidates = caster.Battle.AllCreatures.Where(cr => cr.Alive && cr.OwningFaction.EnemyFactionOf(caster.OwningFaction) && cr.PersistentCharacterSheet != null && cr != telegraph).ToList();
                     if (telegraphCandidates.Count > 0) {
-                        var target = R.ChooseAtRandom(telegraphCandidates.ToArray());
+                        var target = UtilityFunctions.ChooseAtRandom(telegraphCandidates.ToArray());
                         target!.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.Never, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
                             Id = QEffectIds.ImpendingPandemonium,
                         }.WithExpirationAtEndOfSourcesNextTurn(caster, false));

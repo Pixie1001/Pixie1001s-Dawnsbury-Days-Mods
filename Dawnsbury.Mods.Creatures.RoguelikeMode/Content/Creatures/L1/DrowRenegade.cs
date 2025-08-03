@@ -22,9 +22,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowRenegade {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25, new Abilities(4, 2, 3, 1, 1, 2), new Skills(deception: 7, athletics: 9)) {
-                SpawnAsFriends = true
-            }
+            return new Creature(Illustrations.DrowRenegade, "Drow Renegade", new List<Trait>() { Trait.Good, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow }, 1, 7, 5, new Defenses(16, 10, 7, 7), 25, new Abilities(4, 2, 3, 1, 1, 2), new Skills(deception: 7, athletics: 9))
+                .WithSpawnAsGaiaFriends()
                 .WithBasicCharacteristics()
                 .WithProficiency(Trait.Melee, Proficiency.Expert)
                 .AddHeldItem(Items.CreateNew(ItemName.Greatsword))
