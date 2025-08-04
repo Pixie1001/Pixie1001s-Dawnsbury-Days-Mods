@@ -48,7 +48,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 if (path != null && path.Count > 0 && creature.Speed > 0) {
                                     if (creature.HasLineOfEffectTo(stalkTarget.Occupies) <= CoverKind.Lesser && creature.DistanceTo(stalkTarget) <= 6) {
                                         // Move to a random tile within 3 tiles that has line of effect
-                                        return UtilityFunctions.ChooseAtRandom(options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll(opt => (TileOption)opt).Where(opt => opt.Tile.DistanceTo(stalkTarget.Occupies) > 2 && opt.Tile.HasLineOfEffectToIgnoreLesser(stalkTarget.Occupies) <= CoverKind.Lesser).ToArray());
+                                        return UtilityFunctions.ChooseAtRandomForAI(options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll(opt => (TileOption)opt).Where(opt => opt.Tile.DistanceTo(stalkTarget.Occupies) > 2 && opt.Tile.HasLineOfEffectToIgnoreLesser(stalkTarget.Occupies) <= CoverKind.Lesser).ToArray());
                                     }
 
                                     return options.Where(opt => opt.OptionKind == OptionKind.MoveHere).ToList().ConvertAll<TileOption>(opt => (TileOption)opt).Where(opt => opt.Tile.DistanceTo(stalkTarget.Occupies) > 2).MinBy(opt => opt.Tile.DistanceTo(path[Math.Min(creature.Speed - 1, path.Count - 1)]));
@@ -141,7 +141,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .AddQEffect(CommonQEffects.Drow())
                 .AddQEffect(QEffect.SneakAttack("2d6"))
                 .WithBasicCharacteristics()
-                .WithProficiency(Trait.Dagger, Proficiency.Expert)
                 .AddHeldItem(Items.CreateNew(ItemName.Dagger))
                 .AddQEffect(CommonQEffects.SpiderVenomAttack(16, "dagger"));
         }

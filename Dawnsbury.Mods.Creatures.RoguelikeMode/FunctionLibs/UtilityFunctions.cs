@@ -41,12 +41,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return list[R.Next(0, max)];
         }
 
-        internal static T? ChooseAtRandom<T>(T[] list)
+        internal static T? ChooseAtRandom<T>(T[] array)
         {
-            var max = list.Count();
+            var max = array.Count();
             if (max == 0)
                 return default(T);
-            return list[R.Next(0, max)];
+            return array[R.Next(0, max)];
+        }
+
+        internal static T? ChooseAtRandomForAI<T>(T[] array)
+        {
+            var max = array.Count();
+            if (max == 0)
+                return default(T);
+            return array[R.NextAi(0, max)];
         }
 
         internal static bool DiedThisRun(CampaignState save) {
