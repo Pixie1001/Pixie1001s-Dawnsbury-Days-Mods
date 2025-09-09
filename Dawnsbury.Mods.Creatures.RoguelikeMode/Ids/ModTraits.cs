@@ -61,10 +61,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             WhiteForeground = true
         });
         internal static Trait Reload0 { get; } = ModManager.RegisterTrait("RL_Reload0", new TraitProperties("Reload 0", true, "While you have a free hand, you can draw and throw this weapon as a single action.", true));
-        internal static Trait Parry = ModManager.RegisterTrait("RL_Parry", new TraitProperties("Parry", true, "This weapon can be used defensively to block attacks."));
-        internal static Trait Twin = ModManager.RegisterTrait("RL_Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
-        internal static Trait Monstrous = ModManager.RegisterTrait("RL_Monstrous", new TraitProperties("Monstrous", false));
-        internal static Trait Haunt = ModManager.RegisterTrait("RL_Haunt", new TraitProperties("Haunt", true));
+        internal static Trait Parry { get; } = ModManager.RegisterTrait("RL_Parry", new TraitProperties("Parry", true, "This weapon can be used defensively to block attacks."));
+        internal static Trait Twin { get; } = ModManager.RegisterTrait("RL_Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));
+        internal static Trait Monstrous { get; } = ModManager.RegisterTrait("RL_Monstrous", new TraitProperties("Monstrous", false));
+        internal static Trait Haunt { get; } = ModManager.RegisterTrait("RL_Haunt", new TraitProperties("Haunt", true));
+        internal static Trait ThrownOnly { get; } = ModManager.RegisterTrait("RL_ThrownOnly", new TraitProperties("Thrown Only", true, "This thrown weapon cannot be used to strike in melee."));
 
         // Mutator Traits
         internal static Trait UniversalMutator { get; } = ModManager.RegisterTrait("UniversalMutator", new TraitProperties("UniversalMutator", false));
@@ -83,5 +84,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait HookSword { get; } = ModManager.RegisterTrait("RL_HookSword", new TraitProperties("Hook Sword", false));
         internal static Trait Kusarigama { get; } = ModManager.RegisterTrait("RL_Kusarigama", new TraitProperties("Kusarigama", false));
         internal static Trait FightingFan { get; } = ModManager.RegisterTrait("RL_FightingFan", new TraitProperties("FightingFan", false));
+        internal static Trait Javelin { get; } = ModManager.RegisterTrait("RL_Javelin", new TraitProperties("Javelin", false));
     }
 }

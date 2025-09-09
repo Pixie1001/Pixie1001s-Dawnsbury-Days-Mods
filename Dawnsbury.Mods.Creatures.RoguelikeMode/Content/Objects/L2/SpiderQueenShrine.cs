@@ -25,17 +25,18 @@ using Microsoft.Xna.Framework;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class SpiderQueenShrine {
-        public static Creature Create() {
+        public static Creature Create(bool highLevel) {
             int radius = 2;
-            QEffect qfCurrentDC = new QEffect() { Value = 15 };
+            QEffect qfCurrentDC = new QEffect() { Value = !highLevel ? 15 : 20 };
+            string dmg = !highLevel ? "1d6" : "3d6";
 
-            Creature hazard = new Creature(Illustrations.SpiderShrine, "Spider Queen Shrine", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            Creature hazard = new Creature(Illustrations.SpiderShrine, (!highLevel ? "" : "Greater ") + "Spider Queen Shrine", new List<Trait>() { Trait.Object }, 2, 0, 0, new Defenses(10, 10, 0, 0), hp: !highLevel ? 20 : 50, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
             .WithTactics(Tactic.DoNothing)
             .WithEntersInitiativeOrder(false)
             .AddQEffect(CommonQEffects.Hazard())
             .AddQEffect(QEffect.ArmorBreak(2))
             .AddQEffect(qfCurrentDC)
-            .WithHardness(7)
+            .WithHardness(!highLevel ? 7 : 10)
             ;
 
             var animation = hazard.AnimationData.AddAuraAnimation(IllustrationName.BaneCircle, radius);
@@ -67,13 +68,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                         }),
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.SpiderShrine, "Recall Knowledge", new Trait[] { Trait.Manipulate, Trait.Basic },
                                                         "Make a Religion or Crafting check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce all DCs on this hazard by 3.",
-                                                        "Reduce all DCs on this hazard by 2.", null, "You take 1d6 evil damage and increase all DCs on this hazard by 1."),
+                                                        "Reduce all DCs on this hazard by 2.", null, $"You take {dmg} evil damage and increase all DCs on this hazard by 1."),
                                                         Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner)))
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Religion, Skill.Crafting), Checks.FlatDC(qfCurrentDC.Value - 2)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
-                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
+                                                                await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText(dmg, "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
                                                                 qfCurrentDC.Value += 1;
                                                             }
                                                             if (result == CheckResult.Success) {
@@ -84,14 +85,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                             }
                                                         }),
                                                         (ActionPossibility)new CombatAction(qfContextActions.Owner, Illustrations.SpiderShrine, "Disrupt Armour", new Trait[] { Trait.Manipulate, Trait.Basic },
-                                                            "Make a Thievery check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce the shrine's hardness by 6.", "Reduce the shrine's hardness by 3.",  null, "You take 1d6 evil damage."),
+                                                            "Make a Thievery check against DC " + qfCurrentDC.Value + "." + S.FourDegreesOfSuccess("Reduce the shrine's hardness by 6.", "Reduce the shrine's hardness by 3.",  null, $"You take {dmg} evil damage."),
                                                             Target.AdjacentCreature().WithAdditionalConditionOnTargetCreature(new SpecificCreatureTargetingRequirement(self.Owner))
                                                             )
                                                         .WithActionCost(1)
                                                         .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Thievery), Checks.FlatDC(qfCurrentDC.Value)))
                                                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                                             if (result == CheckResult.CriticalFailure) {
-                                                                await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("1d6", "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
+                                                                await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText(dmg, "Spider Queen's Wrath"), caster, CheckResult.Success, DamageKind.Evil);
                                                             }
                                                             if (result < CheckResult.Success)
                                                                 return;

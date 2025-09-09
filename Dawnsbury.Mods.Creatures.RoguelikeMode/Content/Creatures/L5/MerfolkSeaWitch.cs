@@ -28,6 +28,7 @@ using static System.Collections.Specialized.BitVector32;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.Mechanics.Zoning;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -77,9 +78,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         .WithEffectOnEachTile(async (action, caster, tiles) => {
                             var hots = HeartOfTheStorm.Create(radius, dc);
                             caster.Battle.SpawnCreature(hots, caster.Battle.Gaia, tiles[0]);
-                            foreach (Tile tile in self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(hots.Occupies) <= radius)) {
-                                tile.AddQEffect(CommonQEffects.Maelstrom(dc, tile, hots));
-                            }
+                            HeartOfTheStorm.Maelstrom(dc, radius, hots).Apply();
                             caster.AddQEffect(new QEffect("Channeling Maelstrom", "The Merfolk Sea Witch is channeling a destructive maelstrom, which she can move up to 10-feet each round, and will remain until she's defeated.") { Innate = false, Illustration = IllustrationName.TidalHands });
                             await caster.Battle.Cinematics.PlayCutscene(async cin => {
                                 cin.EnterCutscene();
@@ -151,9 +150,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         .WithSoundEffect(SfxName.TidalSurge)
                         .WithEffectOnEachTile(async (action, caster, tiles) => {
                             var hots = self.Owner.Battle.AllCreatures.First(cr => cr.BaseName == "Heart of the Storm");
-                            foreach (Tile tile in self.Owner.Battle.Map.AllTiles) {
-                                tile.RemoveAllQEffects(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
-                            }
 
                             await hots.MoveTo(tiles[0], action, new MovementStyle() {
                                 ForcedMovement = true,
@@ -162,10 +158,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 ShortestPath = true,
                                 MaximumSquares = 1000
                             });
-
-                            foreach (Tile tile in self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(hots.Occupies) <= radius)) {
-                                tile.AddQEffect(CommonQEffects.Maelstrom(dc, tile, hots));
-                            }
                         })
                         ;
                     }

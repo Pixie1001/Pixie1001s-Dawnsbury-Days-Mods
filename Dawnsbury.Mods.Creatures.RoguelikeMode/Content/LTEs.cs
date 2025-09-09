@@ -31,6 +31,7 @@ using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Display;
 using Dawnsbury.Core.StatBlocks.Monsters.L_1;
+using System;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -399,7 +400,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 else
                                 {
                                     chosenCreature3!.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
-                                    chosenCreature3!.AddQEffect(QEffect.Frightened(1));
+                                    chosenCreature3!.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                                 }
                             }
                         }
@@ -645,7 +646,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 else
                                 {
                                     chosenCreature3.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
-                                    chosenCreature3!.AddQEffect(QEffect.Frightened(1));
+                                    chosenCreature3!.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                                 }
                             }
                         }
@@ -944,7 +945,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                             await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, diceExpression, DamageKind.Piercing);
                             if (result == CheckResult.CriticalFailure)
                             {
-                                target.AddQEffect(QEffect.Clumsy(1).WithExpirationAtStartOfSourcesTurn(caster, 1));
+                                target.AddQEffect(QEffect.Clumsy(1).WithExpirationAtStartOfSourcesTurn(caster, 1).WithSourceAction(spell));
                             }
                         }
                     })),
@@ -1128,7 +1129,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             CombatAction combatAction = new CombatAction(owner, illustration, name, traitList.ToArray(),
                 "{i}" + flavorText + "{/i}\n\n" + rulesText, target)
             {
-                ImpulseInformation = new ImpulseInformation(featName, baseLevel, flavorText, rulesText)
+                ImpulseInformation = new ImpulseInformation(featName, baseLevel, flavorText, rulesText, null, null)
             };
             combatAction.WithProjectileCone(illustration, 15, ProjectileKind.Cone);
             combatAction.WithActionCost(traits.Contains(Trait.Stance) ? 1 : 2);

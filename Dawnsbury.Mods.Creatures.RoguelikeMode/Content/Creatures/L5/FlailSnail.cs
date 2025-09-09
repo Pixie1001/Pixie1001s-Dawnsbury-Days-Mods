@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.FlailSnail,
                 "Flail Snail",
-                [Trait.Animal, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
+                [Trait.Animal, ModTraits.MeleeMutator],
                 5, 15, 3,
                 new Defenses(23, 16, 8, 12),
                 60,
@@ -179,9 +179,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     await user.Battle.GameLoop.FullCast(strike);
                 });
             })
+            .AddNaturalWeapon("eye flail", IllustrationName.Flail, 15, [Trait.Sweep, Trait.Forceful], "2d8+6", DamageKind.Bludgeoning)
             .Done();
-
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "eye flail", IllustrationName.Flail, 15, [Trait.Sweep, Trait.Forceful], "2d8+6", DamageKind.Bludgeoning, null);
             
             return creature;
         }

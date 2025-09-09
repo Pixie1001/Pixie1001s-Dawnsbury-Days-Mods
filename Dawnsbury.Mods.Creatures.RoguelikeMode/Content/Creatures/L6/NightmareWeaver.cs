@@ -54,7 +54,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         if ((action.ActiveRollSpecification != null && checkResult == CheckResult.CriticalFailure) ||
                             (action.SavingThrow != null && checkResult >= CheckResult.CriticalSuccess)) {
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("3d6", "Bravery vulnerability"), demon, CheckResult.Failure, DamageKind.Mental);
-                            demon.AddQEffect(QEffect.Frightened(1));
+                            demon.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                         }
                     }
                 }

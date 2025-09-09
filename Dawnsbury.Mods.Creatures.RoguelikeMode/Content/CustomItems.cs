@@ -53,6 +53,7 @@ using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using static HarmonyLib.Code;
 using Dawnsbury.Core.StatBlocks.Monsters.L1;
+using Dawnsbury.Display;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -70,6 +71,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Trait.Uncommon, Trait.Agile, Trait.Backstabber, Trait.DeadlyD6, Trait.Finesse, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
         .WithMainTrait(ModTraits.FightingFan)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
+
+        public static ItemName Javelin { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Javelin", itemName => new Item(itemName, Illustrations.Javelin, "javelin", 0, 2,
+            Trait.Thrown30Feet, ModTraits.ThrownOnly, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
+        .WithMainTrait(ModTraits.Javelin)
+        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)));
 
         public static ItemName Kusarigama { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Kusarigama", itemName => new Item(itemName, Illustrations.Kusarigama, "kusarigama", 0, 2,
             Trait.Uncommon, Trait.Disarm, Trait.Reach, Trait.Trip, Trait.VersatileB, Trait.TwoHanded, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
@@ -150,7 +156,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
 
         public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
+            Trait.Agile, Trait.Thrown20Feet, ModTraits.ThrownOnly, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
         .WithMainTrait(ModTraits.Shuriken)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
 
@@ -465,10 +471,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static ItemName SceptreOfPandemonium { get; } = ModManager.RegisterNewItemIntoTheShop("SceptreOfPandemonium", itemName => {
-            Item item = new Item(itemName, Illustrations.SceptreOfPandemonium, "sceptre of pandemonium", 7, 360,
+            Item item = new Item(itemName, Illustrations.SceptreOfPandemonium, "sceptre of pandemonium", 8, 415,
                 new Trait[] { Trait.Magical, Trait.WizardWeapon, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
-            .WithDescription("{i}...{/i}\n\n" +
+            .WithDescription("{i}This gaudy jewled sceptre is legended to have passed int othe treasure troves of many a would be ruler of Our Point of Light... Each undone at the hands of rioting mobs after their kingdoms collapsed in anarchy.{/i}\n\n" +
             $"Once per encounter, the rod can be used to cast {AllSpells.CreateModernSpellTemplate(SpellId.Confusion, Trait.Innate).ToSpellLink()} with a DC of 21 or the wielder's spell save DC if its higher.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -498,7 +504,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static ItemName RunestoneOfPandemomium { get; } = ModManager.RegisterNewItemIntoTheShop("RunestoneOfPandemomium", itemName => {
-            Item item = new Item(itemName, Illustrations.RuneOfPandemonium, "runestone of {i}pandemonium{/i}", 7, 360,
+            Item item = new Item(itemName, Illustrations.RuneOfPandemonium, "runestone of {i}pandemonium{/i}", 8, 415,
                [Trait.Runestone, Trait.Enchantment, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
             .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
             .WithRuneProperties(new RuneProperties("pandemonium", RuneKind.WeaponProperty, "This ever shifting runestone, swirling in maddening ever tessellating patterns.",
@@ -512,6 +518,75 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
             }))
             ;
+            return item;
+        });
+
+        public static ItemName RunestoneOfMirrors { get; } = ModManager.RegisterNewItemIntoTheShop("RunestoneOfMirrors", itemName => {
+            Item item = new Item(itemName, Illustrations.RuneOfMirrors, "runestone of {i}mirrors{/i}", 8, 415,
+               [Trait.Runestone, Trait.Illusion, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
+            .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
+            .WithRuneProperties(new RuneProperties("mirrored", RuneKind.WeaponProperty, "This small gem shard is polished to a perfect mirror shine that reflect back distorted, grinning dopplegangers of the beholder.",
+            "The weapon deals an extra 1d6 slashing damage, and creates a mirror image of the wielder as per the {i}mirror image{/i} spell, on a critical hit.", rune => {
+                if (rune.WeaponProperties != null) {
+                    rune.WeaponProperties.WithAdditionalDamage("1d6", DamageKind.Mental).WithOnTarget(async (spell, caster, target, result) => {
+                        if (result == CheckResult.CriticalSuccess) {
+                            var qf = Level2Spells.CreateMirrorImageEffect(caster);
+                            qf.Value = 1;
+                            caster.AddQEffect(qf);
+                        }
+                    });
+                }
+            }))
+            ;
+            return item;
+        });
+
+        public static ItemName CloakOfDuplicity { get; } = ModManager.RegisterNewItemIntoTheShop("RL_CloakOfDuplicity", itemName => {
+            Item item = new Item(itemName, Illustrations.CloakOfDuplicity, "cloak of duplicity", 8, 415,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Illusion, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithWornAt(Trait.Cloak)
+            .WithOnCreatureWhenWorn((item, wearer) => {
+                wearer.AddQEffect(new QEffect() {
+                    StartOfCombat = async self => {
+                        self.Owner.AddQEffect(Level2Spells.CreateMirrorImageEffect(self.Owner));
+                    }
+                });
+            })
+            .WithDescription("{i}The powerful illusory enchantment laid upon cloak often cause the beholder to snatch at air as they attempt to locate its true postion.{/i}\n\n" +
+            "While wearing this cloak, you benefit from the effects of the {i}mirror image{/i} spell at the start of each combat.");
+
+            return item;
+        });
+
+        public static ItemName RunestoneOfOpportunism { get; } = ModManager.RegisterNewItemIntoTheShop("RunestoneOfOpportunism", itemName => {
+            Item item = new Item(itemName, Illustrations.RuneOfMirrors, "runestone of {i}opportunism{/i}", 8, 415,
+               [Trait.Runestone, Trait.Illusion, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
+            .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
+            .WithRuneProperties(new RuneProperties("opportunism", RuneKind.WeaponProperty, "...",
+            "The weapon applies all damage dice and modifiers twice on attacks made outside of your turn.", rune => {
+                if (rune.WeaponProperties != null) {
+                    rune.WeaponProperties.WithOnTarget(async (spell, caster, target, result) => {
+                        if (spell.HasTrait(Trait.Strike) && caster.Battle.ActiveCreature != caster && result >= CheckResult.Success) {
+                            await CommonSpellEffects.DealAttackRollDamage(spell, caster, target, result, spell.TrueDamageFormula ?? DiceFormula.FromText("1d4"), spell.Item?.WeaponProperties?.DamageKind ?? DamageKind.Slashing);
+                        }
+                    });
+                }
+            }))
+            ;
+            return item;
+        });
+
+        public static ItemName RingOfMonsters { get; } = ModManager.RegisterNewItemIntoTheShop("RL_RingOfMonsters", itemName => {
+            Item item = new Item(itemName, Illustrations.RingOfMonsters, "ring of monsters", 6, 200,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Abjuration, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithOnCreatureWhenWorn((item, wearer) => {
+                wearer.AddQEffect(new QEffect() {
+                    BonusToDefenses = (self, action, defence) => defence != Defense.AC && action?.Owner != null && action.Owner.Traits.Any(t => (t == Trait.Beast || t == Trait.Animal || t == ModTraits.Monstrous) && t != Trait.Celestial) ? new Bonus(2, BonusType.Item, "ring of monsters") : null
+                });
+            })
+            .WithDescription("{i}A ring fashioned by a high priestess of the Echidna to aid them in their monster conservation efforts.{/i}\n\n" +
+            "While wearing this ring, you gain a +2 item bonus to all saving throws against non-celestial beasts, animals and foes of a monstrous nature.");
+
             return item;
         });
 
@@ -699,11 +774,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             "{b}Frequency{/b} Once per day\n{b}Range{/b} 30 feet\n{b}Target{/b} 1 creature\n{b}Saving throw{/b} Fortitude\n\n" +
             "You affix the gaze of the Medusa Eye Choker upon an enemy, turning their flesh to stone." +
             S.FourDegreesOfSuccess("The target is unaffected.", "The target is slowed 1 for 1 round", "The target is slowed 1 for 1 minute.", "The target is permanently petrified."));
-
-            item.StateCheckWhenWielded = (wielder, weapon) => {
-                wielder.AddQEffect(CommonQEffects.SerpentVenomAttack(wielder.ClassOrSpellDC() - wielder.Level, weapon.Name).WithExpirationEphemeral());
-            };
-
             return item;
         });
 
@@ -954,7 +1024,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             }
                             caster.TranslateTo(target);
                             caster.AnimationData.ColorBlink(Color.LightGoldenrodYellow);
-                            caster.Battle.SmartCenterAlways(target);
+                            caster.Battle.SmartCenterCreatureAlways(caster);
                             spell.Item?.WithModification(new ItemModification(ItemModificationKind.UsedThisDay));
                         });
 
@@ -1279,7 +1349,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             shuriken.WithModificationRune(rune.ItemName);
                     }
 
-                    qfTB.Tag = new List<Item>() { dagger, hammer, axe, shuriken };
+                    var javelin = Items.CreateNew(Javelin);
+                    foreach (Item rune in item.Runes) {
+                        if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, javelin) == null)
+                            shuriken.WithModificationRune(rune.ItemName);
+                    }
+
+                    qfTB.Tag = new List<Item>() { dagger, javelin, hammer, axe, shuriken };
                 };
 
                 qfTB.ProvideActionIntoPossibilitySection = (self, section) => {
@@ -1292,49 +1368,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     SubmenuPossibility menu = new SubmenuPossibility(Illustrations.ThrowersBandolier, "Thrower's Bandolier");
                     menu.Subsections.Add(new PossibilitySection("Thrower's Bandolier"));
 
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![0].Illustration, "Draw Dagger", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)![0].Name} from your thrower's bandolier.",
-                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
-                    .WithActionCost(cost)
-                    .WithSoundEffect(SfxName.ItemGet)
-                    .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)![0].Duplicate();
-                        item.Traits.Add(Trait.EncounterEphemeral);
-                        user.HeldItems.Add(item);
-                    }));
-
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![1].Illustration, "Draw Light Hammer", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)![1].Name} from your thrower's bandolier.",
-                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
-                    .WithActionCost(cost)
-                    .WithSoundEffect(SfxName.ItemGet)
-                    .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)![1].Duplicate();
-                        item.Traits.Add(Trait.EncounterEphemeral);
-                        user.HeldItems.Add(item);
-                    }));
-
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![2].Illustration, "Draw Hatchet", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)![2].Name} from your thrower's bandolier.",
-                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
-                    .WithActionCost(cost)
-                    .WithSoundEffect(SfxName.ItemGet)
-                    .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)![2].Duplicate();
-                        item.Traits.Add(Trait.EncounterEphemeral);
-                        user.HeldItems.Add(item);
-                    }));
-
-                    menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![3].Illustration, "Draw Shuriken", new Trait[] { Trait.Manipulate, Trait.Basic },
-                    $"Draw a {(qfTB.Tag as List<Item>)![3].Name} from your thrower's bandolier.\n\n{{b}}Special{{/b}} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action.",
-                    Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
-                    .WithActionCost(cost)
-                    .WithSoundEffect(SfxName.ItemGet)
-                    .WithEffectOnSelf(async user => {
-                        Item item = (qfTB.Tag as List<Item>)![3].Duplicate();
-                        item.Traits.Add(Trait.EncounterEphemeral);
-                        user.HeldItems.Add(item);
-                    }));
+                    foreach (Item throwable in (qfTB.Tag as List<Item>)!) {
+                        menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![0].Illustration, $"Draw {throwable.Name.CapitalizeEachWord()}", new Trait[] { Trait.Manipulate, Trait.Basic },
+                        $"Draw a {throwable.Name} from your thrower's bandolier." +
+                        ((throwable.ItemName == CustomItems.Shuriken) ? "\n\n{b}Special{/b} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action." : ""),
+                        Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
+                        .WithActionCost(cost)
+                        .WithSoundEffect(SfxName.ItemGet)
+                        .WithEffectOnSelf(async user => {
+                            Item item = throwable.Duplicate();
+                            item.Traits.Add(Trait.EncounterEphemeral);
+                            user.HeldItems.Add(item);
+                        }));
+                    }
 
                     return menu;
                 };
@@ -1532,7 +1578,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 .WithSoundEffect(SfxName.DeepNecromancy)
                 .WithEffectOnEachTile(async (action, caster, tiles) => {
 
-                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 1, caster.Level + 2) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 1, caster.Level + 2) && !pet.HasTrait(Trait.DemonLord) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
 
                     if (list.Count() <= 0) {
                         caster.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");
@@ -1947,7 +1993,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { Javelin, RingOfMonsters, RunestoneOfOpportunism, RunestoneOfMirrors, CloakOfDuplicity, RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Wands
             CreateWand(SpellId.Fireball, null);
@@ -1973,7 +2019,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             CreateWand(SpellId.SuddenBlight, null);
             CreateWand(SpellId.SummonElemental, 3);
             CreateWand(SpellId.LooseTimesArrow, null);
-
             CreateWand(SpellId.Fireball, 4);
             CreateWand(SpellId.MagicMissile, 3);
             CreateWand(SpellId.MagicMissile, 4);
@@ -1985,6 +2030,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             CreateWand(SpellId.Slow, null);
             CreateWand(SpellId.SuddenBolt, 4);
             CreateWand(SpellId.SuddenBlight, 4);
+            CreateWand(SpellId.Geyser, null);
+            CreateWand(SpellId.StagnateTime, null);
+            CreateWand(SpellId.QuickenTime, null);
+            CreateWand(SpellId.IncendiaryFog, null);
+            CreateWand(SpellId.Blister, null);
+            CreateWand(SpellId.WyvernSting, null);
+            CreateWand(SpellId.ConeOfCold, null);
+            CreateWand(SpellId.CrushingDespair, null);
+            CreateWand(SpellId.FlameStrike, null);
+            CreateWand(SpellId.Dominate, null, false);
+            CreateWand(SpellId.Geyser, null);
+            CreateWand(SpellId.HealingWell, null, false);
             //CreateWand(SpellLoader.LesserDominate, null, false);
 
             // Item QEffects

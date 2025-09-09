@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.Ardamok,
                 "Ardamok",
-                [Trait.Animal, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
+                [Trait.Animal, ModTraits.MeleeMutator],
                 2, 6, 5,
                 new Defenses(18, 11, 6, 4),
                 30,
@@ -33,6 +33,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can tail Strike it for free. On a critical hit, you also disrupt the manipulate action."))
             .AddQEffect(TailAttackOfOpportunity())
             .Builder
+            .AddNaturalWeapon("tail", IllustrationName.Tail, 11, [Trait.Reach], "1d4+4", DamageKind.Bludgeoning)
+            .AddNaturalWeapon("beak", IllustrationName.Jaws, 11, [], "1d10+4", DamageKind.Piercing)
+            .AddNaturalWeapon("claw", IllustrationName.DragonClaws, 11, [Trait.Agile], "1d8+4", DamageKind.Slashing)
             .AddMainAction((creature) =>
             {
                 return new CombatAction(creature, IllustrationName.Shield, "Retract", [], "You pull your head, tail, and legs into your body to protect yourself. Your speed is reduced to 15 feet, you have a +3 circumstance bonus to your AC, you can't make claw strikes, and you lose Attack of Opportunity.",
@@ -174,15 +177,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     foreach (var targetCreature in targets)
                     {
                         //Default unarmed strike is tail
-                        await user.MakeStrike(targetCreature, user.UnarmedStrike, 0);
+                        await user.MakeStrike(targetCreature, action.Item!, 0);
                     }
                 });
             })
             .Done();
-
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "tail", IllustrationName.Tail, 11, [Trait.Reach], "1d4+4", DamageKind.Bludgeoning, null);
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "beak", IllustrationName.Jaws, 11, [], "1d10+4", DamageKind.Piercing, null);
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "claw", IllustrationName.DragonClaws, 11, [Trait.Agile], "1d8+4", DamageKind.Slashing, null);
 
             return creature;
         }

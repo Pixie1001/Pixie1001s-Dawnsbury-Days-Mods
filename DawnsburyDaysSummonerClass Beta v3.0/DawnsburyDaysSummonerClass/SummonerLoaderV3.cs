@@ -2141,7 +2141,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private async static Task PartnerActs(Creature self, Creature partner, bool tandem, Func<CombatAction, string?>? limitations) {
-            QEffect limitationEffect = null;
+            QEffect? limitationEffect = null;
             if (limitations != null) {
                 limitationEffect = new QEffect() {
                     PreventTakingAction = limitations
@@ -2166,36 +2166,47 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             ActionDisplayStyle[] actionDisplays = new ActionDisplayStyle[4] { partner.Actions.FirstActionStyle, partner.Actions.SecondActionStyle, partner.Actions.ThirdActionStyle, partner.Actions.FourthActionStyle };
             int partnerActionsLeft = partner.Actions.ActionsLeft;
             if (tandem) {
+                partner.AddQEffect(new QEffect() {
+                    AfterYouTakeAction = async (self, action) => {
+                        if (self.Owner.Actions.ActionsLeft == 0 && self.Owner.Actions.UsedQuickenedAction) {
+                            self.Owner.Actions.WishesToEndTurn = true;
+                            self.ExpiresAt = ExpirationCondition.Immediately;
+                        }
+                    }
+                });
+
                 partner.Actions.ActionsLeft = 1;
                 partner.Actions.UsedQuickenedAction = true;
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 0, ActionDisplayStyle.Summoned });
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 1, ActionDisplayStyle.Summoned });
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 2, ActionDisplayStyle.Available });
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 3, ActionDisplayStyle.Invisible });
+
+                partner.Actions.AnimateActionUsedTo(0, ActionDisplayStyle.Summoned);
+                partner.Actions.AnimateActionUsedTo(1, ActionDisplayStyle.Summoned);
+                partner.Actions.AnimateActionUsedTo(2, ActionDisplayStyle.Available);
+                partner.Actions.AnimateActionUsedTo(3, ActionDisplayStyle.Invisible);
             } else {
                 partner.Actions.ActionsLeft = self.Actions.ActionsLeft;
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 0, self.Actions.FirstActionStyle });
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 1, self.Actions.SecondActionStyle });
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 2, self.Actions.ThirdActionStyle });
+
+                partner.Actions.AnimateActionUsedTo(0, self.Actions.FirstActionStyle);
+                partner.Actions.AnimateActionUsedTo(1, self.Actions.SecondActionStyle);
+                partner.Actions.AnimateActionUsedTo(2, self.Actions.ThirdActionStyle);
 
                 //partner.Actions.UseUpActions(partner.Actions.ActionsLeft - self.Actions.ActionsLeft, ActionDisplayStyle.UsedUp);
                 partner.Actions.QuickenedForActions = self.Actions.QuickenedForActions;
                 partner.Actions.UsedQuickenedAction = self.Actions.UsedQuickenedAction;
-                partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { 3, self.Actions.FourthActionStyle });
+                partner.Actions.AnimateActionUsedTo(3, self.Actions.FourthActionStyle);
             }
             if (partner.OwningFaction.IsPlayer)
                 Sfxs.Play(SfxName.StartOfTurn, 0.2f);
             await partner.Battle.GameLoop.StateCheck();
             // Process partner's turn
             // Handle tandem attack
-            Creature? tandemAttackTarget = partner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null ? (Creature) partner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether).Tag : null;
+            Creature? tandemAttackTarget = partner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null ? (Creature?) partner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether)!.Tag : null;
             if (tandemAttackTarget != null) {
                 List<Option> options = new List<Option>();
                 List<Item> weapons = partner.HeldItems.Where(item => item.WeaponProperties != null).ToList();
                 List<QEffect> additionalAttackEffects = partner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ToList();
                 List<Item> additionalAttacks = new List<Item>();
                 foreach (QEffect qf in additionalAttackEffects) {
-                    additionalAttacks.Add(qf.AdditionalUnarmedStrike);
+                    additionalAttacks.Add(qf.AdditionalUnarmedStrike!);
                 }
                 List<Item> strikes = new List<Item>().Concat(additionalAttacks).Concat(weapons).ToList();
                 strikes.Add(partner.UnarmedStrike);
@@ -2242,8 +2253,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
             } else {
                 // Run regular turn
-                await (Task)partner.Battle.GameLoop.GetType().GetMethod("Step4_MainPhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
-                    .Invoke(partner.Battle.GameLoop, new object[] { partner });
+                await (Task)partner.Battle.GameLoop.GetType().GetMethod("Step4_MainPhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?
+                    .Invoke(partner.Battle.GameLoop, new object[] { partner })!;
             }
             // Reset partner's actions
             if (tandem) {
@@ -2251,7 +2262,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 partner.Actions.ActionsLeft = partnerActionsLeft;
                 partner.Actions.UsedQuickenedAction = quickenedActionState;
                 for (int i = 0; i < actionDisplays.Count(); i++) {
-                    partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(partner.Actions, new object[] { i, actionDisplays[i] });
+                    partner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)?.Invoke(partner.Actions, new object[] { i, actionDisplays[i] });
                 }
             } else {
                 ActionShareEffect actionTracker = (ActionShareEffect)partner.QEffects.FirstOrDefault(qf => qf.Id == qfSharedActions);
@@ -2708,7 +2719,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             return output;
         }
 
-        internal static async Task<Tile> GetChargeTiles(Creature self, MovementStyle movementStyle, int minimumDistance, string msg, Illustration img) {
+        internal static async Task<Tile?> GetChargeTiles(Creature self, MovementStyle movementStyle, int minimumDistance, string msg, Illustration img) {
             Tile startingPos = self.Occupies;
             Vector2 pos = self.Occupies.ToCenterVector();
             List<Option> options = new List<Option>();
@@ -2722,7 +2733,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             IList<Tile>? tiles = Pathfinding.Floodfill(self, self.Battle, pathfindingDescription);
 
             if (tiles == null) {
-                self.Occupies.Overhead("cannot move", Color.White);
+                self.Overhead("cannot move", Color.White);
                 return null;
             }
 

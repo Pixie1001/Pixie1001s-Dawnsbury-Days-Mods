@@ -29,6 +29,8 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.IO;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Phases.Menus.CampaignViews;
+using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Core.CharacterBuilder.Library;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -127,77 +129,85 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             }
         }
 
-        internal static Creature AddNaturalWeapon(Creature creature, string naturalWeaponName, Illustration illustration, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null)
-        {
-            bool flag = traits.Contains(Trait.Finesse) || traits.Contains(Trait.Ranged);
-            int num = creature.Abilities.Strength;
-            if (flag)
-            {
-                num = Math.Max(num, creature.Abilities.Dexterity);
-            }
+        //internal static Creature AddNaturalWeapon(Creature creature, string naturalWeaponName, Illustration illustration, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null)
+        //{
+        //    bool flag = traits.Contains(Trait.Finesse) || traits.Contains(Trait.Ranged);
+        //    int num = creature.Abilities.Strength;
+        //    if (flag)
+        //    {
+        //        num = Math.Max(num, creature.Abilities.Dexterity);
+        //    }
 
-            int proficiencyLevel = creature.ProficiencyLevel;
-            if (creature.Proficiencies.Get(Trait.Weapon) == Proficiency.Untrained)
-            {
-                creature.WithProficiency(Trait.Weapon, (Proficiency)(attackBonus - proficiencyLevel - num));
-            }
+        //    int proficiencyLevel = creature.ProficiencyLevel;
+        //    if (creature.Proficiencies.Get(Trait.Weapon) == Proficiency.Untrained)
+        //    {
+        //        creature.WithProficiency(Trait.Weapon, (Proficiency)(attackBonus - proficiencyLevel - num));
+        //    }
 
-            MediumDiceFormula mediumDiceFormula = DiceFormula.ParseMediumFormula(damage, naturalWeaponName, naturalWeaponName);
-            int additionalFlatBonus = mediumDiceFormula.FlatBonus - creature.Abilities.Strength;
-            Item item = new Item(illustration, naturalWeaponName, traits.Concat([Trait.Unarmed]).ToArray()).WithWeaponProperties(new WeaponProperties(mediumDiceFormula.DiceCount + "d" + (int)mediumDiceFormula.DieSize, damageKind)
-            {
-                AdditionalFlatBonus = additionalFlatBonus
-            });
-            additionalWeaponPropertyActions?.Invoke(item.WeaponProperties!);
-            if (creature.UnarmedStrike == null)
-            {
-                creature.UnarmedStrike = item;
-            }
-            else
-            {
-                creature.WithAdditionalUnarmedStrike(item);
-            }
+        //    MediumDiceFormula mediumDiceFormula = DiceFormula.ParseMediumFormula(damage, naturalWeaponName, naturalWeaponName);
+        //    int additionalFlatBonus = mediumDiceFormula.FlatBonus - creature.Abilities.Strength;
+        //    Item item = new Item(illustration, naturalWeaponName, traits.Concat([Trait.Unarmed]).ToArray()).WithWeaponProperties(new WeaponProperties(mediumDiceFormula.DiceCount + "d" + (int)mediumDiceFormula.DieSize, damageKind)
+        //    {
+        //        AdditionalFlatBonus = additionalFlatBonus
+        //    });
+        //    additionalWeaponPropertyActions?.Invoke(item.WeaponProperties!);
+        //    if (creature.UnarmedStrike == null)
+        //    {
+        //        creature.UnarmedStrike = item;
+        //    }
+        //    else
+        //    {
+        //        creature.WithAdditionalUnarmedStrike(item);
+        //    }
 
-            return creature;
-        }
+        //    return creature;
+        //}
 
-        public static Creature AddManufacturedWeapon(Creature creature, ItemName manufacturedWeapon, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null, Action<Item>? additionalWeaponActions = null)
-        {
-            Item item = Items.CreateNew(manufacturedWeapon);
-            var itemTraits = item.Traits.Where((trait) => trait == Trait.Weapon || trait == Trait.Ranged || trait == Trait.Melee || trait == Trait.Simple || trait == Trait.Martial || trait == Trait.Advanced);
-            item.Traits.Clear();
-            item.Traits.AddRange(itemTraits);
-            item.Traits.AddRange(traits);
-            item.Traits.Add(Trait.EncounterEphemeral);
+        //public static Creature AddManufacturedWeapon(Creature creature, ItemName manufacturedWeapon, int attackBonus, Trait[] traits, string damage, DamageKind damageKind, Action<WeaponProperties>? additionalWeaponPropertyActions = null, Action<Item>? additionalWeaponActions = null)
+        //{
+        //    Item item = Items.CreateNew(manufacturedWeapon);
+        //    var itemTraits = item.Traits.Where((trait) => trait == Trait.Weapon || trait == Trait.Ranged || trait == Trait.Melee || trait == Trait.Simple || trait == Trait.Martial || trait == Trait.Advanced);
+        //    item.Traits.Clear();
+        //    item.Traits.AddRange(itemTraits);
+        //    item.Traits.AddRange(traits);
+        //    item.Traits.Add(Trait.EncounterEphemeral);
 
-            if (creature.Proficiencies.Get(Trait.Weapon) == Proficiency.Untrained)
-            {
-                bool flag = traits.Contains(Trait.Finesse);
-                int num = creature.Abilities.Strength;
-                if (flag)
-                {
-                    num = Math.Max(num, creature.Abilities.Dexterity);
-                }
+        //    if (creature.Proficiencies.Get(Trait.Weapon) == Proficiency.Untrained)
+        //    {
+        //        bool flag = traits.Contains(Trait.Finesse);
+        //        int num = creature.Abilities.Strength;
+        //        if (flag)
+        //        {
+        //            num = Math.Max(num, creature.Abilities.Dexterity);
+        //        }
 
-                int proficiencyLevel = creature.ProficiencyLevel;
-                creature.WithProficiency(Trait.Weapon, (Proficiency)(attackBonus - proficiencyLevel - num));
-            }
+        //        int proficiencyLevel = creature.ProficiencyLevel;
+        //        creature.WithProficiency(Trait.Weapon, (Proficiency)(attackBonus - proficiencyLevel - num));
+        //    }
 
-            item.WithWeaponProperties(new WeaponProperties("1d1", damageKind));
+        //    item.WithWeaponProperties(new WeaponProperties("1d1", damageKind));
 
-            MediumDiceFormula mediumDiceFormula = DiceFormula.ParseMediumFormula(damage, item.Name, item.Name);
-            item.WeaponProperties!.DamageDieSize = (int)mediumDiceFormula.DieSize;
-            item.WeaponProperties.DamageDieCount = mediumDiceFormula.DiceCount;
-            int additionalFlatBonus = mediumDiceFormula.FlatBonus - (item.HasTrait(Trait.Melee) ? creature.Abilities.Strength : 0);
-            item.WeaponProperties.AdditionalFlatBonus = additionalFlatBonus;
-            if (additionalWeaponPropertyActions != null)
-            {
-                item.WithAdditionalWeaponProperties(additionalWeaponPropertyActions);
-            }
+        //    MediumDiceFormula mediumDiceFormula = DiceFormula.ParseMediumFormula(damage, item.Name, item.Name);
+        //    item.WeaponProperties!.DamageDieSize = (int)mediumDiceFormula.DieSize;
+        //    item.WeaponProperties.DamageDieCount = mediumDiceFormula.DiceCount;
+        //    int additionalFlatBonus = mediumDiceFormula.FlatBonus - (item.HasTrait(Trait.Melee) ? creature.Abilities.Strength : 0);
+        //    item.WeaponProperties.AdditionalFlatBonus = additionalFlatBonus;
+        //    if (additionalWeaponPropertyActions != null)
+        //    {
+        //        item.WithAdditionalWeaponProperties(additionalWeaponPropertyActions);
+        //    }
 
-            additionalWeaponActions?.Invoke(item);
-            creature.AddHeldItem(item);
-            return creature;
+        //    additionalWeaponActions?.Invoke(item);
+        //    creature.AddHeldItem(item);
+        //    return creature;
+        //}
+
+        public static int? GetEncounterLevel(Encounter? encounter, int min=1, int max=20) {
+            if (encounter == null) return null;
+            var level = CharacterLibrary.Instance.SelectedRandomEncounter?.Level ?? 1;
+            level = Math.Min(Math.Max(min, level), max);
+
+            return level;
         }
 
         internal static async Task<Tile?> GetChargeTiles(Creature self, MovementStyle movementStyle, int minimumDistance, string msg, Illustration img) {

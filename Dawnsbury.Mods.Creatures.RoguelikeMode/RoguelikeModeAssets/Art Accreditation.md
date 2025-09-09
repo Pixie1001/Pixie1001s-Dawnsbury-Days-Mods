@@ -38,6 +38,8 @@
 	<li>SceptreOfPandemonium.png</li>
 	<li>SerpentineBow.png</li>
 	<li>Quills.png</li>
+	<li>CloakOfDuplicity.png</li>
+	<li>Javelin.png</li>
 </ul>
 
 ### Rexard
@@ -71,6 +73,8 @@
 	<li>RuneOfPandemonium.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/rune_8381636?term=rune&page=2&position=1&origin=search&related_id=8381636)</li>
 	<li>NightmareGrowth.png (Modified) by Revicon - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/tree_228654?term=spooky+tree&page=1&position=4&origin=search&related_id=228654)</li>
 	<li>ManTrap.png (Modified) by Good Ware - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/bear-trap_4677297?term=bear+trap&related_id=4677297)</li>
+	<li>RuneOfMirrors.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/crystal_8555383?term=gem&related_id=8555383)</li>
+	<li>RuneOfOpportunism.png (Modified) by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/diamond_4334132?term=gem&related_id=4334132)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -83,7 +87,7 @@
 	<li>Bear1.png (Modified) By Arturo de Frias Marques - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Polar_Bear_AdF.jpg</li>
 	<li>Bear2.png (Modified) & ShadowBear2.png (Modified) By Francis C. Franklin - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:European_Brown_Bear.jpg</li>
 	<li>Bear3.png (Modified) By LadyofHats - Released into public domain by author, https://commons.wikimedia.org/wiki/File:Closeup_kodiak_bear_hamburg.JPG</li>
-	<li>Bear4.png (Modified) By Yathin S Krishnappa - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg</li>
+	<li>Bear4.png, Bear4Wizard.png, Bear4Ranged.png (Modified) By Yathin S Krishnappa - CC BY-SA 3.0, https://commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg</li>
 	<li>Bear5.png (Modified) By Charles J. Sharp - CC BY-SA 4.0, https://commons.wikimedia.org/wiki/File:Eurasian_brown_bear_(Ursus_arctos_arctos)_female_1.jpg</li>
 </ul>
 
@@ -148,12 +152,16 @@
 	<li>Medusa.png</li>
 	<li>ShadowWebStalker.png</li>
 	<li>DuplicityDemon.png</li>
-	<li>NightmareWeaver</li>
-	<li>DrowHuntress</li>
-	<li>WebWarden</li>
-	<li>DrowArachnomancer</li>
-	<li>DrowBlademaster</li>
-	<li>BebilithMinor</li>
+	<li>NightmareWeaver.png</li>
+	<li>DrowHuntress.png</li>
+	<li>WebWarden.png</li>
+	<li>DrowArachnomancer.png</li>
+	<li>DrowBlademaster.png</li>
+	<li>BebilithMinor.png</li>
+	<li>WeaverOfLies.png</li>
+	<li>WeaverOfLiesCaster.png</li>
+	<li>WeaverOfLiesRanged.png</li>
+	<li>NagajiTail.png</li>
 </ul>
 
 ## Volunteer Contributions

@@ -203,7 +203,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             Affliction serpentVenom = new Affliction(QEffectIds.SerpentVenom, "Serpent Venom", 0,
                 "{b}Stage 1{/b} 1d6 poison damage and enfeebled 1; {b}Stage 2{/b} 2d6 poison damage and enfeebled 2", 2, stage => stage + "d6", qfVenom => qfVenom.Owner.AddQEffect(QEffect.Enfeebled(qfVenom.Value).WithExpirationEphemeral()));
 
-            return new QEffect("Serpent Poison", "Set Later") {
+            return new QEffect("Serpent Venom", "Set Later") {
                 StateCheck = async self => {
                     if (self.Description == "Set Later") {
                         self.Name += $" (DC {baseDC + self.Owner.Level})";
@@ -810,30 +810,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     if (IsMonsterAlly(self.Owner, action.Owner))
                         breakdown.CheckResult = CheckResult.CriticalSuccess;
                 }
-            };
-        }
-
-        public static TileQEffect Maelstrom(int dc, Tile owner, Creature source) {
-            return new TileQEffect(owner) {
-                TileQEffectId = QEffectIds.Maelstrom,
-                AfterCreatureEntersHere = async creature => {
-                    if (!(creature.OwningFaction.IsPlayer || creature.OwningFaction.IsGaiaFriends)) {
-                        return;
-                    }
-
-                    CombatAction ca = new CombatAction(source, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
-                    .WithActionCost(0)
-                    .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
-                    .WithSoundEffect(SfxName.ElementalBlastWater)
-                    .WithEffectOnEachTarget(async (spell, user, d, result) => {
-                        await CommonSpellEffects.DealBasicDamage(spell, user, d, result, DiceFormula.FromText($"1d8", "Maelstrom"), DamageKind.Bludgeoning);
-                    });
-
-                    ca.ChosenTargets.ChosenCreatures.Add(creature);
-                    ca.ChosenTargets.ChosenCreature = creature;
-                    await ca.AllExecute();
-                },
-                TransformsTileIntoHazardousTerrain = true
             };
         }
 

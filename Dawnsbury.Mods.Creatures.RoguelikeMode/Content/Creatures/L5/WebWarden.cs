@@ -18,8 +18,10 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.StatBlocks.Monsters.L6;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
@@ -88,9 +90,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 StartOfCombat = async self => await self.StartOfYourPrimaryTurn!(self, self.Owner),
                 StartOfYourPrimaryTurn = async (self, you) => {
                     var webTiles = you.Battle.Map.AllTiles.Where(t => t.DistanceTo(you.Occupies) <= 1 && !t.HasEffect(TileQEffectId.Web));
-                    foreach (Tile tile in webTiles) {
-                        tile.AddQEffect(TileQEffect.Web(tile, 22));
-                    }
+                    var z = Zone.Spawn(you, ZoneAttachment.StableBurst(webTiles.ToList()));
+                    DemonWebspinner.CreateWebZone(z, 22);
+                    z.Apply();
+                    //foreach (Tile tile in webTiles) {
+                    //    tile.AddQEffect(DemonWebspinner.CreateWebZone(Zone.Spawn(you, ZoneAttachment.StableBurst(webTiles.ToList())), 22));
+                    //}
                 }
             })
             .Builder

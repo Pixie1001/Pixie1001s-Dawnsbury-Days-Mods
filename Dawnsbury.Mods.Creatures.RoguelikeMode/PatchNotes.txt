@@ -1,0 +1,8 @@
+RL
+* Added Javelins
+* Javelins now can be thrown via Thrower's Bandolier
+* Javelins and Shurikens can now no longer be used to melee strike
+* Fixed several enemies from using fist attacks instead of their default natural weapon
+* Explosive Mushrooms now scale to ensure they're always relevant
+* Reduced the Drider's Fort save to open up more viable strategies against them for magic or ranged weapon heavy parties
+* Fixed that Volatile mutation went off every time an enemy took damage isntead of only on death.

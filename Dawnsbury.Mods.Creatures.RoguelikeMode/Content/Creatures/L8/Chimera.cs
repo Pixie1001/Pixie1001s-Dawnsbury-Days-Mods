@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
             var creature = new Creature(Illustrations.Chimera,
                 "Chimera",
-                [Trait.Beast, Trait.Evil, Trait.Chaotic, ModTraits.MeleeMutator, Trait.NoPhysicalUnarmedAttack],
+                [Trait.Beast, Trait.Evil, Trait.Chaotic, ModTraits.MeleeMutator],
                 8, 16, 8,
                 new Defenses(27, 18, 16, 14),
                 135,
@@ -216,12 +216,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     }
                 });
             })
+            .AddNaturalWeapon("dragon jaws", IllustrationName.Jaws, 20, [], "2d6+9", DamageKind.Piercing, (weaponProperties) => weaponProperties.WithAdditionalDamage("2d6", chosenBreathWeapon.DamageKind))
+            .AddNaturalWeapon("goat horns", IllustrationName.Horn, 20, [], "2d10+9", DamageKind.Piercing)
+            .AddNaturalWeapon("lion jaws", IllustrationName.CelestialLion, 20, [], "2d10+9", DamageKind.Piercing)
+            .AddNaturalWeapon("claw", IllustrationName.DragonClaws, 20, [Trait.Agile], "2d6+9", DamageKind.Slashing)
             .Done();
-
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "dragon jaws", IllustrationName.Jaws, 20, [], "2d6+9", DamageKind.Piercing, (weaponProperties) => weaponProperties.WithAdditionalDamage("2d6", chosenBreathWeapon.DamageKind));
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "goat horns", IllustrationName.Horn, 20, [], "2d10+9", DamageKind.Piercing, null);
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "lion jaws", IllustrationName.CelestialLion, 20, [], "2d10+9", DamageKind.Piercing, null);
-            creature = UtilityFunctions.AddNaturalWeapon(creature, "claw", IllustrationName.DragonClaws, 20, [Trait.Agile], "2d6+9", DamageKind.Slashing, null);
             
             return creature;
         }

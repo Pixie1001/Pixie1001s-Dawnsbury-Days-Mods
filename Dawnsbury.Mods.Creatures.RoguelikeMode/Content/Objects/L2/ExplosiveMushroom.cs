@@ -1,8 +1,10 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.Library;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
@@ -21,13 +23,18 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class ExplosiveMushroom {
-        public static Creature Create() {
-            Creature hazard = new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+        public static Creature Create(Encounter? encounter) {
+            var level = UtilityFunctions.GetEncounterLevel(encounter, 0, 4) ?? 2;
+
+            var dmg = 2 + level + "d6";
+            var dc = 17 + level;
+
+            Creature hazard = new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, level, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
                     .WithTactics(Tactic.DoNothing)
                     .WithEntersInitiativeOrder(false)
                     .AddQEffect(CommonQEffects.Hazard())
                     .AddQEffect(new QEffect("Combustible Spores",
-                    "This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing 4d6 fire damage vs. a DC 19 Basic reflex save to each creature within a 10 foot radius.") {
+                    $"This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing {dmg} fire damage vs. a DC {dc} Basic reflex save to each creature within a 10 foot radius.") {
                         AfterYouTakeDamageOfKind = async (self, action, kind) => {
                             string name = self.Owner.Name;
 
@@ -35,10 +42,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Combustible Spores", new Trait[] { Trait.Fire, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion }, "", Target.SelfExcludingEmanation(2))
                                 .WithActionCost(0)
                                 .WithSoundEffect(SfxName.Fireball)
-                                .WithSavingThrow(new SavingThrow(Defense.Reflex, 19))
+                                .WithSavingThrow(new SavingThrow(Defense.Reflex, dc))
                                 .WithProjectileCone(IllustrationName.Fireball, 15, ProjectileKind.Cone)
                                 .WithEffectOnEachTarget(async (spell, a, d, r) => {
-                                    await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText("4d6", "Combustible Spores"), DamageKind.Fire);
+                                    await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText(dmg, "Combustible Spores"), DamageKind.Fire);
                                 })
                                 ;
                                 self.Owner.Battle.AllCreatures.Where(cr => cr != self.Owner && cr.DistanceTo(self.Owner.Occupies) <= 2 && cr.HasLineOfEffectTo(self.Owner.Occupies) < CoverKind.Blocked).ForEach(cr => explosion.ChosenTargets.ChosenCreatures.Add(cr));

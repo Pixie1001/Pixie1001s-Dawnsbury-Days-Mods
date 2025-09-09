@@ -16,7 +16,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.OrcBrute256,
                 "Bodyguard",
-                [Trait.Orc, Trait.Humanoid, Trait.Lawful, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
+                [Trait.Orc, Trait.Humanoid, Trait.Lawful, ModTraits.MeleeMutator],
                 0, 9, 5,
                 new Defenses(16, 9, 3, 6),
                 18,
@@ -25,9 +25,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .WithCreatureId(CreatureIds.Bodyguard)
             .WithBasicCharacteristics()
             .AddQEffect(QEffect.MonsterKnockdown())
-            .AddHeldItem(new Item(ItemName.SteelShield, IllustrationName.SteelShield, "Steel Shield", 0, 0, Trait.Shield, Trait.Martial).WithMainTrait(Trait.SteelShield).WithShieldProperties(5));
-
-            UtilityFunctions.AddNaturalWeapon(creature, "flail", IllustrationName.Flail, 7, [Trait.Disarm, Trait.Sweep, Trait.Trip, Trait.Knockdown], "1d6+2", DamageKind.Bludgeoning);
+            .AddHeldItem(new Item(ItemName.SteelShield, IllustrationName.SteelShield, "Steel Shield", 0, 0, Trait.Shield, Trait.Martial).WithMainTrait(Trait.SteelShield).WithShieldProperties(5))
+            .Builder
+            .AddManufacturedWeapon(ItemName.Flail, 7, [Trait.Disarm, Trait.Sweep, Trait.Trip, Trait.Knockdown], "1d6+2")
+            .Done();
 
             return creature;
         }

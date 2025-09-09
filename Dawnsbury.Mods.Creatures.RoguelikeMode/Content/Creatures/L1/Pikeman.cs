@@ -5,6 +5,7 @@ using Dawnsbury.Core;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.Mechanics.Treasure;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -15,17 +16,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(IllustrationName.OrcShaman256,
                 "Pikeman",
-                [Trait.Orc, Trait.Humanoid, Trait.Lawful, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
-                1, 10, 5,
+                [Trait.Orc, Trait.Humanoid, Trait.Lawful, ModTraits.MeleeMutator],
+                level: 1, perception: 10, speed: 5,
                 new Defenses(16, 10, 7, 4),
-                20,
+                hp: 20,
                 new Abilities(4, 2, 3, 1, 2, 0),
                 new Skills(athletics: 6))
+            .WithProficiency(Trait.Melee, (Proficiency) 4)
             .WithBasicCharacteristics()
+            .AddHeldItem(new Item(IllustrationName.Halberd, "pike", [Trait.Reach, Trait.Shove, Trait.Melee, Trait.Polearm, Trait.Martial]).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
             .AddQEffect(QEffect.AttackOfOpportunity())
             .AddQEffect(CommonQEffects.MonsterPush());
-
-            UtilityFunctions.AddNaturalWeapon(creature, "pike", IllustrationName.Halberd, 9, [Trait.Reach, Trait.Shove], "1d6+3", DamageKind.Piercing);
 
             return creature;
         }

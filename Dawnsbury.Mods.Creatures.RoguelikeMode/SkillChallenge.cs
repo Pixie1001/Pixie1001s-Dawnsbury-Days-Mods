@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode
         private static async Task RunSetup(TBattle battle) {
             //battle.AllCreatures.ForEach(cr => cr.IllustrationIsHiddenWhenCohesiveMapBackground = true);
             //battle.SmartCenterAlways(battle.AllCreatures.First(cr => cr.PersistentCharacterSheet == battle.CampaignState.Heroes[0].CharacterSheet).Occupies);
-            battle.SmartCenterAlways(battle.Map.AllTiles.First(tile => tile.Kind == TileKind.Tree));
+            battle.SmartCenterTileAlways(battle.Map.AllTiles.First(tile => tile.Kind == TileKind.Tree));
             battle.Cinematics.EnterCutscene();
             Sfxs.Play(SfxName.ScratchFlesh);
         }

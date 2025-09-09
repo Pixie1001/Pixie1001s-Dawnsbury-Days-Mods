@@ -151,22 +151,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 creature.AddQEffect(new QEffect("Volatile", $"This creature explodes on death, dealing {dmg} force damage vs. a basic Reflex save (DC {dc}) against each creature within 10 feet of them.") {
                     Illustration = IllustrationName.Fireball,
                     Innate = false,
-                    YouAreDealtDamageEvent = async (self, dmgEvent) => {
-                        Tile location = self.Owner.Occupies;
-
-                        CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Volatile Explosion", [Trait.Force, Trait.UsableEvenWhenUnconsciousOrParalyzed], "", Target.SelfExcludingEmanation(2))
-                        .WithActionCost(0)
-                        .WithSoundEffect(SfxName.Fireball)
-                        .WithSavingThrow(new SavingThrow(Defense.Reflex, dc))
-                        .WithProjectileCone(IllustrationName.AcidSplash, 15, ProjectileKind.Cone)
-                        .WithEffectOnEachTarget(async (spell, a, d, r) => {
-                            await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText(dmg, "Volatile Explosion"), DamageKind.Force);
-                        });
-                        self.Owner.Battle.AllCreatures.Where(cr => cr != self.Owner && cr.DistanceTo(location) <= 2 && cr.HasLineOfEffectTo(location) < CoverKind.Blocked).ForEach(cr => explosion.ChosenTargets.ChosenCreatures.Add(cr));
-                        self.Owner.Battle.Map.AllTiles.Where(t => t.DistanceTo(location) <= 2 && t.DistanceTo(location) > 0).ForEach(t => explosion.ChosenTargets.ChosenTiles.Add(t));
-                        self.UsedThisTurn = true;
-                        await explosion.AllExecute();
-                        self.ExpiresAt = ExpirationCondition.Immediately;
+                    WhenCreatureDiesAtStateCheckAsync = async (self) => {
+                        if (!self.Owner.QEffects.Any(qe => qe.Name == "Explosion in progress")) {
+                            self.Owner.AddQEffect(new QEffect("Explosion in progress", "[technical trait]"));
+                            CombatAction explosion = new CombatAction(self.Owner, IllustrationName.Fireball, "Volatile Explosion", [Trait.Force, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.ExecuteEvenIfCasterCannotTakeActions, Trait.DoesNotProvoke], "", Target.SelfExcludingEmanation(2))
+                            .WithActionCost(0)
+                            .WithSoundEffect(SfxName.Fireball)
+                            .WithSavingThrow(new SavingThrow(Defense.Reflex, dc))
+                            .WithProjectileCone(IllustrationName.FaerieFire, 15, ProjectileKind.Cone)
+                            .WithEffectOnEachTarget(async (spell, a, d, r) => {
+                                await CommonSpellEffects.DealBasicDamage(spell, a, d, r, DiceFormula.FromText(dmg, "Volatile Explosion"), DamageKind.Force);
+                            });
+                        
+                            await self.Owner.Battle.GameLoop.FullCast(explosion);
+                        }
                     }
                 });
             }));

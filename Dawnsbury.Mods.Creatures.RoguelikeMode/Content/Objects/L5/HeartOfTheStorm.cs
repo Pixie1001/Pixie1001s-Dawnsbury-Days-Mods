@@ -23,6 +23,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Core.Tiles;
+using Dawnsbury.Core.Mechanics.Zoning;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -51,9 +52,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 //},
                 StateCheck = self => {
                     if (!self.Owner.Battle.AllCreatures.Any(cr => cr.Alive && cr.CreatureId == CreatureIds.MerfolkSeaWitch)) {
-                        foreach (Tile tile in self.Owner.Battle.Map.AllTiles) {
-                            tile.RemoveAllQEffects(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
-                        }
+                        //foreach (Tile tile in self.Owner.Battle.Map.AllTiles) {
+                        //    tile.RemoveAllQEffects(qf => qf.TileQEffectId == QEffectIds.Maelstrom);
+                        //}
                         self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
                     }
                 }
@@ -97,6 +98,57 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             hazard.AddQEffect(effect);
 
             return hazard;
+        }
+
+        public static Zone Maelstrom(int dc, int radius, Creature locus) {
+
+            var z = Zone.Spawn(locus, ZoneAttachment.Aura(radius));
+            z.AfterCreatureEntersOrMovesWithin = async creature => {
+                if (!(creature.OwningFaction.IsPlayer || creature.OwningFaction.IsGaiaFriends)) {
+                    return;
+                }
+
+                CombatAction ca = new CombatAction(locus, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
+                .WithActionCost(0)
+                .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
+                .WithSoundEffect(SfxName.ElementalBlastWater)
+                .WithEffectOnEachTarget(async (spell, user, d, result) => {
+                    await CommonSpellEffects.DealBasicDamage(spell, user, d, result, DiceFormula.FromText($"1d8", "Maelstrom"), DamageKind.Bludgeoning);
+                });
+
+                ca.ChosenTargets.ChosenCreatures.Add(creature);
+                ca.ChosenTargets.ChosenCreature = creature;
+                await ca.AllExecute();
+            };
+            z.TileEffectCreator = tile => {
+                return new TileQEffect() {
+                    TileQEffectId = QEffectIds.Maelstrom,
+                    TransformsTileIntoHazardousTerrain = true
+                };
+            };
+            return z;
+
+            //return new TileQEffect(owner) {
+            //    TileQEffectId = QEffectIds.Maelstrom,
+            //    AfterCreatureEntersHere = async creature => {
+            //        if (!(creature.OwningFaction.IsPlayer || creature.OwningFaction.IsGaiaFriends)) {
+            //            return;
+            //        }
+
+            //        CombatAction ca = new CombatAction(source, IllustrationName.TidalHands, "Maelstrom", [Trait.Water, Trait.Evocation], "", Target.Ranged(100))
+            //        .WithActionCost(0)
+            //        .WithSavingThrow(new SavingThrow(Defense.Fortitude, dc))
+            //        .WithSoundEffect(SfxName.ElementalBlastWater)
+            //        .WithEffectOnEachTarget(async (spell, user, d, result) => {
+            //            await CommonSpellEffects.DealBasicDamage(spell, user, d, result, DiceFormula.FromText($"1d8", "Maelstrom"), DamageKind.Bludgeoning);
+            //        });
+
+            //        ca.ChosenTargets.ChosenCreatures.Add(creature);
+            //        ca.ChosenTargets.ChosenCreature = creature;
+            //        await ca.AllExecute();
+            //    },
+            //    TransformsTileIntoHazardousTerrain = true
+            //};
         }
     }
 }

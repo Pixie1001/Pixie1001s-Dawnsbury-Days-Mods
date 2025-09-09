@@ -39,7 +39,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             Creature monster = new Creature(Illustrations.DrowPriestess, "Drow High Priestess",
                 [Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow, ModTraits.SpellcasterMutator],
-                7, 12, 8, new Defenses(24, 12, 15, 18), 115,
+                level: 7, perception: 12, speed: 6, new Defenses(24, 12, 15, 18), 115,
             new Abilities(5, 4, 3, 2, 4, 4),
             new Skills(athletics: 17, acrobatics: 16, deception: 16, religion: 16, occultism: 12, intimidation: 16))
             .WithAIModification(ai => {

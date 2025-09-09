@@ -22,7 +22,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// <summary>
         /// Gets the Creature object based off the id
         /// </summary>
-        internal static Creature GetCreature<TEnum>(TEnum id) where TEnum : Enum {
+        internal static Creature GetCreature<TEnum>(TEnum id, Encounter? encounter) where TEnum : Enum {
             switch (id) {
                 case var v when v.Equals(CreatureIds.UnseenGuardian):
                     return UnseenGuardian.Create();
@@ -156,6 +156,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return EchidnaditePriestess.Create();
                 case var v when v.Equals(CreatureIds.CavernBeast):
                     return DeepBeast.Create();
+                case var v when v.Equals(CreatureIds.SpinnerOfLies):
+                    return SpinnerOfLies.Create();
+                case var v when v.Equals(CreatureIds.EchidnaditeHighPriestess):
+                    return EchidnaditeHighPriestess.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -164,19 +168,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// <summary>
         /// Gets the Object object based off the id
         /// </summary>
-        internal static Creature GetObject<TEnum>(TEnum id) where TEnum : Enum {
+        internal static Creature GetObject<TEnum>(TEnum id, Encounter? encounter) where TEnum : Enum {
             switch (id)
             {
                 case ModEnums.ObjectId.CHOKING_MUSHROOM:
                     return ChokingMushroom.Create();
                 case ModEnums.ObjectId.BOOM_SHROOM:
-                    return ExplosiveMushroom.Create();
+                    return ExplosiveMushroom.Create(encounter);
                 case ModEnums.ObjectId.ICE_FONT:
                     return IceFont.Create();
                 case ModEnums.ObjectId.SPIDER_FONT:
                     return SpiderFont.Create();
                 case ModEnums.ObjectId.SPIDER_QUEEN_SHRINE:
-                    return SpiderQueenShrine.Create();
+                    return SpiderQueenShrine.Create(false);
                 case ModEnums.ObjectId.RESTLESS_SPIRIT:
                     return RestlessSpirit.Create();
                 case ModEnums.ObjectId.DEMONIC_PUSTULE:
@@ -185,6 +189,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return TestPile.Create();
                 case ModEnums.ObjectId.NIGHTMARE_GROWTH:
                     return NightmareGrowth.Create();
+                case ModEnums.ObjectId.GREATER_SPIDER_QUEEN_SHRINE:
+                    return SpiderQueenShrine.Create(true);
                 default:
                     throw new NotSupportedException($"The object id '{id}' is not supported");
             }
@@ -194,7 +200,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         /// Registers the creatures through the ModManager then adds the creature to the running creature list
         /// </summary>
         internal static void RegisterAndAddCreatureToDictonary<TEnum>(Dictionary<TEnum, Func<Encounter?, Creature>> creatures, TEnum id, string? overridenCreatureName = null) where TEnum : Enum {
-            Func<Encounter?, Creature> creatureFunction = encounter => (typeof(TEnum) == typeof(CreatureId)) ? GetCreature(id) : GetObject(id);
+            Func<Encounter?, Creature> creatureFunction = encounter => (typeof(TEnum) == typeof(CreatureId)) ? GetCreature(id, encounter) : GetObject(id, encounter);
             ModManager.RegisterNewCreature(overridenCreatureName ?? creatureFunction(null).Name, creatureFunction);
             creatures.Add(id, creatureFunction);
         }
@@ -302,6 +308,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 8 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Chimera);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.SpinnerOfLies);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeHighPriestess);
 
             // Level 10 creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DragonWitch);
@@ -320,7 +328,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RESTLESS_SPIRIT);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.DEMONIC_PUSTULE);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE, "TestPile");
-            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.NIGHTMARE_GROWTH);        }
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.NIGHTMARE_GROWTH);
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.GREATER_SPIDER_QUEEN_SHRINE, "Greater Spider Queen Shrine");
+        }
 
         internal static void LoadTiles() {
             RegisterTile(GrantMonsterMutator.Create());

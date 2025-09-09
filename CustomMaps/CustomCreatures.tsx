@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="73" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="75" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -438,5 +438,17 @@
    <property name="Id" value="Nightmare Growth"/>
   </properties>
   <image source="CustomCreatures/NightmareGrowth.png" width="256" height="256"/>
+ </tile>
+ <tile id="2066">
+  <properties>
+   <property name="Id" value="Greater Spider Queen Shrine"/>
+  </properties>
+  <image source="CustomCreatures/Spider_Shrine.png" width="256" height="256"/>
+ </tile>
+ <tile id="2067">
+  <properties>
+   <property name="Id" value="Spinner of Lies"/>
+  </properties>
+  <image source="CustomCreatures/WeaverOfLies.png" width="256" height="256"/>
  </tile>
 </tileset>

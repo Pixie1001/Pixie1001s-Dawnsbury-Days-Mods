@@ -54,6 +54,7 @@ using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Core.StatBlocks;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -157,6 +158,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         //        selectedCreature.RemoveAllQEffects(qf => qf == confused);
         //        return;
         //}
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GaiaStatBlocks), "DetermineElementalColor")]
+        private static void DetermineElementalColorPrefixPatch(ref Color __result, Traits traits) {
+            if (__result != Color.White) return;
+
+            if (traits.Contains(Trait.Demon))
+                __result = Color.Purple;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Possibilities), "CreateItemStrikePossibility")]
+        private static void CreateItemStrikePossibilityPrefixPatch(ref Possibility __result, Creature self, Item item) {
+            if (!item.HasTrait(ModTraits.ThrownOnly) || __result is not SubmenuPossibility) return;
+
+            (__result as SubmenuPossibility)!.Subsections[0].Possibilities.RemoveAll(pos => pos is ActionPossibility ap && (ap.CombatAction.HasTrait(Trait.Melee) || !ap.CombatAction.HasTrait(Trait.Thrown)));
+        }
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AI), "ModifyGoodness")]

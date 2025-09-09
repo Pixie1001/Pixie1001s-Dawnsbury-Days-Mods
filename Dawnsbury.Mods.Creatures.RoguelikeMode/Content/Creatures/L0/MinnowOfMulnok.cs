@@ -25,7 +25,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             var creature = new Creature(Illustrations.MinnowOfMulnok,
                 "Minnow of Mulnok",
-                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.NonSummonable, Trait.NoPhysicalUnarmedAttack, ModTraits.MeleeMutator],
+                [Trait.Aquatic, Trait.Animal, Trait.Demon, Trait.Chaotic, Trait.Evil, Trait.NonSummonable, ModTraits.MeleeMutator],
                 0, 6, 7,
                 new Defenses(15, 6, 8, 3),
                 15,
@@ -308,11 +308,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         }*/
                     }
                 }
-            });
+            })
+            .Builder
+            .AddNaturalWeapon("jaws", IllustrationName.Jaws, 8, [], "1d4+1", DamageKind.Piercing)
+            .Done();
 
             creature.AnimationData.AddAuraAnimation(new MagicCircleAuraAnimation(IllustrationName.BaneCircle, Color.Maroon, 0.85f));
-
-            UtilityFunctions.AddNaturalWeapon(creature, "jaws", IllustrationName.Jaws, 8, [], "1d4+1", DamageKind.Piercing);
 
             return creature;
         }

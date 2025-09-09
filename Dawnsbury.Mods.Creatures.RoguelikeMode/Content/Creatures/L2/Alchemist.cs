@@ -16,6 +16,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -414,11 +415,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (result == CheckResult.CriticalSuccess)
                         {
-                            target.AddQEffect(QEffect.Frightened(2));
+                            target.AddQEffect(QEffect.Frightened(2).WithSourceAction(action));
                         }
                         else if (result == CheckResult.Success)
                         {
-                            target.AddQEffect(QEffect.Frightened(1));
+                            target.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                         }
                     })
                     .WithEffectOnSelf(async (Creature user) =>
@@ -443,11 +444,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (result == CheckResult.CriticalSuccess)
                         {
-                            target.AddQEffect(QEffect.Sickened(2, GetDC(effect.Owner)));
+                            target.AddQEffect(QEffect.Sickened(2, GetDC(effect.Owner)).WithSourceAction(action));
                         }
                         else if (result == CheckResult.Success)
                         {
-                            target.AddQEffect(QEffect.Sickened(1, GetDC(effect.Owner)));
+                            target.AddQEffect(QEffect.Sickened(1, GetDC(effect.Owner)).WithSourceAction(action));
                         }
                     })
                     .WithEffectOnSelf(async (Creature user) =>
@@ -490,9 +491,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     });
                 }
             })
-            .AddQEffect(new("Alchemical Items", "The alchemist carries a bandolier full of alchemical vials of all shapes and sizes. Who knows what all of them do?"));
-
-            UtilityFunctions.AddNaturalWeapon(creature, "dagger", IllustrationName.Dagger, 9, [Trait.Agile, Trait.Finesse, Trait.VersatileS], "1d4+2", DamageKind.Piercing, (weaponProperties) => weaponProperties.WithAdditionalPersistentDamage("1d4", DamageKind.Bleed));
+            .AddQEffect(new("Alchemical Items", "The alchemist carries a bandolier full of alchemical vials of all shapes and sizes. Who knows what all of them do?"))
+            .Builder
+            .AddManufacturedWeapon(ItemName.Dagger, 9, [], "1d4+2", (weaponProperties) => weaponProperties.WithAdditionalPersistentDamage("1d4", DamageKind.Bleed))
+            .Done();
             
             return creature;
         }

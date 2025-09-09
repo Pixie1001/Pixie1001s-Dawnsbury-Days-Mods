@@ -245,9 +245,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         }
                     }
                 }
-            });
-
-            creature = UtilityFunctions.AddManufacturedWeapon(creature, ItemName.Rapier, 15, [Trait.Finesse, Trait.Disarm], "2d8+7", DamageKind.Piercing, null, null);
+            })
+            .Builder
+            .AddManufacturedWeapon(ItemName.Rapier, 15, [Trait.Disarm], "2d8+7")
+            .Done();
 
             return creature;
         }

@@ -76,6 +76,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using HarmonyLib;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
@@ -221,6 +222,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<RuinedHamlet>("RuinedHamlet.tmx");
             ModManager.RegisterEncounter<SuccubusCult>("SuccubusCult.tmx");
             ModManager.RegisterEncounter<SplitTheParty>("SplittheParty.tmx");
+
+            // High Level Encounters
+            ModManager.RegisterEncounter<DemonGateLv6>("HL_N_DemonGate.tmx");
 
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");

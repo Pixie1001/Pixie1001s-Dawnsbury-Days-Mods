@@ -1748,7 +1748,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 $"it takes {rejectionDmg} mental damage and when that creature next successfully Demoralizes the your eidolon this encounter, they take the damage again.") {
                 AfterYouTakeActionAgainstTarget = async (effect, action, defender, checkResult) => {
                     var mentalActionOwnerSuccubus = action.Owner;
-                    if (action.HasTrait(Trait.Mental) && defender != mentalActionOwnerSuccubus) {
+                    if ((action.Name == "Embrace" || action.Name == "Passionate Kiss" || action.Name == "Bewitch") && defender != mentalActionOwnerSuccubus) {
                         if ((action.ActiveRollSpecification != null && checkResult <= CheckResult.Failure) ||
                             (action.SavingThrow != null && checkResult >= CheckResult.Success)) {
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText(rejectionDmg, "Rejection vulnerability"), mentalActionOwnerSuccubus, CheckResult.Failure, DamageKind.Mental);
@@ -1794,8 +1794,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             });
             string kissDmg = "1d6+" + eidolon.Level;
             eidolon.AddQEffect(new QEffect() {
-                ProvideMainAction = qfSelf => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.HealersBlessing, "Kiss", [Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental],
-                "{b}Frequency{b} Once per round\n{b}Saving throw{b} basic Will{b}Target{b} 1 creature you have grappled{i}You passionately kiss your embraced victim.{/i}\n\n" +
+                ProvideMainAction = qfSelf => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.HealersBlessing, "Passionate Kiss", [Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental],
+                "{b}Frequency{b} Once per round\n{b}Saving throw{b} basic Will\n{b}Target{b} 1 creature you have grappled{i}\n\nYou passionately kiss your embraced victim.{/i}\n\n" +
                 "You deal " + kissDmg + " negative damage to the target and gain temporary hit points equal to your level.\n\nIf the target fails or critical fails their saving throw," +
                 " they cannot attempt to Escape or take actions against you until your next turn.",
                 Target.Touch().WithAdditionalConditionOnTargetCreature(new GrappledCreatureOnlyCreatureTargetingRequirement()).WithAdditionalConditionOnTargetCreature(new NotUsedThisTurnCreatureTargetingRequirement(ActionId.Kiss)))

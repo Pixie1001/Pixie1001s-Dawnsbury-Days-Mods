@@ -88,12 +88,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                                     if (result == CheckResult.CriticalSuccess) {
                                                         Sfxs.Play(SfxName.Necromancy, 0.7f);
                                                         await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
-                                                        caster.AddQEffect(QEffect.Frightened(2));
+                                                        caster.AddQEffect(QEffect.Frightened(2).WithSourceAction(spell));
                                                     } else if (result == CheckResult.Success) {
-                                                        target.AddQEffect(QEffect.Frightened(1));
+                                                        target.AddQEffect(QEffect.Frightened(1).WithSourceAction(spell));
                                                         caster.Battle.RemoveCreatureFromGame(self.Owner);
                                                     } else if (result == CheckResult.Failure) {
-                                                        target.AddQEffect(QEffect.Frightened(2));
+                                                        target.AddQEffect(QEffect.Frightened(2).WithSourceAction(spell));
                                                         caster.Battle.RemoveCreatureFromGame(self.Owner);
                                                     } else if (result == CheckResult.CriticalFailure) {
                                                         Faction originalFaction = target.OwningFaction;
@@ -193,12 +193,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         if (result == CheckResult.CriticalSuccess) {
                             Sfxs.Play(SfxName.Necromancy, 0.7f);
                             await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("1d6", "Restless Spirits"), caster, CheckResult.Success, DamageKind.Negative);
-                            caster.AddQEffect(QEffect.Frightened(2));
+                            caster.AddQEffect(QEffect.Frightened(2).WithSourceAction(spell));
                         } else if (result == CheckResult.Success) {
-                            target.AddQEffect(QEffect.Frightened(1));
+                            target.AddQEffect(QEffect.Frightened(1).WithSourceAction(spell));
                             caster.Battle.RemoveCreatureFromGame(interactable.Owner);
                         } else if (result == CheckResult.Failure) {
-                            target.AddQEffect(QEffect.Frightened(2));
+                            target.AddQEffect(QEffect.Frightened(2).WithSourceAction(spell));
                             caster.Battle.RemoveCreatureFromGame(interactable.Owner);
                         } else if (result == CheckResult.CriticalFailure) {
                             Faction originalFaction = target.OwningFaction;

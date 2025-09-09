@@ -20,7 +20,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class UnseenGuardian {
         public static Creature Create() {
-            return new Creature(Illustrations.UnseenGuardian, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air, ModTraits.MeleeMutator }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 4, 3, 1, 3, 1), new Skills(stealth: 2))
+            var creature = new Creature(Illustrations.UnseenGuardian, "Unseen Guardian", new List<Trait>() { Trait.Lawful, Trait.Elemental, Trait.Air, ModTraits.MeleeMutator }, 2, 6, 8, new Defenses(16, 5, 11, 7), 30, new Abilities(2, 4, 3, 1, 3, 1), new Skills(stealth: 2))
                 .WithAIModification(ai => {
                     ai.IsDemonHorizonwalker = true;
                     ai.OverrideDecision = (self, options) => {
@@ -50,12 +50,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     },
                     StartOfCombat = async self => {
                         List<Creature> party = self.Owner.Battle.AllCreatures.Where(c => c.OwningFaction.IsPlayer).ToList();
-                        Creature target = party.OrderBy(c => c.HP / 100 * c.Defenses.GetBaseValue(Defense.AC) * 5).ToList()[0];
 
-                        // TODO: Set so that lurking ends after taking their bonus turn
                         self.Owner.AddQEffect(new QEffect {
                             Id = QEffectIds.Lurking,
-                            PreventTakingAction = action => action.ActionId != ActionId.Sneak ? "Stalking prey, cannot act." : null,
+                            PreventTakingAction = action => action.ActionId != ActionId.Sneak ? "Dissembling postion." : null,
                             BonusToSkillChecks = (skill, action, target) => {
                                 if (skill == Skill.Stealth && action.Name == "Sneak") {
                                     return new Bonus(30, BonusType.Status, "Lurking");
@@ -67,9 +65,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                         foreach (Creature player in party) {
                             self.Owner.DetectionStatus.HiddenTo.Add(player);
+                            self.Owner.DetectionStatus.UndetectedTo.Add(player);
                         }
                         self.Owner.DetectionStatus.Undetected = true;
-                        target.AddQEffect(CommonQEffects.Stalked(self.Owner));
 
                         self.Owner.AddQEffect(new QEffect() {
                             Id = QEffectId.Slowed,
@@ -80,7 +78,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         self.Owner.Actions.ActedThisEncounter = false;
                     }
                 })
-                .AddQEffect(new QEffect("Seek Vulnerability", "The Unseen Guardian's obliviating aura quickly falls apart as soon as a creatre's attention begins to settle on it, distrupting the magic. Successful seek attempts against a detected Unseen Guardian instead fully reveal it to all of the seeker's allies.") {
+                .AddQEffect(new QEffect("Seek Vulnerability", "The Unseen Guardian's obliviating aura quickly falls apart as soon as a creatre's attention begins to settle on it, distrupting the magic. Successful seek attempts against a detected Unseen Guardian instead fully reveal it to all of the seeker's allies. in addition, spells like Glitterdust and Faerie Fire impose a -5 status penalty to the Unseen Guardian's stealth.") {
                     Innate = true,
                     AfterYouAreTargeted = async (self, action) => {
                         action.ChosenTargets.CheckResults.TryGetValue(self.Owner, out var result);
@@ -133,6 +131,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     VfxStyle = new VfxStyle(5, ProjectileKind.Cone, IllustrationName.FourWinds),
                     Sfx = SfxName.AeroBlade
                 }.WithRangeIncrement(4)));
+
+            var effect = new QEffect();
+            effect.BonusToSkills = skill => skill == Skill.Stealth && effect.Owner.HasEffect(QEffectId.FaerieFire) ? new Bonus(-5, BonusType.Status, "Attention drawing spell") : null;
+            creature.AddQEffect(effect);
+
+            return creature;
         }
     }
 }

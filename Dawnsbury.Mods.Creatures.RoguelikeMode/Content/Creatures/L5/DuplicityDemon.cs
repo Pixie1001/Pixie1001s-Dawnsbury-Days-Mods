@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             Item legAtk = new Item(new SpiderIllustration(Illustrations.StabbingAppendage, IllustrationName.DragonClaws), "stabbing appendage", new Trait[] { Trait.Unarmed, Trait.Finesse, Trait.Agile, Trait.DeadlyD6 }).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing));
 
             Creature monster = new Creature(new SpiderIllustration(Illustrations.DuplicityDemon, Illustrations.Bear4), "Duplicity Demon",
-                [Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider, ModTraits.MeleeMutator],
+                [Trait.Chaotic, Trait.Evil, Trait.Female, Trait.Demon, Trait.Fiend, ModTraits.Spider, ModTraits.MeleeMutator, Trait.NonSummonable],
                 5, 12, 8, new Defenses(21, 9, 15, 14), 75,
             new Abilities(3, 6, 2, 4, 2, 6),
             new Skills(acrobatics: 13, stealth: 13, deception: 16))
@@ -51,15 +51,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(QEffect.WebSense())
             .AddQEffect(QEffect.PackAttack("duplicity demon", "1d8"))
             .AddQEffect(QEffect.SneakAttack("1d6"))
-            .AddQEffect(new QEffect("Duplicate", "At the start of combat, the duplicity demon splits into 4 copies of itself, with slowed 1. Only one is real, the rest will be revealed as harmless illusions upon taking damage or after the real demon is damaged.") {
+            .AddQEffect(new QEffect("Duplicate", $"At the start of combat, the Duplicity Demon is hidden within a cadre of identical duplicates of itself, as per its {{i}}duplicate{{/i}} ability.") {
                 StartOfCombat = async self => {
                     Duplicate(self.Owner);
                 }
             })
             .Builder
             .AddMainAction(you => {
-                return new CombatAction(you, IllustrationName.MirrorImage, "Duplicate", [Trait.Illusion], "The duplicity demon splits into 4 copies of itself, with slowed 1. Only one is real, the rest will be revealed as harmless illusions upon taking damage or after the real demon is damaged.",
-                    Target.Self((caster, ai) => 10f))
+                return new CombatAction(you, IllustrationName.MirrorImage, "Duplicate", [Trait.Illusion], "The duplicity demon splits into 4 copies of itself, cleansing itself of all condtions but gaining slowed 1. Only one is real, the rest will be revealed as harmless illusions upon taking damage or after the real demon is damaged.",
+                    Target.Self((caster, ai) => 30f))
                 .WithActionCost(3)
                 .WithSoundEffect(SfxName.Fear)
                 .WithEffectOnSelf(async caster => {
@@ -95,8 +95,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             foreach (Creature duplicate in duplicates.ToList()) {
                 var effect = new QEffect("Duplicate",
                     "The duplicity demon is hiding within these duplicates. The duplicates are destroyed by upon taking damage. " +
-                    "The real demon will instead reveal all other duplicates as fake when damaged. While maintaining these illusions, the duplicity demon and its copies are slowed 1.") {
-                    Illustration = origional.Illustration,
+                    "The real demon will instead reveal all other duplicates as fake when damaged. While maintaining these illusions, the duplicity demon and its copies are slowed 1.", ExpirationCondition.Never, null, origional.Illustration) {
                     StateCheck = self => {
                         self.Owner.AddQEffect(QEffect.Slowed(1).WithExpirationEphemeral());
                     }

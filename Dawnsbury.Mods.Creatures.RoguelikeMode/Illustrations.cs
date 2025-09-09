@@ -85,6 +85,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration DrowBlademaster = new ModdedIllustration("RoguelikeModeAssets/Enemies/DrowBlademaster.png");
         internal static ModdedIllustration BebilithMinor = new ModdedIllustration("RoguelikeModeAssets/Enemies/BebilithMinor.png");
         internal static ModdedIllustration DeepBeast = new ModdedIllustration("RoguelikeModeAssets/Enemies/DeepBeast.png");
+        internal static ModdedIllustration SpinnerOfLies = new ModdedIllustration("RoguelikeModeAssets/Enemies/WeaverOfLies.png");
+        internal static ModdedIllustration SpinnerOfLiesCaster = new ModdedIllustration("RoguelikeModeAssets/Enemies/WeaverOfLiesCaster.png");
+        internal static ModdedIllustration SpinnerOfLiesRanged = new ModdedIllustration("RoguelikeModeAssets/Enemies/WeaverOfLiesRanged.png");
 
         // Bears for Archanophobia Mode
         internal static ModdedIllustration Bear1 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear1.png");
@@ -92,6 +95,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration ShadowBear2 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/ShadowBear2.png");
         internal static ModdedIllustration Bear3 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear3.png");
         internal static ModdedIllustration Bear4 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear4.png");
+        internal static ModdedIllustration Bear4Wizard { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear4Wizard.png");
+        internal static ModdedIllustration Bear4Ranged { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear4Ranged.png");
         internal static ModdedIllustration Bear5 { get; } = new ModdedIllustration("RoguelikeModeAssets/Enemies/Bear5.png");
 
         // Items
@@ -138,6 +143,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration SerpentineBow = new ModdedIllustration("RoguelikeModeAssets/Items/SerpentineBow.png");
         internal static ModdedIllustration RuneOfPandemonium = new ModdedIllustration("RoguelikeModeAssets/Items/RuneOfPandemonium.png");
         internal static ModdedIllustration RingOfMonsters = new ModdedIllustration("RoguelikeModeAssets/Items/RingOfMonsters.png");
+        internal static ModdedIllustration RuneOfMirrors = new ModdedIllustration("RoguelikeModeAssets/Items/RuneOfMirrors.png");
+        internal static ModdedIllustration CloakOfDuplicity = new ModdedIllustration("RoguelikeModeAssets/Items/CloakOfDuplicity.png");
+        internal static ModdedIllustration Javelin = new ModdedIllustration("RoguelikeModeAssets/Items/Javelin.png");
+        internal static ModdedIllustration RuneOfOpportunism = new ModdedIllustration("RoguelikeModeAssets/Items/RuneOfOpportunism.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");

@@ -118,7 +118,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 level3: [SpellId.AcidArrow, SpellId.AcidArrow, SpellId.AcidArrow]).Done()
             .Builder
             .AddMainAction(you => {
-                return new CombatAction(you, IllustrationName.Confusion, "Invoke Pandemonium", [Trait.Enchantment, Trait.Flourish], "The creature marked for {b}Impending Pandemonium{/b} becomes confused for 1 round, and another random enemy creature gains {b}Impending Pandemonium{/b} in their place.", Target.Self((user, ai) => AIConstants.ALWAYS))
+                return new CombatAction(you, IllustrationName.Confusion, "Invoke Pandemonium", [Trait.Enchantment, Trait.Flourish], "The creature marked for {b}Impending Pandemonium{/b} becomes confused for 1 round, and another random enemy creature gains {b}Impending Pandemonium{/b} in their place. " +
+                    "In addition, all enemy creatures within 10 feet of the marked creature take 6d6 mental damage (Basic will save mitigates), as their minds are assaulted by the chaos of the demon world.", Target.Self((user, ai) => AIConstants.ALWAYS))
                 .WithActionCost(0)
                 .WithSoundEffect(SfxName.Necromancy)
                 .WithEffectOnSelf(async (action, caster) => {
@@ -129,7 +130,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         target!.AddQEffect(new QEffect("Impending Pandemonium", $"You will become confused for 1 round next time {caster.Name} uses Invoke Pandemonium.", ExpirationCondition.Never, caster, new FunctionLibs.DualIllustration(IllustrationName.Confusion, caster.Illustration)) {
                             Id = QEffectIds.ImpendingPandemonium,
                         }.WithExpirationAtEndOfSourcesNextTurn(caster, false));
-                        target.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}.");
+                        target.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}, and all allied creature within 10 feet of them will take 6d6 mental damage (Basic will save mitigates).");
                     }
                     if (telegraph != null) {
                         telegraph.RemoveAllQEffects(qf => qf.Id == QEffectIds.ImpendingPandemonium && qf.Source == caster);

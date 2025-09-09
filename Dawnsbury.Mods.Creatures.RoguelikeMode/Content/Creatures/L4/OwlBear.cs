@@ -4,6 +4,7 @@ using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
@@ -24,6 +25,7 @@ using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using FMOD;
+using System;
 using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using static System.Net.Mime.MediaTypeNames;
@@ -56,7 +58,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             CheckResult savingThrow = CommonSpellEffects.RollSavingThrow(d, gnawAction, Defense.Will, 22);
                             if (savingThrow <= CheckResult.Success)
                             {
-                                QEffect sickedEffect = QEffect.Sickened(1, 22);
+                                QEffect sickedEffect = QEffect.Sickened(1, 22).WithSourceAction(gnawAction);
                                 if (savingThrow <= CheckResult.Failure)
                                 {
                                     QEffect slowedEffect = QEffect.Slowed(1);
@@ -178,7 +180,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 if (result <= CheckResult.CriticalSuccess)
                 {
                     int frightenedValue = (result <= CheckResult.Failure) ? ((result == CheckResult.CriticalFailure) ? 3 : 2) : 1;
-                    creature.AddQEffect(QEffect.Frightened(frightenedValue));
+                    creature.AddQEffect(QEffect.Frightened(frightenedValue).WithSourceAction(bloodcurlingScreech));
                     if (result == CheckResult.CriticalFailure)
                     {
                         creature.AddQEffect(QEffect.FleeingAllDanger().WithExpirationAtEndOfOwnerTurn());

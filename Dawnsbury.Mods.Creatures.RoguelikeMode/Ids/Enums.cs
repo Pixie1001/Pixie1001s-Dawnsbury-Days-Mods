@@ -58,7 +58,8 @@
             DEMONIC_PUSTULE,
             TEST_PILE,
             Maelstrom,
-            NIGHTMARE_GROWTH
+            NIGHTMARE_GROWTH,
+            GREATER_SPIDER_QUEEN_SHRINE
         }
 
         internal enum EncounterType

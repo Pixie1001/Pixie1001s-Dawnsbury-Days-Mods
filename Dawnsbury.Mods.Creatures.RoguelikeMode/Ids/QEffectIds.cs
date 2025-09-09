@@ -79,6 +79,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static QEffectId Harvested { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Harvested");
         internal static QEffectId Hazard { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Hazard");
         internal static QEffectId MushroomInoculation { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MushroomInoculation");
+        internal static QEffectId ChokingMushroomSporeCloud { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ChokingMushroomSporeCloud");
         internal static QEffectId ShifterFurs { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ShifterFurs");
         internal static QEffectId HomunculusMaster { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_HomunculusMaster");
         internal static QEffectId HomunculusPoison { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_HomunculusPoison");

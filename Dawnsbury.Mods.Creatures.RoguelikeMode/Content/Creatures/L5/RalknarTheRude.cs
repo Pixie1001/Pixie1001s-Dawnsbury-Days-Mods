@@ -75,16 +75,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 {
                     if (result == CheckResult.Success)
                     {
-                        target.AddQEffect(QEffect.Frightened(1));
+                        target.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                     }
                     else if (result == CheckResult.Failure)
                     {
-                        target.AddQEffect(QEffect.Frightened(2));
+                        target.AddQEffect(QEffect.Frightened(2).WithSourceAction(action));
                     }
                     else if (result == CheckResult.CriticalFailure)
                     {
                         target.AddQEffect(QEffect.Fleeing(user).WithExpirationAtStartOfSourcesTurn(user, 0));
-                        target.AddQEffect(QEffect.Frightened(3));
+                        target.AddQEffect(QEffect.Frightened(3).WithSourceAction(action));
                     }
                 })
                 .WithEffectOnSelf((user) =>

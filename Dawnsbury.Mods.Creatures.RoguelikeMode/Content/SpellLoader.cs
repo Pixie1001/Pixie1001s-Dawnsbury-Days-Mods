@@ -103,7 +103,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                 if (result == CheckResult.CriticalSuccess) return;
                 await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, $"{(level - 1) * 2}d6", DamageKind.Mental);
-                target.AddQEffect(QEffect.Frightened(3 - (int)result));
+                target.AddQEffect(QEffect.Frightened(3 - (int)result).WithSourceAction(spell));
             });
         });
 
@@ -178,7 +178,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Sicken(d) + level * 4.5f)
             .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                 if (result < CheckResult.Success)
-                    target.AddQEffect(QEffect.Sickened(1, spell.SpellcastingSource?.GetSpellSaveDC() ?? 10));
+                    target.AddQEffect(QEffect.Sickened(1, spell.SpellcastingSource?.GetSpellSaveDC() ?? 10).WithSourceAction(spell));
                 await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, level + "d8", DamageKind.Piercing);
             });
         });
@@ -201,7 +201,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Fear(d))
             .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                 if (result < CheckResult.CriticalSuccess)
-                    target.AddQEffect(QEffect.Frightened(3 - (int)result));
+                    target.AddQEffect(QEffect.Frightened(3 - (int)result).WithSourceAction(spell));
             });
         });
 
