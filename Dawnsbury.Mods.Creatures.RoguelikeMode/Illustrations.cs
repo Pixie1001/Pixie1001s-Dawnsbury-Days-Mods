@@ -174,6 +174,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration VomitSwarm = new ModdedIllustration("RoguelikeModeAssets/Icons/VomitSwarm.png");
         internal static ModdedIllustration SummonMonster = new ModdedIllustration("RoguelikeModeAssets/Icons/SummonMonster.png");
         internal static ModdedIllustration Quills = new ModdedIllustration("RoguelikeModeAssets/Icons/Quills.png");
+        internal static ModdedIllustration SerpentileTail = new ModdedIllustration("RoguelikeModeAssets/Icons/NagajiTail.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");

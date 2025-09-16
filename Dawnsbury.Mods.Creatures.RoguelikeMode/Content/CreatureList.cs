@@ -160,6 +160,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return SpinnerOfLies.Create();
                 case var v when v.Equals(CreatureIds.EchidnaditeHighPriestess):
                     return EchidnaditeHighPriestess.Create();
+                case var v when v.Equals(CreatureIds.Hydra):
+                    return Hydra.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id}' is not supported");
             }
@@ -300,6 +302,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeBroodGuard);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.NightmareWeaver);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditePriestess);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Hydra);
 
             // Level 7 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Medusa);
@@ -336,6 +339,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterTile(GrantMonsterMutator.Create());
             RegisterTile(TripWire.Create());
             RegisterTile(TripWireSpawnLocation.Create());
+            RegisterTile(AcidTrapSpawnLocation.Create());
         }
 
         internal static void ModifyCreatures() {

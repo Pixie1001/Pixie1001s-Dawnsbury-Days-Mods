@@ -27,8 +27,6 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.Xna.Framework;
-using System;
-using System.Xml.Linq;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class SpinnerOfLies {
@@ -74,6 +72,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         }
 
         private static void ApplyClass(Creature duplicate, bool guaranteeMelee=false) {
+            var test = duplicate.Spellcasting?.PrimarySpellcastingSource.GetSpellSaveDC();
+
             duplicate.RemoveAllQEffects(qf => qf.Key == "SpinnerOfLiesLoadout");
 
             var rand = guaranteeMelee ? 0 : R.Next(0, 4);
@@ -103,19 +103,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     Key = "SpinnerOfLiesLoadout",
                     ProvideMainAction = self => {
                         return (ActionPossibility)new CombatAction(self.Owner, Illustrations.SceptreOfTheSpider, "Nightmare Pulse", [ Trait.Spell, Trait.SpecialAbility, Trait.Enchantment, Trait.Fear, Trait.Mental ],
-                            "All enemies within a 15 foot emanation must make a Will save against the Spinner of Lies' spell DC. On a failure, they gain frightened 1. " +
-                            "If they're already frightened, they instead suffer 1d10 mental damage per level of frightened. On a critical failure, they gain frightened 2 or suffer double damage instead.", Target.EnemiesOnlyEmanation(3))
+                            "All enemies within a 15 foot emanation must make a Will save against the Spinner of Lies' spell DC. On a failure, they gain frightened 2. " +
+                            "If they're already frightened, they instead suffer 1d12 mental damage per level of frightened. On a critical failure, they gain frightened 3 or suffer double damage instead.", Target.EnemiesOnlyEmanation(3))
                         .WithActionCost(2)
                         .WithGoodnessAgainstEnemy((_, a, d) => a.HasEffect(QEffectId.Frightened) ? a.GetQEffectValue(QEffectId.Frightened) * 5.5f : a.AI.Fear(d) / 2)
-                        .WithSpellSavingThrow(Defense.Will)
+                        .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.Spellcasting?.PrimarySpellcastingSource.GetSpellSaveDC() ?? 0))
                         .WithSoundEffect(SfxName.Fear)
                         .WithProjectileCone(IllustrationName.Fear, 15, ProjectileKind.Cone)
                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                             if (result < CheckResult.Success) {
                                 if (target.HasEffect(QEffectId.Frightened))
-                                    await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, target.GetQEffectValue(QEffectId.Frightened) + "d10", DamageKind.Mental);
+                                    await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, target.GetQEffectValue(QEffectId.Frightened) + "d12", DamageKind.Mental);
                                 else
-                                    caster.AddQEffect(QEffect.Frightened(2 - (int)result).WithSourceAction(spell));
+                                    target.AddQEffect(QEffect.Frightened(3 - (int)result).WithSourceAction(spell));
                             }
                         });
                     }

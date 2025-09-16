@@ -170,7 +170,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             } else if (new string[] { "psychic", "witch", "bard", "sorcerer", "wizard", "cleric", "druid", "oracle", "necromancer", "animist", "witchwarper" }.Contains(className)) {
                 // Full caster
                 weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon)).ToList();
-                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
             } else if (new string[] { "monk", "shifter", }.Contains(className)) {
                 // unarmed
                 weaponTable = itemList.Where(item => item.Name.Contains("handwraps of mighty blows")).ToList();
@@ -184,7 +184,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
                 weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon))).ToList();
-                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && levelRange(item.Level))).ToList();
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList();
             } else if (new string[] { "kineticist", }.Contains(className)) {
                 if (character.CarriedItems.Where(i => i.ItemName == ItemName.GateAttenuator).Count() == 0) {
                     weaponTable = itemList.Where(item => item.HasTrait(Trait.Kineticist)).ToList();

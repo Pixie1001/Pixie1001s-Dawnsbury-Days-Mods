@@ -1,4 +1,8 @@
-﻿namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
+﻿using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Modding;
+
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -45,6 +49,11 @@
             ALCHEMIST,
             Chest
         }*/
+
+        internal enum WandType {
+            DARKSTEEL,
+            RELIABLE
+        }
 
         internal enum ObjectId
         {

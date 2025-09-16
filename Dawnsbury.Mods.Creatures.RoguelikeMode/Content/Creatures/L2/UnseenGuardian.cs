@@ -63,9 +63,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
                         });
 
-                        foreach (Creature player in party) {
+                        foreach (Creature player in party)
+                        {
                             self.Owner.DetectionStatus.HiddenTo.Add(player);
-                            self.Owner.DetectionStatus.UndetectedTo.Add(player);
+                            //self.Owner.DetectionStatus.UndetectedTo.Add(player);
                         }
                         self.Owner.DetectionStatus.Undetected = true;
 

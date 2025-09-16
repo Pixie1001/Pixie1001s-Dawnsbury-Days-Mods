@@ -91,7 +91,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static QEffectId RatPlague { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_RatPlague");
         internal static QEffectId Exhausted { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Exhausted");
         internal static QEffectId SigbinStenchImmunity { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_SigbinStenchImmunity");
-        internal static QEffectId Parry { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_Parry");
+        internal static QEffectId Parry { get; private set; }
         internal static QEffectId SerpentVenom { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_SerpentVenom");
         internal static QEffectId ShootingStarStance { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ShootingStarStance");
         internal static QEffectId MonasticArcherStance { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MonasticArcherStance");
@@ -101,9 +101,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static QEffectId ImpendingPandemonium { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_ImpendingPandemonium");
         internal static QEffectId BlessedOfEchidna { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_BlessedOfEchidna");
         internal static QEffectId MonstrousGift { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MonstrousGift");
+        internal static QEffectId MaenadForm { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_MaenadForm");
+        internal static QEffectId HydraStumps { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_HydraStumps");
+        internal static QEffectId HydraHeads { get; } = ModManager.RegisterEnumMember<QEffectId>("RL_HydraHeads");
 
         // Tile Effects IDs
         internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");
         internal static TileQEffectId Maelstrom { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Maelstrom");
+
+        public static void RegisterConflictedIds() {
+            Parry = ModManager.TryParse("Parry", out QEffectId parry) ? parry : ModManager.RegisterEnumMember<QEffectId>("Parry");
+        }
     }
 }

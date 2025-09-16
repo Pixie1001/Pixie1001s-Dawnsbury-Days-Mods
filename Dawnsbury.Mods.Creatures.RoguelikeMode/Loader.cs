@@ -105,6 +105,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             Harmony.DEBUG = false;
             harmony.PatchAll();
 
+            ActionIds.RegisterConflictedIds();
+            QEffectIds.RegisterConflictedIds();
             CustomItems.LoadItems();
             CreatureList.LoadCreatures();
             CreatureList.LoadObjects();

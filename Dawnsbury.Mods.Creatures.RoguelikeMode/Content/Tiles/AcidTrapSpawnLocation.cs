@@ -35,7 +35,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         private const int DC = 16;
 
         public static (string, Func<Tile, Encounter?, TileQEffect>) Create() {
-            return ("Trip Wire Spawn Location", (tile, encounter) => {
+            return ("Acid Trap Spawn Location", (tile, encounter) => {
                 var trap = CommonTraps.CreateBasicTrap(tile, "Acidic Spray Trap", IllustrationName.TrapOfAcidicSpray, 20, "When a creature steps on the pressure plate, the trap casts a 3rd-level {i}acid arrow{/i} on the creature (spell attack +12; 3d8 acid damage). An adjacent creature can {icon:TwoActions} disable the trap with a DC 18 Thievery check.");
 
                 async Task SendAcidArrowAgainst(Creature enterer) {
@@ -51,6 +51,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 CommonTraps.AddDoNotStepHere(trap);
                 CommonTraps.AddWhenCreatureEnters(trap, SendAcidArrowAgainst, (enterer) => !enterer.HasEffect(QEffectId.Flying));
                 CommonTraps.AddDisableDeviceOption(trap, 18, SendAcidArrowAgainst);
+
+                trap.AfterDamageIsDealtHereAsync = async dmg => { };
 
                 trap.StateCheck += self => {
                     if (self.AfterDamageIsDealtHereAsync == null) return;

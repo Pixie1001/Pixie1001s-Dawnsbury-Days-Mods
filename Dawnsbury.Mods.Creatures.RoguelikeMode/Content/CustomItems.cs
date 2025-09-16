@@ -60,6 +60,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class CustomItems {
 
+        public static ItemGreaterGroup ItemGroupWands { get; } = ModManager.RegisterEnumMember<ItemGreaterGroup>("Wands");
+        // public static ItemGreaterGroup ItemGroupRoguelikeMagicWeapons { get; } = ModManager.RegisterEnumMember<ItemGreaterGroup>("Roguelike magic weapons");
+        public static ItemGreaterGroup ItemGroupRoguelikeMagicArmour { get; } = ModManager.RegisterEnumMember<ItemGreaterGroup>("Roguelike magic armour");
+        public static ItemGreaterGroup ItemGroupRoguelikeMagicItem { get; } = ModManager.RegisterEnumMember<ItemGreaterGroup>("Roguelike magic items");
+
         //public static List<ItemName> items = new List<ItemName>();
 
         //public static ItemName TestItem { get; } = ModManager.RegisterNewItemIntoTheShop("TEST", itemName => new Item(itemName, Illustrations.DuelingSpear, "TEST", 0, 2,
@@ -107,8 +112,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 if (wielder.QEffects.Any(qf => qf.Id == QEffectIds.Parry && qf.Tag == wpn)) return null!;
 
                 return (ActionPossibility)new CombatAction(wielder, new SideBySideIllustration(Illustrations.Parry, wpn.Illustration), $"Parry ({item.Name})", [], "You raise your weapon to parry oncoming attacks, granting yourself a +1 circumstance bonus to AC.", Target.Self())
+                .WithDescription("You position your weapon defensively.",
+                    "{b}Requirements{/b} You are wielding this weapon, and your proficiency with it is trained or better.\n\nYou gain a +1 circumstance bonus to AC until the start of your next turn.")
                 .WithSoundEffect(SfxName.RaiseShield)
                 .WithActionCost(1)
+                .WithItem(wpn)
                 .WithEffectOnSelf(you => {
                     you.AddQEffect(new QEffect("Parrying with " + item.Name, "You have a +1 circumstance bonus to AC.", ExpirationCondition.ExpiresAtStartOfYourTurn, you, Illustrations.Parry) {
                         Id = QEffectIds.Parry,
@@ -130,10 +138,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 wielder.AddQEffect(new QEffect() {
                     ExpiresAt = ExpirationCondition.Ephemeral,
-                    YouDealDamageWithStrike = (self, action, damage, defender) => {
-                        if (action == null || !action.HasTrait(ModTraits.Twin) || action.Item != item) return damage;
-                        if (self.Owner.Actions.ActionHistoryThisTurn.Any(a => a.HasTrait(Trait.Strike) && a.Item?.ItemName == action.Item.ItemName && a.Item != action.Item)) return damage.Add(DiceFormula.FromText($"{action?.Item?.WeaponProperties?.DamageDieCount}", "Twin"));
-                        return damage;
+                    BonusToDamage = (self, action, defender) => {
+                        if (action == null || !action.HasTrait(ModTraits.Twin) || action.Item != item) return null;
+                        if (self.Owner.Actions.ActionHistoryThisTurn.Any(a => a.HasTrait(Trait.Strike) && a.Item?.ItemName == action.Item.ItemName && a.Item != action.Item))
+                            return new Bonus(action.Item.WeaponProperties?.DamageDieCount ?? 0, BonusType.Circumstance, "Twin");
+                        return null;
                     }
                 });
             };
@@ -164,6 +173,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 60,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithMainTrait(Trait.Whip)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
                 ItemBonus = 1,
             }
@@ -190,6 +201,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, IllustrationName.Whip, "greater scourge of fangs", 7, 360,
                 new Trait[] { Trait.Magical, Trait.SpecificMagicWeapon, Trait.Finesse, Trait.Reach, Trait.Flail, Trait.Trip, Trait.Simple, Trait.Disarm, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithMainTrait(Trait.Whip)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("2d4", DamageKind.Slashing) {
                 ItemBonus = 1,
             }
@@ -216,6 +229,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 4, 30,
                 Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.Forceful, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
                 .WithAdditionalDamage("1d4", DamageKind.Good)
             );
@@ -293,6 +308,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 4, 30,
                 Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Dagger)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}An illustrious dagger, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this dagger, you gain Regeneration 4.")
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing)
                 .WithAdditionalDamage("1d4", DamageKind.Good)
@@ -314,6 +331,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 3, 40,
                 Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
             .WithMainTrait(Trait.Halberd)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This jagged halberd's haft is adorned with spidery webs for added grip.{/i}\n\nThe spiderdy halberd deals +1d4 poison damage, and can be used to fire pinning webs at your enemies, with an escape DC equal to the higher of your class or spell DC.")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
                 .WithAdditionalDamage("1d4", DamageKind.Poison)
@@ -391,6 +410,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.SceptreOfTheSpider, "sceptre of the spider", 2, 35,
                 new Trait[] { Trait.Magical, Trait.WizardWeapon, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This esoteric sceptre appears to have been forged from within the demonic lair of the spider queen herself.{/i}\n\n" +
             "While wielding the sceptre, you can use the 'Shoot Web' action once per encounter.\n\n" +
             "{b}Range{/b} 30 feet\n\n{b}Target{/b} 1 enemy\n\nMake a ranged attack roll against the target. On a hit, the target is immobilized by a web trap, sticking them to the nearest surface. They must use the Escape action vs. DC 15 + your level to free themselves.");
@@ -474,6 +495,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.SceptreOfPandemonium, "sceptre of pandemonium", 8, 415,
                 new Trait[] { Trait.Magical, Trait.WizardWeapon, Trait.SpecificMagicWeapon, Trait.Agile, Trait.Club, Trait.Simple, Trait.Finesse, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This gaudy jewled sceptre is legended to have passed int othe treasure troves of many a would be ruler of Our Point of Light... Each undone at the hands of rioting mobs after their kingdoms collapsed in anarchy.{/i}\n\n" +
             $"Once per encounter, the rod can be used to cast {AllSpells.CreateModernSpellTemplate(SpellId.Confusion, Trait.Innate).ToSpellLink()} with a DC of 21 or the wielder's spell save DC if its higher.");
 
@@ -545,6 +568,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.CloakOfDuplicity, "cloak of duplicity", 8, 415,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Illusion, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Cloak)
+            .WithItemGroup("Roguelike mode")
             .WithOnCreatureWhenWorn((item, wearer) => {
                 wearer.AddQEffect(new QEffect() {
                     StartOfCombat = async self => {
@@ -584,6 +608,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     BonusToDefenses = (self, action, defence) => defence != Defense.AC && action?.Owner != null && action.Owner.Traits.Any(t => (t == Trait.Beast || t == Trait.Animal || t == ModTraits.Monstrous) && t != Trait.Celestial) ? new Bonus(2, BonusType.Item, "ring of monsters") : null
                 });
             })
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}A ring fashioned by a high priestess of the Echidna to aid them in their monster conservation efforts.{/i}\n\n" +
             "While wearing this ring, you gain a +2 item bonus to all saving throws against non-celestial beasts, animals and foes of a monstrous nature.");
 
@@ -594,6 +619,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.StaffOfSpellPenetration, "staff of spell penetration", 2, 40,
                 new Trait[] { Trait.Magical, Trait.Club, Trait.Simple, Trait.WizardWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Staff)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning))
             .WithDescription("{i}These ancient staves were said to be forged by surface elves during their schism with the Drow, allowing their great wizards to overcome their dark cousin's shadowy tolerance to spellwork.{/i}\n\n" +
             "While wielding this staff, your spells ignore spell resistance and the bonus to saves against mental spells possessed by Drow.");
@@ -613,6 +639,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
             Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.{/i}\n\n" +
             "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.\n\n" +
             "After using the amulet in this way, it cannot be used again until you recharge its magic as an {icon:Action} action.");
@@ -685,6 +712,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
                 new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Firearm, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, Trait.RogueWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(ModTraits.Hexshot)
+            .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing).WithRangeIncrement(8))
             .WithDescription("{i}This worn pistol is etched with malevolent purple runes that seem to glow brightly in response to spellcraft, loading the weapon's strange inscribed ammunition with power.{/i}\n\n" +
             "After the wielder expends a spell slot, the Hexshot becomes charged, gaining a +2 status bonus to hit, and dealing additional force damage equal to twice the level of the slot used.");
@@ -736,6 +765,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.SerpentineBow, "serpentine bow", 3, 25,
                 new Trait[] { Trait.Magical, Trait.Propulsive, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.CompositeShortbow)
+            .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
             .WithRangeIncrement(12))
             .WithDescription("{i}This lethal bow is engraved into the shape of a pair of two entwined brass serpents, that seem to lend a portion of their potency venom to each arrow nocked within it.{/i}\n\n...");
@@ -751,6 +782,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.MedusaEyeChoker, "medusa eye choker", 7, 360,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Transmutation, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
+            .WithItemGroup("Roguelike mode")
             .WithOncePerDayWhenWornAction((choker, wearer) => {
                 return new CombatAction(wearer, choker.Illustration, "Petrify", [Trait.Arcane, Trait.Transmutation, Trait.Visual, Trait.Manipulate, Trait.InflictsSlow, Trait.Incapacitation, Trait.Basic],
                     "{b}Frequency{/b} Once per day\n{b}Range{/b} 30 feet\n{b}Target{/b} 1 creature\n{b}Saving throw{/b} Fortitude\n\n" +
@@ -782,6 +814,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 new Trait[] { Trait.Magical, Trait.Martial, Trait.Sword, Trait.Fire, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike
             })
             .WithMainTrait(Trait.Longsword)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
             .WithDescription("{i}Smoke constantly belches from this longsword.{/i}\n\nAny hit with this sword deals 1 extra fire damage.\n\n" +
             "You can use a special action while holding the sword to command the blade's edges to light on fire.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
@@ -794,6 +827,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.Warhammer), "storm hammer", 3, 25,
                 new Trait[] { Trait.Magical, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Warhammer)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Bludgeoning))
             .WithDescription("{i}Sparks of crackling electricity arc from this warhammer, and the head thrums with distant thunder.{/i}\n\nAny hit with this hammer deals 1 extra electricity damage.\n\n" +
             "You can use a special action while holding the hammer to transform the sparks into lightning bolts.\n\n{b}Activate {icon:Action}.{/b} concentrate; {b}Effect.{/b} Until the end" +
@@ -806,6 +840,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.ChillwindBow, "chillwind bow", 3, 25,
                 new Trait[] { Trait.Magical, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.Cold, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Shortbow)
+            .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
             .WithRangeIncrement(12))
             .WithDescription("{i}The yew of this bow is cold to the touch, and its arrows pool with fog as they're nocked.{/i}\n\nAny hit with this bow deals 1 extra cold damage.\n\n" +
@@ -819,6 +855,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.HeavyCrossbow), "sparkcaster", 3, 25,
                 new Trait[] { Trait.Magical, Trait.Reload2, Trait.Simple, Trait.Bow, Trait.TwoHanded, Trait.Crossbow, Trait.WizardWeapon, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.HeavyCrossbow)
+            .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing)
             .WithRangeIncrement(24))
             .WithDescription("{i}Sparks of crackling electricity arc from this crossbow.{/i}\n\nAny hit with this crossbow deals 1 extra electricity damage.\n\n" +
@@ -877,6 +915,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.AcidArrow, IllustrationName.HandCrossbow), "viper's spit", 3, 25,
                 new Trait[] { Trait.Magical, Trait.Reload1, Trait.Simple, Trait.Bow, Trait.Crossbow, Trait.RogueWeapon, Trait.Acid, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.HandCrossbow)
+            .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
             .WithRangeIncrement(24))
             .WithDescription("{i}This viper shaped handcrossbow hisses and sizzles against the air.{/i}\n\nAny hit with this crossbow deals 1 extra acid damage.\n\n" +
@@ -939,6 +979,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.SpiderChopper, "spider chopper", 3, 25,
                                new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.BattleAxe)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Slashing))
             .WithDescription("{i}An obsidian cleaver, erodated down to a brutal jagged edge by acidic spittle. The weapon seems to shifting and throb when in the presence of spiders.{/i}\n\n" +
             "The Spider Chopper deals +1d6 damage slashing damage to spiders.");
@@ -965,6 +1007,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.Widowmaker, "widowmaker", 3, 25,
                                new Trait[] { Trait.Magical, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Dagger)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing))
             .WithDescription("{i}A wicked looking dagger, with a small hollow at the tip of the blade, from which a steady supply of deadly poison drips.{/i}\n\nAttacks made against flat footed creatures using this dagger expose them to spider venom.");
 
@@ -991,6 +1035,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, IllustrationName.Rapier, "flashing rapier", 3, 25,
                                new Trait[] { Trait.Magical, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Rapier)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing))
             .WithDescription("{/i}A brilliant sparkling rapier, that causes the light to bend around its blade in strange prismatic patterns.{/i}" +
             "\n\nThe flashing rapier dazzles enemies on a crit, and can be activated {icon:Action} once per day to flash forward in a swirl of light, appearing in a new location 40ft away.");
@@ -1040,6 +1086,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.HungeringBlade, "hungering blade", 3, 25,
                 new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
             .WithMainTrait(Trait.Greatsword)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d12", DamageKind.Slashing))
             .WithDescription("{i}A sinister greatsword made from cruel black steel and an inhospitable grip dotted by jagged spines. No matter how many times the blade is cleaned, it continues to ooze forth a constant trickle of blood.{/i}\n\n" +
             "The hungering blade causes its wielder to suffer 1d8 persistent bleed damage at the start of each turn, but deals an additional 1d4 negative damage on a hit. In addition, after felling an enemy with the blade, the wielder gains 5 temporary hit points.");
@@ -1076,6 +1124,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName WebwalkerArmour { get; } = ModManager.RegisterNewItemIntoTheShop("Webwalker Armour", itemName => {
             return new Item(itemName, Illustrations.WebWalkerArmour, "webwalker armour", 2, 35,
                 new Trait[] { Trait.Magical, Trait.LightArmor, Trait.Leather, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(2, 3, -1, 0, 12))
             .WithDescription("{i}Flexible jetblack armour of dark elven make, sewn from some exotic underdark silk.{/i}\n\nThe wearer of this armour may pass through webs unhindered.");
         });
@@ -1083,6 +1132,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName KrakenMail { get; } = ModManager.RegisterNewItemIntoTheShop("Kraken Mail", itemName => {
             return new Item(itemName, Illustrations.KrakenMail, "kraken mail", 2, 35,
                 new Trait[] { Trait.Magical, Trait.MediumArmor, Trait.Leather, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(4, 1, -2, 1, 16))
             .WithDescription("{i}The eyes on this briny chitin armour blink periodically.{/i}\n\nThe wearer of this armour gains a swim speed, and a +2 status bonus to grapple rolls while submerged in water.");
         });
@@ -1090,6 +1140,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName RobesOfTheWarWizard { get; } = ModManager.RegisterNewItemIntoTheShop("Robes of the War Wizard", itemName => {
             return new Item(itemName, Illustrations.RobesOfTheWarWizard, "robes of the war wizard", 2, 35,
                 new Trait[] { Trait.Magical, Trait.UnarmoredDefense, Trait.Armor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
             .WithDescription("{i}This bold red robe is enchanted to collect neither sweat, dust nor grime.{/i}\n\nThe wearer of this armour gains a +2 damage bonus per spell level to non-cantrip cone and emanation spells used against creatures within 15-feet of them.\n\nIn addition, they gain resistance 1 to acid, cold, electricity and fire damage.");
         });
@@ -1097,6 +1148,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName GreaterRobesOfTheWarWizard { get; } = ModManager.RegisterNewItemIntoTheShop("Greater Robes of the War Wizard", itemName => {
             return new Item(itemName, Illustrations.RobesOfTheWarWizard, "greater robes of the war wizard", 4, 90,
                 new Trait[] { Trait.Magical, Trait.UnarmoredDefense, Trait.Armor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
             .WithDescription("{i}This bold red robe is enchanted to collect neither sweat, dust nor grime.{/i}\n\nThe wearer of this armour gains a +3 damage bonus per spell level to non-cantrip cone and emanation spells used against creatures within 15-feet of them.\n\nIn addition, they gain resistance 2 to acid, cold, electricity and fire damage.");
         });
@@ -1104,6 +1156,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName WhisperMail { get; } = ModManager.RegisterNewItemIntoTheShop("Whisper Mail", itemName => {
             return new Item(itemName, Illustrations.WhisperMail, "whisper mail", 2, 35,
                 new Trait[] { Trait.Magical, Trait.MediumArmor, Trait.Chain, Trait.MetalArmor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(4, 1, -2, 1, 16))
             .WithDescription("{i}This ominous armour set whispers incessantly into the wearer's ears... Revealing profound and disturbing secrets.{/i}\n\nThe wearer of this armour imposes weakness 1 to all physical damage against adjacent enemies, and a +1 item bonus to Seek checks.");
         });
@@ -1111,6 +1164,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName DreadPlate { get; } = ModManager.RegisterNewItemIntoTheShop("Dread Plate", itemName => {
             return new Item(itemName, Illustrations.DreadPlate, "dread plate", 3, 70,
                 new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
             .WithDescription("{i}This cold, black steel suit of plate armour radiates a spiteful presence, feeding off its wearer's own lifeforce to strike at any who would dare mar it.{/i}\n\nWhile wearing this cursed armour, you take an additional 1d4 negative damage when damaged by an adjacent creature, but deal 1d6 negative damage in return.");
         });
@@ -1118,6 +1172,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName SpellbanePlate { get; } = ModManager.RegisterNewItemIntoTheShop("Spellbane Plate", itemName => {
             return new Item(itemName, Illustrations.SpellbanePlate, "spellbane plate", 3, 70,
                 new Trait[] { Trait.Magical, Trait.HeavyArmor, Trait.Bulwark, Trait.Plate, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(6, 0, -3, -2, 18))
             .WithDescription("{i}This suit of armour is forged from a strange, mercurial alloy - perhaps a lost relic forged by dwarven smithes during the height of the starborn invasion.{/i}" +
             "\n\nWhile wearing this suit of armour, you gain a +1 item bonus to all spell saving throws, but cannot cast spells of your own.");
@@ -1126,6 +1181,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName DolmanOfVanishing { get; } = ModManager.RegisterNewItemIntoTheShop("Dolman of Vanishing", itemName => {
             return new Item(itemName, Illustrations.DolmanOfVanishing, "dolman of vanishing", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Armor, Trait.UnarmoredDefense, Trait.Cloth, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithArmorProperties(new ArmorProperties(0, 5, 0, 0, 0))
             .WithDescription("{i}A skyblue robe of gossmer, that seems to evade the beholder's full attention span, no matter how hard they try to focus on it.{/i}\n\nThe wearer of this cloak gains a +2 item bonus to stealth and can hide in plain sight.");
         });
@@ -1133,6 +1189,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName MaskOfConsumption { get; } = ModManager.RegisterNewItemIntoTheShop("Mask of Consumption", itemName => {
             return new Item(itemName, Illustrations.MaskOfConsumption, "mask of consumption", 2, 30,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithWornAt(Trait.Mask)
             .WithDescription("{i}This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.{/i}\n\n" +
             "The wearer of this mask has their Max HP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and finesse properties. " +
@@ -1172,6 +1229,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return new Item(itemName, new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "spider hatchling", 3, 45,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.AnimalCompanion)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
             "If you do not already have a battle ready animal companion, you gain a unique Spider Hatchling to fight at your side, that's otherwise functional identically to the Animal Companion class feat.\n\nIf the spider hatchling dies in battle, it cannot aid the party until it has time to heal during the next long rest.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
@@ -1391,6 +1449,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return new Item(itemName, Illustrations.SpiritBeaconAmulet, "death drinker amulet", 2, 35,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This eerie necklace seems to feed off necrotic energy, storing it within its amethyst gems for some unknowable purpose.{/i}\n\n" +
             "While wearing this necklace, you gain resist Negative 3")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
@@ -1404,6 +1463,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return new Item(itemName, Illustrations.SpiritBeaconAmulet, "greater death drinker amulet", 4, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This eerie necklace seems to feed off necrotic energy, storing it within its amethyst gems for some unknowable purpose.{/i}\n\n" +
             "While wearing this necklace, you gain resist Negative 7")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
@@ -1417,6 +1477,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return new Item(itemName, Illustrations.SpiritBeaconAmulet, "spirit beacon amulet", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This skull shaped necklace is cold to the touch.{/i}\n\n" +
             "You have a +1 item bonus to Occultism.\n\n" +
             "Once per day, as an {icon:Action}action, you can use the amulet to guide a restless spirit towards an unoccupied space within 30 feet. Restless spirits unnerve adjacent creatures and may be interacted with for additional benefits.")
@@ -1442,6 +1503,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName DemonBoundRing { get; } = ModManager.RegisterNewItemIntoTheShop("DemonBoundRing", itemName => {
             return new Item(itemName, Illustrations.DemonBoundRing, "demon bound ring", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
             "While wearing this ring, you gain a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
@@ -1564,6 +1626,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName GreaterDemonBoundRing { get; } = ModManager.RegisterNewItemIntoTheShop("GreaterDemonBoundRing", itemName => {
             return new Item(itemName, Illustrations.DemonBoundRing, "greater demon bound ring", 7, 360,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithDescription("{i}Upon slipping on this ominous looking ring, incessant whispers fill your head, whispering arcane secrets and begging you to let it out.{/i}\n\n" +
             "While wearing this ring, you gain a +1 item bonus to arcana checks, and may use the Unleash Demon {icon:ThreeActions} action once per day.")
             .WithItemAction((item, user) => {
@@ -1695,6 +1758,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName HornOfTheHunt { get; } = ModManager.RegisterNewItemIntoTheShop("Horn of the Hunt", itemName => {
             return new Item(itemName, Illustrations.HornOfTheHunt, "horn of the hunt", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Conjuration, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithWornAt(Trait.Necklace)
             .WithDescription("{i}This ancient bone hunting horn is carved into the likeness of a snarling wolf, and seems possessed of some strange primal magic.{/i}\n\n" +
             "You have a +1 item bonus to Nature.\n\n" +
@@ -1797,6 +1861,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName ShifterFurs { get; } = ModManager.RegisterNewItemIntoTheShop("Shifter Furs", itemName => {
             return new Item(itemName, Illustrations.ShifterFurs, "shifter furs", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Transmutation, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithWornAt(Trait.Cloak)
             .WithDescription("{i}This haggard fur cloak is has a musky, feral smell to it and seems to pulsate warmly... as if it were not simply a cloak, but the flesh of a living, breathing thing.{/i}\n\n" +
             "You have a +2 item bonus to Demoralize check made against animals, and gain the benefits of the Intimidating Glare feat.\n\n" +
@@ -1933,6 +1998,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName CloakOfAir { get; } = ModManager.RegisterNewItemIntoTheShop("Cloak of Air", itemName => {
             return new Item(itemName, Illustrations.CloakOfAir, "cloak of air", 3, 60,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Evocation, Trait.Elemental, Trait.Air, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
             .WithWornAt(Trait.Cloak)
             .WithDescription("This swooshing cloak seems to be perpetually billowing in the wind. While donned, it grants the wear several benefits.\n• The wearer of this cloak may dramatically swoosh it about, to send a blade of air at their enemies for 1d8 damage, 20ft range.\n• When you Leap while wearing this cloak, you increase the distance you can jump horizontally by 5 feet. {i}(This stacks with the Powerful Leap feat, but not other items){/i}\n• Kineticists wearing this cloak deal +2 damage with their air impulses.")
             .WithItemAction((item, user) => {
@@ -1961,7 +2027,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 40,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
-            // TODO: Add description
+            .WithItemGroup("Roguelike mode")
             .WithDescription("These matching amulets link the lifeforce of those who wear them, allowing them to freely claw away the vitality of the paired wearer for themselves.\n\n" +
             "{b}Life Transfer {icon:FreeAction}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
             .WithItemAction((item, user) => {
@@ -1995,7 +2061,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             List<ItemName> items = new List<ItemName>() { Javelin, RingOfMonsters, RunestoneOfOpportunism, RunestoneOfMirrors, CloakOfDuplicity, RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
-            // Wands
+            // Roguelike Wands
             CreateWand(SpellId.Fireball, null);
             CreateWand(SpellId.Bless, null);
             CreateWand(SpellId.Boneshaker, null);
@@ -2039,10 +2105,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             CreateWand(SpellId.ConeOfCold, null);
             CreateWand(SpellId.CrushingDespair, null);
             CreateWand(SpellId.FlameStrike, null);
-            CreateWand(SpellId.Dominate, null, false);
+            CreateWand(SpellId.Dominate, null);
             CreateWand(SpellId.Geyser, null);
-            CreateWand(SpellId.HealingWell, null, false);
+            CreateWand(SpellId.HealingWell, null);
             //CreateWand(SpellLoader.LesserDominate, null, false);
+
+            foreach (var spell in AllSpells.All.Where(sp =>
+                !sp.HasTrait(Trait.Cantrip)
+                && !sp.HasTrait(Trait.Focus)
+                && !sp.HasTrait(Trait.Uncommon)
+                && sp.CombatActionSpell.ActionCost != Constants.ACTION_COST_REACTION
+            )) {
+                CreateWand(spell.SpellId, null, WandType.RELIABLE);
+                if (spell.CombatActionSpell.Heightening != null || spell.HasTrait(Trait.Incapacitation)) {
+                    for (int i = spell.MinimumSpellLevel + 1; i <= 10; i++) {
+                        if (spell.CombatActionSpell.Heightening?.HeightensAtLevel[i] ?? false || spell.HasTrait(Trait.Incapacitation)) {
+                            CreateWand(spell.SpellId, i, WandType.RELIABLE);
+                        }
+                    }
+                }
+            }
 
             // Item QEffects
 
@@ -2423,6 +2505,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                 }
                                             }
                                         }
+                                    },
+                                    EndOfCombat = async (self, won) => {
+                                        if (wand.HasTrait(ModTraits.ReliableWand))
+                                            wand.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
                                     }
                                 });
                             }
@@ -2432,7 +2518,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             });
         }
 
-        internal static ItemName CreateWand(SpellId spellId, int? level, bool baseGame = true) {
+        internal static ItemName CreateWand(SpellId spellId, int? level, WandType type = WandType.DARKSTEEL) {
             Spell baseSpell = AllSpells.TemplateSpells.GetValueOrDefault(spellId);
 
             if (baseSpell == null) return ItemName.None;
@@ -2449,24 +2535,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             List<Trait> traits = new List<Trait> { ModTraits.Wand, Trait.Magical, Trait.Unarmed, Trait.Melee, Trait.SpecificMagicWeapon, ModTraits.Roguelike };
 
-            if (!baseGame)
-                traits.Add(Trait.DoNotAddToCampaignShop);
-
             foreach (Trait trait in baseSpell.Traits) {
                 if (new Trait[] { Trait.Divine, Trait.Occult, Trait.Arcane, Trait.Primal, Trait.Elemental }.Contains(trait)) {
                     traits.Add(trait);
                 }
             }
 
-            string name = level == baseSpell.MinimumSpellLevel ? $"wand of {baseSpell.Name.ToLower()}" : $"wand of level {level} {baseSpell.Name.ToLower()}";
-            string desc = "Allows the wielder to cast {i}" + AllSpells.CreateModernSpellTemplate(spellId, Trait.None).ToSpellLink() + "{/i} once per day.";
+            string prefix = "";
+            string desc = "";
+            int itemLevel = 0;
+
+            if (type == WandType.DARKSTEEL) {
+                traits.Add(Trait.DoNotAddToCampaignShop);
+                traits.Add(ModTraits.Darksteel);
+                prefix = "darksteel";
+                desc = "{/i}Said to be forged using the sinister workings of Drow magi, these sinister wands function only in the sunless caverns of the Below.{i}\n\n" +
+                    "Allows the wielder to cast {i}" + AllSpells.CreateModernSpellTemplate(spellId, Trait.None).ToSpellLink() + "{/i} once per day." +
+                    "\n\nIn addition, you can overcharge the wand to cast this spell a second time. However, doing so has a 50% chance to permanantly destroy this item.";
+                itemLevel = (int)level * 2 - 1;
+            }
+
+            if (type == WandType.RELIABLE) {
+                prefix = "reliable";
+                traits.Add(ModTraits.ReliableWand);
+                desc = "Allows the wielder to cast {i}" + AllSpells.CreateModernSpellTemplate(spellId, Trait.None).ToSpellLink() + "{/i} once per encounter. " +
+                    "\n\nIn addition, you can overcharge the wand to cast this spell a second time. However, doing so has a 50% chance to permanantly destroy this item.";
+                itemLevel = ((int)level + 1) * 2 - 1;
+            }
+
+            string name = level == baseSpell.MinimumSpellLevel ? $"{prefix} wand of {baseSpell.Name.ToLower()}" : $"{prefix} wand of level {level} {baseSpell.Name.ToLower()}";
+            // string desc = "Allows the wielder to cast {i}" + AllSpells.CreateModernSpellTemplate(spellId, Trait.None).ToSpellLink() + "{/i} once per day.";
             Illustration illustration = new WandIllustration(baseSpell.Illustration, Illustrations.Wand);
 
-            return ModManager.RegisterNewItemIntoTheShop($"WandOf{baseSpell.Name}Lv{level}", itemName => {
-                return new Item(itemName, illustration, name, (int)level * 2 - 1, GetWandPrice((int)level * 2 - 1), traits.ToArray())
-               .WithDescription(desc)
-               .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
-               .WithModification(mod);
+            return ModManager.RegisterNewItemIntoTheShop($"{(prefix == "darksteel" ? "" : prefix)}WandOf{baseSpell.Name}Lv{level}", itemName => {
+                return new Item(itemName, illustration, name, itemLevel, GetWandPrice(itemLevel, type), traits.ToArray())
+                .WithItemGreaterGroup(ItemGroupWands)
+                .WithItemGroup($"Level {level} {prefix} wands")
+                .WithDescription(desc)
+                .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
+                .WithModification(mod);
             });
         }
 
@@ -2477,29 +2584,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return null;
         }
 
-        private static int GetWandPrice(int level) {
-            //switch (level) {
-            //    case 1:
-            //        return 20;
-            //    case 2:
-            //        return 30;
-            //    case 3:
-            //        return 60;
-            //    case 4:
-            //        return 100;
-            //    case 5:
-            //        return 160;
-            //    case 6:
-            //        return 200;
-            //    case 7:
-            //        return 360;
-            //    case 8:
-            //        return 500;
-            //    case 9:
-            //        return 700;
-            //    default:
-            //        return 0;
-            //}
+        private static int GetWandPrice(int level, WandType type) {
+
+            if (type == WandType.RELIABLE) {
+                var mod = 0.5f;
+                switch (level) {
+                    case 3:
+                        return (int)(60 * mod);
+                    case 5:
+                        return (int)(160 * mod);
+                    case 7:
+                        return (int)(360 * mod);
+                    case 9:
+                        return (int)(700 * mod);
+                    case 11:
+                        return (int)(1500 * mod);
+                    case 13:
+                        return (int)(3000 * mod);
+                    case 15:
+                        return (int)(6500 * mod);
+                    case 17:
+                        return (int)(15000 * mod);
+                    case 19:
+                        return (int)(40000 * mod);
+                    default:
+                        return 0;
+                }
+            }
+
             switch (level) {
                 case 1:
                     return 15;

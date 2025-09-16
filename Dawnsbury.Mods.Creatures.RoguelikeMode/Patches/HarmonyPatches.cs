@@ -499,6 +499,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 return;
             }
 
+            //if (item.HasTrait(ModTraits.Darksteel)) {
+            //    Func<Item, bool> carried = (Func<Item, bool>)__instance.GetType()?.GetProperty("Carried", BindingFlags.Instance | BindingFlags.Public)?.GetValue(__instance);
+            //    __result = carried!(item);
+            //}
+
             if (item.ItemName == CustomItems.StaffOfSpellPenetration) {
                 Func<Item, bool> carried = (Func<Item, bool>)__instance.GetType()?.GetProperty("Carried", BindingFlags.Instance | BindingFlags.Public)?.GetValue(__instance);
                 __result = carried!(item);
