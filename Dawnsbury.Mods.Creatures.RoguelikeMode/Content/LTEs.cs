@@ -32,15 +32,19 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Display;
 using Dawnsbury.Core.StatBlocks.Monsters.L_1;
 using System;
+using Dawnsbury.Display.Notifications;
+using Microsoft.Xna.Framework.Audio;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using Dawnsbury.Core.Mechanics.Damage;
+using Microsoft.Xna.Framework.Graphics;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class LTEs {
 
-        internal enum ColosseumFeat
-        {
+        internal enum ColosseumFeat {
             AggressiveBlock,
             BrutalBeating,
             BurningJet,
@@ -162,6 +166,196 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
+            LongTermEffects.EasyRegister("Lyra's Boon", LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Lyra's Boon", $"You can use the Lyra's Boon once.", ExpirationCondition.Never, null, Illustrations.Lyra) {
+                    HideFromPortrait = true,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    ProvideActionIntoPossibilitySection = (effect, section) => {
+                        if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
+                        return new ActionPossibility(new CombatAction(effect.Owner, effect.Illustration!, $"Use Lyra's Boon",
+                                [Trait.Basic, Trait.Divine, Trait.Evocation], $"{{i}}You reach within yourself and use the boon you received from Lyra, to smite your foes with a beam of rainbows and friendship.{{/i}}\n\n" +
+                                $"Each enemy in a 60 foot lines takes {effect.Owner.Level}d8 good damage with a Reflex saving throw." + S.FourDegreesOfSuccess(null, "The target takes half damage", "The target takes full damage and is dazzled for 1 round.", "The target takes double damage and is blinded for 1 round.") +
+                                $"\n\nAfter you use this boon once, it's gone forever.", Target.Line(12).WithIncludeOnlyIf((area, target) => area.OwnerAction.Owner.EnemyOf(target)))
+                            .WithActionCost(1)
+                            .WithSoundEffect(SfxName.MagicMissile)
+                            .WithProjectileCone(IllustrationName.ColorSpray, 25, ProjectileKind.Ray)
+                            .WithSavingThrow(new SavingThrow(Defense.Reflex, effect.Owner.ClassOrSpellDC()))
+                            .WithEffectOnSelf(caster => {
+                                effect.ExpiresAt = ExpirationCondition.Immediately;
+                            })
+                            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                target.AddQEffect(new QEffect() {
+                                    WhenMonsterDies = self => {
+                                        Sfxs.Play(SfxName.Angelic, 0.75f);
+                                        target.Traits.Add(Trait.NoDeathOverhead);
+                                        target.Traits.Add(Trait.NoDeathScream);
+                                        self.Owner.Overhead("*sees the error of their ways*", Color.Lavender, self.Owner.Name + " is redeemed of their evil ways, and peacefully leaves the field of battle.");
+                                    },
+                                    ExpiresAt = ExpirationCondition.EphemeralAtEndOfImmediateAction
+                                });
+
+                                await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, effect.Owner.Level + "d8", DamageKind.Good);
+                                if (result == CheckResult.Failure) {
+                                    target.AddQEffect(QEffect.Dazzled().WithExpirationOneRoundOrRestOfTheEncounter(caster, false));
+                                } else if (result == CheckResult.CriticalFailure) {
+                                    target.AddQEffect(QEffect.Blinded().WithExpirationOneRoundOrRestOfTheEncounter(caster, false));
+                                }
+                            })
+                        );
+                    }
+                };
+            });
+
+            LongTermEffects.EasyRegister("Baraquielle's Boon", LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Baraquielle's Boon", $"You can use the Baraquielle's Boon once.", ExpirationCondition.Never, null, Illustrations.Baraquielle) {
+                    HideFromPortrait = true,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    ProvideActionIntoPossibilitySection = (effect, section) => {
+                        if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
+                        return new ActionPossibility(new CombatAction(effect.Owner, effect.Illustration!, $"Use Baraquielle's Boon",
+                                [Trait.Basic, Trait.Divine, Trait.Polymorph, Trait.Transmutation], $"{{i}}You reach within yourself and use the boon you received from Baraquielle, to assume fearsome angelic avatar form.{{/i}}\n\n" +
+                                $"Whilest in Angel form, you gain a {SkillChallengeTables.GetDCByLevel(effect.Owner.Level) - 7} bonus to attack and athletics, a 2d8+{effect.Owner.Level} damage reach lance attack that deals an additional 1d4 fire and good damage, and a 40 foot fly speed and retributive strike to allow you to protect your allies and punish their attackers." +
+                                $"\n\nAfter you use this boon once, it's gone forever.", Target.Self())
+                            .WithActionCost(0)
+                            .WithSoundEffect(SfxName.Angelic)
+                            .WithEffectOnSelf(caster => {
+                                effect.ExpiresAt = ExpirationCondition.Immediately;
+
+                                int ac = SkillChallengeTables.GetDCByLevel(caster.Level) + 2;
+                                QEffect form = CommonSpellEffects.EnterBattleform(caster, Illustrations.AngelForm, ac, 8, false);
+                                form.Name = "Angel Form";
+                                form.StateCheck = (Action<QEffect>)Delegate.Combine(form.StateCheck, delegate (QEffect qfForm) {
+                                    qfForm.Owner.ReplacementUnarmedStrike = new Item(IllustrationName.Halberd, "Lance of Retribution", [Trait.Good, Trait.Fire, Trait.Reach, Trait.VersatileS, Trait.Polearm, Trait.BattleformAttack])
+                                    .WithWeaponProperties(new WeaponProperties("2d8", DamageKind.Piercing))
+                                    .WithMonsterWeaponSpecialization(caster.Level)
+                                    .WithAdditionalWeaponProperties(wp => { 
+                                        wp.WithAdditionalDamage("1d4", DamageKind.Good);
+                                        wp.WithAdditionalDamage("1d4", DamageKind.Fire);
+                                    });
+
+                                    qfForm.Owner.AddQEffect(QEffect.Flying().WithExpirationEphemeral());
+                                    if (!caster.HasFeat(FeatName.Paladin)) {
+                                        var rs = CommonQEffects.RetributiveStrike(2, cr => true, "an allied creature", true).WithExpirationEphemeral();
+                                        rs.Description = "{b}Trigger{/b} An enemy damages an allied creature and both are within 15 feet of you. " +
+                                            "{b}Effect{/b} The ally gains resistance " + (2 + qfForm.Owner.Level) + " to all damage against the triggering attack. " +
+                                            "If the foe is within reach, make a melee Strike against it. If the target is out of range, you can step to put the foe within your reach.";
+                                        qfForm.Owner.AddQEffect(rs);
+                                    }
+
+                                    form.BattleformMinimumStrikeModifier = SkillChallengeTables.GetDCByLevel(caster.Level) - 7;
+                                    form.BattleformMinimumAthleticsModifier = SkillChallengeTables.GetDCByLevel(caster.Level) - 7;
+                                });
+                            })
+                        );
+                    }
+                };
+            });
+
+            LongTermEffects.EasyRegister("It's Not Like I Like You!", LongTermEffectDuration.Forever, (_, _) => {
+                var lteEffect = new QEffect("It's Not like I Like You!", $"B-Baka...!", ExpirationCondition.Never, null, IllustrationName.BaraquielleLarge) {
+                    HideFromPortrait = true,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    Tag = false,
+                    EndOfAnyTurn = self => self.Tag = false,
+                    YouAreDealtLethalDamage = async (self, attacker, dmg, defender) => {
+                        string[] defendLines = [
+                            "Noooo...! I- I mean, b-be more careful next time or whatever. Y-you're embarrasing heaven!",
+                            "Just to be here, I- I'm only here because of my lawful good alignment...!",
+                            "B-baka!",
+                            "Stay away from them! O-only I'm allowed to smite them!",
+                            "Just to be clear, I-I'm only doing this so I don't have to see you around in Heaven or whatever...!"
+                        ];
+
+                        if (!((bool?)self.Tag == false && defender.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= 19)) return null;
+
+                        var bara = Baraquielle.Create(defender.Battle.Encounter);
+                        defender.Battle.Cinematics.EnterCutscene();
+                        defender.Battle.SpawnCreature(bara, defender.Battle.GaiaFriends, defender.Occupies);
+                        Sfxs.Play(SfxName.PhaseBolt);
+                        bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                        defender.Battle.SmartCenterCreatureAlways(bara);
+                        await defender.Battle.Cinematics.LineAsync(bara, defendLines.GetRandomVisualOnly()!);
+                        Sfxs.Play(SfxName.ShieldSpell);
+                        await defender.Battle.Cinematics.WaitATinyBit();
+                        Sfxs.Play(SfxName.PhaseBolt);
+                        bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                        defender.Battle.RemoveCreatureFromGame(bara);
+                        defender.Battle.SmartCenterCreatureAlways(defender);
+                        defender.Battle.Cinematics.ExitCutscene();
+
+                        self.Tag = true;
+
+                        return new SetToTargetNumberModification(0, "It's Not Like I Like You!");
+                    }
+                };
+
+                lteEffect.AfterYouAreDealtDamageOfKind = async (attacker, action, kind, you) => {
+                    string[] healLines = [
+                        "Be more careful next time, stupid!",
+                        "I-I'm only doing this because I feel bad for you...!",
+                        "S-stop looking at me like that! I do this for all the agents of Heaven...!",
+                        "Stop getting hurt! If this keeps up I'll have to follow you around {i}all the time{/i} as your pocket healer... F-for important archangel related reasons... W-which to be clear would be a thing I-I don't want to happen!",
+                        "B-BAKA...!"
+                    ];
+
+                    Tile? tile = attacker.Battle.Map.AllTiles.Where(t => t.HasLineOfEffectToIgnoreLesser(you.Occupies) < CoverKind.Blocked && t.DistanceTo(you) <= 19).MinBy(t => t.DistanceTo(you));
+
+                    if (!((bool?)lteEffect.Tag == false && you.HP <= you.MaxHP / 2 && tile != null && R.NextD20() >= 0)) return;
+
+                    var bara = Baraquielle.Create(you.Battle.Encounter);
+                    you.Battle.Cinematics.EnterCutscene();
+                    you.Battle.SpawnCreature(bara, you.Battle.GaiaFriends, tile);
+                    Sfxs.Play(SfxName.PhaseBolt);
+                    bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                    you.Battle.SmartCenterCreatureAlways(bara);
+                    await you.Battle.Cinematics.LineAsync(bara, healLines.GetRandomVisualOnly()!);
+                    you.Battle.Cinematics.ExitCutscene();
+
+                    bara.Actions.ResetToFull();
+                    var heal = AllSpells.CreateSpellInCombat(SpellId.Heal, bara, (bara.Level + 1) / 2, Trait.Angel).WithActionCost(0);
+                    heal.SpentActions = 2;
+                    heal.ChosenTargets.ChosenCreature = you;
+                    heal.ChosenTargets.ChosenCreatures.Add(you);
+                    await heal.AllExecute();
+
+                    Sfxs.Play(SfxName.PhaseBolt);
+                    bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                    you.Battle.RemoveCreatureFromGame(bara);
+                    you.Battle.SmartCenterCreatureAlways(you);
+
+                    lteEffect.Tag = true;
+                };
+
+                lteEffect.AfterYouDealDamage = async (you, action, target) => {
+                    string[] attackLines = ["I- ah... I just happened to be in smiting range...! I-Idiot...",
+                            $"Aha...! I've found you at once {{i}}*(squints)*{{/i}} villain...? W-whose totally at like... The very top of my hit list for very offical archangel reasons! (sneaks glance at {you.Name})",
+                            "Watching you? N-no, I'm way too important to be someone's guardian angel! U-unless... Ahh... N-nevermind!",
+                            "Nice hit I guess... F-for a mortal or whatever...",
+                            "So cool... {i}(looks around frantically){/i}. W-wait the plane shift spell wasn't supposed to... Ummm... {b}V-VIOLENCE!{/b}"
+                    ];
+
+                    if (!((bool?)lteEffect.Tag == false && target.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= 19)) return;
+
+                    var bara = Baraquielle.Create(you.Battle.Encounter);
+                    you.Battle.Cinematics.EnterCutscene();
+                    you.Battle.SpawnCreature(bara, you.Battle.GaiaFriends, target.Occupies);
+                    Sfxs.Play(SfxName.PhaseBolt);
+                    bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                    you.Battle.SmartCenterCreatureAlways(bara);
+                    await you.Battle.Cinematics.LineAsync(bara, attackLines.GetRandomVisualOnly()!);
+                    you.Battle.Cinematics.ExitCutscene();
+                    await bara.MakeStrike(bara.CreateStrike(bara.PrimaryWeapon!).WithActionCost(0), target);
+                    Sfxs.Play(SfxName.PhaseBolt);
+                    bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                    you.Battle.RemoveCreatureFromGame(bara);
+                    you.Battle.SmartCenterCreatureAlways(you);
+
+                    lteEffect.Tag = true;
+                };
+
+                return lteEffect;
+            });
+
             LongTermEffects.EasyRegister("Heavenly Favour", LongTermEffectDuration.Forever, (_, _) => {
                 return new QEffect("Heavenly Favour", "The gods bless your cause, imparting a +1 bonus to your attack, save DCs, spell DC and AC.") {
                     HideFromPortrait = true,
@@ -182,11 +376,52 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")!),
                     StartOfCombat = async self => {
                         Creature companion = CreatureList.Creatures[CreatureIds.UnicornFoal](self.Owner.Battle.Encounter);
-                        self.Owner.Battle.SpawnCreature(companion, Faction.CreateFriends(self.Owner.Battle), self.Owner.Occupies);
+                        self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
                         companion.AddQEffect(CommonQEffects.CantOpenDoors());
                         companion.AddQEffect(new QEffect() {
                             HideFromPortrait = true,
-                            Illustration = Illustrations.Unicorn,
+                            Source = self.Owner,
+                            WhenMonsterDies = qfDeathCheck => {
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        });
+                    },
+                };
+            });
+
+            LongTermEffects.EasyRegister("Angelic Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
+                return new QEffect("Angelic Companion", "Baraquielle has offered her hammer to aid you on your quest. They will fight besides you until dying or the party returns to town.") {
+                    HideFromPortrait = true,
+                    Illustration = Illustrations.Baraquielle,
+                    ExpiresAt = ExpirationCondition.Never,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Angelic Companion")!),
+                    StartOfCombat = async self => {
+                        Creature companion = Baraquielle.Create(self.Owner.Battle.Encounter);
+                        self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
+                        companion.AddQEffect(CommonQEffects.CantOpenDoors());
+                        companion.AddQEffect(new QEffect() {
+                            HideFromPortrait = true,
+                            Source = self.Owner,
+                            WhenMonsterDies = qfDeathCheck => {
+                                self.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        });
+                    },
+                };
+            });
+
+            LongTermEffects.EasyRegister("Azata Companion", LongTermEffectDuration.UntilDowntime, (_, _) => {
+                return new QEffect("Azata Companion", "You've acquired the aid of the Azata Lyra. They will fight besides you until dying or the party returns to town.") {
+                    HideFromPortrait = true,
+                    Illustration = Illustrations.Lyra,
+                    ExpiresAt = ExpirationCondition.Never,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Companion")!),
+                    StartOfCombat = async self => {
+                        Creature companion = Lyra.Create(self.Owner.Battle.Encounter);
+                        self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
+                        companion.AddQEffect(CommonQEffects.CantOpenDoors());
+                        companion.AddQEffect(new QEffect() {
+                            HideFromPortrait = true,
                             Source = self.Owner,
                             WhenMonsterDies = qfDeathCheck => {
                                 self.ExpiresAt = ExpirationCondition.Immediately;
@@ -373,32 +608,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
 
             #region Martial Colosseum Feats
-            
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.AggressiveBlock].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.AggressiveBlock].Item2, LongTermEffectDuration.Forever, (_, _) => {
                 var effect = Core.StatBlocks.Monsters.L5.Doorwarden.CreateAggressiveBlock();
                 effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.AggressiveBlock].Item2)!);
 
                 return effect;
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BrutalBeating].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Brutal Beating", "Whenever your Strike is a critical hit and deals damage, the target is frightened 1.")
-                {
-                    AfterYouTakeAction = async delegate (QEffect qff, CombatAction action)
-                    {
-                        if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
-                        {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BrutalBeating].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Brutal Beating", "Whenever your Strike is a critical hit and deals damage, the target is frightened 1.") {
+                    AfterYouTakeAction = async delegate (QEffect qff, CombatAction action) {
+                        if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess) {
                             Creature chosenCreature3 = action.ChosenTargets.ChosenCreature;
-                            if (chosenCreature3 != null && chosenCreature3.HP >= 1)
-                            {
-                                if (chosenCreature3.IsImmuneTo(Trait.Mental))
-                                {
+                            if (chosenCreature3 != null && chosenCreature3.HP >= 1) {
+                                if (chosenCreature3.IsImmuneTo(Trait.Mental)) {
                                     chosenCreature3.Battle.Log(chosenCreature3?.ToString() + " is immune to mental effects and can't be frightened.");
-                                }
-                                else
-                                {
+                                } else {
                                     chosenCreature3!.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
                                     chosenCreature3!.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                                 }
@@ -409,53 +635,39 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.GravityWeapon].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Gravity Weapon", "You gain the {i}gravity weapon{/i} warden spell and a focus pool of 1 Focus Point.")
-                {
-                    StartOfCombat = async (effect) =>
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.GravityWeapon].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Gravity Weapon", "You gain the {i}gravity weapon{/i} warden spell and a focus pool of 1 Focus Point.") {
+                    StartOfCombat = async (effect) => {
                         AddFocusSpell(effect.Owner, SpellId.GravityWeapon, Ability.Wisdom, Trait.Primal, Trait.Ranger);
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.GravityWeapon].Item2)!)
                 };
             });
-            
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.KiRush].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Ki Rush", "You gain the {i}ki rush{/i} ki spell and a focus pool of 1 Focus Point.")
-                {
-                    StartOfCombat = async (effect) =>
-                    {
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.KiRush].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Ki Rush", "You gain the {i}ki rush{/i} ki spell and a focus pool of 1 Focus Point.") {
+                    StartOfCombat = async (effect) => {
                         AddFocusSpell(effect.Owner, SpellId.KiRush, Ability.Wisdom, Trait.Divine, Trait.Monk);
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.KiRush].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.Mobility].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Mobility", "You don't provoke attacks of opportunity with short movements.")
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.Mobility].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Mobility", "You don't provoke attacks of opportunity with short movements.") {
                     Id = QEffectId.Mobility,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.Mobility].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.NimbleDodge].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Nimble Dodge {icon:Reaction}", "You gain a +2 bonus to AC as a reaction.")
-                {
-                    YouAreTargeted = async delegate (QEffect qff, CombatAction attack)
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.NimbleDodge].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Nimble Dodge {icon:Reaction}", "You gain a +2 bonus to AC as a reaction.") {
+                    YouAreTargeted = async delegate (QEffect qff, CombatAction attack) {
                         CombatAction attack2 = attack;
                         Creature rogue5 = qff.Owner;
-                        if (attack2.HasTrait(Trait.Attack) && rogue5.CanSee(attack2.Owner) && !attack2.HasTrait(Trait.AttackDoesNotTargetAC))
-                        {
-                            if (await rogue5.Battle.AskToUseReaction(rogue5, "You're targeted by " + attack2.Owner.Name + "'s " + attack2.Name + ".\nUse Nimble Dodge to gain a +2 circumstance bonus to AC?"))
-                            {
-                                rogue5.AddQEffect(new QEffect
-                                {
+                        if (attack2.HasTrait(Trait.Attack) && rogue5.CanSee(attack2.Owner) && !attack2.HasTrait(Trait.AttackDoesNotTargetAC)) {
+                            if (await rogue5.Battle.AskToUseReaction(rogue5, "You're targeted by " + attack2.Owner.Name + "'s " + attack2.Name + ".\nUse Nimble Dodge to gain a +2 circumstance bonus to AC?")) {
+                                rogue5.AddQEffect(new QEffect {
                                     ExpiresAt = ExpirationCondition.EphemeralAtEndOfImmediateAction,
                                     BonusToDefenses = (QEffect effect, CombatAction? action, Defense defense) => (defense != 0) ? null : new Bonus(2, BonusType.Circumstance, "Nimble Dodge")
                                 });
@@ -465,24 +677,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.NimbleDodge].Item2)!)
                 };
             });
-            
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.PowerAttack].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                var effect = new QEffect("Power Attack", "You unleash a particularly powerful attack.")
-                {
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.PowerAttack].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                var effect = new QEffect("Power Attack", "You unleash a particularly powerful attack.") {
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.PowerAttack].Item2)!)
                 };
 
-                effect.ProvideStrikeModifier = delegate (Item item)
-                {
+                effect.ProvideStrikeModifier = delegate (Item item) {
                     Item item5 = item;
-                    if (item5.HasTrait(Trait.Melee))
-                    {
-                        StrikeModifiers strikeModifiers3 = new StrikeModifiers
-                        {
+                    if (item5.HasTrait(Trait.Melee)) {
+                        StrikeModifiers strikeModifiers3 = new StrikeModifiers {
                             AdditionalWeaponDamageDice = 1,
-                            OnEachTarget = async delegate (Creature a, Creature d, CheckResult result)
-                            {
+                            OnEachTarget = async delegate (Creature a, Creature d, CheckResult result) {
                                 a.Actions.AttackedThisManyTimesThisTurn++;
                             }
                         };
@@ -503,37 +709,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 return effect;
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.QuickDraw].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Quick Draw", "You draw weapons as a free action.")
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.QuickDraw].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Quick Draw", "You draw weapons as a free action.") {
                     Id = QEffectId.QuickDraw,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.QuickDraw].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.RapidResponse].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Rapid Response {icon:Reaction}", "When an ally begins dying, you Stride towards them.")
-                {
-                    StateCheck = delegate (QEffect qfRapidResponse)
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.RapidResponse].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Rapid Response {icon:Reaction}", "When an ally begins dying, you Stride towards them.") {
+                    StateCheck = delegate (QEffect qfRapidResponse) {
                         QEffect qfRapidResponse2 = qfRapidResponse;
-                        foreach (Creature item3 in qfRapidResponse2.Owner.Battle.AllCreatures.Where((Creature cr) => cr.FriendOf(qfRapidResponse2.Owner) && cr != qfRapidResponse2.Owner))
-                        {
-                            item3.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
-                            {
-                                AfterYouTakeDamage = async delegate (QEffect qfInjuredCreature, int damageDealt, DamageKind damageKind, CombatAction? inflictingPower, bool criticalHit)
-                                {
-                                    if (qfInjuredCreature.Owner.HP <= 0)
-                                    {
+                        foreach (Creature item3 in qfRapidResponse2.Owner.Battle.AllCreatures.Where((Creature cr) => cr.FriendOf(qfRapidResponse2.Owner) && cr != qfRapidResponse2.Owner)) {
+                            item3.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                                AfterYouTakeDamage = async delegate (QEffect qfInjuredCreature, int damageDealt, DamageKind damageKind, CombatAction? inflictingPower, bool criticalHit) {
+                                    if (qfInjuredCreature.Owner.HP <= 0) {
                                         Creature ally = qfInjuredCreature.Owner;
                                         Creature medic = qfRapidResponse2.Owner;
                                         TBattle battle = medic.Battle;
-                                        if (await battle.AskToUseReaction(medic, "An ally (" + ally?.ToString() + ") was reduced to 0 HP. Stride towards the ally?"))
-                                        {
-                                            medic.AddQEffect(new QEffect(ExpirationCondition.EphemeralAtEndOfImmediateAction)
-                                            {
+                                        if (await battle.AskToUseReaction(medic, "An ally (" + ally?.ToString() + ") was reduced to 0 HP. Stride towards the ally?")) {
+                                            medic.AddQEffect(new QEffect(ExpirationCondition.EphemeralAtEndOfImmediateAction) {
                                                 BonusToAllSpeeds = (QEffect _) => new Bonus(2, BonusType.Circumstance, "Rapid Response")
                                             });
                                             await medic.StrideAsync("Choose where to Stride with Rapid Response (towards " + ally?.ToString() + ").", allowStep: false, maximumFiveFeet: false, ally!.Occupies, allowCancel: false, allowPass: true);
@@ -547,79 +742,63 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReactiveShield].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReactiveShield].Item2, LongTermEffectDuration.Forever, (_, _) => {
                 var effect = QEffect.ReactiveShield();
                 effect.EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ReactiveShield].Item2)!);
-                
+
                 return effect;
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShakeItOff].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
-                    ProvideContextualAction = delegate (QEffect qfSelf)
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShakeItOff].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
+                    ProvideContextualAction = delegate (QEffect qfSelf) {
                         Creature owner = qfSelf.Owner;
                         return (owner.HasEffect(QEffectId.Frightened) || owner.HasEffect(QEffectId.Sickened)) ? new ActionPossibility(new CombatAction(owner, IllustrationName.ShakeItOff, "Shake it Off", [Trait.Concentrate],
-                            "Reduce your frightened condition value by 1, and attempt a Fortitude save to recover from the sickened condition as if you had spent an action retching; you reduce your sickened condition value by 1 on a failure (but not on a critical failure), by 2 on a success, or by 3 on a critical success.", Target.Self()).WithEffectOnSelf(async delegate (CombatAction action, Creature cr)
-                        {
-                            QEffect qEffect = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Frightened);
-                            if (qEffect != null)
-                            {
-                                qEffect.Value--;
-                                if (qEffect.Value <= 0)
-                                {
-                                    qEffect.ExpiresAt = ExpirationCondition.Immediately;
-                                }
-                            }
-
-                            QEffect qEffect2 = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Sickened);
-                            if (qEffect2 != null)
-                            {
-                                var dc = (int)qEffect2.Tag!;
-                                switch (CommonSpellEffects.RollSavingThrow(cr, action, Defense.Fortitude, dc))
-                                {
-                                    case CheckResult.Failure:
-                                        qEffect2.Value--;
-                                        break;
-                                    case CheckResult.Success:
-                                        qEffect2.Value -= 2;
-                                        break;
-                                    case CheckResult.CriticalSuccess:
-                                        qEffect2.Value -= 3;
-                                        break;
+                            "Reduce your frightened condition value by 1, and attempt a Fortitude save to recover from the sickened condition as if you had spent an action retching; you reduce your sickened condition value by 1 on a failure (but not on a critical failure), by 2 on a success, or by 3 on a critical success.", Target.Self()).WithEffectOnSelf(async delegate (CombatAction action, Creature cr) {
+                                QEffect qEffect = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Frightened);
+                                if (qEffect != null) {
+                                    qEffect.Value--;
+                                    if (qEffect.Value <= 0) {
+                                        qEffect.ExpiresAt = ExpirationCondition.Immediately;
+                                    }
                                 }
 
-                                if (qEffect2.Value <= 0)
-                                {
-                                    qEffect2.ExpiresAt = ExpirationCondition.Immediately;
+                                QEffect qEffect2 = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Sickened);
+                                if (qEffect2 != null) {
+                                    var dc = (int)qEffect2.Tag!;
+                                    switch (CommonSpellEffects.RollSavingThrow(cr, action, Defense.Fortitude, dc)) {
+                                        case CheckResult.Failure:
+                                            qEffect2.Value--;
+                                            break;
+                                        case CheckResult.Success:
+                                            qEffect2.Value -= 2;
+                                            break;
+                                        case CheckResult.CriticalSuccess:
+                                            qEffect2.Value -= 3;
+                                            break;
+                                    }
+
+                                    if (qEffect2.Value <= 0) {
+                                        qEffect2.ExpiresAt = ExpirationCondition.Immediately;
+                                    }
                                 }
-                            }
-                        })).WithPossibilityGroup("Remove debuff") : null;
+                            })).WithPossibilityGroup("Remove debuff") : null;
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ShakeItOff].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.SuddenCharge].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.SuddenCharge].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.FleetStep, "Sudden Charge",
                     [
                         Trait.Flourish,
                         Trait.Open,
                         Trait.Move
-                    ], "Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy.", Target.Self()).WithActionCost(2).WithSoundEffect(SfxName.Footsteps).WithEffectOnSelf(async delegate (CombatAction action, Creature self)
-                    {
-                        if (!(await self.StrideAsync("Choose where to Stride with Sudden Charge. (1/2)", allowStep: false, maximumFiveFeet: false, null, allowCancel: true)))
-                        {
+                    ], "Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy.", Target.Self()).WithActionCost(2).WithSoundEffect(SfxName.Footsteps).WithEffectOnSelf(async delegate (CombatAction action, Creature self) {
+                        if (!(await self.StrideAsync("Choose where to Stride with Sudden Charge. (1/2)", allowStep: false, maximumFiveFeet: false, null, allowCancel: true))) {
                             action.RevertRequested = true;
-                        }
-                        else
-                        {
+                        } else {
                             await self.StrideAsync("Choose where to Stride with Sudden Charge. You should end your movement within melee reach of an enemy. (2/2)", allowStep: false, maximumFiveFeet: false, null, allowCancel: false, allowPass: true);
                             await CommonCombatActions.StrikeAdjacentCreature(self, null);
                         }
@@ -628,23 +807,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.YoureNext].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("You're Next {icon:Reaction}", "After you reduce an enemy to 0 HP, you can spend a reaction to Demoralize one creature. You have a +2 circumstance bonus to this check.")
-                {
-                    AfterYouTakeAction = async delegate (QEffect qff, CombatAction action)
-                    {
-                        if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess)
-                        {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.YoureNext].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("You're Next {icon:Reaction}", "After you reduce an enemy to 0 HP, you can spend a reaction to Demoralize one creature. You have a +2 circumstance bonus to this check.") {
+                    AfterYouTakeAction = async delegate (QEffect qff, CombatAction action) {
+                        if (action.HasTrait(Trait.Strike) && action.CheckResult == CheckResult.CriticalSuccess) {
                             Creature chosenCreature3 = action.ChosenTargets.ChosenCreature;
-                            if (chosenCreature3 != null && chosenCreature3.HP >= 1)
-                            {
-                                if (chosenCreature3.IsImmuneTo(Trait.Mental))
-                                {
+                            if (chosenCreature3 != null && chosenCreature3.HP >= 1) {
+                                if (chosenCreature3.IsImmuneTo(Trait.Mental)) {
                                     chosenCreature3.Battle.Log(chosenCreature3?.ToString() + " is immune to mental effects and can't be frightened.");
-                                }
-                                else
-                                {
+                                } else {
                                     chosenCreature3.Overhead("brutal beating", Color.Red, chosenCreature3?.ToString() + " became frightened because of " + qff.Owner?.ToString() + "'s brutal beating.");
                                     chosenCreature3!.AddQEffect(QEffect.Frightened(1).WithSourceAction(action));
                                 }
@@ -656,31 +827,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
 
             #endregion
-            
+
             #region Magical Colosseum Feats
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BurningJet].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.BurningJet].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Burning Jet", FeatName.BurningJet, IllustrationName.BurningJet,
                     [
                         Trait.Fire,
                         Trait.DoesNotRequireAttackRollOrSavingThrow
                     ], 1, "A condensed burst of flame shoots behind you, propelling you forward with its sheer force.", (qfSelf.Owner.Level >= 6) ? "{b}Leap{/b} up to {b}60{/b} feet. This leap doesn't trigger reactions." : "Stride up to 40 feet in a straight line. Movement from this impulse ignores difficult and uneven terrain and doesn't trigger reactions.", (qfSelf.Owner.Level >= 6) ? Target.LeapTarget(12) : Target.Line(8).WithLesserDistanceIsOkay().WithIsBurningJet()).WithSoundEffect(SfxName.RejuvenatingFlames).WithImpulseHeighteningAtSpecificLevel(qfSelf.Owner.Level, 6, "Instead of striding 40 feet, you leap 60 feet in any direction.")
-                    .WithEffectOnChosenTargets(async delegate (CombatAction spell, Creature caster, ChosenTargets targets)
-                    {
-                        if (caster.Level >= 6)
-                        {
+                    .WithEffectOnChosenTargets(async delegate (CombatAction spell, Creature caster, ChosenTargets targets) {
+                        if (caster.Level >= 6) {
                             await caster.SingleTileMove(targets.ChosenTile!, spell);
-                        }
-                        else
-                        {
+                        } else {
                             Tile tile = LineAreaTarget.DetermineFinalTile(caster.Occupies, targets.ChosenTiles);
-                            if (tile != null)
-                            {
-                                await caster.MoveTo(tile, spell, new MovementStyle
-                                {
+                            if (tile != null) {
+                                await caster.MoveTo(tile, spell, new MovementStyle {
                                     Shifting = true,
                                     IgnoresUnevenTerrain = true,
                                     ShortestPath = true,
@@ -693,53 +856,41 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.DangerousSorcery].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Dangerous Sorcery", "Your damage spells deal extra damage.")
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.DangerousSorcery].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Dangerous Sorcery", "Your damage spells deal extra damage.") {
                     BonusToDamage = (QEffect qfSelf, CombatAction spell, Creature target) => (spell.HasTrait(Trait.Spell) && !spell.HasTrait(Trait.Cantrip) && !spell.HasTrait(Trait.Focus) && spell.CastFromScroll == null) ? new Bonus(spell.SpellLevel, BonusType.Status, "Dangerous Sorcery") : null,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.DangerousSorcery].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.FlyingFlame].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.FlyingFlame].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Flying Flame", FeatName.FlyingFlame, IllustrationName.FlyingFlame, [Trait.Fire], 1, "A tiny shape of flame travels along a path you choose, burning your enemies.", "Choose a path up to 30 feet long starting from your space.\n\nDeal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 fire damage to each creature the path passes through (basic Reflex save mitigates).\n\nA creature attempts only one save, even if the flame passes through it multiple times.", new FlyingFlameTarget()).WithSoundEffect(SfxName.FireRay).WithSavingThrow(new(Defense.Reflex, qfSelf.Owner.ClassOrSpellDC()))
                     .WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 2, "The damage increases by 1d6.")
-                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result)
-                    {
+                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result) {
                         await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, DiceFormula.FromText(caster.MaximumSpellRank + "d6", "Flying Flame"), DamageKind.Fire);
                     })),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.FlyingFlame].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ForceFang].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Force Fang", "You gain the {i}force fang{/i} conflux spell and a focus pool of 1 Focus Point.")
-                {
-                    StartOfCombat = async (effect) =>
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ForceFang].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Force Fang", "You gain the {i}force fang{/i} conflux spell and a focus pool of 1 Focus Point.") {
+                    StartOfCombat = async (effect) => {
                         AddFocusSpell(effect.Owner, SpellId.ForceFang, Ability.Intelligence, Trait.Arcana, Trait.Magus);
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.ForceFang].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.FourWinds].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.FourWinds].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Four Winds", FeatName.FourWinds, IllustrationName.FourWinds,
                     [
                         Trait.Air,
                         Trait.DoesNotRequireAttackRollOrSavingThrow
-                    ], 1, "Gathering the winds from all four corners of the sky dome, you propel four creatures.", "You and each ally within 30 feet of you can Stride up to half its Speed.", Target.ThirtyFootEmanation().WithIncludeOnlyIf((AreaTarget target, Creature ally) => ally.FriendOf(target.OwnerAction.Owner))).WithSoundEffect(SfxName.GaleBlast).WithEffectOnChosenTargets(async delegate (CombatAction action, Creature self, ChosenTargets targets)
-                    {
-                        foreach (Creature chosenCreature in targets.ChosenCreatures)
-                        {
+                    ], 1, "Gathering the winds from all four corners of the sky dome, you propel four creatures.", "You and each ally within 30 feet of you can Stride up to half its Speed.", Target.ThirtyFootEmanation().WithIncludeOnlyIf((AreaTarget target, Creature ally) => ally.FriendOf(target.OwnerAction.Owner))).WithSoundEffect(SfxName.GaleBlast).WithEffectOnChosenTargets(async delegate (CombatAction action, Creature self, ChosenTargets targets) {
+                        foreach (Creature chosenCreature in targets.ChosenCreatures) {
                             await chosenCreature.StrideAsync("Four Winds: " + chosenCreature.ToString() + " may Stride up to " + 5 * (chosenCreature.Speed / 2) + " feet.", allowStep: false, maximumFiveFeet: false, null, allowCancel: false, allowPass: true, maximumHalfSpeed: true);
                         }
                     })),
@@ -747,36 +898,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.LayOnHands].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Lay on Hands", "You gain the {i}lay on hands{/i} devotion spell and a focus pool of 1 Focus Point.")
-                {
-                    StartOfCombat = async (effect) =>
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.LayOnHands].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Lay on Hands", "You gain the {i}lay on hands{/i} devotion spell and a focus pool of 1 Focus Point.") {
+                    StartOfCombat = async (effect) => {
                         AddFocusSpell(effect.Owner, ChampionFocusSpells.LayOnHands, Ability.Charisma, Trait.Divine, Trait.Champion);
                     },
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.LayOnHands].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.LesserFireShieldStance].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.LesserFireShieldStance].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Lessser Fire Shield Stance", FeatName.LesserFireShieldStance, IllustrationName.LesserFireShieldStance,
                     [
                         Trait.Fire,
                         Trait.Homebrew,
                         Trait.Stance
                     ], 1, "You wreathe yourself in flames that lash out at any attackers.", "You enter a stance. While you're in this stance, each time a creature hits you with a melee attack, that creature takes " + S.HeightenedVariable((qfSelf.Owner.Level + 2) / 3, 1) + " fire damage (no save).", Target.Self().WithAdditionalRestriction((Creature self) => (!self.QEffects.Any((QEffect qf) => qf.IsStance && qf.Name == "Lesser Fire Shield Stance")) ? null : "You're already in this stance.")).WithSoundEffect(SfxName.FireRay).WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 3, "The damage increases by 1.")
-                    .WithEffectOnSelf(async delegate (CombatAction fireShield, Creature self)
-                    {
+                    .WithEffectOnSelf(async delegate (CombatAction fireShield, Creature self) {
                         CombatAction fireShield2 = fireShield;
                         QEffect qEffect2 = KineticistCommonEffects.EnterStance(self, IllustrationName.LesserFireShieldStance, "Lesser Fire Shield Stance", "Each time a creature hits you with a melee attack, that creature takes " + (qfSelf.Owner.Level + 2) / 3 + " fire damage.");
-                        qEffect2.AfterYouTakeDamage = async delegate (QEffect effect, int amount, DamageKind damageKind, CombatAction? combatAction, bool critical)
-                        {
-                            if (combatAction?.HasTrait(Trait.Melee) ?? false)
-                            {
+                        qEffect2.AfterYouTakeDamage = async delegate (QEffect effect, int amount, DamageKind damageKind, CombatAction? combatAction, bool critical) {
+                            if (combatAction?.HasTrait(Trait.Melee) ?? false) {
                                 await CommonSpellEffects.DealDirectDamage(fireShield2, DiceFormula.FromText(((qfSelf.Owner.Level + 2) / 3).ToString(), "Lesser Fire Shield Stance"), combatAction.Owner, CheckResult.Failure, DamageKind.Fire);
                             }
                         };
@@ -785,27 +928,22 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.LesserLevitationStance].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.LesserLevitationStance].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Lesser Levitation Stance", FeatName.LesserLevitationStance, IllustrationName.LesserLevitationStance,
                     [
                         Trait.Air,
                         Trait.Homebrew,
                         Trait.Stance
-                    ], 1, "You lift your feet just a few inches above ground, which gives you much greater mobility.", "You enter a stance. While you're in this stance, you ignore difficult terrain.", Target.Self().WithAdditionalRestriction((Creature self) => (!self.QEffects.Any((QEffect qf) => qf.IsStance && qf.Name == "Lesser Levitation Stance")) ? null : "You're already in this stance.")).WithSoundEffect(SfxName.Bless).WithEffectOnSelf(delegate (Creature self)
-                    {
+                    ], 1, "You lift your feet just a few inches above ground, which gives you much greater mobility.", "You enter a stance. While you're in this stance, you ignore difficult terrain.", Target.Self().WithAdditionalRestriction((Creature self) => (!self.QEffects.Any((QEffect qf) => qf.IsStance && qf.Name == "Lesser Levitation Stance")) ? null : "You're already in this stance.")).WithSoundEffect(SfxName.Bless).WithEffectOnSelf(delegate (Creature self) {
                         KineticistCommonEffects.EnterStance(self, IllustrationName.LesserLevitationStance, "Lesser Levitation Stance", "You ignore difficult terrain.", QEffectId.IgnoresDifficultTerrain);
                     })),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.LesserLevitationStance].Item2)!)
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.OceansBalm].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.OceansBalm].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Ocean's Balm", FeatName.OceansBalm, IllustrationName.OceansBalm,
                     [
                         Trait.Water,
@@ -815,8 +953,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     ], 1, "A blessing of the living sea salves wounds and douses flames.", $"You or target adjacent ally regains {S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1)}d8 Hit Points and gains resistance {S.HeightenedVariable((qfSelf.Owner.Level + 3) / 2, 2)} to fire for the rest of the encounter. If it has persistent fire damage, it immediately attempts a flat check against DC 10 to remove it {{i}}(55% success chance){{/i}}. The target is then temporarily immune to Ocean's Balm for the rest of the encounter.", Target.AdjacentFriendOrSelf()).WithActionId(ActionId.OceansBalm).WithActionCost(1)
                     .WithSoundEffect(SfxName.OceansBalm)
                     .WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 2, "The healing increases by 1d8, and the resistance increases by 1.")
-                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result)
-                    {
+                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result) {
                         await target.HealAsync((qfSelf.Owner.Level + 1) / 2 + "d8", spell);
                         target.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, (qfSelf.Owner.Level + 3) / 2).WithExpirationNever());
                         target.AddQEffect(QEffect.ImmunityToTargeting(ActionId.OceansBalm));
@@ -825,21 +962,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.OceansBalm].Item2)!)
                 };
             });
-            
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReachSpell].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Reach Spell", "You can extend the range of your spells.")
-                {
-                    MetamagicProvider = new MetamagicProvider("Reach spell", delegate (CombatAction spell)
-                    {
+
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ReachSpell].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Reach Spell", "You can extend the range of your spells.") {
+                    MetamagicProvider = new MetamagicProvider("Reach spell", delegate (CombatAction spell) {
                         CombatAction metamagicSpell = Spell.DuplicateSpell(spell).CombatActionSpell;
-                        if (metamagicSpell.ActionCost == 3 || metamagicSpell.ActionCost == -2)
-                        {
+                        if (metamagicSpell.ActionCost == 3 || metamagicSpell.ActionCost == -2) {
                             return null;
                         }
 
-                        if (!IncreaseTargetLine(metamagicSpell.Target))
-                        {
+                        if (!IncreaseTargetLine(metamagicSpell.Target)) {
                             return null;
                         }
 
@@ -847,55 +979,44 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         CommonSpellEffects.IncreaseActionCostByOne(metamagicSpell);
                         int num3 = metamagicSpell.Target.ToDescription()?.Count((char c) => c == '\n') ?? 0;
                         string[] array2 = metamagicSpell.Description.Split('\n', 4 + num3);
-                        if (array2.Length >= 4)
-                        {
+                        if (array2.Length >= 4) {
                             metamagicSpell.Description = array2[0] + "\n" + array2[1] + "\n{Blue}" + metamagicSpell.Target.ToDescription() + "{/Blue}\n" + array2[3 + num3];
                         }
 
                         return metamagicSpell;
-                        bool IncreaseTargetLine(Target? targetLine)
-                        {
-                            if (targetLine == null)
-                            {
+                        bool IncreaseTargetLine(Target? targetLine) {
+                            if (targetLine == null) {
                                 return false;
                             }
 
-                            if (targetLine is CreatureTarget creatureTarget2)
-                            {
+                            if (targetLine is CreatureTarget creatureTarget2) {
                                 return IncreaseTarget(creatureTarget2);
                             }
 
-                            if (targetLine is MultipleCreatureTargetsTarget multipleCreatureTargetsTarget)
-                            {
+                            if (targetLine is MultipleCreatureTargetsTarget multipleCreatureTargetsTarget) {
                                 bool flag = false;
                                 CreatureTarget[] targets2 = multipleCreatureTargetsTarget.Targets;
-                                foreach (CreatureTarget creatureTarget3 in targets2)
-                                {
+                                foreach (CreatureTarget creatureTarget3 in targets2) {
                                     flag |= IncreaseTarget(creatureTarget3);
                                 }
 
                                 return flag;
                             }
 
-                            if (targetLine is BurstAreaTarget burstAreaTarget2)
-                            {
+                            if (targetLine is BurstAreaTarget burstAreaTarget2) {
                                 burstAreaTarget2.Range += 6;
                                 return true;
                             }
 
-                            if (targetLine is DependsOnActionsSpentTarget dependsOnActionsSpentTarget)
-                            {
+                            if (targetLine is DependsOnActionsSpentTarget dependsOnActionsSpentTarget) {
                                 return IncreaseTargetLine(dependsOnActionsSpentTarget.IfOneAction) | IncreaseTargetLine(dependsOnActionsSpentTarget.IfTwoActions);
                             }
 
-                            if (targetLine is DependsOnSpellVariantTarget dependsOnSpellVariantTarget)
-                            {
+                            if (targetLine is DependsOnSpellVariantTarget dependsOnSpellVariantTarget) {
                                 bool flag2 = false;
                                 {
-                                    foreach (Target target in dependsOnSpellVariantTarget.Targets)
-                                    {
-                                        if (target is CreatureTarget creatureTarget4)
-                                        {
+                                    foreach (Target target in dependsOnSpellVariantTarget.Targets) {
+                                        if (target is CreatureTarget creatureTarget4) {
                                             flag2 |= IncreaseTarget(creatureTarget4);
                                         }
                                     }
@@ -912,10 +1033,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             });
 
             //Do not use, variant actions don't work
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShardStrike].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.ShardStrike].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Shard Strike", FeatName.ShardStrike, IllustrationName.ShardStrike, [Trait.Metal], 1, "Jagged metal shards form in the air and lash out from you.", $"Choose shards or spines.\n\nShards — Deal {S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1)}d6 slashing damage in a 15-foot cone, and a creature that critically fails takes 1d6 persistent bleed damage.\nSpines — Deal {S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1)}d6 piercing damage in a 30-foot line, and a creature that critically fails is clumsy 1 until the start of your next turn.\n\nEach creature attempts a basic Reflex save against your class DC to mitigate these effects.", Target.Self()).WithSoundEffect(SfxName.ElementalBlastMetal).WithVariants(
                     [
                         new SpellVariant("Shards", "Shards", IllustrationName.VariantCone15).WithNewTarget(Target.FifteenFootCone()),
@@ -924,27 +1043,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     .WithSavingThrow(new(Defense.Reflex, qfSelf.Owner.ClassOrSpellDC()))
                     .WithCreateVariantDescription((int _, SpellVariant? variant) => (variant!.Id == "Shards") ? ("Deal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 slashing damage in a 15-foot cone (basic Reflex save mitigates), and a creature that critically fails takes 1d6 persistent bleed damage.") : ("Deal " + S.HeightenedVariable((qfSelf.Owner.Level + 1) / 2, 1) + "d6 piercing damage in a 30-foot line (basic Reflex save mitigates), and a creature that critically fails is clumsy 1 until the start of your next turn."))
                     .WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 2, "The damage increases by 1d6.")
-                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result)
-                    {
-                        if (spell.ChosenVariant == null)
-                        {
+                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result) {
+                        if (spell.ChosenVariant == null) {
                             return;
                         }
 
                         string diceExpression = caster.MaximumSpellRank + "d6";
-                        if (spell.ChosenVariant.Id == "Shards")
-                        {
+                        if (spell.ChosenVariant.Id == "Shards") {
                             await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, diceExpression, DamageKind.Slashing);
-                            if (result == CheckResult.CriticalFailure)
-                            {
+                            if (result == CheckResult.CriticalFailure) {
                                 target.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Bleed));
                             }
-                        }
-                        else
-                        {
+                        } else {
                             await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, diceExpression, DamageKind.Piercing);
-                            if (result == CheckResult.CriticalFailure)
-                            {
+                            if (result == CheckResult.CriticalFailure) {
                                 target.AddQEffect(QEffect.Clumsy(1).WithExpirationAtStartOfSourcesTurn(caster, 1).WithSourceAction(spell));
                             }
                         }
@@ -953,21 +1065,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.TimberSentinel].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.TimberSentinel].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Timber Sentinel", FeatName.TimberSentinel, IllustrationName.TimberSentinel,
                     [
                         Trait.Wood,
                         Trait.Plant
-                    ], 1, "A slim, symmetrical tree grows at your command.", "You create a protector tree in an unoccupied square within 30 feet of you. The tree has AC 10 and " + S.HeightenedVariable(10 * ((qfSelf.Owner.Level + 1) / 2), 10) + " Hit Points. Whenever an ally adjacent to the tree is hit by a Strike, the tree interposes its branches and takes the damage first. Any additional damage beyond what it takes to reduce the tree to 0 Hit Points is dealt to the original target. Even enemies can move through the square without Tumble Through. If you invoke this impulse again, any previous tree dissipates.", Target.Tile(delegate (Creature cr, Tile tl)
-                    {
-                        if (tl.IsTrulyGenuinelyFreeToEveryCreature)
-                        {
+                    ], 1, "A slim, symmetrical tree grows at your command.", "You create a protector tree in an unoccupied square within 30 feet of you. The tree has AC 10 and " + S.HeightenedVariable(10 * ((qfSelf.Owner.Level + 1) / 2), 10) + " Hit Points. Whenever an ally adjacent to the tree is hit by a Strike, the tree interposes its branches and takes the damage first. Any additional damage beyond what it takes to reduce the tree to 0 Hit Points is dealt to the original target. Even enemies can move through the square without Tumble Through. If you invoke this impulse again, any previous tree dissipates.", Target.Tile(delegate (Creature cr, Tile tl) {
+                        if (tl.IsTrulyGenuinelyFreeToEveryCreature) {
                             Tile occupies = cr.Occupies;
-                            if (occupies == null)
-                            {
+                            if (occupies == null) {
                                 return false;
                             }
 
@@ -976,11 +1083,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
                         return false;
                     }, null)).WithSoundEffect(SfxName.MinorAbjuration).WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 2, "The tree has an additional 10 HP.")
-                    .WithEffectOnChosenTargets(async delegate (CombatAction spell, Creature caster, ChosenTargets targets)
-                    {
+                    .WithEffectOnChosenTargets(async delegate (CombatAction spell, Creature caster, ChosenTargets targets) {
                         Creature caster3 = caster;
-                        foreach (Creature item9 in caster3.Battle.AllCreatures.Where((Creature cr) => cr.QEffects.Any((QEffect qf) => qf.Id == QEffectId.ProtectorTree && qf.Source == caster3)))
-                        {
+                        foreach (Creature item9 in caster3.Battle.AllCreatures.Where((Creature cr) => cr.QEffects.Any((QEffect qf) => qf.Id == QEffectId.ProtectorTree && qf.Source == caster3))) {
                             item9.Die();
                         }
 
@@ -990,30 +1095,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.WidenSpell].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect("Widen Spell", "You can expand the area of your spells.")
-                {
-                    MetamagicProvider = new MetamagicProvider("Widen Spell", delegate (CombatAction spell)
-                    {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.WidenSpell].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Widen Spell", "You can expand the area of your spells.") {
+                    MetamagicProvider = new MetamagicProvider("Widen Spell", delegate (CombatAction spell) {
                         CombatAction combatActionSpell = Spell.DuplicateSpell(spell).CombatActionSpell;
-                        if (combatActionSpell.ActionCost == 3 || Constants.IsVariableActionCost(combatActionSpell.ActionCost) || combatActionSpell.HasTrait(Trait.SpellWithDuration))
-                        {
+                        if (combatActionSpell.ActionCost == 3 || Constants.IsVariableActionCost(combatActionSpell.ActionCost) || combatActionSpell.HasTrait(Trait.SpellWithDuration)) {
                             return null;
                         }
 
-                        if (combatActionSpell.Target is BurstAreaTarget burstAreaTarget)
-                        {
+                        if (combatActionSpell.Target is BurstAreaTarget burstAreaTarget) {
                             burstAreaTarget.Radius++;
-                        }
-                        else if (combatActionSpell.Target is ConeAreaTarget coneAreaTarget)
-                        {
+                        } else if (combatActionSpell.Target is ConeAreaTarget coneAreaTarget) {
                             coneAreaTarget.ConeLength += ((coneAreaTarget.ConeLength <= 3) ? 1 : 2);
-                        }
-                        else
-                        {
-                            if (!(combatActionSpell.Target is LineAreaTarget lineAreaTarget))
-                            {
+                        } else {
+                            if (!(combatActionSpell.Target is LineAreaTarget lineAreaTarget)) {
                                 return null;
                             }
 
@@ -1024,8 +1119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                         CommonSpellEffects.IncreaseActionCostByOne(combatActionSpell);
                         int num2 = combatActionSpell.Target.ToDescription()?.Count((char c) => c == '\n') ?? 0;
                         string[] array = combatActionSpell.Description.Split('\n', 4 + num2);
-                        if (array.Length >= 4 && combatActionSpell.Target is AreaTarget areaTarget)
-                        {
+                        if (array.Length >= 4 && combatActionSpell.Target is AreaTarget areaTarget) {
                             combatActionSpell.Description = array[0] + "\n" + array[1] + "\n{Blue}" + areaTarget.ToDescription() + "{/Blue}\n" + array[3 + num2];
                         }
 
@@ -1035,26 +1129,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 };
             });
 
-            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.WintersClutch].Item2, LongTermEffectDuration.Forever, (_, _) =>
-            {
-                return new QEffect()
-                {
+            LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.WintersClutch].Item2, LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect() {
                     ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Wnter's Clutch", FeatName.WintersClutch, IllustrationName.WintersClutch, new Trait[2]
                     {
                         Trait.Water,
                         Trait.Cold
                     }, 1, "Gleaming flakes of chilling snow fall around you.", "Each creature in a 10-foot burst within 60 feet of you takes " + S.HeightenedVariable((qfSelf.Owner.Level + 3) / 2, 2) + "d4 cold damage with a basic Reflex save against your class DC. The ground in the area is covered in a snow drift, which is difficult terrain. Each square of the drift lasts until the end of the encounter or until fire damage is dealt in that square.", Target.Burst(12, 2)).WithSavingThrow(new(Defense.Reflex, qfSelf.Owner.ClassOrSpellDC())).WithImpulseHeighteningNumerical(qfSelf.Owner.Level, 1, 2, "The damage increases by 1d4.")
                     .WithSoundEffect(SfxName.WintersClutch)
-                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result)
-                    {
+                    .WithEffectOnEachTarget(async delegate (CombatAction spell, Creature caster, Creature target, CheckResult result) {
                         await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, (qfSelf.Owner.Level + 3) / 2 + "d4", DamageKind.Cold);
                     })
-                    .WithEffectOnChosenTargets(async delegate (CombatAction spell, Creature caster, ChosenTargets targets)
-                    {
-                        foreach (Tile item7 in targets.ChosenTiles.Where((Tile tl) => !tl.AlwaysBlocksMovement && !tl.IsFireTerrain))
-                        {
-                            TileQEffect tileQEffect2 = new TileQEffect(item7)
-                            {
+                    .WithEffectOnChosenTargets(async delegate (CombatAction spell, Creature caster, ChosenTargets targets) {
+                        foreach (Tile item7 in targets.ChosenTiles.Where((Tile tl) => !tl.AlwaysBlocksMovement && !tl.IsFireTerrain)) {
+                            TileQEffect tileQEffect2 = new TileQEffect(item7) {
                                 Illustration = new IllustrationName[4]
                                 {
                                     IllustrationName.SnowTile1,
@@ -1064,10 +1152,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                                 }.GetRandomVisualOnly(),
                                 TransformsTileIntoDifficultTerrain = true
                             };
-                            tileQEffect2.AfterDamageIsDealtHereAsync = async (damageKind) =>
-                            {
-                                if (damageKind == DamageKind.Fire)
-                                {
+                            tileQEffect2.AfterDamageIsDealtHereAsync = async (damageKind) => {
+                                if (damageKind == DamageKind.Fire) {
                                     tileQEffect2.ExpiresAt = ExpirationCondition.Immediately;
                                 }
                             };
@@ -1081,31 +1167,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             #endregion
         }
 
-        private static void AddFocusSpell(Creature creature, SpellId spell, Ability ability, Trait tradition, Trait source)
-        {
+        private static void AddFocusSpell(Creature creature, SpellId spell, Ability ability, Trait tradition, Trait source) {
             Spellcasting? casting = new(creature);
 
-            if (creature.Spellcasting == null)
-            {
+            if (creature.Spellcasting == null) {
                 creature.Spellcasting = casting;
-            }
-            else
-            {
+            } else {
                 casting = creature.Spellcasting;
             }
 
-            if (creature.Spellcasting.FocusPointsMaximum < 3)
-            {
+            if (creature.Spellcasting.FocusPointsMaximum < 3) {
                 creature.Spellcasting.FocusPointsMaximum++;
                 creature.Spellcasting.FocusPoints++;
             }
 
-            foreach (var spellCastingSource in creature.Spellcasting.Sources)
-            {
-                if (spellCastingSource.ClassOfOrigin == source)
-                {
-                    spellCastingSource.FocusSpells.Add(AllSpells.CreateModernSpell(spell, creature, creature.MaximumSpellRank, true, new SpellInformation
-                    {
+            foreach (var spellCastingSource in creature.Spellcasting.Sources) {
+                if (spellCastingSource.ClassOfOrigin == source) {
+                    spellCastingSource.FocusSpells.Add(AllSpells.CreateModernSpell(spell, creature, creature.MaximumSpellRank, true, new SpellInformation {
                         ClassOfOrigin = source
                     }).CombatActionSpell);
 
@@ -1114,21 +1192,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             }
 
             var newSource = new SpellcastingSource(casting, SpellcastingKind.Innate, ability, tradition, source);
-            newSource.FocusSpells.Add(AllSpells.CreateModernSpell(spell, creature, creature.MaximumSpellRank, true, new SpellInformation
-            {
+            newSource.FocusSpells.Add(AllSpells.CreateModernSpell(spell, creature, creature.MaximumSpellRank, true, new SpellInformation {
                 ClassOfOrigin = source
             }).CombatActionSpell);
             creature.Spellcasting.Sources.Add(newSource);
         }
 
-        private static CombatAction CreateBasicImpulse(Creature owner, string name, FeatName featName, IllustrationName illustration, Trait[] traits, int baseLevel, string flavorText, string rulesText, Target target)
-        {
+        private static CombatAction CreateBasicImpulse(Creature owner, string name, FeatName featName, IllustrationName illustration, Trait[] traits, int baseLevel, string flavorText, string rulesText, Target target) {
             var traitList = traits.ToList();
             traitList.AddRange([Trait.Primal, Trait.Basic, Trait.Concentrate]);
 
             CombatAction combatAction = new CombatAction(owner, illustration, name, traitList.ToArray(),
-                "{i}" + flavorText + "{/i}\n\n" + rulesText, target)
-            {
+                "{i}" + flavorText + "{/i}\n\n" + rulesText, target) {
                 ImpulseInformation = new ImpulseInformation(featName, baseLevel, flavorText, rulesText, null, null)
             };
             combatAction.WithProjectileCone(illustration, 15, ProjectileKind.Cone);
@@ -1136,10 +1211,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return combatAction;
         }
 
-        private static bool IncreaseTarget(CreatureTarget creatureTarget)
-        {
-            if (creatureTarget.RangeKind == RangeKind.Melee)
-            {
+        private static bool IncreaseTarget(CreatureTarget creatureTarget) {
+            if (creatureTarget.RangeKind == RangeKind.Melee) {
                 creatureTarget.OwnerAction.Traits.Remove(Trait.Melee);
                 creatureTarget.OwnerAction.Traits.Add(Trait.Ranged);
                 //P_1.metamagicSpell.Traits = new Traits(P_1.metamagicSpell.Traits.Except(new _003C_003Ez__ReadOnlySingleElementList<Trait>(Trait.Melee)).Concat(new _003C_003Ez__ReadOnlySingleElementList<Trait>(Trait.Ranged)));
@@ -1151,8 +1224,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             }
 
             MaximumRangeCreatureTargetingRequirement maximumRangeCreatureTargetingRequirement = creatureTarget.CreatureTargetingRequirements.OfType<MaximumRangeCreatureTargetingRequirement>().FirstOrDefault();
-            if (maximumRangeCreatureTargetingRequirement != null)
-            {
+            if (maximumRangeCreatureTargetingRequirement != null) {
                 maximumRangeCreatureTargetingRequirement.Range += 6;
                 return true;
             }
@@ -1160,21 +1232,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             return false;
         }
 
-        private class FlyingFlameTarget : GeneratorTarget
-        {
+        private class FlyingFlameTarget : GeneratorTarget {
             public override bool IsAreaTarget => true;
 
             public override bool RemoveDuplicates => true;
 
             public override bool TracePathFromOrigin => true;
 
-            public override GeneratedTargetInSequence? GenerateNextTarget()
-            {
+            public override GeneratedTargetInSequence? GenerateNextTarget() {
                 List<Tile> chosenTiles = base.OwnerAction.ChosenTargets.ChosenTiles;
-                if (chosenTiles.Count == 0)
-                {
-                    return new GeneratedTargetInSequence(Target.Tile((Creature caster, Tile tile) => !tile.AlwaysBlocksLineOfEffect && caster.Occupies.DistanceTo(tile) == 1, null).WithAlsoSelectCreatures())
-                    {
+                if (chosenTiles.Count == 0) {
+                    return new GeneratedTargetInSequence(Target.Tile((Creature caster, Tile tile) => !tile.AlwaysBlocksLineOfEffect && caster.Occupies.DistanceTo(tile) == 1, null).WithAlsoSelectCreatures()) {
                         AdditionalTargetingText = " (Select first square to move to.)",
                         DisableConfirmNoMoreTargets = true
                     };
@@ -1183,17 +1251,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 Tile tile2 = base.OwnerAction.Owner.Occupies;
                 bool flag = false;
                 int num = 0;
-                foreach (Tile item in chosenTiles)
-                {
-                    if (Math.Abs(item.X - tile2.X) == 1 && Math.Abs(item.Y - tile2.Y) == 1)
-                    {
-                        if (flag)
-                        {
+                foreach (Tile item in chosenTiles) {
+                    if (Math.Abs(item.X - tile2.X) == 1 && Math.Abs(item.Y - tile2.Y) == 1) {
+                        if (flag) {
                             num++;
                             flag = false;
-                        }
-                        else
-                        {
+                        } else {
                             flag = true;
                         }
                     }
@@ -1202,15 +1265,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     tile2 = item;
                 }
 
-                if (num >= 6)
-                {
+                if (num >= 6) {
                     return null;
                 }
 
                 Tile from = chosenTiles.Last();
                 bool canStillMoveOnDiagonal = !flag || num <= 4;
-                return new GeneratedTargetInSequence(Target.Tile((Creature caster, Tile tile) => !tile.AlwaysBlocksLineOfEffect && from.DistanceTo(tile) == 1 && (canStillMoveOnDiagonal || from.X == tile.X || from.Y == tile.Y), null).WithAlsoSelectCreatures())
-                {
+                return new GeneratedTargetInSequence(Target.Tile((Creature caster, Tile tile) => !tile.AlwaysBlocksLineOfEffect && from.DistanceTo(tile) == 1 && (canStillMoveOnDiagonal || from.X == tile.X || from.Y == tile.Y), null).WithAlsoSelectCreatures()) {
                     AdditionalTargetingText = $" (current distance {num * 5}/30ft.)",
                     ConfirmationTextToFinish = "Confirm this Flying Flame path"
                 };

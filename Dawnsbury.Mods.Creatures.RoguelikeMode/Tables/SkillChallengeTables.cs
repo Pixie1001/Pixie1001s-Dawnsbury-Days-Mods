@@ -30,6 +30,10 @@ using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Modding;
+using HarmonyLib;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -155,7 +159,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
                             }
                         } else {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} was poised by a puff of spores!", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} was poisoned by a puff of spores!", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has become sickened 1 for the duration of the next encounter.", null);
                             opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", null, 1)!);
                         }
@@ -185,7 +189,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 await battle.Cinematics.NarratorLineAsync("To earn their trust and cooperate towards the two groups' mutual goals...", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy);
-                SCOption opt2 = GetBestPartyMember(battle, level, 2, (cr, skill) => cr.HasFeat(FeatName.TheCeruleanSky) ? 2 : 0, Skill.Religion);
+                SCOption opt2 = GetBestPartyMember(battle, level, 2, [(cr, skill) => cr.HasFeat(FeatName.TheCeruleanSky) ? (2, "Follower of the Cerulean Sky") : null], Skill.Religion);
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
                     $"To earn their trust and cooperate towards the two group's mutual goals...",
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} suggests an exchange of information.",
@@ -378,7 +382,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 await battle.Cinematics.NarratorLineAsync("What could possibly have driven such a pure creature to wander into a place such as this?", null);
                 battle.Cinematics.ExitCutscene();
                 SCOption opt1 = GetBestPartyMember(battle, level, 2, Skill.Medicine, Skill.Nature);
-                SCOption opt2 = GetBestPartyMember(battle, level, 2, (user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet!.IdentityChoice!.Alignment) ? 2 : 0, Skill.Diplomacy);
+                SCOption opt2 = GetBestPartyMember(battle, level, 2, [(user, skill) => new NineCornerAlignment[] { NineCornerAlignment.LawfulGood, NineCornerAlignment.NeutralGood, NineCornerAlignment.ChaoticGood }.Contains(user.PersistentCharacterSheet!.IdentityChoice!.Alignment) ? (2, "Has a Good alignment") : null], Skill.Diplomacy);
                 SCOption opt3 = GetBestPartyMember(battle, level, -4, Skill.Arcana, Skill.Occultism);
             
                 List<string> choices = new List<string>() {
@@ -703,7 +707,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             }));
         }
 
-        private static SCOption GetBestPartyMember(TBattle battle, int level, int difficultyModifier, Func<Creature, Skill, int>? bonusLogic, params Skill[] skills) {
+        private static SCOption GetBestPartyMember(TBattle battle, int level, int difficultyModifier, Func<Creature, Skill, (int, string)?>[]? bonusLogic, params Skill[] skills) {
             var party = battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null);
             Creature bestCreature = party.First();
             int bestScore = -50;
@@ -711,7 +715,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             foreach (Skill skill in skills) {
                 Skill currSkill = skill;
                 Creature currCreature = party.OrderBy(cr => cr.Skills.Get(skill)).Last();
-                int currScore = currCreature.Skills.Get(skill) + (bonusLogic != null ? bonusLogic(currCreature, skill) : 0);
+                int currScore = currCreature.Skills.Get(skill); ;
+                if (bonusLogic != null) {
+                    foreach (var entry in bonusLogic) {
+                        currScore += entry != null && entry(currCreature, skill) != null ? entry(currCreature, skill)!.Value.Item1 : 0;
+                    }
+                }
                 if (currScore > bestScore) {
                     bestScore = currScore;
                     bestCreature = currCreature;
@@ -770,29 +779,57 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
         public Skill Skill { get; }
         public int Bonus { get; }
         public int DC { get; set; }
-        public Func<Creature, Skill, int>? BonusLogic { get; }
+        public Func<Creature, Skill, (int, string)?>[]? BonusLogic { get; }
+        private string TooltipCode;
 
-        public SCOption(Creature nominee, Skill skill, int bonus, int level, int mod, Func<Creature, Skill, int>? bonusLogic) {
+        public SCOption(Creature nominee, Skill skill, int bonus, int level, int mod, Func<Creature, Skill, (int, string)?>[]? bonusLogic=null) {
             Nominee = nominee;
             Skill = skill;
             Bonus = bonus;
             DC = SkillChallengeTables.GetDCByLevel(level) + mod;
             BonusLogic = bonusLogic;
+
+            var tooltipText = $"{{b}}Skill Check{{/b}} ({Nominee.Name})" +
+            $"\n • {Skill.HumanizeTitleCase2()} ({UtilityFunctions.WithPlus(Nominee.Skills.Get(Skill))})";
+
+            if (BonusLogic != null) {
+                foreach (var entry in BonusLogic) {
+                    var output = entry(Nominee, Skill);
+                    if (output != null)
+                        tooltipText += $"\n • {output.Value.Item2} ({UtilityFunctions.WithPlus(output.Value.Item1)})";
+                }
+            }
+
+            double percentChance = Math.Round((21 - DC + Bonus) / 20f * 100, 1);
+
+            tooltipText += $"\n{UtilityFunctions.WithPlus(Bonus)} vs. DC {DC} ({percentChance}% chance of success)";
+
+            TooltipCode = $"RL_SkillChallengeOptionTooltip_{Tooltip.RegisteredInlineTargetDetails.Count}";
+
+            ModManager.RegisterInlineTooltip(TooltipCode, tooltipText);
+
+            //Tooltip.RegisteredInlineTargetDetails.TryAdd(tooltipText.ToLower(), new InlineTarget(tooltipText, 400));
         }
 
         public string printInfoTag() {
-            return "{b}{DimGray}" + $"[{Skill.HumanizeTitleCase2()} {UtilityFunctions.WithPlus(Bonus)} (DC {DC})]" + "{/DimGray}{/b} ";
+            return $"{{tooltip:{TooltipCode}}}" + "{DimGray}" + $"[{Skill.HumanizeTitleCase2()} {UtilityFunctions.WithPlus(Bonus)} (DC {DC})]" + "{/DimGray} ";
         }
 
         public CheckResult Roll() {
             Sfxs.Play(SfxName.BookClosed);
-            QEffect bonus = new QEffect();
             if (BonusLogic != null) {
-                bonus.BonusToSkills = skill => new Bonus(BonusLogic(Nominee, skill), BonusType.Untyped, "Special Bonus");
-                Nominee.AddQEffect(bonus);
+                foreach (var entry in BonusLogic) {
+                    QEffect bonus = new QEffect();
+                    bonus.ExpiresAt = ExpirationCondition.Ephemeral;
+                    bonus.BonusToSkills = skill => {
+                        var output = entry(Nominee, skill);
+                        if (output is null) return null;
+                        return new Bonus(output.Value.Item1, BonusType.Untyped, output.Value.Item2);
+                    };
+                    Nominee.AddQEffect(bonus);
+                }
             }
             CheckResult output = CommonSpellEffects.RollCheck("Skill Challenge", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill), Checks.FlatDC(DC)), Nominee, Nominee);
-            bonus.ExpiresAt = ExpirationCondition.Immediately;
             return output;
         }
     }

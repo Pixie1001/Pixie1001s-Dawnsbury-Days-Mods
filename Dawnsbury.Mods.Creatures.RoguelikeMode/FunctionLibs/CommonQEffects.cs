@@ -707,7 +707,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                         return null;
                     }
 
-                    if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your champion's reaction to prevent " + (baseReduction + effect.Owner.Level).ToString() + " of that damage?"))
+                    if (!await effect.Owner.Battle.AskToUseReaction(effect.Owner, attacker.ToString() + " is about to deal " + damageStuff.Amount.ToString() + " damage to " + defender?.ToString() + ". Use your reaction to prevent " + (baseReduction + effect.Owner.Level).ToString() + " of that damage?"))
                         return null;
 
                     List<Tile> validStepTiles = effect.Owner.Battle.Map.AllTiles.Where(t => t.IsFree && t.IsAdjacentTo(effect.Owner.Occupies) && t.DistanceTo(attacker.Occupies) < 3 && attacker.HasLineOfEffectTo(attacker.Occupies) < CoverKind.Blocked).ToList();

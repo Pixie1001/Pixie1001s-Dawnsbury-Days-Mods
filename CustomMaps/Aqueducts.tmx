@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="13" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="As the party makes their way through the winding caverns, they soon find themselves facing four well equipped silhouettes standing between them and their final goal. Who could this mysterious group be? Perhaps another adventuring party?"/>
+  <property name="EncounterDescription" value="The party's journey takes them deep beneath the bowels of the world, to a long abandoned Drow metropolis... And then deeper still, to the city's aqueducts that wind down to the leyline built at the very heart of the ruins. Shadows flicker at every corner, and the longer they walk, the longer they begin to suspect they are not alone..."/>
   <property name="EncounterGroup" value="Roguelike (Elite)"/>
   <property name="EncounterLevel" type="int" value="2"/>
   <property name="EncounterName" value="Aqueducts"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
  <imagelayer id="4" name="Image Layer 1">
   <image source="Aqueduct.jpg" width="6400" height="3328"/>
  </imagelayer>
@@ -31,16 +31,16 @@
  <layer id="2" name="Top layer: stones, trees, creatures..." width="25" height="13">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-91,0,0,128,0,14,0,0,0,0,0,0,14,0,0,0,0,91,0,14,0,0,0,0,0,
-0,0,134,0,134,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+91,0,0,134,0,14,0,0,0,0,0,0,14,0,0,0,0,91,0,14,0,0,0,0,0,
+0,0,140,0,140,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,127,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,133,0,0,0,0,0,0,0,0,0,0,0,0,
 38,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-39,36,0,0,0,14,0,0,0,0,0,0,14,0,0,0,0,0,0,14,0,0,0,0,129,
+39,36,0,0,0,14,0,0,0,0,0,0,14,0,0,0,0,0,0,14,0,0,0,0,135,
 37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,134,0,0,0,0,0,0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,
+0,0,140,0,0,0,0,0,0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,0,91,
 0,0,0,0,0,14,0,0,91,91,91,0,14,0,0,0,0,0,0,14,0,0,0,91,91,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>

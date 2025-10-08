@@ -40,7 +40,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             var numJavelins = 3;;
 
-            Creature monster = new Creature(Illustrations.EHighPriestess, "Echidnadite High Priestess", [Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, ModTraits.SpellcasterMutator],
+            Creature monster = new Creature(Illustrations.EHighPriestess, "Echidnadite High Priestess", [Trait.Chaotic, Trait.Evil, Trait.Human, Trait.Humanoid, Trait.Female, ModTraits.SpellcasterMutator],
                level: 8, perception: 16, speed: 5, new Defenses(24, fort: 19, reflex: 16, will: 16), hp: 170,
             new Abilities(5, 5, 6, 1, 7, 4), new Skills(religion: 16, nature: 16, athletics: 13, diplomacy: 12))
             .WithAIModification(ai => {

@@ -23,7 +23,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class DrowTempleGuard {
         public static Creature Create() {
-            return new Creature(Illustrations.DrowTempleGuard, "Drow Temple Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, ModTraits.MeleeMutator }, 2, 8, 6, new Defenses(18, 11, 8, 9), 28,
+            return new Creature(Illustrations.DrowTempleGuard, "Drow Temple Guard", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Humanoid, Trait.MetalArmor, ModTraits.MeleeMutator }, 2, 8, 6, new Defenses(18, 11, 8, 9), 28,
             new Abilities(4, 2, 3, 0, 2, 0), new Skills(athletics: 8, intimidation: 6))
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {

@@ -1,6 +1,8 @@
 ﻿using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
@@ -18,6 +20,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
         public static List<EncounterCampaignStop>[] encounters = new List<EncounterCampaignStop>[8];
         public static List<EncounterCampaignStop>[] eliteEncounters = new List<EncounterCampaignStop>[3];
         public static List<EncounterCampaignStop> bossFights = new List<EncounterCampaignStop>();
+
+        public static void ApplySpecialEncounters(CampaignState state) {
+            var output = "";
+            var index = 0;
+
+            if (state.Tags.TryGetValue("DefendTheReliquary", out output) && Int32.TryParse(output, out index)) {
+                state.AdventurePath!.CampaignStops[index] = new TypedEncounterCampaignStop<DefendTheReliquary>();
+                state.AdventurePath!.CampaignStops[index].Index = index;
+            }
+
+            // Add more event encounters here
+        }
 
         public static void LoadEncounterTables() {
             bossFights.Clear();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="77" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="82" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -401,7 +401,7 @@
   <properties>
    <property name="Id" value="Drow High Priestess"/>
   </properties>
-  <image source="CustomCreatures/DrowPriestess.png" width="256" height="256"/>
+  <image source="CustomCreatures/DrowHighPriestess.png" width="256" height="256"/>
  </tile>
  <tile id="2060">
   <properties>
@@ -461,6 +461,36 @@
   <properties>
    <property name="Id" value="Hydra"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/UnicornFoal.png" width="256" height="256"/>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/Hydra.png" width="256" height="256"/>
+ </tile>
+ <tile id="2070">
+  <properties>
+   <property name="Id" value="Baraquielle"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/Baraquielle.png" width="256" height="256"/>
+ </tile>
+ <tile id="2071">
+  <properties>
+   <property name="Id" value="Reliquary"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Tiles/GoldenCandelabra.png" width="256" height="256"/>
+ </tile>
+ <tile id="2072">
+  <properties>
+   <property name="Id" value="Drow Champion"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/DrowChampion.png" width="256" height="256"/>
+ </tile>
+ <tile id="2073">
+  <properties>
+   <property name="Id" value="Drow Shadowdancer"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/DrowShadowdancer.png" width="256" height="256"/>
+ </tile>
+ <tile id="2074">
+  <properties>
+   <property name="Id" value="Drow Sorceress"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/DrowSorceress.png" width="256" height="256"/>
  </tile>
 </tileset>

@@ -8,7 +8,7 @@
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2201" source="DlcTileset.tsx"/>
+ <tileset firstgid="2206" source="DlcTileset.tsx"/>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15">
   <data encoding="csv">
 22,22,22,22,22,22,22,21,22,22,22,22,22,22,22,
@@ -37,9 +37,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2200,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2203,0,0,0,0,0,0,0,
+0,0,0,0,2205,0,0,0,0,0,2204,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

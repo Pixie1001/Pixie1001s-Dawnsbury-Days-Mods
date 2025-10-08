@@ -66,7 +66,8 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             CONCOCT_POULTICE,
             MOONSHINE,
             NO_CAUSE_FOR_ALARM,
-            FEY_FORTUNE
+            FEY_FORTUNE,
+            BLACKSMITH_MAINTENANCE
         }
 
         internal static void RegisterIllustrations() {
@@ -80,6 +81,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             imgs.Add(ImageId.MOONSHINE, new ModdedIllustration("BundleOfBackgroundsAssets/Moonshine.png"));
             imgs.Add(ImageId.NO_CAUSE_FOR_ALARM, new ModdedIllustration("BundleOfBackgroundsAssets/NoCauseForAlarm.png"));
             imgs.Add(ImageId.FEY_FORTUNE, new ModdedIllustration("BundleOfBackgroundsAssets/FeyFortune.png"));
+            imgs.Add(ImageId.BLACKSMITH_MAINTENANCE, new ModdedIllustration("BundleOfBackgroundsAssets/BlacksmithMaitenance.png"));
         }
     }
 }

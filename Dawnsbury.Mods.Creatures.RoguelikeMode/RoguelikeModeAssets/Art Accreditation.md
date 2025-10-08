@@ -21,6 +21,13 @@
 	<li>SpellbanePlate.png</li>
 	<li>ThrowersBandolier.png</li>
 	<li>MedusaEyeAmulet.png</li>
+	<li>DuergarSkullShield.png</li>
+</ul>
+
+### Concept Hamster
+*Please support Concept Hamster [here (Unity Asset Store)](https://assetstore.unity.com/packages/2d/gui/icons/rpg-item-icons-240226).*
+<ul>
+	<li>ChillwindBow.png</li>
 </ul>
 
 ### YusufArtun
@@ -39,7 +46,10 @@
 	<li>SerpentineBow.png</li>
 	<li>Quills.png</li>
 	<li>CloakOfDuplicity.png</li>
+	<li>LivingCloak.png (modified)</li>
 	<li>Javelin.png</li>
+	<li>RodOfHealing.png</li>
+	<li>RingOfDeathDefiance.png</li>
 </ul>
 
 ### Rexard
@@ -70,11 +80,12 @@
 	<li>FightingFan.png by smashingstocks - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/hand-fan_8635537?term=hand+fan&page=1&position=16&origin=search&related_id=8635537)</li>
 	<li>spellbook.png by Smashicons - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/spell-book_10580223?related_id=10580223)</li>
 	<li>pentagram.png by Good Ware - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/pentagram_6766762?term=pentagram&related_id=6766762)</li>
-	<li>RuneOfPandemonium.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/rune_8381636?term=rune&page=2&position=1&origin=search&related_id=8381636)</li>
+	<li>RuneOfPandemonium.png, LunaRunestone.png 9modified) by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/rune_8381636?term=rune&page=2&position=1&origin=search&related_id=8381636)</li>
 	<li>NightmareGrowth.png (Modified) by Revicon - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/tree_228654?term=spooky+tree&page=1&position=4&origin=search&related_id=228654)</li>
 	<li>ManTrap.png (Modified) by Good Ware - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/bear-trap_4677297?term=bear+trap&related_id=4677297)</li>
 	<li>RuneOfMirrors.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/crystal_8555383?term=gem&related_id=8555383)</li>
 	<li>RuneOfOpportunism.png (Modified) by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/diamond_4334132?term=gem&related_id=4334132)</li>
+	<li>MaskOfSkills.png by Amythst prime - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/carnival-mask_7590231?term=eye+mask&related_id=7590231)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -100,10 +111,12 @@
 	<li>CloakOfAir.png (Modified)</li>
 	<li>BaneCircleWhite.png (Modified)</li>
 	<li>MutatedBorder.png (Modified)</li>
+	<li>Baraquielle.png (Modified)</li>
+	<li>DiademOfTheSpiderQueen.png (Modified)</li>
 </ul>
 
 ## Self Produced Assets
-*Assets I drew myself for use in this project.*
+*Assets I drew or photographed myself for use in this project.*
 <ul>
 	<li>Drider.png</li>
 	<li>DrowFighter.png</li>
@@ -162,6 +175,13 @@
 	<li>WeaverOfLiesCaster.png</li>
 	<li>WeaverOfLiesRanged.png</li>
 	<li>NagajiTail.png</li>
+	<li>Lyra.png</li>
+	<li>DrowHighPriestess.png</li>
+	<li>Hydra.png</li>
+	<li>CompanionBunny.png</li>
+	<li>DrowChampion.png</li>
+	<li>DrowSorceress.png</li>
+	<li>DrowShadowdancer.png</li>
 </ul>
 
 ## Volunteer Contributions

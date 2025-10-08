@@ -1215,6 +1215,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     int range = item.HasTrait(Trait.Reach) ? 3 : 2;
 
                     CombatAction action = eidolon.CreateStrike(item, -1, null);
+                    action.Traits.Add(Trait.DoesNotProvoke);
                     action.Name = "Tendril Strike (" + item.Name + ")";
 
                     var split = action.Description.Split("\n");

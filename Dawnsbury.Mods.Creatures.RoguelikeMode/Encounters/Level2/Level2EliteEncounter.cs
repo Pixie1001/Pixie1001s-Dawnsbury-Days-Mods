@@ -56,6 +56,7 @@ using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core.Animations.Movement;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 {
@@ -64,7 +65,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     internal class Level2EliteEncounter : Encounter
     {
 
-        public Level2EliteEncounter(string name, string filename, List<(Item, string)>? eliteRewards = null, List<Item>? rewards=null) : base(name, filename, rewards, 0)
+        public Level2EliteEncounter(string name, string filename, List<(Item, string)?>? eliteRewards = null, List<Item>? rewards=null) : base(name, filename, rewards, 0)
         {
             this.CharacterLevel = 2;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.ELITE);
@@ -79,9 +80,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
 
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                if (eliteRewards != null) {
-                    await CommonEncounterFuncs.PresentEliteRewardChoice(battle, eliteRewards);
+                if (eliteRewards == null) {
+                    eliteRewards = [LootTables.RollEliteReward(this.CharacterLevel), LootTables.RollEliteReward(this.CharacterLevel)];
+                } else if (eliteRewards.Count == 1) {
+                    eliteRewards.Add(LootTables.RollEliteReward(this.CharacterLevel));
                 }
+                await CommonEncounterFuncs.PresentEliteRewardChoice(battle, eliteRewards);
                 await CommonEncounterFuncs.StandardEncounterResolve(battle);
             });
         }

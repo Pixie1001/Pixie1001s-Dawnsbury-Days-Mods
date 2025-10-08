@@ -254,6 +254,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Value = 4,
                             Source = caster,
                             Illustration = Enums.illLifeLink,
+                            Key = "LifeLinkSurge",
                             StartOfYourPrimaryTurn = (async (qf, self) => {
                                 await self.HealAsync($"{spellLevel * 2}", spell);
                             }),

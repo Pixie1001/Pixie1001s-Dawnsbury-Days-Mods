@@ -55,6 +55,8 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
+using Dawnsbury.Core.StatBlocks.Monsters.L5;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -169,8 +171,31 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         }
 
         [HarmonyPostfix]
+        [HarmonyPatch(typeof(Creature), "RecalculateArmor")]
+        private static void RecalculateArmorPostfixPatch(Creature __instance) {
+            if (__instance.CarriedItems.Any(itm => itm.ItemName == CustomItems.DiademOfTheSpiderQueen && itm.IsWorn) && __instance.PersistentCharacterSheet?.Calculated.FinalAbilityScores.KeyAbility == Ability.Dexterity) {
+
+                var dexCap = __instance.BaseArmor?.ArmorProperties!.DexCap ?? 100;
+                foreach (var qEffect in __instance.QEffects) {
+                    if (qEffect.LimitsDexterityBonusToAC != -1) {
+                        dexCap = Math.Min(dexCap, qEffect.LimitsDexterityBonusToAC);
+                    }
+                }
+                __instance.Armor.DexterityBonus = Math.Min(__instance.Abilities.Dexterity, dexCap);
+                __instance.Defenses.Set(Defense.AC, 10);
+                var dexterityBonusToReflex = __instance.Abilities.Dexterity;
+                if (__instance.BaseArmor != null && __instance.BaseArmor.HasTrait(Trait.Bulwark)) {
+                    dexterityBonusToReflex = Math.Max(dexterityBonusToReflex, 3);
+                }
+                if (__instance.PersistentCharacterSheet != null) {
+                    __instance.Defenses.Set(Defense.Reflex, __instance.PersistentCharacterSheet.Calculated.GetProficiency(Trait.Reflex).ToNumber(__instance.Level) + dexterityBonusToReflex);
+                }
+            }
+        }
+
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(Possibilities), "CreateItemStrikePossibility")]
-        private static void CreateItemStrikePossibilityPrefixPatch(ref Possibility __result, Creature self, Item item) {
+        private static void CreateItemStrikePossibilityPostfixPatch(ref Possibility __result, Creature self, Item item) {
             if (!item.HasTrait(ModTraits.ThrownOnly) || __result is not SubmenuPossibility) return;
 
             (__result as SubmenuPossibility)!.Subsections[0].Possibilities.RemoveAll(pos => pos is ActionPossibility ap && (ap.CombatAction.HasTrait(Trait.Melee) || !ap.CombatAction.HasTrait(Trait.Thrown)));
@@ -683,7 +708,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 throw new ArgumentException("ERROR: Seed is not an integer (Roguelike Mod)");
             }
 
-            //LTEs.InitBoons(campaign);
+            
 
             var rand = new Random(result);
 
@@ -710,6 +735,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             int level = 1;
             int fightNum = 0;
 
+            //bool test = true;
+
             for (int i = 0; i < path.Count; i++) {
                 if (path[i] is LevelUpStop) {
                     fightNum = 0;
@@ -723,6 +750,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.NextVisualOnly(0, 8) <= 3) {
                         campaign.Tags["TreasureDemonEncounters"] += $"{i}, ";
                     }
+
+                    //if (test) {
+                    //    path[i] = new TypedEncounterCampaignStop<DefendTheReliquary>();
+                    //    path[i].Index = i;
+                    //    test = false;
+                    //} else {
+                    //    path[i] = GenerateRandomEncounter(rand, removed, level, encounterType, campaign);
+                    //    path[i].Index = i;
+                    //}
+
                     path[i] = GenerateRandomEncounter(rand, removed, level, encounterType, campaign);
                     path[i].Index = i;
 
@@ -739,6 +776,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     }
                 }
             }
+
+            EncounterTables.ApplySpecialEncounters(campaign);
 
             (path[path.Count - 1] as DawnsburyStop)!.CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
                     "{b}Stats{/b}\n" +

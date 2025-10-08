@@ -1,5 +1,14 @@
 RL
-* Twin trait now add damage as a circ. bonus
-* Items are now sorted under expandable dropdowns to seperate them out from less powerful vannila magic items.
-* Fixed crash with Weaver of Lies encounter (Renamed to Spinner of Lies)
-* 
+* The unicorn companion will no longer be seen as an enemy by other AI companions
+* Animal Companion items are now listed as filling the 'pet' slot
+* Fixed bug that stopped Choking Mushrooms from creating fog tiles
+* Choking Mushrooms are now part of the neutral faction, but can still be targeted by players
+* Fixed bug where Drow Blademaster causes a crash if disarmed
+* Added a list of generic elite rewards that now appear as choices in elite encounters w/o set options
+* Defeating the final boss now awards players with the Diadam of the Spider Queen
+* Treasure demon spawn location is now fixed by the seed
+* Aquarducts now has the correct encounter description
+* Added the metal armour trait to several plate wearing enemies
+
+Summoner
+* Lifelink Surge no longer stacks  

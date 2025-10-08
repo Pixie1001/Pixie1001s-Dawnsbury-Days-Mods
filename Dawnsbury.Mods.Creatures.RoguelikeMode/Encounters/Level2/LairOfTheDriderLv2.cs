@@ -74,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class LairOfTheDriderLv2 : Level2EliteEncounter {
 
-        public LairOfTheDriderLv2(string filename) : base("Lair of the Drider", filename, eliteRewards: new List<(Item, string)> {
+        public LairOfTheDriderLv2(string filename) : base("Lair of the Drider", filename, eliteRewards: new List<(Item, string)?> {
             (Items.CreateNew(CustomItems.SpideryHalberd).WithModificationPlusOne(), "This cruel halberd's jagged edge drips with poison and the strange spinneret like contraption upon it looks promising"),
             (Items.CreateNew(CustomItems.SpiderHatchling), "A dazed looking spiderling, ready to be imprinted upon a new master.")
         }) { }

@@ -387,6 +387,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                 }
 
+                if (spell.SpellId == SpellId.SearingLight) {
+                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                        var hLevels = t.OwnerAction.SpellLevel - 3;
+                        return 3.5f * (5 + hLevels * 2) * ((d.HasTrait(Trait.Evil) && (d.HasTrait(Trait.Fiend) || d.HasTrait(Trait.Undead))) ? 2 : 1);
+                    });
+                }
+
+                if (spell.SpellId == SpellId.HauntingHymn) {
+                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                        return 4.5f * t.OwnerAction.SpellLevel;
+                    });
+                }
+
                 //if (spell.SpellId == SpellId.BrinyBolt) {
                 //    spell.WithGoodnessAgainstEnemy((t, a, d) => {
                 //        float score = 3.5f * t.OwnerAction.SpellLevel;
@@ -425,7 +438,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                 if (spell.SpellId == SpellId.Soothe) {
                     spell.WithGoodness((t, a, d) => {
-                        float score = spell.SpellLevel * 9.5f + (d.QEffects.Any(qf => qf.Name == "Soothe") ? 0 : 1);
+                        float score = Math.Min(spell.SpellLevel * 9.5f, d.Damage) + (d.QEffects.Any(qf => qf.Name == "Soothe") ? 0 : 1);
                         if (d.Damage >= d.MaxHP * 0.75) {
                             score *= 1.5f;
                         }
@@ -450,6 +463,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 if (spell.SpellId == SpellId.FireShield) {
                     spell.WithGoodness((t, a, d) => {
                         return 13f;
+                    });
+                }
+
+                if (spell.SpellId == SpellId.Sleep) {
+                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                        return spell.SpellLevel * 2 > d.Level ? d.Level * 4 : 0f;
+                    });
+                }
+
+                if (spell.SpellId == SpellId.ImpendingDoom) {
+                    spell.WithGoodnessAgainstEnemy((t, a, d) => {
+                        return d.QEffects.Any(qf => qf.Name == "Impending Doom") || spell.SpellLevel * 2 < d.Level ? 0f : spell.SpellLevel * 7 + d.Level * 5;
                     });
                 }
 

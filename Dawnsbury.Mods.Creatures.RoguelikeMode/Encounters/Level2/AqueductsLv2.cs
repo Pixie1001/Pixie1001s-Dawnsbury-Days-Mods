@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class AqueductsLv2 : Level2EliteEncounter
     {
-        public AqueductsLv2(string filename) : base("Aqueducts", filename, eliteRewards: new List<(Item, string)> {
+        public AqueductsLv2(string filename) : base("Aqueducts", filename, eliteRewards: new List<(Item, string)?> {
             (Items.CreateNew(CustomItems.ScourgeOfFangs).WithModificationPlusOne(), "A twitching three pronged whip tipped by three snapping serpent heads, with a malevolent intelligence meant to compensate for a priestess's lack of martial prowess."),
             (Items.CreateNew(CustomItems.SpiderHatchling), "A dazed looking spiderling, ready to be imprinted upon a new master.")
         }) { }

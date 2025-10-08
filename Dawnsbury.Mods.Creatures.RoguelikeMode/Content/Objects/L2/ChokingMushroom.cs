@@ -26,7 +26,6 @@ using Microsoft.Xna.Framework;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.Mechanics.Zoning;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -35,10 +34,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
             Creature hazard = new Creature(Illustrations.ChokingMushroom, "Choking Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            .WithSpawnAsGaia()
+            .WithAllowFriendlyFireFromHumans()
             .WithTactics(Tactic.DoNothing)
             .WithEntersInitiativeOrder(false)
             .AddQEffect(qfCurrentDC)
-            .AddQEffect(CommonQEffects.Hazard())
+            //.AddQEffect(CommonQEffects.Hazard())
             .AddQEffect(new QEffect("Choking Spores", "This predatory mushroom exhudes a cloud of poisonous spores to suffocate its prey. Creatures walking through the spores suffer 1d4 poison damage vs. a DC 17 Basic fortitude save, and become sickened 1 on a critical failure."))
             ;
 
@@ -219,11 +220,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             z.TileEffectCreator = tile => {
                 return new TileQEffect(tile) {
                     Name = "Choking Spores",
-                    VisibleDescription = "{b}Choking Spores.{/b} Toxic spores used by Choking Mushrooms to hunt for nutrients. Suffer 1d4 poison damage vs. a Basic (DC 17) fort save after entering or starting your turn within the spores, that inflicts sickened 1 on a critical failure.",
+                    VisibleDescription = "{b}Choking Spores.{/b} Toxic spores used by Choking Mushrooms to hunt for nutrients. Suffer 1d4 poison damage vs. a Basic (DC 17) fort save after entering or starting your turn within the spores, that inflicts sickened 1 on a critical failure." +
+                    "\n\nAll creatures within the cloud become concealed, and all creatures outside the cloud become concealed to creatures within it.",
                     TileQEffectId = QEffectIds.ChokingSpores,
                     ExpiresAt = ExpirationCondition.Never,
-                    Illustration = IllustrationName.Fog,
+                    StateCheck = tqf => tile.FoggyTerrain = true,
+                    Illustration = IllustrationName.Fog, //new[] { IllustrationName.Fog, IllustrationName.Fog1, IllustrationName.Fog2, IllustrationName.Fog3 }.GetRandomVisualOnly(),
                     TransformsTileIntoHazardousTerrain = true,
+                    
                 };
             };
 

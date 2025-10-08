@@ -54,6 +54,11 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using static HarmonyLib.Code;
 using Dawnsbury.Core.StatBlocks.Monsters.L1;
 using Dawnsbury.Display;
+using Microsoft.Xna.Framework.Graphics;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
+using Dawnsbury.Campaign.Path;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -122,7 +127,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         Id = QEffectIds.Parry,
                         BonusToDefenses = delegate (QEffect parrying, CombatAction? bonk, Defense defense) {
                             if (defense == Defense.AC) {
-                                return new Bonus(1, BonusType.Circumstance, "parry");
+                                return new Bonus(1, BonusType.Circumstance, "Parry");
                             } else return null;
                         },
                         Tag = item,
@@ -436,7 +441,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         .WithActionCost(1)
                         .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(new Item(IllustrationName.Web, "Web", new Trait[] { Trait.Attack, Trait.Unarmed, Trait.Finesse, Trait.Ranged })), Checks.DefenseDC(Defense.AC)))
                         .WithEffectOnSelf(user => {
-                            weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay));
+                            weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay) {
+                                
+                            });
                         })
                         .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {
                             if (checkResult >= CheckResult.Success) {
@@ -482,9 +489,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 target.AddQEffect(webbed);
                             }
                         });
-                    },
-                    EndOfCombat = async (self, won) => {
-                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
                     }
                 });
             };
@@ -517,9 +521,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             action.Item?.UseUp();
                         });
                         return spell;
-                    },
-                    EndOfCombat = async (self, win) => {
-                        item.RevertUseUp();
                     }
                 });
             };
@@ -600,12 +601,60 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return item;
         });
 
+        public static ItemName LunaRunestone { get; } = ModManager.RegisterNewItemIntoTheShop("LunaRunestone", itemName => {
+            Item item = new Item(itemName, Illustrations.LunaRunestone, "runestone of {i}luna{/i}", 7, 360,
+               [Trait.Runestone, Trait.Evocation, Trait.Fire, Trait.Silver, Trait.Divine, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
+            .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
+            .WithRuneProperties(new RuneProperties("luna", RuneKind.WeaponProperty, "A sacred runestone, blessed by a high priestess of The Cerulean Sky.",
+            "The weapon counts as being silvered and deals an extra 1d6 fire damage. The weapon can also be used to make the Crecent Moon Strike action." +
+            "\n\n{b}Crescent Moon Strike{/b} {icon:TwoActions}\n" +
+            "Deal 8d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. You cannot use this attack again for 1d4 rounds.", weapon => {
+                if (weapon.WeaponProperties != null) {
+                    weapon.WeaponProperties.WithAdditionalDamage("1d6", DamageKind.Fire);
+                    weapon.Traits.Add(Trait.Silver);
+                    weapon.StateCheckWhenWielded = (wielder, item) => {
+                        wielder.AddQEffect(new QEffect() {
+                            ExpiresAt = ExpirationCondition.Ephemeral,
+                            ProvideMainAction = self => {
+                                return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Moonbeam, "Crescent Moon Strike", [Trait.Magical, Trait.Divine, Trait.Silver],
+                                $"Deal 8d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. You cannot use this attack again for 1d4 rounds.",
+                                Target.Cone(5).WithIncludeOnlyIf((area, cr) => cr.OwningFaction.IsEnemy)) {
+                                    ShortDescription = $"Deal 8d6 fire damage (basic Reflex save) to each enemy creature within a 25ft cone. On a critical failure, targets are dazzled for 1 round. You cannot use this attack again for 1d4 rounds."
+                                }
+                                .WithSavingThrow(new SavingThrow(Defense.Reflex, self.Owner.ClassOrSpellDC()))
+                                .WithActionCost(2)
+                                .WithProjectileCone(IllustrationName.Moonbeam, 15, ProjectileKind.Cone)
+                                .WithSoundEffect(SfxName.DivineLance)
+                                .WithEffectOnEachTarget(async (spell, user, defender, result) => {
+                                    await CommonSpellEffects.DealBasicDamage(spell, user, defender, result, DiceFormula.FromText(8 + "d6", "Crescent Moon Strike"), DamageKind.Fire);
+                                    if (result == CheckResult.CriticalFailure) {
+                                        defender.AddQEffect(QEffect.Dazzled().WithExpirationAtStartOfSourcesTurn(user, 1));
+                                    }
+                                })
+                                .WithEffectOnSelf(user => {
+                                    user.AddQEffect(QEffect.Recharging("Crescent Moon Strike"));
+                                })
+                                .WithGoodnessAgainstEnemy((cone, a, d) => {
+                                    return 3.5f * 8 + (d.QEffects.FirstOrDefault(qf => qf.Name == "Dazzled" || qf.Id == QEffectId.Blinded) == null ? 2f : 0f);
+                                })
+                                ;
+                            }
+                        });
+                    };
+                }
+            }))
+            ;
+            return item;
+        });
+
+
+
         public static ItemName RingOfMonsters { get; } = ModManager.RegisterNewItemIntoTheShop("RL_RingOfMonsters", itemName => {
             Item item = new Item(itemName, Illustrations.RingOfMonsters, "ring of monsters", 6, 200,
                 new Trait[] { Trait.Magical, Trait.Worn, Trait.Abjuration, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithOnCreatureWhenWorn((item, wearer) => {
                 wearer.AddQEffect(new QEffect() {
-                    BonusToDefenses = (self, action, defence) => defence != Defense.AC && action?.Owner != null && action.Owner.Traits.Any(t => (t == Trait.Beast || t == Trait.Animal || t == ModTraits.Monstrous) && t != Trait.Celestial) ? new Bonus(2, BonusType.Item, "ring of monsters") : null
+                    BonusToDefenses = (self, action, defence) => defence != Defense.AC && action?.Owner != null && action.Owner.Traits.Any(t => (t == Trait.Beast || t == Trait.Animal || t == ModTraits.Monstrous) && t != Trait.Celestial) ? new Bonus(2, BonusType.Item, "Ring of monsters") : null
                 });
             })
             .WithItemGroup("Roguelike mode")
@@ -638,7 +687,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         //   .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
 
         public static ItemName ProtectiveAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("ProtectiveAmulet", itemName => {
-            Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "protective amulet", 3, 60, new Trait[] { Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike, Trait.Abjuration })
             .WithItemGroup("Roguelike mode")
             .WithDescription("{i}An eerie fetish, thrumming with protective magic bestowed by foul and unknowable beings. Though it's intended user has perished, some small measure of the amulet's origional power can still be invoked by holding the amulet aloft.{/i}\n\n" +
             "{b}Protective Amulet {icon:Reaction}{/b}.\n\n{b}Trigger{/b} While holding the amulet, you or an ally within 15-feet would be damaged by an attack.\n{b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.\n\n" +
@@ -669,9 +718,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     QEffect effect = new QEffect("Protective Amulet {icon:Reaction}", "{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack. {b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.");
                     effect.ExpiresAt = ExpirationCondition.Ephemeral;
                     effect.Tag = weapon;
-                    effect.EndOfCombat = async (self, won) => {
-                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
-                    };
                     effect.ProvideContextualAction = self => {
                         if (item.ItemName == ProtectiveAmulet && item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
                             return (ActionPossibility)new CombatAction(effect.Owner, Illustrations.ProtectiveAmulet, "Recharge Amulet", new Trait[] { Trait.Magical, Trait.Abjuration, Trait.Concentrate },
@@ -708,6 +754,55 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return item;
         });
 
+        public static ItemName GnomishPuzzleBox { get; } = ModManager.RegisterNewItemIntoTheShop("GnomishPuzzleBox", itemName => {
+            Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "gnomish puzzle box", 2, 25, [Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike, Trait.Transmutation])
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}This intricate cube whirs, twitches and glows with even the slightest touch, ready to defend the one who proved themselves worthy be solving it.{/i}\n\n" +
+            "{b}Deploy Puzzle Box {icon:Action}{/b}. The puzzle box deploys in a space within 20 feet, as an immobile construct capable of autonomously shocking nearby enemies, that scales with the user's level.\n\n" +
+            "The cube then returns to its owners inventory at the end of each encounter, to be deployed again.");
+
+            item.ProvidesItemAction = (wielder, item) => {
+                return (ActionPossibility)new CombatAction(wielder, item.Illustration, "Deploy Puzzle Box", [Trait.Transmutation, Trait.Concentrate, Trait.Manipulate],
+                    "{b}Frequency{/b} once per encounter\n{b}Range{/b} 20 feet\n\nDeploy the Gnomish Puzzle Box to an occupied space within range, where it will zap any enemies within a 15 foot range of it until destroyed.", Target.RangedEmptyTileForSummoning(4))
+                .WithActionCost(1)
+                .WithSoundEffect(SfxName.Throw)
+                .WithEffectOnSelf(self => {
+                    wielder.HeldItems.Remove(item);
+                    self.AddQEffect(new QEffect() {
+                        EndOfCombat = async (self, won) => {
+                            if (CampaignState.Instance != null) {
+                                wielder.Occupies.DroppedItems.Add(item);
+                            }
+                        }
+                    });
+                })
+                .WithEffectOnEachTile(async (action, user, tiles) => {
+                    var baseDC = SkillChallengeTables.GetDCByLevel(user.Level);
+
+                    var zap = new Item(IllustrationName.ElectricArc, "zap", [Trait.Electricity, Trait.Agile, Trait.Ranged, Trait.Unarmed])
+                        .WithWeaponProperties(new WeaponProperties((user.Level <= 3 ? 1 : user.Level <= 7 ? 2 : 3) + "d6", DamageKind.Electricity) {
+                            Sfx = SfxName.ElectricBlast,
+                            VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.ElectricArc)
+                        }.WithRangeIncrement(3).WithMaximumRange(3));
+
+                    var sentry = new Creature(IllustrationName.PrismaticHexahedron, "Gnomish Sentry Cube", [Trait.Construct, Trait.Mindless, Trait.MetalArmor, Trait.Conjuration], level: user.Level, perception: baseDC, speed: 0,
+                        new Defenses(baseDC - 2, baseDC + 2, baseDC - 4, user.Level),
+                        hp: 4 * (user.Level + 1), new Abilities(-3, 3, 5, -5, 3, -5), new Skills())
+                    .WithCharacteristics(false, false)
+                    .WithProficiency(Trait.Unarmed, Proficiency.Expert)
+                    .AddQEffect(QEffect.Flying())
+                    .AddQEffect(QEffect.Immobilized())
+                    .AddQEffect(QEffect.AllAroundVision())
+                    .AddQEffect(QEffect.SmokeVision())
+                    .WithUnarmedStrike(zap)
+                    ;
+
+                    user.Battle.SpawnCreature(sentry, user.OwningFaction.IsEnemy ? user.Battle.Enemy : user.Battle.GaiaFriends, tiles[0]);
+                });
+            };
+            return item;
+        });
+
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
                 new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Firearm, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, Trait.RogueWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
@@ -731,7 +826,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 Key = "Hexshot Charged",
                                 BonusToAttackRolls = (self, action, target) => {
                                     if (action != null && action.Item != null && action.Item.ItemName == Hexshot) {
-                                        return new Bonus(2, BonusType.Status, "Hexshot Charged");
+                                        return new Bonus(2, BonusType.Status, "Hexshot charged");
                                     }
                                     return null;
                                 },
@@ -1137,6 +1232,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithDescription("{i}The eyes on this briny chitin armour blink periodically.{/i}\n\nThe wearer of this armour gains a swim speed, and a +2 status bonus to grapple rolls while submerged in water.");
         });
 
+        public static ItemName InquisitrixLeathers { get; } = ModManager.RegisterNewItemIntoTheShop("Inquisitrix Leathers", itemName => {
+            return new Item(itemName, Illustrations.InquisitrixLeathers, "inquisitrix leathers", 3, 50,
+                new Trait[] { Trait.Magical, Trait.LightArmor, Trait.Leather, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
+            .WithArmorProperties(new ArmorProperties(2, 3, -1, 0, 12))
+            .WithDescription("{i}The severe skin tight leather bodysuit of an infamous drow inquisitrix, said to grant a portion of the bafeful power granted to their order by the demon queen of spiders.{/i}\n\nThe wearer of this armour gains a +1 item bonus to intimidation, and the iron command reaction." +
+            "\n\n{b}Iron Command.{/b}\n{b}Trigger{/b} An enemy within 15 feet damages you.\n{b}Effect{/b} Your attacker suffers 1d6 + half your level (minimum 1) mental damage (basic Will save mitigates).");
+        });
+
         public static ItemName RobesOfTheWarWizard { get; } = ModManager.RegisterNewItemIntoTheShop("Robes of the War Wizard", itemName => {
             return new Item(itemName, Illustrations.RobesOfTheWarWizard, "robes of the war wizard", 2, 35,
                 new Trait[] { Trait.Magical, Trait.UnarmoredDefense, Trait.Armor, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
@@ -1226,153 +1330,420 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static ItemName SpiderHatchling { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Hatchling", itemName => {
-            return new Item(itemName, new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "spider hatchling", 3, 45,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
-            .WithWornAt(Trait.AnimalCompanion)
-            .WithItemGroup("Roguelike mode")
-            .WithDescription("{i}A small baby hunting spider, in search of a new master to love and cherish it.{/i}\n\n" +
-            "If you do not already have a battle ready animal companion, you gain a unique Spider Hatchling to fight at your side, that's otherwise functional identically to the Animal Companion class feat.\n\nIf the spider hatchling dies in battle, it cannot aid the party until it has time to heal during the next long rest.")
-            .WithPermanentQEffectWhenWorn((qfMoC, item) => {
-                qfMoC.Tag = false;
-                qfMoC.Innate = false;
-                qfMoC.StartOfCombat = async self => {
-                    Creature? companion = self.Owner.Battle.AllCreatures.FirstOrDefault(cr => cr.FindQEffect(QEffectId.RangersCompanion)?.Source == self.Owner);
-                    if (companion != null) {
-                        self.Tag = true;
-                        return;
-                    }
-                    if (item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
-                        self.Owner.Overhead("no companion", Color.Green, "The spider hatchling is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
-                    } else {
-                        self.Id = QEffectId.AnimalCompanionController;
-                        // TODO: Replace with proper animal companion stats
-                        int lvl = self.Owner.Level;
-                        int prof = self.Owner.Level + 2;
-                        Creature animalCompanion = new Creature(new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion], lvl, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * lvl,
-                            new Abilities(3, 3, 1, -4, 1, 0), new Skills(stealth: 3 + prof, acrobatics: 3 + prof, athletics: 3 + prof))
-                        .WithProficiency(Trait.Unarmed, Proficiency.Trained)
-                        .WithEntersInitiativeOrder(false)
-                        .WithProficiency(Trait.UnarmoredDefense, Proficiency.Trained)
-                        .WithProficiency(Trait.Barding, Proficiency.Trained)
-                        .WithProficiency(Trait.Stealth, Proficiency.Trained)
-                        .WithProficiency(Trait.Acrobatics, Proficiency.Trained)
-                        .WithProficiency(Trait.Athletics, Proficiency.Trained)
-                        .WithProficiency(Trait.Perception, Proficiency.Trained)
-                        .WithProficiency(Trait.Reflex, Proficiency.Trained)
-                        .WithProficiency(Trait.Fortitude, Proficiency.Trained)
-                        .WithProficiency(Trait.Will, Proficiency.Trained)
-                        .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing))
-                        //.WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "leg", Trait.Unarmed, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
-                        .AddQEffect(QEffect.Webwalk())
-                        .AddQEffect(QEffect.WebSense())
-                        .AddQEffect(CommonQEffects.WebAttack(10 + prof))
-                        .AddQEffect(new QEffect() {
-                            ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
-                            "Support", [], "{i}Your spider drips poison from its stinger when you create an opening.{/i}\n\nUntil the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
-                            Target.Self()
-                            .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
-                                ShortDescription = "Until the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage."
-                            }.WithEffectOnSelf(caster => {
-                                QEffect qEffect = new QEffect("Support", "Until the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, self.Owner, qfSupport.Owner.Illustration) {
-                                    DoNotShowUpOverhead = true,
-                                    PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
-                                };
-                                self.Owner.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
-                                    AfterYouDealDamage = async (creature, action, defender) => {
-                                        if (action.CheckResult < CheckResult.Success || !defender.IsAdjacentTo(caster))
-                                            return;
-                                        await qfSupport.Owner.FictitiousSingleTileMove(defender.Occupies);
-                                        defender.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Poison));
-                                        await qfSupport.Owner.FictitiousSingleTileMove(qfSupport.Owner.Occupies);
-                                    }
-                                });
-                                caster.AddQEffect(qEffect);
-                            })
-                        })
-                        .AddQEffect(new QEffect() {
-                            StateCheck = sc => {
-                                if (sc.Owner.HasEffect(QEffectId.Dying) || !sc.Owner.Battle.InitiativeOrder.Contains(sc.Owner))
+
+            Func<Creature, Creature> companion = (owner) => {
+                int level = owner.Level;
+                int prof = level + 2;
+
+                return new Creature(new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "Spider Hatchling", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion, ModTraits.Spider], level, 1 + prof, 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), 7 * level,
+                    new Abilities(3, 3, 1, -4, 1, 0), new Skills())
+                .WithProficiency(Trait.Stealth, Proficiency.Trained)
+                .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d6", DamageKind.Piercing))
+                .WithAdditionalUnarmedStrike(new Item(Illustrations.StabbingAppendage, "leg", Trait.Unarmed, Trait.Agile).WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)))
+                .AddQEffect(QEffect.Webwalk())
+                .AddQEffect(QEffect.WebSense())
+                .AddQEffect(CommonQEffects.WebAttack(10 + prof))
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
+                    "Support", [], "{i}Your spider drips poison from its stinger when you create an opening.{/i}\n\nUntil the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
+                    Target.Self()
+                    .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
+                        ShortDescription = "Until the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage."
+                    }.WithEffectOnSelf(caster => {
+                        QEffect qEffect = new QEffect("Support", "Until the start of your next turn, if you hit and damage a creature in your spider's reach, you also deal 1d6 persistent poison damage.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, owner, qfSupport.Owner.Illustration) {
+                            DoNotShowUpOverhead = true,
+                            PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
+                        };
+                        owner.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
+                            AfterYouDealDamage = async (creature, action, defender) => {
+                                if (action.CheckResult < CheckResult.Success || !defender.IsAdjacentTo(caster))
                                     return;
-                                Creature owner = sc.Owner;
-                                int index = (owner.Battle.InitiativeOrder.IndexOf(owner) + 1) % owner.Battle.InitiativeOrder.Count;
-                                Creature creature = owner.Battle.InitiativeOrder[index];
-                                owner.Actions.HasDelayedYieldingTo = creature;
-                                if (owner.Battle.CreatureControllingInitiative == owner)
-                                    owner.Battle.CreatureControllingInitiative = creature;
-                                owner.Battle.InitiativeOrder.Remove(sc.Owner);
+                                await qfSupport.Owner.FictitiousSingleTileMove(defender.Occupies);
+                                defender.AddQEffect(QEffect.PersistentDamage("1d6", DamageKind.Poison));
+                                await qfSupport.Owner.FictitiousSingleTileMove(qfSupport.Owner.Occupies);
                             }
-                        })
-                        ;
-
-                        animalCompanion.MainName = self.Owner.Name + "'s " + animalCompanion.MainName;
-                        animalCompanion.InitiativeControlledBy = self.Owner;
-                        animalCompanion.AddQEffect(new QEffect() {
-                            Id = QEffectId.RangersCompanion,
-                            Tag = 0,
-                            Source = self.Owner,
-                            WhenMonsterDies = qfCompanion => item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay))
                         });
-                        var bestBarding = self.Owner.CarriedItems.FirstOrDefault(backpackItem => backpackItem.HasTrait(Trait.Barding) && backpackItem.IsWorn);
-                        animalCompanion.BaseArmor = bestBarding;
-                        animalCompanion.RecalculateArmor();
-                        animalCompanion.Defenses.RecalculateFromProficiencies();
-                        animalCompanion.Skills.RecalculateFromProficiencies();
+                        caster.AddQEffect(qEffect);
+                    })
+                });
+            };
 
-                        Action<Creature, Creature> benefitsToCompanion = self.Owner.PersistentCharacterSheet?.Calculated.RangerBenefitsToCompanion;
-                        if (benefitsToCompanion != null)
-                            benefitsToCompanion(animalCompanion, self.Owner);
-                        self.Owner.Battle.SpawnCreature(animalCompanion, self.Owner.OwningFaction, self.Owner.Occupies);
-                    }
+            return MakeAnimalCompanionItem(new Item(itemName, new SpiderIllustration(Illustrations.SpiderHatchling, IllustrationName.Bear256), "spider hatchling", 3, 45, [Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike]),
+                companion, "Spider Hatchling", "A small baby hunting spider, in search of a new master to love and cherish it.");
+        });
+
+        public static ItemName SacredSerpent { get; } = ModManager.RegisterNewItemIntoTheShop("Sacred Serpent", itemName => {
+
+            Func<Creature, Creature> companion = (owner) => {
+                int level = owner.Level;
+                int prof = level + 2;
+
+                return new Creature(IllustrationName.VenomousSnake256, "Sacred Serpent", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                    level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
+                    new Abilities(3, 3, 1, -4, 1, 0), new Skills())
+                .WithProficiency(Trait.Stealth, Proficiency.Trained)
+                .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d8", DamageKind.Piercing, Trait.Finesse))
+                .AddQEffect(QEffect.Flying())
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
+                    "Support", [], "{i}Your sacred serpent holds your enemies with its coils, interfering with their reactions.{/i}\n\nUntil the start of your next turn, any creature of equal or lower level your sacred serpent threatens can’t use their reaction.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
+                    Target.Self()
+                    .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
+                        ShortDescription = $"Until the start of your next turn, adjacent creatures of your level or lower cannot use their reaction."
+                    }.WithEffectOnSelf(caster => {
+                        QEffect qEffect = new QEffect("Support", "Adjacent creatures of your level or lower cannot use their reaction.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, owner, qfSupport.Owner.Illustration) {
+                            DoNotShowUpOverhead = true,
+                            PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
+                        };
+
+                        qEffect.AddGrantingOfTechnical(cr => cr.EnemyOf(caster) && caster.DistanceTo(cr.Occupies) <= (caster.UnarmedStrike.HasTrait(Trait.Reach) ? 2 : 1) && cr.Level <= caster.Level, qfTech => {
+                            qfTech.Id = QEffectId.CannotTakeReactions;
+                            qfTech.Illustration = caster.Illustration;
+                            qfTech.Name = "Binding Coils";
+                            qfTech.Description = $"You cannot use reactions again {owner.Name}.";
+                            qfTech.Source = caster;
+                            qfTech.Key = "RL_Coiled";
+                        });
+
+                        //owner.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
+                        //    PreventTargetingBy = action => {
+                        //        //if (action.Name.ToLower() == "heal") return null;
+
+                        //        //var t1 = action.Owner.QEffects.Any(qf => qf.Key == "RL_Coiled");
+                        //        //var t2 = ((action.Owner.Battle.ActiveCreature != action.Owner) || action.HasTrait(Trait.ReactiveAttack));
+
+                        //        if (action.Owner.QEffects.Any(qf => qf.Key == "RL_Coiled" && qf.Source == caster) && ((action.Owner.Battle.ActiveCreature != action.Owner) || action.HasTrait(Trait.ReactiveAttack)))
+                        //            return "Cannot use reactions against you.";
+                        //        else
+                        //            return null;
+                        //    }
+                        //});
+                        caster.AddQEffect(qEffect);
+                    })
+                });
+            };
+
+            return MakeAnimalCompanionItem(new Item(itemName, IllustrationName.VenomousSnake256, "sacred serpent", 3, 45, [Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike]),
+                companion, "Sacred Serpent", "A whimsical winged danger noodle, gifted to the party from one reptile enthusiaist to another by an Azata.");
+        });
+
+        public static ItemName GreaterSacredSerpent { get; } = ModManager.RegisterNewItemIntoTheShop("Mature Sacred Serpent", itemName => {
+
+            Func<Creature, Creature> companion = (owner) => {
+                int level = owner.Level;
+                int prof = level + 2;
+
+                return new Creature(IllustrationName.VenomousSnake256, "Mature Sacred Serpent", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                    level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
+                    new Abilities(3, 3, 1, -4, 1, 0), new Skills())
+                .WithProficiency(Trait.Stealth, Proficiency.Trained)
+                .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d8", DamageKind.Piercing, Trait.Finesse))
+                .AddQEffect(QEffect.Flying())
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
+                    "Support", [], "{i}Your sacred serpent holds your enemies with its coils, interfering with their reactions.{/i}\n\nUntil the start of your next turn, any creature of equal or lower level your sacred serpent threatens can’t use their reaction.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
+                    Target.Self()
+                    .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
+                        ShortDescription = $"Until the start of your next turn, adjacent creatures of your level or lower cannot use their reaction."
+                    }.WithEffectOnSelf(caster => {
+                        QEffect qEffect = new QEffect("Support", "Adjacent creatures of your level or lower cannot use their reaction.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, owner, qfSupport.Owner.Illustration) {
+                            DoNotShowUpOverhead = true,
+                            PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
+                        };
+
+                        qEffect.AddGrantingOfTechnical(cr => cr.EnemyOf(caster) && caster.DistanceTo(cr.Occupies) <= (caster.UnarmedStrike.HasTrait(Trait.Reach) ? 2 : 1) && cr.Level <= caster.Level, qfTech => {
+                            qfTech.Id = QEffectId.CannotTakeReactions;
+                            qfTech.Illustration = caster.Illustration;
+                            qfTech.Name = "Binding Coils";
+                            qfTech.Description = $"You cannot use reactions again {owner.Name}.";
+                            qfTech.Source = caster;
+                            qfTech.Key = "RL_Coiled";
+                        });
+                        caster.AddQEffect(qEffect);
+                    })
+                });
+            };
+
+            return MakeAnimalCompanionItem(new Item(itemName, IllustrationName.VenomousSnake256, "mature sacred serpent", 7, 300, [Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike]),
+                companion, "Mature Sacred Serpent", "A whimsical winged danger noodle, gifted to the party from one reptile enthusiaist to another by an Azata.", true);
+        });
+
+        public static ItemName CompanionBunny { get; } = ModManager.RegisterNewItemIntoTheShop("Companion Bunny", itemName => {
+
+            Func<Creature, Creature> companion = (owner) => {
+                int level = owner.Level;
+                int prof = level + 2;
+
+                return new Creature(Illustrations.CompanionBunny, "Companion Bunny", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                    level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
+                    new Abilities(3, 3, 1, -4, 1, 0), new Skills())
+                .WithProficiency(Trait.Stealth, Proficiency.Trained)
+                .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d8", DamageKind.Piercing, Trait.Finesse))
+                .WithAdditionalUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Slam, "claw", "1d6", DamageKind.Slashing, Trait.Finesse, Trait.Agile))
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
+                    "Support", [], "{i}Your companion bunny pricks its ears, preparing to adorably thump the ground in warning at the first sign of attack.{/i}\n\nUntil the start of your next turn, all creatures within 10 feet of your companion bunny suffer a -1 circumstance penalty to attack rolls against you.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
+                    Target.Self()
+                    .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
+                        ShortDescription = $"Until the start of your next turn, all creatures within 10 feet of your companion bunny suffer a -1 circumstance penalty to attack rolls against you."
+                    }.WithEffectOnSelf(caster => {
+                        QEffect qEffect = new QEffect("Support", $"Enemy creatures within 10 feet suffer a -1 circumstance penalty to attack {owner.Name}", ExpirationCondition.ExpiresAtStartOfSourcesTurn, owner, qfSupport.Owner.Illustration) {
+                            DoNotShowUpOverhead = true,
+                            PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
+                        };
+
+                        qEffect.AddGrantingOfTechnical(cr => cr.EnemyOf(caster) && caster.DistanceTo(cr.Occupies) <= 2, qfTech => {
+                            qfTech.Illustration = IllustrationName.TortoiseAndTheHare;
+                            qfTech.Name = "Warning Thump";
+                            qfTech.Description = $"You suffer a -1 circumstance penalty to attacks rolls against {owner.Name}.";
+                            qfTech.Source = caster;
+                            qfTech.BonusToAttackRolls = (self, action, target) => target == owner ? new Bonus(-1, BonusType.Circumstance, "Warning thump") : null;
+                        });
+                        caster.AddQEffect(qEffect);
+                    })
+                });
+            };
+
+            return MakeAnimalCompanionItem(new Item(itemName, Illustrations.CompanionBunny, "companion bunny", 3, 60, [Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike]),
+                companion, "Companion Bunny", "The snuggle pouch is the most important part of bun anatomy.");
+        });
+
+        public static ItemName GreaterCompanionBunny { get; } = ModManager.RegisterNewItemIntoTheShop("GreaterCompanionBunny", itemName => {
+
+            Func<Creature, Creature> companion = (owner) => {
+                int level = owner.Level;
+                int prof = level + 2;
+
+                return new Creature(Illustrations.CompanionBunny, "Greater Companion Bunny", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                    level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
+                    new Abilities(3, 3, 1, -4, 1, 0), new Skills())
+                .WithProficiency(Trait.Stealth, Proficiency.Trained)
+                .WithUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Jaws, "jaws", "1d8", DamageKind.Piercing, Trait.Finesse))
+                .WithAdditionalUnarmedStrike(CommonItems.CreateNaturalWeapon(IllustrationName.Slam, "claw", "1d6", DamageKind.Slashing, Trait.Finesse, Trait.Agile))
+                .AddQEffect(new QEffect() {
+                    ProvideMainAction = qfSupport => (ActionPossibility)new CombatAction(qfSupport.Owner, qfSupport.Owner.Illustration,
+                    "Support", [], "{i}Your companion bunny pricks its ears, preparing to adorably thump the ground in warning at the first sign of attack.{/i}\n\nUntil the start of your next turn, all creatures within 10 feet of your companion bunny suffer a -1 circumstance penalty to attack rolls against you.\n\n{b}Special{/b} If the animal uses the Support action, the only other actions it can use on this turn are basic move actions; if it has already used any other action this turn, it can't Support you.",
+                    Target.Self()
+                    .WithAdditionalRestriction(qfSupport => !qfSupport.Actions.ActionHistoryThisTurn.Any(act => !act.HasTrait(Trait.Move)) ? null : "You already took a non-move action this turn.")) {
+                        ShortDescription = $"Until the start of your next turn, all creatures within 10 feet of your companion bunny suffer a -1 circumstance penalty to attack rolls against you."
+                    }.WithEffectOnSelf(caster => {
+                        QEffect qEffect = new QEffect("Support", $"Enemy creatures within 10 feet suffer a -1 circumstance penalty to attack {owner.Name}", ExpirationCondition.ExpiresAtStartOfSourcesTurn, owner, qfSupport.Owner.Illustration) {
+                            DoNotShowUpOverhead = true,
+                            PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && ca.ActionId != ActionId.EndTurn ? "You used Support so you can't take non-move actions anymore this turn." : null
+                        };
+
+                        qEffect.AddGrantingOfTechnical(cr => cr.EnemyOf(caster) && caster.DistanceTo(cr.Occupies) <= 2, qfTech => {
+                            qfTech.Illustration = IllustrationName.TortoiseAndTheHare;
+                            qfTech.Name = "Warning Thump";
+                            qfTech.Description = $"You suffer a -1 circumstance penalty to attacks rolls against {owner.Name}.";
+                            qfTech.Source = caster;
+                            qfTech.BonusToAttackRolls = (self, action, target) => target == owner ? new Bonus(-1, BonusType.Circumstance, "Warning thump") : null;
+                        });
+                        caster.AddQEffect(qEffect);
+                    })
+                });
+            };
+
+            return MakeAnimalCompanionItem(new Item(itemName, Illustrations.CompanionBunny, "greater companion bunny", 7, 360, [Trait.Magical, Trait.Invested, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike]),
+                companion, "Greater Companion Bunny", "The snuggle pouch is the most important part of bun anatomy.", true);
+        });
+
+        public static ItemName LivingCloak { get; } = ModManager.RegisterNewItemIntoTheShop("LivingCloak", itemName => {
+            return new Item(itemName, Illustrations.LivingCloak, "living cloak", 7, 360,
+                [Trait.Magical, Trait.Worn, Trait.Invested, Trait.Cloak, Trait.Transmutation, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
+            .WithWornAt(Trait.Cloak)
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}This enchanted cloak shifts and swirls with a mind of its own.{/i}\n\n" +
+            "When you make a melee attack or are targeted by a strike, there's a 75% chance your living cloak will shift to assist you, either providing a +2 item bonus to AC or making a 2d4+2 bludgeoning damage follow up strike.")
+            .WithPermanentQEffectWhenWorn((qfItem, item) => {
+                qfItem.Innate = true;
+                qfItem.Name = "Living Cloak";
+                qfItem.Description = "When you make a melee attack or are targeted by a strike, there's a 75% chance your living cloak will shift to assist you, either providing a +2 item bonus to AC or making a 2d4+2 bludgeoning damage follow up strike.";
+                qfItem.AfterYouTakeActionAgainstTarget = async (self, action, target, result) => {
+                    if (!(target.DistanceTo(self.Owner) <= 1 && action.HasTrait(Trait.Attack) && R.NextD20() >= 16)) return;
+
+                    var ca = CombatAction.CreateSimple(self.Owner, "Strike (living cloak)", Trait.Melee, Trait.Strike, Trait.Transmutation, Trait.UsableEvenWhenUnconsciousOrParalyzed, Trait.UsableThroughConfusion);
+                    ca.Target = Target.Touch();
+                    ca
+                    .WithActionCost(0)
+                    .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                        await caster.FictitiousSingleTileMove(target.Occupies);
+                        Sfxs.Play(SfxName.SwordStrike);
+                        await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("2d4+2"), target, result, DamageKind.Bludgeoning);
+                        await caster.FictitiousSingleTileMove(caster.Occupies);
+                    });
+                    ca.ChosenTargets.ChosenCreature = target;
+                    ca.ChosenTargets.ChosenCreatures.Add(target);
+                    if (ca.CanBeginToUse(ca.Owner) && ca.Target is CreatureTarget creatureTarget && creatureTarget.IsLegalTarget(ca.Owner, target))
+                        await ca.AllExecute();
                 };
+                qfItem.YouAreTargetedByARoll = async (self, action, breakdown) => {
+                    if (!(action.HasTrait(Trait.Attack) && action.HasTrait(Trait.Strike) && R.NextD20() >= 16)) return false;
 
-                qfMoC.StateCheck = self => {
-                    if (self.Tag is true) {
-                        return;
-                    }
-
-                    Creature owner = self.Owner;
-                    Creature animalCompanion = Ranger.GetAnimalCompanion(owner);
-
-                    bool flag = owner.HasEffect(QEffectId.MatureAnimalCompanion);
-                    if (animalCompanion != null && flag && GetAnimalCompanionCommandRestriction(self, animalCompanion) == null) {
-                        self.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
-                            Id = QEffectId.YouShouldTakeYourTurnEvenUnconsciousOrParalyzed
-                        });
-                    }
-                    if (animalCompanion == null || !animalCompanion.Actions.CanTakeActions())
-                        return;
-
-                    ActionPossibility fullCommand = new ActionPossibility(new CombatAction(owner, flag ? (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.Action) : animalCompanion.Illustration, "Command your Animal Companion",
-                    [Trait.Auditory], "Take 2 actions as your animal companion.\n\nYou can only command your animal companion once per turn.", (Target)Target.Self()
-                    .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null)
-                    .WithAdditionalRestriction(cr => GetAnimalCompanionCommandRestriction(self, animalCompanion))) {
-                        ShortDescription = "Take 2 actions as your animal companion."
-                    }.WithEffectOnSelf(async action => {
-                        self.UsedThisTurn = true;
-                        await CommonSpellEffects.YourMinionActs(animalCompanion);
-                    }), flag ? PossibilitySize.Half : PossibilitySize.Full);
-                    owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
-                        ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)fullCommand)
+                    self.Owner.Overhead("living cloak", Color.Lime, self.Owner + "'s living cloak shifts to intercept the attack.");
+                    self.Owner.AddQEffect(new QEffect() {
+                        ExpiresAt = ExpirationCondition.EphemeralAtEndOfImmediateAction,
+                        BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(2, BonusType.Item, "Living cloak") : null
                     });
-                    if (!flag)
-                        return;
-                    owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
-                        ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)new ActionPossibility(new CombatAction(owner, (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.FreeAction), "Move on your own",
-                        [Trait.Basic], "{i}You leave your mature animal companion to its own devices. It will do what's right.{/i}\n\nTake 1 action as your animal companion. You can only spend this action to move or to make a Strike.\n\nYou can't command your animal companion and leave it to move in its own in the same turn.",
-                        (Target)Target.Self()
-                        .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : null))
-                        .WithActionCost(0)
-                        .WithEffectOnSelf((Func<Creature, Task>)(async caster => {
-                            self.UsedThisTurn = true;
-                            animalCompanion.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
-                                Id = QEffectId.MoveOnYourOwn,
-                                PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && !ca.HasTrait(Trait.Strike) && ca.ActionId != ActionId.EndTurn ? "You can only move or make a Strike." : null
-                            });
-                            await CommonSpellEffects.YourMinionActs(animalCompanion);
-                        })), PossibilitySize.Half))
-                    });
+                    return true;
                 };
             });
+        });
+
+        public static ItemName RingOfDeathDefiance { get; } = ModManager.RegisterNewItemIntoTheShop("RingOfDeathDefiance", itemName => {
+            return new Item(itemName, Illustrations.RingOfDeathDefiance, "ring of death defiance", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}This dull ring is cold to the touch, as if it exists somewhere halfway between the realm of the living and the dead.{/i}\n\n" +
+            "The first time each encounter that you're reduced to 0 HP, your ring of death defiance activates to negate the damage.")
+            .WithPermanentQEffectWhenWorn((qfItem, item) => {
+                qfItem.YouAreDealtLethalDamage = async (self, attacker, dmg, you) => {
+                    if (!item.IsUsedUp) {
+                        item.UseUp();
+                        self.Name += " (expended)";
+                        Sfxs.Play(SfxName.ShieldSpell);
+                        you.Overhead("*defied death*", Color.Black, you.Name + "'s ring of death defiance activates.");
+                        return new SetToTargetNumberModification(0, "Ring of Death Defiance");
+                    }
+                    return null;
+                };
+                qfItem.Innate = true;
+                qfItem.Name = "Ring of Death Defiance";
+                qfItem.Description = "The first time each encounter that you're reduced to 0 HP, your ring of death defiance activates to negate the damage.";
+                qfItem.EndOfCombat = async (self, won) => {
+                    item.RevertUseUp();
+                };
+            });
+        });
+
+        public static ItemName MaskOfSkills { get; } = ModManager.RegisterNewItemIntoTheShop("MaskOfSkills", itemName => {
+            return new Item(itemName, Illustrations.MaskOfSkills, "mask of skills", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Enchantment, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}An ornate eye mask that seems to hold the experiences of each and every wearer before you.{/i}\n\n" +
+            "While wearing this mask, you a +2 item bonus to all skills.")
+            .WithPermanentQEffectWhenWorn((qfItem, item) => {
+                qfItem.BonusToSkills = (skill) => new Bonus(2, BonusType.Item, "Mask of skills");
+            });
+        });
+
+        public static ItemName RodOfHealing { get; } = ModManager.RegisterNewItemIntoTheShop("RodOfHealing", itemName => {
+            var item = new Item(itemName, Illustrations.RodOfHealing, "rod of healing", 3, 60,
+                new Trait[] { Trait.Magical, Trait.Positive, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}This brilliant gem encrusted sceptre brims with healing energy.{/i}\n\n" +
+            "The wielder of the rod can use it twice per day to fire a beam of healing energy.")
+            ;
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                var uses = weapon.IsUsedUp ? 0 : weapon.ItemModifications.FirstOrDefault(mod => (string?)mod.Tag == "UsedOnceThisDay") != null ? 1 : 2;
+
+                if (uses == 0) return;
+
+                wielder.AddQEffect(new QEffect($"Rod of Healing Uses Remaining", "The rod of healing can be used this many more times today before its power is exhausted.", ExpirationCondition.Ephemeral, null, Illustrations.RodOfHealing) {
+                    Value = uses
+                });
+            };
+
+            item.ProvidesItemAction = (wielder, weapon) => {
+                if (weapon.IsUsedUp) return null!;
+
+                return new ActionPossibility(new CombatAction(wielder, Illustrations.RodOfHealing, "Vitality Beam", [Trait.Necromancy, Trait.Positive, Trait.Manipulate, Trait.Healing],
+                    "{b}Area{/b} Up to 60-foot line" +
+                    "\n\n{i}You fire a brilliant stream of positive energy from the rod.{/i}\n\n" +
+                    $"Each living creature in the beam is healed for {(wielder.Level + 1) / 2}d8 hit points, and each undead creature suffers an equal amount of positive damage (basic Fortitude save mitigates)", Target.Line(12).WithLesserDistanceIsOkay())
+                .WithActionCost(2)
+                .WithSoundEffect(SfxName.Healing)
+                .WithProjectileCone(IllustrationName.Heal, 15, ProjectileKind.Ray)
+                .WithSavingThrow(new SavingThrow(Defense.Fortitude, wielder.ClassOrSpellDC()))
+                .WithNoSaveFor((action, target) => !target.HasTrait(Trait.Undead))
+                .WithEffectOnSelf(async user => {
+                    if (weapon.ItemModifications.FirstOrDefault(mod => (string?)mod.Tag == "UsedOnceThisDay") == null) {
+                        weapon.ItemModifications.Add(new ItemModification(ItemModificationKind.CustomPermanent) {
+                            Tag = "UsedOnceThisDay",
+                            ClearsAtLongRest = true
+                        });
+                    } else {
+                        weapon.UseUp();
+                    }
+
+                })
+                .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                    var spellLvl = (caster.Level + 1) / 2;
+
+                    if (target.HasTrait(Trait.Undead)) {
+                        await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, spellLvl + "d8", DamageKind.Positive);
+                    } else if (target.IsLivingCreature) {
+                        await target.HealAsync(spellLvl + "d8", spell);
+                    }
+                })
+                );
+            };
+
+            return item;
+        });
+
+        public static ItemName BottomlessFlask { get; } = ModManager.RegisterNewItemIntoTheShop("BottomlessFlask", itemName => {
+            var item = new Item(itemName, Illustrations.BottomlessFlask, "bottomless flask", 3, 60,
+                [ Trait.Magical, Trait.Positive, Trait.Transmutation, Trait.Healing, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike ])
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}This ornate flask appears to be linked to some unseen well spring of curitive waters.{/i}\n\n" +
+            "Once per encounter, the flask can be drunk from to restore an amount of hit points equal to the amount healed by a potion of healing of the drinker's level.")
+            ;
+
+            item.ProvidesItemAction = (wielder, weapon) => {
+                if (weapon.IsUsedUp) return null!;
+
+                var amount = wielder.Level < 3 ? "1d8" : wielder.Level < 5 ? "2d8+5" : wielder.Level < 11 ? "3d8+10" : "6d8+20";
+
+                return new ActionPossibility(new CombatAction(wielder, Illustrations.BottomlessFlask, "Drink (bottomless flask)", [Trait.Necromancy, Trait.Positive, Trait.Manipulate, Trait.Healing],
+                    $"Restore {amount} HP.", Target.Self().WithAdditionalRestriction(user => user.HasEffect(QEffectId.Sickened) ? "You're sickened." : user.Damage == 0 ? "already at full HP" : null))
+                .WithActionCost(1)
+                .WithSoundEffect(SfxName.DrinkPotion)
+                .WithEffectOnSelf(async (spell, user) => {
+                    await user.HealAsync(amount, spell);
+                    weapon.UseUp();
+                }));
+            };
+
+            return item;
+        });
+
+        public static ItemName DuergarSkullShield { get; } = ModManager.RegisterNewItemIntoTheShop("RL_DuergarSkullShield", itemName => {
+            var item = new Item(itemName, Illustrations.DuergarSkullShield, "duergar skull shield", 3, 60,
+                [Trait.Magical, Trait.Enchantment, Trait.Shield, Trait.Martial, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike])
+            .WithMainTrait(Trait.SteelShield)
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning))
+            .WithShieldProperties(6)
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}A bleak shield of deftly worked iron and obsidian, used by the standard bearer of a Duergar legion.{/i}\n\n" +
+            "You have a +1 item bonus to Intimidation." +
+            "\n\nWhen you raise the Duergar Skull Shield, make an intimidation check against the Will DC of all enemies within 15 feet. On a failure they become frightened, and on a critical failure they become frightened 2.")
+            ;
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect("Duarger Skull Shield",
+                    "When you raise the Duergar Skull Shield, make an intimidation check against the Will DC of all enemies within 15 feet. On a failure they become frightened, and on a critical failure they become frightened 2.", ExpirationCondition.Ephemeral, wielder, weapon.Illustration) {
+                    ExpiresAt = ExpirationCondition.Ephemeral,
+                    AfterYouTakeAction = async (self, action) => {
+                        if (action.ActionId == ActionId.RaiseShield && action.Illustration == weapon.Illustration) {
+                            var ca = new CombatAction(wielder, weapon.Illustration, "Duergar Skull Shield", [Trait.Emotion, Trait.Fear, Trait.Mental, Trait.Magical, Trait.Enchantment], "", Target.EnemiesOnlyEmanation(3))
+                            .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Intimidation), TaggedChecks.DefenseDC(Defense.Will)))
+                            .WithSoundEffect(wielder.HasTrait(Trait.Female) ? SfxName.Intimidate : SfxName.MaleIntimidate)
+                            .WithProjectileCone(IllustrationName.Fear, 5, ProjectileKind.Cone)
+                            .WithActionCost(0)
+                            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                target.AddQEffect(QEffect.Frightened((int)result - 1));
+                            });
+
+                            await wielder.Battle.GameLoop.FullCast(ca);
+                        }
+                    },
+                    BonusToSkills = (skill) => skill == Skill.Intimidation ? new Bonus(1, BonusType.Item, "Duergar skull shield") : null,
+                });
+            };
+
+            return item;
         });
 
         public static ItemName ThrowersBandolier { get; } = ModManager.RegisterNewItemIntoTheShop("Thrower's Bandolier", itemName => {
@@ -1447,7 +1818,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName DeathDrinkerAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("DeathDrinkerAmulet", itemName => {
             return new Item(itemName, Illustrations.SpiritBeaconAmulet, "death drinker amulet", 2, 35,
-                new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Worn, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
             .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This eerie necklace seems to feed off necrotic energy, storing it within its amethyst gems for some unknowable purpose.{/i}\n\n" +
@@ -1496,7 +1867,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ;
             }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
-                qfCoA.BonusToSkills = (skill) => skill == Skill.Occultism ? new Bonus(1, BonusType.Item, "Spirit Beacon Amulet") : null;
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Occultism ? new Bonus(1, BonusType.Item, "Spirit beacon amulet") : null;
+            });
+        });
+
+        public static ItemName DiademOfTheSpiderQueen { get; } = ModManager.RegisterNewItemIntoTheShop("DiademOfTheSpiderQueen", itemName => {
+            return new Item(itemName, Illustrations.DiademOfTheSpiderQueen, "diadem of the spider queen", 17, 19400,
+                [Trait.Transmutation, Trait.Apex, Trait.Invested, Trait.Magical, Trait.Worn, Trait.Unsellable, Trait.Artifact, Trait.Unique])
+            .WithWornAt(Trait.Headband)
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}Legend has it that the the Demon Queen of Spider's wore this very diadem during her apothesosis into the ranks of the Demon Lords.{/i}\n\n" +
+            "Your key ability score modifier is increased by +1.")
+            .WithOnCreatureWhenWorn((item, wearer) => {
+                var keyABS = wearer.PersistentCharacterSheet?.Calculated.FinalAbilityScores.KeyAbility ?? Ability.Charisma;
+                wearer.Abilities.Set(keyABS, wearer.Abilities.Get(keyABS) + 1);
+                if (keyABS == Ability.Wisdom) {
+                    wearer.Perception = wearer.Perception + 1;
+                    wearer.Defenses.Set(Defense.Will, wearer.Defenses.GetBaseValue(Defense.Will) + 1);
+                } else if (keyABS == Ability.Constitution) {
+                    wearer.Defenses.Set(Defense.Fortitude, wearer.Defenses.GetBaseValue(Defense.Fortitude) + 1);
+                    wearer.MaxHP += wearer.Level;
+                }
+
+                wearer.AddQEffect(new QEffect() {
+                    StartOfCombat = async (self) => {
+                        wearer.Defenses.Set(Defense.Reflex, wearer.Defenses.GetBaseValue(Defense.Reflex) + 1);
+                        wearer.Defenses.Set(Defense.AC, wearer.Defenses.GetBaseValue(Defense.AC) + 1);
+                    }
+                });
             });
         });
 
@@ -1619,7 +2017,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ;
             }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
-                qfCoA.BonusToSkills = (skill) => skill == Skill.Arcana ? new Bonus(1, BonusType.Item, "Demon Bound Ring") : null;
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Arcana ? new Bonus(1, BonusType.Item, "Demon bound ring") : null;
             });
         });
 
@@ -1751,7 +2149,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ;
             }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
-                qfCoA.BonusToSkills = (skill) => skill == Skill.Arcana ? new Bonus(1, BonusType.Item, "Demon Bound Ring") : null;
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Arcana ? new Bonus(1, BonusType.Item, "Greater demon bound ring") : null;
             });
         });
 
@@ -1854,7 +2252,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ;
             }, (item, _) => !item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay))
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
-                qfCoA.BonusToSkills = (skill) => skill == Skill.Nature ? new Bonus(1, BonusType.Item, "horn of the hunt") : null;
+                qfCoA.BonusToSkills = (skill) => skill == Skill.Nature ? new Bonus(1, BonusType.Item, "Horn of the hunt") : null;
             });
         });
 
@@ -1887,7 +2285,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     QEffect transform = new QEffect() {
                         ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn,
                         PreventTakingAction = action => action.HasTrait(Trait.Spell) ? "Cannot cast spells whilst transformed." : null,
-                        BonusToAttackRolls = (self, action, target) => action.HasTrait(Trait.BattleformAttack) ? new Bonus(2, BonusType.Status, "Shifter Furs") : null,
+                        BonusToAttackRolls = (self, action, target) => action.HasTrait(Trait.BattleformAttack) ? new Bonus(2, BonusType.Status, "Shifter furs") : null,
                         WhenExpires = self => {
                             foreach (Item obj in caster.HeldItems.ToList<Item>())
                                 caster.DropItem(obj);
@@ -1927,7 +2325,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             transform.AdditionalUnarmedStrike = CommonItems.CreateNaturalWeapon(IllustrationName.DragonClaws, "claws", "1d6", DamageKind.Slashing, Trait.Agile, Trait.BattleformAttack, Trait.WizardWeapon, Trait.Simple);
                             transform.BonusToDefenses = (self, action, defence) => {
                                 if (defence == Defense.AC) {
-                                    return new Bonus(2, BonusType.Item, "Natural Armour");
+                                    return new Bonus(2, BonusType.Item, "Natural armour");
                                 }
                                 return null;
                             };
@@ -1984,7 +2382,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ;
             }, (_, _) => true)
             .WithPermanentQEffectWhenWorn((qfCoA, item) => {
-                qfCoA.BonusToSkillChecks = (skill, action, d) => d != null && action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "shifter furs") : null;
+                qfCoA.BonusToSkillChecks = (skill, action, d) => d != null && action.ActionId == ActionId.Demoralize && d.HasTrait(Trait.Animal) ? new Bonus(2, BonusType.Item, "Shifter furs") : null;
                 qfCoA.Id = QEffectId.IntimidatingGlare;
                 qfCoA.EndOfCombat = async (self, won) => {
                     ItemModification used = item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay);
@@ -2016,7 +2414,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 qfCoA.Description = "+2 damage to Air impulses.";
                 qfCoA.BonusToDamage = (self, action, target) => {
                     if (action != null && action.HasTrait(Trait.Impulse) && action.HasTrait(Trait.Air)) {
-                        return new Bonus(2, BonusType.Item, "Cloak of Air");
+                        return new Bonus(2, BonusType.Item, "Cloak of air");
                     }
                     return null;
                 };
@@ -2059,7 +2457,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { Javelin, RingOfMonsters, RunestoneOfOpportunism, RunestoneOfMirrors, CloakOfDuplicity, RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { GreaterCompanionBunny, LunaRunestone, RingOfDeathDefiance, RodOfHealing, MaskOfSkills, BottomlessFlask, DuergarSkullShield, CompanionBunny, GnomishPuzzleBox, GreaterSacredSerpent, SacredSerpent, Javelin, RingOfMonsters, RunestoneOfOpportunism, RunestoneOfMirrors, CloakOfDuplicity, RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Roguelike Wands
             CreateWand(SpellId.Fireball, null);
@@ -2128,7 +2526,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             // Item QEffects
 
-            // Armour effects
+            // Clean once per encounter item effects
+            ModManager.RegisterActionOnEachCreature(creature => {
+                List<Item> items = new List<Item>();
+
+                AddEndOfEncounterRevertUseUp(creature, BottomlessFlask);
+                AddEndOfEncounterRevertUseUp(creature, SceptreOfTheSpider);
+                AddEndOfEncounterRevertUseUp(creature, SceptreOfPandemonium);
+                AddEndOfEncounterRevertUseUp(creature, ProtectiveAmulet);
+
+
+                static void AddEndOfEncounterRevertUseUp(Creature creature, ItemName itemName) {
+                    var items = creature.HeldItems.Where(itm => itm.ItemName == itemName).ToList();
+                    items = items.Concat(creature.CarriedItems.Where(itm => itm.ItemName == itemName).ToList()).ToList();
+
+                    foreach (Item item in items) {
+                        creature.AddQEffect(new QEffect() {
+                            Tag = item,
+                            EndOfCombat = async (self, won) => {
+                                item.RevertUseUp();
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Thrower's Bandolier logic
             ModManager.RegisterActionOnEachCreature(creature => {
                 creature.AddQEffect(new QEffect() {
                     StateCheckWithVisibleChanges = async _ => {
@@ -2206,14 +2629,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         });
                     }
                 });
+            });
 
+            // Armour effects
+            ModManager.RegisterActionOnEachCreature(creature => {
                 if (creature.BaseArmor == null) {
                     return;
                 }
 
                 if (creature.BaseArmor.ItemName == SpellbanePlate) {
                     creature.AddQEffect(new QEffect("Spellbane Plate", "You have a +1 item bonus vs. all spell saving throws but cannot cast spells of your own.") {
-                        BonusToDefenses = (self, action, defence) => defence != Defense.AC && action != null && action.HasTrait(Trait.Spell) ? new Bonus(1, BonusType.Item, "Spellbane Plate") : null,
+                        BonusToDefenses = (self, action, defence) => defence != Defense.AC && action != null && action.HasTrait(Trait.Spell) ? new Bonus(1, BonusType.Item, "Spellbane plate") : null,
                         PreventTakingAction = action => action.HasTrait(Trait.Spell) ? "blocked by spellbane plate" : null
                     });
                 }
@@ -2232,7 +2658,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         },
                         BonusToAttackRolls = (self, action, target) => {
                             if (action != null && action.ActionId == ActionId.Seek) {
-                                return new Bonus(1, BonusType.Item, "Whisper Mail");
+                                return new Bonus(1, BonusType.Item, "Whisper mail");
                             }
                             return null;
                         }
@@ -2259,7 +2685,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 return null;
                             }
 
-                            return new Bonus(2 * action.SpellLevel, BonusType.Item, "Robes of the War Wizard", true);
+                            return new Bonus(2 * action.SpellLevel, BonusType.Item, "Robes of the war wizard", true);
                         },
                         StateCheck = self => {
                             self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Acid, 1);
@@ -2290,7 +2716,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 return null;
                             }
 
-                            return new Bonus(3 * action.SpellLevel, BonusType.Item, "Robes of the War Wizard", true);
+                            return new Bonus(3 * action.SpellLevel, BonusType.Item, "Greater robes of the war wizard", true);
                         },
                         StateCheck = self => {
                             self.Owner.WeaknessAndResistance.AddResistance(DamageKind.Acid, 2);
@@ -2305,6 +2731,38 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     creature.AddQEffect(new QEffect() {
                         Id = QEffectId.Swimming,
                         BonusToAttackRolls = (self, action, target) => (self.Owner.HasEffect(QEffectId.AquaticCombat) || self.Owner.Occupies.Kind == TileKind.ShallowWater || self.Owner.Occupies.Kind == TileKind.Water) && action.ActionId == ActionId.Grapple ? new Bonus(2, BonusType.Status, "Kraken Mail", true) : null
+                    });
+                }
+
+                if (creature.BaseArmor.ItemName == InquisitrixLeathers) {
+                    creature.AddQEffect(new QEffect() {
+                        BonusToSkills = skill => skill == Skill.Intimidation ? new Bonus(1, BonusType.Item, "Inquisitrix leathers") : null,
+                        StartOfCombat = async self => {
+                            self.Description = "{b}Trigger{/b} An enemy within 15 feet damages you. {b}Effect{/b} Your attacker suffers 1d6+" + Math.Max(1, self.Owner.Level / 2) +
+                            " mental damage (basic Will save mitigates).";
+                        },
+                        AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
+                            if (action == null || action.Owner == null || action.Owner == action.Owner.Battle.Pseudocreature) {
+                                return;
+                            }
+
+                            if (action.Owner.OwningFaction == self.Owner.OwningFaction) {
+                                return;
+                            }
+
+                            if (self.Owner.DistanceTo(action.Owner) > 3) {
+                                return;
+                            }
+
+                            if (await self.Owner.AskToUseReaction($"{action.Owner.Name} dares to strike you! Do you wish to use your iron command to deal 1d6 + {Math.Max(1, self.Owner.Level / 2)} mental damage to your attacker?")) {
+                                CombatAction dummyAction = new CombatAction(self.Owner, self.Owner.Illustration, "Inquisitrix Leathers", new Trait[] { Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental },
+                                    $"You deal 1d6+{Math.Max(1, self.Owner.Level / 2)} mental damage to a creature that attacked you.", Target.Uncastable());
+
+                                var result = CommonSpellEffects.RollSavingThrow(action.Owner, dummyAction, Defense.Will, self.Owner.ClassOrSpellDC());
+
+                                await CommonSpellEffects.DealBasicDamage(dummyAction, self.Owner, action.Owner, result, DiceFormula.FromText($"1d6+{Math.Max(1, self.Owner.Level / 2)}", "Inquisitrix Leathers"), DamageKind.Mental);
+                            }
+                        }
                     });
                 }
 
@@ -2332,7 +2790,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 if (creature.BaseArmor.ItemName == DolmanOfVanishing) {
                     creature.AddQEffect(new QEffect("Cloak of Vanishing", "This creature moves through webs unimpeded.") {
                         Id = QEffectId.HideInPlainSight,
-                        BonusToSkills = skill => skill == Skill.Stealth ? new Bonus(2, BonusType.Item, "Dolman of Vanishing") : null
+                        BonusToSkills = skill => skill == Skill.Stealth ? new Bonus(2, BonusType.Item, "Dolman of vanishing") : null
                     });
                 }
             });
@@ -2575,6 +3033,150 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
                 .WithModification(mod);
             });
+        }
+
+        public static Item MakeAnimalCompanionItem(Item item, Func<Creature, Creature> animalCompanionFactory, string companionName, string flavourText, bool advanced=false) {
+            item
+            .WithWornAt(ModTraits.AnimalCompanion)
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}" + flavourText + "{/i}\n\n" +
+            $"If you do not already have a battle ready animal companion, you gain a unique {companionName} to fight at your side, that's otherwise functional identically to the Animal Companion class feat.\n\nIf the {companionName} dies in battle, it cannot aid the party until it has time to heal during the next long rest.")
+            .WithPermanentQEffectWhenWorn((qfItem, item) => {
+                qfItem.Tag = false;
+                qfItem.Innate = false;
+                qfItem.StartOfCombat = async self => {
+                    Creature? companion = self.Owner.Battle.AllCreatures.FirstOrDefault(cr => cr.FindQEffect(QEffectId.RangersCompanion)?.Source == self.Owner);
+                    if (companion != null) {
+                        self.Tag = true;
+                        return;
+                    }
+                    if (item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
+                        self.Owner.Overhead("no companion", Color.Green, $"The {companionName} is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
+                    } else {
+                        self.Id = QEffectId.AnimalCompanionController;
+
+                        Creature animalCompanion = animalCompanionFactory(qfItem.Owner);
+
+                        animalCompanion
+                        .WithEntersInitiativeOrder(false)
+                        .WithProficiency(Trait.Unarmed, Proficiency.Trained)
+                        .WithProficiency(Trait.UnarmoredDefense, Proficiency.Trained)
+                        .WithProficiency(Trait.Barding, Proficiency.Trained)
+                        .WithProficiency(Trait.Acrobatics, Proficiency.Trained)
+                        .WithProficiency(Trait.Athletics, Proficiency.Trained)
+                        .WithProficiency(Trait.Perception, advanced ? Proficiency.Expert : Proficiency.Trained)
+                        .WithProficiency(Trait.Reflex, advanced ? Proficiency.Expert : Proficiency.Trained)
+                        .WithProficiency(Trait.Fortitude, advanced ? Proficiency.Expert : Proficiency.Trained)
+                        .WithProficiency(Trait.Will, advanced ? Proficiency.Expert : Proficiency.Trained);
+
+                        if (advanced || qfItem.Owner.HasEffect(QEffectId.MatureAnimalCompanion)) {
+                            animalCompanion.Abilities.Set(Ability.Strength, animalCompanion.Abilities.Strength + 1);
+                            animalCompanion.Abilities.Set(Ability.Dexterity, animalCompanion.Abilities.Dexterity + 1);
+                            animalCompanion.Abilities.Set(Ability.Constitution, animalCompanion.Abilities.Constitution + 1);
+                            animalCompanion.Abilities.Set(Ability.Wisdom, animalCompanion.Abilities.Wisdom + 1);
+
+                            if (animalCompanion.UnarmedStrike != null)
+                                animalCompanion.UnarmedStrike.WeaponProperties!.DamageDieCount = 2;
+
+                            foreach (QEffect strikeQf in animalCompanion.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null)) {
+                                strikeQf.AdditionalUnarmedStrike!.WeaponProperties!.DamageDieCount = 2;
+                            }
+
+                            Trait[] animalSkills = [Trait.Stealth, Trait.Survival, Trait.Intimidation];
+
+                            foreach (Trait skill in animalSkills) {
+                                if (animalCompanion.Proficiencies.Get(Trait.Stealth) == Proficiency.Trained)
+                                    animalCompanion.WithProficiency(Trait.Acrobatics, Proficiency.Expert);
+                                else
+                                    animalCompanion.WithProficiency(Trait.Acrobatics, Proficiency.Trained);
+                            }
+                        }
+
+                        animalCompanion.AddQEffect(new QEffect() {
+                            StateCheck = sc => {
+                                if (sc.Owner.HasEffect(QEffectId.Dying) || !sc.Owner.Battle.InitiativeOrder.Contains(sc.Owner))
+                                    return;
+                                Creature owner = sc.Owner;
+                                int index = (owner.Battle.InitiativeOrder.IndexOf(owner) + 1) % owner.Battle.InitiativeOrder.Count;
+                                Creature creature = owner.Battle.InitiativeOrder[index];
+                                owner.Actions.HasDelayedYieldingTo = creature;
+                                if (owner.Battle.CreatureControllingInitiative == owner)
+                                    owner.Battle.CreatureControllingInitiative = creature;
+                                owner.Battle.InitiativeOrder.Remove(sc.Owner);
+                            }
+                        })
+                        ;
+
+                        animalCompanion.MainName = self.Owner.Name + "'s " + animalCompanion.MainName;
+                        animalCompanion.InitiativeControlledBy = self.Owner;
+                        animalCompanion.AddQEffect(new QEffect() {
+                            Id = QEffectId.RangersCompanion,
+                            Source = self.Owner,
+                            WhenMonsterDies = qfCompanion => item.ItemModifications.Add(new ItemModification(ItemModificationKind.UsedThisDay))
+                        });
+                        var bestBarding = self.Owner.CarriedItems.FirstOrDefault(backpackItem => backpackItem.HasTrait(Trait.Barding) && backpackItem.IsWorn);
+                        animalCompanion.BaseArmor = bestBarding;
+                        animalCompanion.RecalculateArmor();
+                        animalCompanion.Defenses.RecalculateFromProficiencies();
+                        animalCompanion.Skills.RecalculateFromProficiencies();
+
+                        Action<Creature, Creature> benefitsToCompanion = self.Owner.PersistentCharacterSheet?.Calculated.RangerBenefitsToCompanion;
+                        if (benefitsToCompanion != null)
+                            benefitsToCompanion(animalCompanion, self.Owner);
+                        self.Owner.Battle.SpawnCreature(animalCompanion, self.Owner.OwningFaction, self.Owner.Occupies);
+                    }
+                };
+
+                qfItem.StateCheck = self => {
+                    if (self.Tag is true) {
+                        return;
+                    }
+
+                    Creature owner = self.Owner;
+                    Creature animalCompanion = Ranger.GetAnimalCompanion(owner);
+
+                    bool flag = owner.HasEffect(QEffectId.MatureAnimalCompanion) || advanced;
+                    if (animalCompanion != null && flag && GetAnimalCompanionCommandRestriction(self, animalCompanion) == null) {
+                        self.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                            Id = QEffectId.YouShouldTakeYourTurnEvenUnconsciousOrParalyzed
+                        });
+                    }
+                    if (animalCompanion == null || !animalCompanion.Actions.CanTakeActions())
+                        return;
+
+                    ActionPossibility fullCommand = new ActionPossibility(new CombatAction(owner, flag ? (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.Action) : animalCompanion.Illustration, "Command your Animal Companion",
+                    [Trait.Auditory], "Take 2 actions as your animal companion.\n\nYou can only command your animal companion once per turn.", (Target)Target.Self()
+                    .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : (string)null)
+                    .WithAdditionalRestriction(cr => GetAnimalCompanionCommandRestriction(self, animalCompanion))) {
+                        ShortDescription = "Take 2 actions as your animal companion."
+                    }.WithEffectOnSelf(async action => {
+                        self.UsedThisTurn = true;
+                        await CommonSpellEffects.YourMinionActs(animalCompanion);
+                    }), flag ? PossibilitySize.Half : PossibilitySize.Full);
+                    owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                        ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)fullCommand)
+                    });
+                    if (!flag)
+                        return;
+                    owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
+                        ProvideMainAction = (Func<QEffect, Possibility>)(qff => (Possibility)new ActionPossibility(new CombatAction(owner, (Illustration)new SideBySideIllustration(animalCompanion.Illustration, (Illustration)IllustrationName.FreeAction), "Move on your own",
+                        [Trait.Basic], "{i}You leave your mature animal companion to its own devices. It will do what's right.{/i}\n\nTake 1 action as your animal companion. You can only spend this action to move or to make a Strike.\n\nYou can't command your animal companion and leave it to move in its own in the same turn.",
+                        (Target)Target.Self()
+                        .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : null))
+                        .WithActionCost(0)
+                        .WithEffectOnSelf((Func<Creature, Task>)(async caster => {
+                            self.UsedThisTurn = true;
+                            animalCompanion.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
+                                Id = QEffectId.MoveOnYourOwn,
+                                PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && !ca.HasTrait(Trait.Strike) && ca.ActionId != ActionId.EndTurn ? "You can only move or make a Strike." : null
+                            });
+                            await CommonSpellEffects.YourMinionActs(animalCompanion);
+                        })), PossibilitySize.Half))
+                    });
+                };
+            });
+
+            return item;
         }
 
         public static string? GetAnimalCompanionCommandRestriction(QEffect qfRanger, Creature animalCompanion) {

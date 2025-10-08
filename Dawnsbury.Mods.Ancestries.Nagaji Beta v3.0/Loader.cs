@@ -59,6 +59,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         internal static FeatName ftHypnoticLure = ModManager.RegisterFeatName("Hypnotic Lure");
         internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
         internal static FeatName ftNagajiVenomLore = ModManager.RegisterFeatName("Nagaji Venom Lore");
+        internal static FeatName ftVenomousSecrets = ModManager.RegisterFeatName("Venomous Secrets");
 
         // Illustrations
         internal static ModdedIllustration illBlightBomb = new ModdedIllustration("NagajiAssets/BlightBomb.png");
@@ -160,7 +161,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                 sheet.Proficiencies.AddProficiencyAdjustment(item => item.Contains(Trait.Bomb), Trait.Simple);
             })
             .WithOnCreature(creature => {
-                creature.AddQEffect(new QEffect("Nagaji Venom Lore", "The first bomb with the poison trait that you throw each day deals an additional damage die.") {
+                creature.AddQEffect(new QEffect("Nagaji Venom Lore", $"The first bomb with the poison trait that you throw each {(creature.HasFeat(ftVenomousSecrets) ? "encounter" : "day")} deals an additional damage die.") {
                     StartOfCombat = async self => {
                         if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Nagaji Venom Lore")) {
                             self.Name += " (Expended)";
@@ -180,6 +181,10 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                             owner.PersistentUsedUpResources.UsedUpActions.Add("Nagaji Venom Lore");
                             owner.QEffects.FirstOrDefault(qf => qf.Name == "Nagaji Venom Lore")!.Name += " (Expended)";
                         }
+                    },
+                    EndOfCombat = async (self, won) => {
+                        if (self.Owner.HasFeat(ftVenomousSecrets))
+                            self.Owner.PersistentUsedUpResources.UsedUpActions.Remove("Nagaji Venom Lore");
                     }
                 });
             });
@@ -336,45 +341,50 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             .WithPrerequisite(sheet => sheet.HasFeat(nagajiSpellFamiliarity), "You must know at least one innate spell from a nagaji heritage or ancestry feat");
 
             // Level 9
-            yield return new TrueFeat(ModManager.RegisterFeatName("Venomous Secrets"), 9, "You've studied the secrets of infamous nagaji poisoners, allowing you to smuggle and brew lethal toxins using seemingly innocuous herbs and fungi.",
-                "Up to twice per day, you may draw a hidden Blight Bomb (moderate) as {icon:FreeAction} free action.", new Trait[] { tNagaji, Trait.Homebrew, Trait.Poison }, null)
-            .WithActionCost(0)
-            .WithIllustration(illBlightBomb)
-            .WithOnCreature(creature => {
-                creature.AddQEffect(new QEffect("Venomous Secrets (x2)", $"You may produce a hidden {{i}}blight bomb (moderate){illBlightBomb.IllustrationAsIconString}{{/i}} as a {{icon:FreeAction}} free action twice per day.") {
-                    StartOfCombat = async self => {
-                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:2")) {
-                            self.Name = "Venomous Secrets (Expended)";
-                        } else if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1")) {
-                            self.Name = "Venomous Secrets (x1)";
-                        }
-                    },
-                    ProvideMainAction = self => {
-                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:2")) return null;
+            // You've studied the closely guarded secrets of naga venom, allowing you to enhance poisons in your possession.
+            //yield return new TrueFeat(ModManager.RegisterFeatName("Venomous Secrets"), 9, "You've studied the secrets of infamous nagaji poisoners, allowing you to smuggle and brew lethal toxins using seemingly innocuous herbs and fungi.",
+            //    "Up to twice per day, you may draw a hidden Blight Bomb (moderate) as a {icon:FreeAction} free action.", new Trait[] { tNagaji, Trait.Homebrew, Trait.Poison }, null)
+            //.WithActionCost(0)
+            //.WithIllustration(illBlightBomb)
+            //.WithOnCreature(creature => {
+            //    creature.AddQEffect(new QEffect("Venomous Secrets (x2)", $"You may produce a hidden {{i}}blight bomb (moderate){illBlightBomb.IllustrationAsIconString}{{/i}} as a {{icon:FreeAction}} free action twice per day.") {
+            //        StartOfCombat = async self => {
+            //            if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:2")) {
+            //                self.Name = "Venomous Secrets (Expended)";
+            //            } else if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1")) {
+            //                self.Name = "Venomous Secrets (x1)";
+            //            }
+            //        },
+            //        ProvideMainAction = self => {
+            //            if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:2")) return null;
 
-                        bool used = self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1");
+            //            bool used = self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1");
 
-                        return new ActionPossibility(new CombatAction(self.Owner, illBlightBomb, $"Venomous Secrets (x{(used ? "1" : "2")})", [tNagaji], $"Draw a {{i}}blight bomb (moderate){illBlightBomb.IllustrationAsIconString}{{/i}}.", Target.Self().WithAdditionalRestriction(cr => cr.HasFreeHand ? null : "no free hand"))
-                            .WithActionCost(0)
-                            .WithSoundEffect(SfxName.AcidSplash)
-                            .WithEffectOnSelf(user => {
-                                var bomb = Items.CreateNew(blightBomb).WithModification(ItemModification.Create("moderate-bomb"));
-                                bomb.Traits.Add(Trait.EncounterEphemeral);
-                                creature.AddHeldItem(bomb);
-                                creature.Occupies.Overhead($"*drew {bomb.Name}*", Color.Green);
-                                if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1")) {
-                                    self.Name = "Venomous Secrets (Expended)";
-                                    self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Venomous Secrets:2");
-                                }
-                                else {
-                                    self.Name = "Venomous Secrets (x1)";
-                                    self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Venomous Secrets:1");
-                                }
-                            })
-                        ) .WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
-                    },
-                });
-            })
+            //            return new ActionPossibility(new CombatAction(self.Owner, illBlightBomb, $"Venomous Secrets (x{(used ? "1" : "2")})", [tNagaji], $"Draw a {{i}}blight bomb (moderate){illBlightBomb.IllustrationAsIconString}{{/i}}.", Target.Self().WithAdditionalRestriction(cr => cr.HasFreeHand ? null : "no free hand"))
+            //                .WithActionCost(0)
+            //                .WithSoundEffect(SfxName.AcidSplash)
+            //                .WithEffectOnSelf(user => {
+            //                    var bomb = Items.CreateNew(blightBomb).WithModification(ItemModification.Create("moderate-bomb"));
+            //                    bomb.Traits.Add(Trait.EncounterEphemeral);
+            //                    creature.AddHeldItem(bomb);
+            //                    creature.Overhead($"*drew {bomb.Name}*", Color.Green);
+            //                    if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Venomous Secrets:1")) {
+            //                        self.Name = "Venomous Secrets (Expended)";
+            //                        self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Venomous Secrets:2");
+            //                    }
+            //                    else {
+            //                        self.Name = "Venomous Secrets (x1)";
+            //                        self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Venomous Secrets:1");
+            //                    }
+            //                })
+            //            ) .WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
+            //        },
+            //    });
+            //})
+            //.WithPrerequisite(ftNagajiVenomLore, "Nagaji Venom Lore");
+
+            yield return new TrueFeat(ftVenomousSecrets, 9, "Your knowledge of the potent properties of Naga venom continues to grow, allowing you to infuse your bombs with a less stable but far less taxing lacing of venom.",
+                "Nagaji Venom Lore now causes the first bomb with the poison trait that you throw each encounter to deals an additional damage die.", new Trait[] { tNagaji, Trait.Homebrew, Trait.Poison }, null)
             .WithPrerequisite(ftNagajiVenomLore, "Nagaji Venom Lore");
 
             yield return new TrueFeat(ModManager.RegisterFeatName("Envenom Strike"), 9, "With careful practice you've learnt to use your venomous spit to coat you and your allies' weapons.",
@@ -421,7 +431,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
 
                                 if (chosenWeapon == null) {
                                     Sfxs.Play(SfxName.SpellFail);
-                                    target.Occupies.Overhead("ERROR", Color.Red, "Envenom strike failed becaused selected weapon could not be found. Please report this to the mod author.");
+                                    target.Overhead("ERROR", Color.Red, "Envenom strike failed becaused selected weapon could not be found. Please report this to the mod author.");
                                     return;
                                 };
 

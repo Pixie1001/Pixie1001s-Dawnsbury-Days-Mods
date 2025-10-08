@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class CroneOfTheWildsLv1 : Level1EliteEncounter
     {
-        public CroneOfTheWildsLv1(string filename) : base("Crone of the Wilds", filename, eliteRewards: new List<(Item, string)> {
+        public CroneOfTheWildsLv1(string filename) : base("Crone of the Wilds", filename, eliteRewards: new List<(Item, string)?> {
             (Items.CreateNew(CustomItems.ShifterFurs), "A mangy fur cloak, still touched by a linger of Agatha's shapeshifting power."),
             (Items.CreateNew(CustomItems.HornOfTheHunt), "An bone hunting horn, worn around the neck, hewn in the shape of a snarling wolf, that might be blown to summon forth a pack of hunting wolves.")
         }) {

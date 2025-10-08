@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class MotherOfThePoolLv1 : Level1EliteEncounter
     {
-        public MotherOfThePoolLv1(string filename) : base("Mother of the Pool", filename, eliteRewards: new List<(Item, string)> {
+        public MotherOfThePoolLv1(string filename) : base("Mother of the Pool", filename, eliteRewards: new List<(Item, string)?> {
             (Items.CreateNew(CustomItems.DemonBoundRing), "A sinister ring carved with the face of a gruesome looking fiend. Invoke its power at your own risk."),
             (Items.CreateNew(CustomItems.ProtectiveAmulet), "An eerie fetish intended to be held in the off hand, thrumming with protective magic bestowed by foul and unknowable beings, that might be held aloft to protect others from harm.")
         }) {

@@ -228,6 +228,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             // High Level Encounters
             ModManager.RegisterEncounter<DemonGateLv6>("HL_N_DemonGate.tmx");
 
+            // Skill Challenge Fights
+            ModManager.RegisterEncounter<DefendTheReliquary>("Event_ReliquaryDefence.tmx");
+
             // Elite Fights
             RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
             RegisterEncounter<HallOfSmokeLv2>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv2");

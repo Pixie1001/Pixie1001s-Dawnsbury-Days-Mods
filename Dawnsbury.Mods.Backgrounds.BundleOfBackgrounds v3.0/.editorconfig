@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# IDE0058: Expression value is never used
+dotnet_diagnostic.IDE0058.severity = none
+
+# CS1998: Async method lacks 'await' operators and will run synchronously
+dotnet_diagnostic.CS1998.severity = silent

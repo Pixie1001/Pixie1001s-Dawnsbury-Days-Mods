@@ -68,7 +68,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             TEST_PILE,
             Maelstrom,
             NIGHTMARE_GROWTH,
-            GREATER_SPIDER_QUEEN_SHRINE
+            GREATER_SPIDER_QUEEN_SHRINE,
+            RELIQUARY
         }
 
         internal enum EncounterType

@@ -51,6 +51,7 @@ using System.Text;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
 using System.Xml;
 using Dawnsbury.Campaign.Path;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 
 namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -94,9 +95,19 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
         internal static ItemName iDragonWhisky = ModManager.RegisterEnumMember<ItemName>("BoB Dragon Whisky");
         internal static ItemName iRotgut = ModManager.RegisterEnumMember<ItemName>("BoB Rotgut");
         internal static ItemName iBerserkersBrew = ModManager.RegisterEnumMember<ItemName>("BoB Berserker's Brew");
+        internal static FeatName ftBlacksmith = ModManager.RegisterFeatName("BoB_Background_Blacksmith", "Blacksmith");
+
+        public static FeatGroup Military = new FeatGroup("Military", 0);
+        public static FeatGroup Intellectual = new FeatGroup("Intellectual", 0);
+        public static FeatGroup Trade = new FeatGroup("Trade", 0);
+        public static FeatGroup Outcast = new FeatGroup("Outcast", 0);
+        public static FeatGroup Faithful = new FeatGroup("Faithful", 0);
+        public static FeatGroup Noble = new FeatGroup("Noble", 0);
+        public static FeatGroup PivotalEvent = new FeatGroup("Event", 0);
 
         [DawnsburyDaysModMainMethod]
         public static void LoadMod() {
+            BlacksmithsMaitenance.HandleBM();
             FeatNames.RegisterFeatNames();
             BoBAssets.RegisterIllustrations();
             AddFeats(CreateGeneralFeats());
@@ -185,7 +196,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 return sheet.Proficiencies.Get(Trait.Athletics) >= Proficiency.Trained || sheet.Proficiencies.Get(Trait.Acrobatics) >= Proficiency.Trained;
             }, "You must be trained in Acrobatics or Athletics");
 
-            yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.ESCAPE_ARTIST], 1, "You've a knack for slipping free from other's grasps.", "You gain a +1 circumstance bonus to escape checks.", new Trait[] { Trait.General, Trait.Homebrew })
+            yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.ESCAPE_ARTIST], 1, "You've a knack for slipping free from other's grasps.", "You gain a +1 circumstance bonus to escape checks.", new Trait[] { Trait.General, Trait.Rebalanced })
             .WithPermanentQEffect("You gain a +1 circumstance bonus to escape checks.", self => {
                 self.BonusToSkillChecks = (skill, action, target) => {
                     if (action.ActionId != ActionId.Escape) {
@@ -206,7 +217,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER], 1,
                 "You can carry more than your frame implies.", "After each encounter, you're able to haul away additional miscellaneous treasures weaker parties would find too burdonsome to loot.\n\n" +
                 "Increasing your gold reward by (5/8/10/12)% of the total value of the treasure collected from each encounter.\n\nThe amount of extra gold earned is dependent on the number of party " +
-                "members with this feat - each giving increasingly diminishing returns as they struggle to scrounge for additional loot.", new Trait[] { Trait.General, Trait.Skill, Trait.Homebrew })
+                "members with this feat - each giving increasingly diminishing returns as they struggle to scrounge for additional loot.", new Trait[] { Trait.General, Trait.Skill, Trait.Rebalanced })
             .WithPermanentQEffect("Increase encounter reward by +(5/8/10/12)% gold, based on the number of party members with this feat and the total value of all item and gold rewards.", self => {
                 self.StartOfCombat = async self => {
                     self.Tag = false;
@@ -262,7 +273,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             }, "You must be trained in Religion");
 
             yield return new TrueFeat(FeatNames.feats[FeatNames.FeatId.NO_CAUSE_FOR_ALARM], 1,
-                "You attempt to reduce panic.", "Attempt a Diplomacy check vs. an easy DC of the target's level, for each friendly creature in a 15-foot emanation around you that is frightened. Each of them is temporarily immune for the rest of the encounter.\n\n{b}Critical Success{/b} Reduce the creature's frightened value by 2.\n{b}Success{/b} Reduce the creature's frightened value by 1.", new Trait[] { Trait.General, Trait.Skill, Trait.Auditory, Trait.Concentrate, Trait.Emotion, Trait.Linguistic, Trait.Mental, Trait.Homebrew })
+                "You attempt to reduce panic.", "Attempt a Diplomacy check vs. an easy DC for the target's level, for each friendly creature in a 15-foot emanation around you that is frightened. Each of them is temporarily immune for the rest of the encounter.\n\n{b}Critical Success{/b} Reduce the creature's frightened value by 2.\n{b}Success{/b} Reduce the creature's frightened value by 1.", new Trait[] { Trait.General, Trait.Skill, Trait.Auditory, Trait.Concentrate, Trait.Emotion, Trait.Linguistic, Trait.Mental, Trait.Rebalanced })
             .WithOnCreature((sheet, creature) => {
                 creature.AddQEffect(new QEffect() {
                     ProvideActionIntoPossibilitySection = (self, section) => {
@@ -272,7 +283,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
 
                         return (ActionPossibility)new CombatAction(self.Owner, BoBAssets.imgs[BoBAssets.ImageId.NO_CAUSE_FOR_ALARM], "No Cause for Alarm",
                             new Trait[] { Trait.Auditory, Trait.Concentrate, Trait.Emotion, Trait.Linguistic, Trait.Mental },
-                            "Attempt a Diplomacy check vs. an easy DC of the target's level, for each friendly creature in a 15-foot emanation around you that is frightened. Each of them is " +
+                            "Attempt a Diplomacy check vs. an easy DC for the target's level, for each friendly creature in a 15-foot emanation around you that is frightened. Each of them is " +
                             "temporarily immune for the rest of the encounter.\n\n{b}Critical Success{/b} Reduce the creature's frightened value by 2.\n{b}Success{/b} Reduce the creature's frightened value by 1.",
                             Target.Emanation(3).WithIncludeOnlyIf((area, creature) =>
                                 creature.FriendOfAndNotSelf(self.Owner) && creature.HasEffect(QEffectId.Frightened) && creature.QEffects.FirstOrDefault(
@@ -461,22 +472,26 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
         }
 
         private static IEnumerable<Feat> CreateBackgrounds() {
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Sailor"), "You heard the call of the sea from a young age. Perhaps you signed onto a merchant's vessel, joined the navy, or even fell in with a crew of pirates and scalawags.",
+            Feat output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Sailor"), "You heard the call of the sea from a young age. Perhaps you signed onto a merchant's vessel, joined the navy, or even fell in with a crew of pirates and scalawags.",
                 "You're trained in {b}Athletics{/b}. You gain the {b}Underwater Marauder{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Dexterity), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Athletics);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.UNDERWATER_MARAUDER]);
             });
+            output.FeatGroup = Trade;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Dawnsbury Under the Sea Resident"),
+           output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Dawnsbury Under the Sea Resident"),
                 "You were born amongst the merfolk and other benevolent aquotic denizens of Dawnsbury Under the Sea. Now you seek to make your mark on the strange and foreign world above the waves.",
                 "You're trained in {b}Athletics{/b}. You gain the {b}Underwater Marauder{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Charisma, Ability.Strength), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Athletics);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.UNDERWATER_MARAUDER]);
             });
+            output.FeatGroup = PivotalEvent;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Guard"), "You served as a guard for the city, a rich patron or less scrupulous organisation, becoming adept both at protecting your charges and browbeating rabble in equal measure.",
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Guard"), "You served as a guard for the city, a rich patron or less scrupulous organisation, becoming adept both at protecting your charges and browbeating rabble in equal measure.",
                 "You're trained in {b}Intimidation{/b}. You gain the {b}Bodyguard{/b} ability.\n\n{b}Bodyguard {icon:FreeAction}.{/b} Once per day, you can guard an adjacent ally, granting them a +1 circumstance bonus to AC whilst adjacent to you, until the start of your next turn.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Charisma), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Intimidation);
@@ -524,7 +539,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 });
             });
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Labourer"),
+            output.FeatGroup = Military;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Labourer"),
                 "You've spent years performing arduous physical labor, perhaps as penance for your crimes or as part of the efforts to rebuild after the Night of the Shooting Stars. " +
                 "You may have embraced adventuring as an easier method to make your way in the world, or to use the fruits of your difficult lifestyle for a greater purpose.",
                 "You're trained in {b}Athletics{/b}. You gain the {b}Hefty Hauler{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
@@ -533,15 +551,20 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER]);
             });
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Criminal"),
+            output.FeatGroup = Trade;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Criminal"),
                 "As an unscrupulous independent or as a member of an underworld organization, you lived a life of crime. You might have become an adventurer to seek redemption, to escape the law, or simply to get access to bigger and better loot.",
                 "You're trained in {b}Stealth{/b}. You gain the {b}Escape Artist{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Intelligence), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Stealth);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.ESCAPE_ARTIST]);
             });
+            output.FeatGroup = Outcast;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Despatch Runner"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Despatch Runner"),
                 "You served as a runner, carrying important despatch orders and battle reports between fronts during the war against the starborn. Your service is complete now, perhaps replaced by divination, " +
                 "or your superiors left dead in a ditch, routed in battle. Now the time has come for you to stop running, and face your perils head on.",
                 "You're trained in {b}Athletics{/b}. You gain the {b}Fleet{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
@@ -549,24 +572,30 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Athletics);
                 sheet.GrantFeat(FeatName.Fleet);
             });
+            output.FeatGroup = Military;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Scout"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Scout"),
                 "You called the wilderness home as you found trails and guided travelers. Your wanderlust could have called you to the adventuring life, or perhaps you served as a scout for soldiers and found you liked battle.",
                 "You're trained in {b}Nature{/b}. You gain the {b}Fleet{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Wisdom), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Nature);
                 sheet.GrantFeat(FeatName.Fleet);
             });
+            output.FeatGroup = Military;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Street Urchin"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Street Urchin"),
                 "You eked out a living by picking pockets on the streets of a major city, never knowing where you'd find your next meal. While some folk adventure for the glory, you do so to survive.",
                 "You're trained in {b}Thievery{/b}. You gain the {b}Toughness{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Constitution), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Thievery);
                 sheet.GrantFeat(FeatName.Toughness);
             });
+            output.FeatGroup = Outcast;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Cook"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Cook"),
                 "You grew up in the kitchens of a tavern or other dining establishment and excelled there, becoming an exceptional cook. Baking, cooking, a little brewing on the side—you've spent lots of time out of sight. " +
                 "It's about time you went out into the world to catch some sights for yourself.",
                 "You're trained in {b}Diplomacy{/b}. You gain the {b}Gourmet Rations{/b} ability.\n\n{b}Gourmet Rations.{/b} With a few choice spices and culinary secrets, you can make an unforgettable meal from even the blandest of ingredients. " +
@@ -637,8 +666,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     },
                 });
             });
+            output.FeatGroup = Trade;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Fire Warden"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Fire Warden"),
                 "Whether you fought against fires in the wilderness or in crowded city streets, you've had your fair share of dealing with uncontrolled flames. Battling thick smoke and toxic fumes, " +
                 "you've broken down obstacles to save trapped people from a fiery grave, and you've studied the nature and source of fire itself to try and better learn how to fight it.",
                 "You're trained in {b}Diplomacy{/b}.\n\nYou gain a +1 bonus to saving throws against effects with the fire trait.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
@@ -658,8 +689,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     }
                 });
             });
+            output.FeatGroup = Trade;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Hermit"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Hermit"),
                 "In an isolated place—like a cave, remote oasis, or secluded mansion—you lived a life of solitude. Adventuring might represent your first foray out among other people in some time. " +
                 "This might be a welcome reprieve from solitude or an unwanted change, but in either case, you're likely still rough around the edges.",
                 "You're trained in {b}Nature{/b}. You gain the {b}Fount of Knowledge{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Intelligence), new FreeAbilityBoost() })
@@ -667,8 +700,20 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Nature);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
             });
+            output.FeatGroup = Intellectual;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Refugee"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Doctor"),
+                "You are a student of the medical sciences, using your knowledge to aid the local community in matters to minor or complex for the temple, or in diagnosing incurable malodies for the rich and famous.",
+                "You're trained in {b}Medicine{/b}. You gain the {b}Battle Medicine{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Wisdom, Ability.Intelligence), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Medicine);
+                sheet.GrantFeat(FeatName.BattleMedicine);
+            });
+            output.FeatGroup = Trade;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Refugee"),
                 "You come from a land very distant from the one you now find yourself in, driven by war, plague, or simply in the pursuit of opportunity. Regardless of your origin or the reason you left your home, " +
                 "you find yourself an outsider in this new land. Adventuring is a way to support yourself while offering hope to those who need it most.",
                 "You're trained in {b}Stealth{/b}. You gain the {b}Toughness{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Wisdom), new FreeAbilityBoost() })
@@ -676,8 +721,64 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Stealth);
                 sheet.GrantFeat(FeatName.Toughness);
             });
+            output.FeatGroup = Outcast;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Librarian"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Mortician"),
+                "You hold the somewhat morbid trade of a Mortician; dissecting, embalming and preparing the dead for the proper funerary arrangements. " +
+                "It is a skill that requires an unprecended knowledge of anatomy, and can even be applied when attempting to return the living dead back to their proper state.",
+                "You're trained in {b}Medicine{/b}. You gain the {b}Forensic Analysis{/b} action.\n\n" +
+                "{b}Forensic Analysis{/b} {icon:Action}\n" +
+                "{b}Frequency{/b} Once per day\n\nStudy a corporeal undead creature, by making a Medicine skill check against an easy DC for the target's level. " +
+                "On a success, you and your allies gain a +1 circumstance bonus against their next attack against it.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Intelligence), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Medicine);
+            })
+            .WithOnCreature((sheet, creature) => {
+                creature.AddQEffect(new QEffect("Forensic Analysis",
+                    "You gain the Forensic Analysis {icon:Action} action, which you can use on a corporeal undead creature once per day.") {
+                    StartOfCombat = async (self) => {
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Forensic Analysis"))
+                            self.Name += " (expended)";
+                    },
+                    ProvideActionIntoPossibilitySection = (self, section) => {
+
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Forensic Analysis")) return null;
+
+                        if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
+
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.HideFromUndead, "Forensic Analysis", [Trait.Basic, Trait.Concentrate, Trait.AlwaysHits, Trait.IsNotHostile, Trait.DoesNotBreakStealth],
+                            "{b}Frequency{/b} Once per day\n\nStudy a corporeal undead creature, by making a Medicine skill check against an easy DC for the target's level. " +
+                            "On a success, you and your allies gain a +1 circumstance bonus against their next attack against it.",
+                            Target.Ranged(100)
+                            .WithAdditionalConditionOnTargetCreature((a, d) => d.HasTrait(Trait.Undead) && !d.HasTrait(Trait.Incorporeal) ? Usability.Usable : Usability.NotUsableOnThisCreature("not a corporeal undead")))
+                        .WithEffectOnSelf(caster => {
+                            caster.PersistentUsedUpResources.UsedUpActions.Add("Forensic Analysis");
+                            self.Name += " (expended)";
+                        })
+                        .WithEffectOnEachTarget(async (action, user, target, _) => {
+                            var result = CommonSpellEffects.RollCheck("Forensic Analysis", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Medicine), Checks.FlatDC(Checks.LevelBasedDC(target.Level, SimpleDCAdjustment.Easy))), user, target);
+                            if (result >= CheckResult.Success) {
+                                foreach (Creature ally in user.Battle.AllCreatures.Where(cr => cr.FriendOf(user))) {
+                                    ally.AddQEffect(new QEffect($"Forensic Analysis ({target.Name})", $"Your next attack roll against {target.Name} gains a +1 circumstance bonus.", ExpirationCondition.Never, user, IllustrationName.NarratorBook) {
+                                        BonusToAttackRolls = (self, action, defender) => defender == target ? new Bonus(1, BonusType.Circumstance, "Forensic Analysis", true) : null,
+                                        AfterYouTakeAction = async (self, action) => {
+                                            if (action.HasTrait(Trait.Attack) && action.Target is CreatureTarget && action.ChosenTargets.ChosenCreature == target) {
+                                                self.ExpiresAt = ExpirationCondition.Immediately;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                        .WithActionCost(1);
+                    }
+                });
+            });
+            output.FeatGroup = Trade;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Librarian"),
                 "You've spent your life curating, collecting and maintaining tomes of knowledge for a local library, guild archieve or magic academy, giving you a knack for deciphering magical scrolls. " +
                 "You might have taken to adventuring to finance your acquisition of rare tomes, to explore occult mysteries that can't be found in the pages of a book, or perhaps to put your book learned skills to the test.",
                 "You're trained in {b}Occultism{/b}. You gain the {b}Trick Magic Item{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Wisdom), new FreeAbilityBoost() })
@@ -685,8 +786,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Occultism);
                 sheet.GrantFeat(FeatName.TrickMagicItem);
             });
+            output.FeatGroup = Intellectual;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Acolyte"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Acolyte"),
                 "You spent your early days in a religious monastery or cloister. You may have traveled out into the world to spread the message of your religion or because you cast away the teachings of your faith, " +
                 "but deep down you'll always carry within you the lessons you learned.",
                 "You're trained in {b}Religion{/b}. You gain the {b}Pilgrim's Token{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Wisdom), new FreeAbilityBoost() })
@@ -694,8 +797,30 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Religion);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.PILGRIMS_TOKEN]);
             });
+            output.FeatGroup = Faithful;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Herbalist"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Preacher"),
+                "The wander from village to village, preaching the precepts of your faith and spreading their message across the plane.",
+                "You're trained in {b}Religion{/b}. You gain the {b}Pilgrim's Token{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Wisdom), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Religion);
+                sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.PILGRIMS_TOKEN]);
+            });
+            output.FeatGroup = Faithful;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Templar"),
+                "You serve within a militant order within your faith, steppin up to defend the faithful or enforce the church's will when miracles and sermons fail.",
+                "You're trained in {b}Religion{/b}. You gain the {b}Pilgrim's Token{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Strength), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Religion);
+                sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.PILGRIMS_TOKEN]);
+            });
+            output.FeatGroup = Faithful;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Herbalist"),
                 "As a formally trained apothecary or a rural practitioner of folk medicine, you learned the healing properties of various herbs. You're adept at collecting the right natural cures in all sorts of environments and preparing them properly.",
                 "You're trained in {b}Nature{/b}. You gain the {b}Concoct Poultice{/b} ability." +
                 "\n\n{b}Concoct Poultice {icon:Action}.{/b} Once per day, concoct a single random potion from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, " +
@@ -716,28 +841,38 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         }
 
                         return (ActionPossibility)new CombatAction(self.Owner, BoBAssets.imgs[BoBAssets.ImageId.CONCOCT_POULTICE], "Concoct Poultice", new Trait[] { Trait.Alchemical },
-                            "{b}Frequency{/b} Once per long rest.\n\nConcoct a single random potion from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, quickly rendering itself inert if not used by the end of the encounter.", Target.Self()
+                            "{b}Frequency{/b} Once per long rest.\n\nConcoct a single level appropriate potion of your choice from nearby ingredients, which appears in a free hand. The poultice functions as typical for a potion of its type, but is of ephemeral potency, quickly rendering itself inert if not used by the end of the encounter.", Target.Self()
                             .WithAdditionalRestriction(c => {
                                 if (self.Owner.HasFreeHand) {
                                     return null;
                                 }
                                 return "no free hand";
                             })) {
-                            ShortDescription = "Concoct a random temporary potion or elixir, which appears in a free hand.",
+                            ShortDescription = "Concoct a temporary level appropriate potion or elixir, which appears in a free hand.",
                         }
                         .WithActionCost(1)
                         .WithSoundEffect(SfxName.AcidSplash)
-                        .WithEffectOnSelf(creature => {
+                        .WithEffectOnSelf(async creature => {
                             List<Item> potions = Items.ShopItems.Where(item => (item.HasTrait(Trait.Potion) || item.HasTrait(Trait.Elixir)) && !item.HasTrait(Trait.Uncommon) && item.Level <= self.Owner.Level).ToList();
-                            potions = potions.Concat(potions.Where(item => item.HasTrait(Trait.Healing)).ToList()).ToList();
-                            int index = R.Next(0, potions.Count);
-                            Item potion = Items.CreateNew(potions[index].ItemName);
-                            potion.Name = creature.Name + "'s " + potion.Name;
-                            potion.Price = 0;
-                            creature.AddHeldItem(potion);
-                            creature.Occupies.Overhead($"*crafted {potion.Name}*", Color.Green);
-                            self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Concoct Poultice");
-                            self.Tag = potion;
+                            //potions = potions.Concat(potions.Where(item => item.HasTrait(Trait.Healing)).ToList()).ToList();
+
+                            var choice = await creature.Battle.SendRequest(new ComboBoxInputRequest<Item>(creature, $"Select which poultice you wish to concoct", IllustrationName.DisruptingWeapons, "Fulltext search...",
+                            potions.ToArray(), item => new ComboBoxInformation(item.Illustration, item.Name, $"{item.Level}",
+                            item.GetItemDescription(), item.Name + "_ConcoctPoultice"),
+                            item => "Concoct " + item.Name + $" {item.Illustration.IllustrationAsIconString}", "Cancel"));
+
+                            if (choice.ChosenOption is ComboBoxInputOption<Item> comboBoxInputOption) {
+                                if (comboBoxInputOption.SelectedObject is { } item) {
+                                    var potion = Items.CreateNew(item.ItemName);
+
+                                    potion.Name = creature.Name + "'s " + potion.Name;
+                                    potion.Price = 0;
+                                    creature.AddHeldItem(potion);
+                                    creature.Overhead($"*crafted {potion.Name}*", Color.Green);
+                                    self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Concoct Poultice");
+                                    self.Tag = potion;
+                                }
+                            }
                         });
                     },
                     EndOfCombat = async (self, won) => {
@@ -756,8 +891,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     }
                 });
             });
+            output.FeatGroup = Trade;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Bounty Hunter"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Bounty Hunter"),
                 "Bringing in lawbreakers lined your pockets, and earned you a reputation that strikes fear into your marks. Maybe you had an altruistic motive and sought to bring in criminals to make the streets safer, " +
                 "or maybe the coin was motivation enough. Your techniques for hunting down criminals transfer easily to the life of an adventurer.",
                 "You're trained in {b}Intimidation{/b}. You gain the {b}Manhunter{/b} ability\n\n{b}Manhunter.{/b} You gain a +1 status bonus to checks to demoralise humanoid opponents.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Wisdom), new FreeAbilityBoost() })
@@ -774,8 +911,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     }
                 });
             });
+            output.FeatGroup = Military;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Aristocrat"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Aristocrat"),
                 "The mantle of leadership is a heavy burden, one thrust upon you by birth or necessity. Perhaps you naively think yourself above your less privilaged adventuring companions you've so graciously deigned to personally travel alongside, " +
                 "or long to escape the responsibilities of your post after maintaining the facade of propriety for so long. Regardless, others still look to you as a beacon of order amongst the turmoil of the starborn invasion.",
                 "You're trained in {b}Diplomacy{/b}. You gain the {b}No Cause for Alarm{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Charisma), new FreeAbilityBoost() })
@@ -783,16 +922,88 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Diplomacy);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.NO_CAUSE_FOR_ALARM]);
             });
+            output.FeatGroup = Noble;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Performer"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Rake"),
+                "Despite your noble birthright, you're generally considered a disgrace to your prestigeous station, spending your time gossiping, drinking, dueling, gambling and being a notorious flirt whose only true talent of note is being as good at getting themselves out of trouble as they are getting into it.",
+                "You're trained in {b}Deception{/b}. You gain the {b}Confabulator{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Charisma), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Deception);
+                sheet.GrantFeat(FeatName.Confabulator);
+            });
+            output.FeatGroup = Noble;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Insurgent"),
+                "You've spend time waging a one-sided war against a kingdom or regime you consider corrupt. Perhaps you operate as a spy within forign lawful evil states, resist against a local baron taking advantage of the chaos of the war or stand in opposition to the crown itself for your own reasons.",
+                "You're trained in {b}Deception{/b}. You gain the {b}Lengthy Diversion{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Charisma), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Deception);
+                sheet.GrantFeat(FeatName.LengthyDiversion);
+            });
+            output.FeatGroup = Outcast;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Rabble Rouser"),
+                "Whether to oppose tyranny or for more nefarious purposes, you're an expert at bringing the concerns of disfranchised crowds to a frothing boil.",
+                "You're trained in {b}Diplomacy{/b}. You gain the {b}Inspire Outrage{/b} action.\n\n" +
+                "{b}Frequency{/b} Once per day\n\nWhip an ally into a rage, by making a Diplomacy skill check against an easy DC for the target's level. " +
+                "On a success, they gain a +2 bonus to damage on their strikes, but suffer a -1 penalty to AC and cannot use actions with the concentrate trait, until the end of their next turn.",
+                new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Charisma), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Diplomacy);
+            })
+            .WithOnCreature((sheet, creature) => {
+                creature.AddQEffect(new QEffect("Inspire Outrage",
+                    "You gain the Inspire Outrage {icon:Action} action, which you can use to whip an ally into a rage once per day.") {
+                    StartOfCombat = async (self) => {
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Inspire Outrage"))
+                            self.Name += " (expended)";
+                    },
+                    ProvideActionIntoPossibilitySection = (self, section) => {
+
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Inspire Outrage")) return null;
+
+                        if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
+
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Rage, "Inspire Outrage", [Trait.Basic, Trait.Concentrate, Trait.VerbalOnly, Trait.IsNotHostile],
+                            "{b}Frequency{/b} Once per day\n\nWhip an ally into a rage, by making a Diplomacy skill check against an easy DC for the target's level. " +
+                            "On a success, they gain a +2 bonus to damage on their strikes, but suffer a -1 penalty to AC and cannot use actions with the concentrate trait, until the end of their next turn.",
+                            Target.RangedFriend(100)
+                            .WithAdditionalConditionOnTargetCreature((a, d) => a != d ? Usability.Usable : Usability.NotUsableOnThisCreature("cannot target self")))
+                        .WithEffectOnSelf(caster => {
+                            caster.PersistentUsedUpResources.UsedUpActions.Add("Inspire Outrage");
+                            self.Name += " (expended)";
+                        })
+                        .WithEffectOnEachTarget(async (action, user, target, _) => {
+                            var result = CommonSpellEffects.RollCheck("Inspire Outrage", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(Checks.LevelBasedDC(target.Level, SimpleDCAdjustment.Easy))), user, target);
+                            if (result >= CheckResult.Success) {
+                                target.AddQEffect(new QEffect("Outraged", "You gain a +2 bonus to damage on strikes, but suffer a -1 penalty to AC and cannot use actions with the concentrate trait.", ExpirationCondition.Never, user, IllustrationName.Rage) {
+                                    PreventTakingAction = action => action.HasTrait(Trait.Concentrate) && !action.HasTrait(Trait.Rage) ? "cannot used whilst outraged" : null,
+                                    BonusToDamage = (self, action, target) => action.HasTrait(Trait.Strike) ? new Bonus(2, BonusType.Untyped, "Outraged", true) : null,
+                                    BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(-1, BonusType.Untyped, "Outraged", true) : null,
+                                }.WithExpirationOneRoundOrRestOfTheEncounter(user, false));
+                            }
+                        })
+                        .WithActionCost(1);
+                    }
+                });
+            });
+            output.FeatGroup = Outcast;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Performer"),
                 "Through an education in the arts or sheer dogged practice, you learned to entertain crowds. You might have been an actor, a dancer, a musician, a street magician, or any other sort of performer.",
                 "You're trained in {b}Deception{/b}. You gain the {b}Theatrical Distraction{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Charisma), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Deception);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.THEATRICAL_DISTRACTION]);
             });
+            output.FeatGroup = Trade;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Musical Prodigy"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Musical Prodigy"),
                 "Ever since you were young, you've been almost supernaturally skilled in a particular type of music. The people around you were sure you'd grow up to perform at royal courts or to become a world-famous composer, " +
                 "but you've chosen a life of adventure instead. You might have given up on those dreams to find your own meaning, or you might find that adventuring allows you to experience unfiltered emotions and exploits that " +
                 "you can translate into a wondrous symphony some day.",
@@ -881,16 +1092,20 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     };
                 });
             });
+            output.FeatGroup = Intellectual;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Hunter"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Hunter"),
                 "You stalked and took down animals and other creatures of the wild. Skinning animals, harvesting their flesh, and cooking them were also part of your training, all of which can give you useful resources while you adventure.",
                 "You're trained in {b}Nature{/b}. You gain the {b}Sharpened Senses{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Wisdom), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Nature);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.SHARPENED_SENSES]);
             });
+            output.FeatGroup = Trade;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Academic"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Academic"),
                 "You have a knack for learning, and sequestered yourself from the outside world to learn all you could. You read about so many wondrous places and things in your books, and always dreamed about one day seeing the real things. " +
                 "Eventually, that curiosity led you to leave your studies and become an adventurer.",
                 "You're trained in {b}Arcana{/b}. You gain the {b}Fount of Knowledge{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Wisdom), new FreeAbilityBoost() })
@@ -898,8 +1113,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Arcana);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
             });
+            output.FeatGroup = Intellectual;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Charlatan"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Charlatan"),
                 "You traveled from place to place, peddling false fortunes and snake oil in one town, pretending to be royalty in exile to seduce a wealthy heir in the next. Becoming an adventurer might be your next big scam or an attempt " +
                 "to put your talents to use for a greater cause. Perhaps it's a bit of both, as you realize that after pretending to be a hero, you've become the mask.",
                 "You're trained in {b}Deception{/b}. You gain the {b}Snake Oil{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Charisma, Ability.Intelligence), new FreeAbilityBoost() })
@@ -907,8 +1124,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Deception);
                 sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.SNAKE_OIL]);
             });
+            output.FeatGroup = Outcast;
+            yield return output;
 
-            yield return new BackgroundSelectionFeat(ModManager.RegisterFeatName("Barkeep"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Barkeep"),
                 "You have five specialties: hefting barrels, drinking, polishing steins, drinking, and drinking. You worked in a bar, where you learned how to hold your liquor and rowdily socialize.",
                 "You're trained in {b}Diplomacy{/b}. You gain the {b}Moonshine{/b} ability.\n\n{b}Moonshine {icon:Action}.{/b} Once per day, may rifle through your bags for a bottle of moonshine and pop the cork to find out what the distillory process has produced. " +
                 "Your moonshine can be of three distinct kinds, but its magical properties are quickly rendered inert if the beverage is not drunk by the end of the encounter." +
@@ -966,10 +1185,162 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     }
                 });
             });
+            output.FeatGroup = Trade;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ftBlacksmith,
+                "Before becoming an adventurer, you worked metal into humble farming tools, great sculptures of steel or weapons of war to supply the kingdom's troops. " +
+                "Perhaps you now adventure to put your hammer arm to more direct use, to seek out inspiration from ancient ruins and heroic deeds, or to search for valuable deposits of ore to construct your magnus opus.",
+                "You're trained in {b}Crafting{/b}. You gain 'Blackmsith's Maintenance' item, which you may apply to one of your weapons to cause it to deal an additional point of damage on the first successful strike each encounter.",
+                new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Intelligence), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Crafting);
+            });
+            output.FeatGroup = Trade;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("BoB_Background_TreasureHunter", "Treasure Hunter"),
+                "You make a living exploring ancient ruins for misbegotten treasures or robbing tombs for their richs, making you particularly adept at spotting and disarming the deadly traps that are often left in such places.",
+                "You're trained in {b}Thievery{/b}. You gain a +2 bonus to rolls made to spot and disarm traps.",
+                new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Wisdom, Ability.Dexterity), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Thievery);
+            })
+            .WithOnCreature(creature => {
+                creature.AddQEffect(new QEffect("Treasure Hunter", "You gain a +2 bonus to rolls made to spot and disarm traps.") {
+                    BonusToAttackRolls = (self, action, target) => {
+                        if (action != null && ((action.ActionId == ActionId.Seek && target.Illustration == IllustrationName.DisarmTrap) || action.Name == "Disable trap")) {
+                            return new Bonus(2, BonusType.Untyped, "Treasure Hunter");
+                        }
+                        return null;
+                    },
+                });
+            });
+            output.FeatGroup = Trade;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("BoB_Background_Knight", "Knight"),
+                "You're a knight of the realm, or perhaps a smaller local order, acting in service of the kingdom.",
+                "You're trained in {b}Athletics{/b}. You gain the {b}Shield Block{/b} feat. If you already have {b}Shield Block{/b}, you gain the {b}No Cause For Alarm{/b} feat instead.",
+                new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Charisma, Ability.Strength), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Athletics);
+
+                //sheet.AtEndOfRecalculation += sheet => {
+                //    if (sheet.HasFeat(FeatName.ShieldBlock))
+                //        sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.NO_CAUSE_FOR_ALARM]);
+                //    else
+                //        sheet.GrantFeat(FeatName.ShieldBlock);
+                //};
+            });
+
+            output.Subfeats = [AllFeats.GetFeatByFeatName(FeatName.ShieldBlock),
+                new Feat(ModManager.RegisterFeatName("BoB_Knight_TakeNoCauseForAlarm", "No Cause for Alarm"),
+                "You attempt to reduce panic.",
+                "Attempt a Diplomacy check vs. an easy DC for the target's level, for each friendly creature in a 15-foot emanation around you that is frightened. Each of them is temporarily immune for the rest of the encounter.\n\n{b}Critical Success{/b} Reduce the creature's frightened value by 2.\n{b}Success{/b} Reduce the creature's frightened value by 1.",
+                [Trait.Auditory, Trait.Concentrate, Trait.Emotion, Trait.Linguistic, Trait.Mental], null).WithOnSheet(sheet => sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.NO_CAUSE_FOR_ALARM]))];
+
+            output.FeatGroup = Noble;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("BoB_Background_FieldResearcher", "Field Researcher"),
+                "Unlike your less adventurous contemporaries that might be content to study the world through dusty tomes and manuscripts, you prefer a more practical approach, never afraid to get your hands dirty in order to test a theory or personally collect samples in the field.",
+                "You're trained in a knowledge skill of your choice. You gain the {b}Fount of Knowledge{/b} feat.",
+                new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Dexterity), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
+            });
+
+            output.Subfeats = [AllFeats.GetFeatByFeatName(FeatName.Arcana), AllFeats.GetFeatByFeatName(FeatName.Nature), AllFeats.GetFeatByFeatName(FeatName.Occultism), AllFeats.GetFeatByFeatName(FeatName.Religion)];
+
+            output.FeatGroup = Intellectual;
+            yield return output;
+
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("BoB_Background_MonsterHunter", "Monster Hunter"),
+                "You specialize in tracking and hunting monsters harassing rural towns, or perhaps served as a participating or guide in grand hunts for those seeking to collect the appendages of dangerous monsters as trophies.",
+                "You're trained in {b}Survival{/b}. You gain the {b}Study Monster{/b} action.\n\n" +
+                "{b}Study Monster{/b} {icon:Action}\n" +
+                "{b}Frequency{/b} Once per day\n\nStudy a beast or monstrous creature, by making an Arcana or Nature skill check against an easy DC for the target's level. " +
+                "On a success, you and your allies gain a +1 circumstance bonus against their next attack against it.\n\n" +
+                "If you're a ranger, this ability is instead automatically used the first time each day that you designate such a creature as your prey.",
+                new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Wisdom), new FreeAbilityBoost() })
+            .WithOnSheet(sheet => {
+                sheet.GrantFeat(FeatName.Occultism);
+            })
+            .WithOnCreature((sheet, creature) => {
+                var ranger = sheet.HasFeat(FeatName.Ranger) || sheet.AllFeats.Any(ft => ft.Name == "Ranger Dedication");
+
+                creature.AddQEffect(new QEffect("Monster Hunter",
+                    ranger ? "The first time each day that you use Hunt Prey on a beast or monstrous creature, you can make an arcana or nature skill check against an easy DC for the target's level. " +
+                    "On a success, you and your allies gain a +1 circumstance bonus against their next attack against it."
+                    : "You gain the Study Monster {icon:Action} action, which you can use once per day.") {
+                    StartOfCombat = async (self) => {
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Study Monster"))
+                            self.Name += " (expended)";
+                    },
+                    ProvideActionIntoPossibilitySection = (self, section) => {
+
+                        if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Study Monster")) return null;
+
+                        if (ranger) return null;
+
+                        if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
+
+                        return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.HuntPrey, "Study Monster", [Trait.Basic, Trait.Concentrate, Trait.AlwaysHits, Trait.IsNotHostile, Trait.DoesNotBreakStealth],
+                            "{b}Frequency{/b} Once per day\n\nStudy a beast or monstrous creature, by making an Arcana or Nature skill check against an easy DC for the target's level. " +
+                            "On a success, you and your allies gain a +1 circumstance bonus against their next attack against it.",
+                            Target.Ranged(100)
+                            .WithAdditionalConditionOnTargetCreature((a, d) => d.HasTrait(Trait.Beast) || d.Traits.Any(tr => tr.HumanizeLowerCase2() == "monstrous") ? Usability.Usable : Usability.NotUsableOnThisCreature("not a monster")))
+                        .WithEffectOnSelf(caster => {
+                            caster.PersistentUsedUpResources.UsedUpActions.Add("Study Monster");
+                            self.Name += " (expended)";
+                        })
+                        .WithEffectOnEachTarget(async (action, user, target, _) => {
+                            var result = CommonSpellEffects.RollCheck("Study Monster", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Arcana, Skill.Nature), Checks.FlatDC(Checks.LevelBasedDC(target.Level, SimpleDCAdjustment.Easy))), user, target);
+                            if (result >= CheckResult.Success) {
+                                foreach (Creature ally in user.Battle.AllCreatures.Where(cr => cr.FriendOf(user))) {
+                                    ally.AddQEffect(new QEffect($"Monster Hunter ({target.Name})", $"Your next attack roll against {target.Name} gains a +1 circumstance bonus.", ExpirationCondition.Never, user, IllustrationName.NarratorBook) {
+                                        BonusToAttackRolls = (self, action, defender) => defender == target ? new Bonus(1, BonusType.Circumstance, "Monster Hunter", true) : null,
+                                        AfterYouTakeAction = async (self, action) => {
+                                            if (action.HasTrait(Trait.Attack) && action.Target is CreatureTarget && action.ChosenTargets.ChosenCreature == target) {
+                                                self.ExpiresAt = ExpirationCondition.Immediately;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        })
+                        .WithActionCost(1);
+                    },
+                    AfterYouTakeActionAgainstTarget = async (self, action, target, _) => {
+                        if (action.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Study Monster")) return;
+
+                        if (action.ActionId == ActionId.HuntPrey && target.Occupies != null && (target.HasTrait(Trait.Beast) || target.Traits.Any(tr => tr.HumanizeLowerCase2() == "monstrous"))) {
+                            var result = CommonSpellEffects.RollCheck("Study Monster", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Arcana, Skill.Nature), Checks.FlatDC(Checks.LevelBasedDC(target.Level, SimpleDCAdjustment.Easy))), action.Owner, target);
+                            if (result >= CheckResult.Success) {
+                                foreach (Creature ally in target.Battle.AllCreatures.Where(cr => cr.FriendOf(action.Owner))) {
+                                    ally.AddQEffect(new QEffect($"Monster Hunter ({target.Name})", $"Your next attack roll against {target.Name} gains a +1 circumstance bonus.", ExpirationCondition.Never, action.Owner, IllustrationName.NarratorBook) {
+                                        BonusToAttackRolls = (self, action, defender) => defender == target ? new Bonus(1, BonusType.Circumstance, "Monster Hunter", true) : null,
+                                        AfterYouTakeAction = async (self, action) => {
+                                            if (action.HasTrait(Trait.Attack) && action.Target is CreatureTarget && action.ChosenTargets.ChosenCreature == target) {
+                                                self.ExpiresAt = ExpirationCondition.Immediately;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+
+                            action.Owner.PersistentUsedUpResources.UsedUpActions.Add("Study Monster");
+                        }
+                    }
+                });
+            });
+            output.FeatGroup = Trade;
+            yield return output;
 
             // Rare Backgrounds
 
-            Feat output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Blessed"),
+            output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Blessed", "Blessed"),
                 "You have been blessed by a divinity. For an unknown reason, and irrespective of your actual beliefs, a deity has granted you a boon to use for good or ill. Your blessing grants wisdom and insight to aid you in your struggles.",
                 "You're trained in {b}Religion{/b}. You can cast the {b}Guidance{/b} cantrip as a divine innate spell.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Wisdom, Ability.Charisma), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
@@ -980,6 +1351,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             })
             .WithRulesBlockForSpell(SpellId.Guidance);
 
+            output.FeatGroup = PivotalEvent;
             output.Traits.Add(tRare);
             yield return output;
 
@@ -993,7 +1365,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             .WithOnCreature(creature => {
                 creature.Traits.Add(Trait.Undead);
             });
-
+            output.FeatGroup = PivotalEvent;
             output.Traits.Add(tRare);
             yield return output;
 
@@ -1060,6 +1432,8 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     }
                 });
             });
+
+            output.FeatGroup = PivotalEvent;
 
             output.Traits.Add(tRare);
             yield return output;

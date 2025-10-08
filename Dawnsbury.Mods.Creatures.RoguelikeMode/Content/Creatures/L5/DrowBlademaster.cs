@@ -46,7 +46,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                         return a.CreateStrike(a.HeldItems.First()).CanBeginToUse(a);
                                     }))
                                 .WithActionCost(2)
-                                .WithGoodnessAgainstEnemy((_, a, d) => a.CreateStrike(a.HeldItems[0] ?? a.UnarmedStrike).StrikeModifiers.CalculatedTrueDamageFormula?.ExpectedValueMinimumOne * 2 ?? int.MinValue)
+                                .WithGoodnessAgainstEnemy((_, a, d) => a.CreateStrike(a.HeldItems.Count > 0 ? a.HeldItems[0] : a.UnarmedStrike).StrikeModifiers.CalculatedTrueDamageFormula?.ExpectedValueMinimumOne * 2 ?? int.MinValue)
                                 .WithEffectOnChosenTargets((async (fighter, targets) => {
                                     var map = fighter.Actions.AttackedThisManyTimesThisTurn;
                                     var enemy = targets.ChosenCreature!;

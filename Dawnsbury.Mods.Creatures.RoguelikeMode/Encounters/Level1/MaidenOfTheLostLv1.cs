@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class MaidenOfTheLostLv1 : Level1EliteEncounter
     {
-        public MaidenOfTheLostLv1(string filename) : base("Maiden of the Lost", filename, eliteRewards: new List<(Item, string)> {
+        public MaidenOfTheLostLv1(string filename) : base("Maiden of the Lost", filename, eliteRewards: new List<(Item, string)?> {
             (Items.CreateNew(CustomItems.Hexshot), "A worn pistol etched with malevolent purple runes that seem to glow brightly in response to spellcraft."),
             (Items.CreateNew(CustomItems.SpiritBeaconAmulet), "An amulet in the shape of a skull... The witch seems to have been using this to lure restless spirits towards her mausoleum.")
         }) {

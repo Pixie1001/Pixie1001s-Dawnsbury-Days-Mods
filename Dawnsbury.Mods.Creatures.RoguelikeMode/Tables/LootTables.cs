@@ -33,6 +33,8 @@ using System.Threading.Tasks;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Display;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -132,7 +134,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             List<Item> itemList = Items.ShopItems.Where(item => !item.HasTrait(Trait.DoNotAddToCampaignShop)).Concat(CreateSpecialItems()).Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
 
-            List<Item> weaponTable = itemList.Where(item => (item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || (item.Name.Contains("handwraps of mighty blows") && item.Runes.Count > 0)) && levelRange(item.Level)).ToList();
+            List<Item> weaponTable = itemList.Where(item => (item.Price >= 10 && item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || (item.Name.Contains("handwraps of mighty blows") && item.Runes.Count > 0)) && levelRange(item.Level)).ToList();
             // Add extra basic scaling runes
             if (weaponTable.FirstOrDefault(item => item.ItemName == ItemName.WeaponPotencyRunestone) != null) {
                 weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
@@ -171,6 +173,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 // Full caster
                 weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon)).ToList();
                 weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
+                weaponTable = weaponTable.Concat(itemList.Where(item => item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart"))).ToList();
             } else if (new string[] { "monk", "shifter", }.Contains(className)) {
                 // unarmed
                 weaponTable = itemList.Where(item => item.Name.Contains("handwraps of mighty blows")).ToList();
@@ -185,6 +188,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 }
                 weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon))).ToList();
                 weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList();
+                weaponTable = weaponTable.Concat(itemList.Where(item => item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart"))).ToList();
             } else if (new string[] { "kineticist", }.Contains(className)) {
                 if (character.CarriedItems.Where(i => i.ItemName == ItemName.GateAttenuator).Count() == 0) {
                     weaponTable = itemList.Where(item => item.HasTrait(Trait.Kineticist)).ToList();
@@ -194,6 +198,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 if (weaponTable.Count == 0) {
                     weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
                 }
+            }
+
+            // Add banners
+            if (className == "commander") {
+                weaponTable.AddRange(itemList.Where(itm => itm.Traits.Any(tr => tr.HumanizeLowerCase2() == "magical banner")));
             }
 
             var sfGuns = Items.ShopItems.Where(item => item.Name.ToLower().Contains("stellar canon") || item.Name.ToLower().Contains("rotolaser") || item.Name.ToLower().Contains("laser pistol") || item.Name.ToLower().Contains("flame pistol") || item.Name.ToLower().Contains("scattergun"));
@@ -215,6 +224,52 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             List<Item> wearableTable = itemList.Where(item => item.ItemName != ItemName.GateAttenuator && (item.HasTrait(Trait.Runestone) && item.HasTrait(Trait.Abjuration) || (item.HasTrait(Trait.Worn) && !item.Name.Contains("handwraps of mighty blows")) || (item.HasTrait(Trait.Armor) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained))).ToList();
 
             return wearableTable[R.Next(0, wearableTable.Count)];
+        }
+
+        public static ValueTuple<Item, string>? RollEliteReward(int level) {
+            List<(Item, string)> rewards = null;
+
+            if (level <= 4) {
+                rewards = new List<(Item, string)>() {
+                    // e.g. A worn pistol etched with malevolent purple runes that seem to glow brightly in response to spellcraft.
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.CompanionBunny), "Your adversary appears to have been attempted this keep this little guy as a pet. Perhaps you'd do a better job?"),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.DuergarSkullShield), "An infamous duergar skull shield, used to strike fear into their legion's enemies."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.BottomlessFlask), "A sweet curitive substance seeps over the edge of this flask from some unknown reservoir."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.MaskOfSkills), "This flamboyant mask seems possessed of great talent."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.RodOfHealing), "A resplendent rod, brimming with positive energy."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.RingOfDeathDefiance), "A strange, eerily cold ring that promises a second chance at victory."),
+                };
+            } else if (level <= 8) {
+                rewards = new List<(Item, string)>() {
+                    // e.g. A worn pistol etched with malevolent purple runes that seem to glow brightly in response to spellcraft.
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.LunaRunestone), "A glimmering runestone, confiscated from a renegade drow follower of the Cerulean Sky."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.GreaterCompanionBunny), "Your adversary appears to have been attempted this keep this little guy as a pet. Perhaps you'd do a better job?"),
+                    new ValueTuple<Item, string>(Items.CreateNew(ItemName.GreaterBackfireMantle), "A protective mantle to shield you from your allies' spells."),
+                    new ValueTuple<Item, string>(Items.CreateNew(ItemName.GlovesOfStoring), "An enchanted glove, used to secret away potions for emergency use."),
+                    new ValueTuple<Item, string>(Items.CreateNew(ItemName.LoversGloves), "The glove's previous owners tragically had nobody they cared enough about to invoke their power.")
+                };
+            }
+
+            // Populate highl evel rewards here
+
+            if (rewards == null)
+                return null;
+
+            ValueTuple<Item, string>? output;
+
+            output = UtilityFunctions.ChooseAtRandom(rewards);
+            if (output == default(ValueTuple<Item, string>)) {
+                return null;
+            }
+
+            if (output.Value.Item1.HasTrait(ModTraits.CannotHavePropertyRune)) {
+                if (level <= 2)
+                    output.Value.Item1.WithModificationRune(ItemName.WeaponPotencyRunestone);
+                if (level <= 4)
+                    output.Value.Item1.WithModificationRune(ItemName.StrikingRunestone);
+            }
+
+            return output == default(ValueTuple<Item, string>) ? null : output;
         }
 
     }

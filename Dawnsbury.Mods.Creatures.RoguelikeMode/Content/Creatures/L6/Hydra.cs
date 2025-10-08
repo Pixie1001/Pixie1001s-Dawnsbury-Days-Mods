@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public static class Hydra {
         public static Creature Create() { 
 
-            var creature = new Creature(Illustrations.Chimera,
+            var creature = new Creature(Illustrations.Hydra,
                 "Hydra",
                 [Trait.Beast, Trait.NonSummonable, ModTraits.MeleeMutator],
                 level: 6, perception: 17, speed: 6,
@@ -229,15 +229,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .WithActionCost(2)
                 .WithGoodnessAgainstEnemy((_, a, d) => a.GetQEffectValue(QEffectIds.HydraHeads) * 3.5f + (creature.CreateStrike(creature.UnarmedStrike)?.TrueDamageFormula?.ExpectedValue ?? 14))
                 .WithEffectOnEachTarget(async (action, attacker, defender, result) => {
-                    var strike = attacker.CreateStrike(attacker.UnarmedStrike, -1, new StrikeModifiers() {
-                        OnEachTarget = async (a, d, result) => {
-                            if (result == CheckResult.Failure) {
-                                await CommonSpellEffects.DealDirectDamage(action, a.CreateStrike(a.UnarmedStrike).TrueDamageFormula ?? DiceFormula.FromText("2d6+7", "Focused Assault"), d, result, DamageKind.Piercing);
-                            } else if (result >= CheckResult.Success) {
-                                await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(a.GetQEffectValue(QEffectIds.HydraHeads) + "d6", "Focused Assault"), d, result, DamageKind.Piercing);
-                            }
-                            a.Actions.AttackedThisManyTimesThisTurn += a.GetQEffectValue(QEffectIds.HydraHeads) - 1;
+                    var strike = attacker.CreateStrike(attacker.UnarmedStrike).WithActionCost(0);
+                    strike.WithEffectOnEachTarget(async (action, a, d, result) => {
+                        if (result == CheckResult.Failure) {
+                            await CommonSpellEffects.DealDirectDamage(action, a.CreateStrike(a.UnarmedStrike).TrueDamageFormula ?? DiceFormula.FromText("2d6+7", "Focused Assault"), d, result, DamageKind.Piercing);
+                        } else if (result >= CheckResult.Success) {
+                            await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText(a.GetQEffectValue(QEffectIds.HydraHeads) + "d6", "Focused Assault"), d, result, DamageKind.Piercing);
                         }
+                        a.Actions.AttackedThisManyTimesThisTurn += a.GetQEffectValue(QEffectIds.HydraHeads) - 1;
                     });
                     await attacker.MakeStrike(strike, defender);
                 });

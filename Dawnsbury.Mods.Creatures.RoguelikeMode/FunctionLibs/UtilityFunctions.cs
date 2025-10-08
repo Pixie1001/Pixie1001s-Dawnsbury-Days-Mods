@@ -204,7 +204,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
         public static int? GetEncounterLevel(Encounter? encounter, int min=1, int max=20) {
             if (encounter == null) return null;
-            var level = CharacterLibrary.Instance.SelectedRandomEncounter?.Level ?? 1;
+            var level = 1;
+            if (CampaignState.Instance != null)
+                level = CampaignState.Instance.CurrentLevel;
+            else
+                level = CharacterLibrary.Instance.SelectedRandomEncounter?.Level ?? 1;
             level = Math.Min(Math.Max(min, level), max);
 
             return level;

@@ -9,6 +9,7 @@ using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModTraits;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using Dawnsbury.Display;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -51,7 +52,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 case var v when v.Equals(CreatureIds.TreasureDemon):
                     return TreasureDemon.Create();
                 case var v when v.Equals(CreatureIds.DrowRenegade):
-                    return DrowRenegade.Create();
+                    return DrowRenegade.Create(encounter);
                 case var v when v.Equals(CreatureIds.WitchCrone):
                     return WitchCrone.Create();
                 case var v when v.Equals(CreatureIds.WitchMother):
@@ -162,8 +163,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return EchidnaditeHighPriestess.Create();
                 case var v when v.Equals(CreatureIds.Hydra):
                     return Hydra.Create();
+                case var v when v.Equals(CreatureIds.Baraquielle):
+                    return Baraquielle.Create(encounter);
+                case var v when v.Equals(CreatureIds.AzataMediator):
+                    return Lyra.Create(encounter);
+                case var v when v.Equals(CreatureIds.DrowChampion):
+                    return DrowChampion.Create();
+                case var v when v.Equals(CreatureIds.DrowShadowdancer):
+                    return DrowShadowDancer.Create();
+                case var v when v.Equals(CreatureIds.DrowSorceress):
+                    return DrowSorceress.Create();
                 default:
-                    throw new NotSupportedException($"The creature id '{id}' is not supported");
+                    throw new NotSupportedException($"The creature id '{id.HumanizeLowerCase2()}' is not supported");
             }
         }
 
@@ -193,6 +204,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return NightmareGrowth.Create();
                 case ModEnums.ObjectId.GREATER_SPIDER_QUEEN_SHRINE:
                     return SpiderQueenShrine.Create(true);
+                case ModEnums.ObjectId.RELIQUARY:
+                    return Reliquary.Create(encounter);
                 default:
                     throw new NotSupportedException($"The object id '{id}' is not supported");
             }
@@ -215,6 +228,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         }
 
         internal static void LoadCreatures() {
+            // Scaleable Creatures
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Baraquielle);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AzataMediator);
+
             // Level -1 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.RavenousRat);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.CrawlingHand);
@@ -313,6 +330,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Chimera);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.SpinnerOfLies);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeHighPriestess);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowChampion);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowShadowdancer);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowSorceress);
 
             // Level 10 creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DragonWitch);
@@ -333,6 +353,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.TEST_PILE, "TestPile");
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.NIGHTMARE_GROWTH);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.GREATER_SPIDER_QUEEN_SHRINE, "Greater Spider Queen Shrine");
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RELIQUARY);
         }
 
         internal static void LoadTiles() {

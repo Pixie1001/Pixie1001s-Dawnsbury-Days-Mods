@@ -66,7 +66,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class AntiPartyLv3 : Level3EliteEncounter
     {
-        public AntiPartyLv3(string filename) : base("Fissure Duel", filename, eliteRewards: new List<(Item, string)> {
+        public AntiPartyLv3(string filename) : base("Fissure Duel", filename, eliteRewards: new List<(Item, string)?> {
             (Items.CreateNew(CustomItems.BloodBondAmulet), "A matching set of amulet set with a blood red ruby, that allow the wearers to siphon vitality from an ally wearing their amulet's twin."),
             (Items.CreateNew(CustomItems.ScourgeOfFangs), "A twitching three pronged whip tipped by three snapping serpent heads, with a malevolent intelligence meant to compensate for a priestess's lack of martial prowess.")
         }) {
