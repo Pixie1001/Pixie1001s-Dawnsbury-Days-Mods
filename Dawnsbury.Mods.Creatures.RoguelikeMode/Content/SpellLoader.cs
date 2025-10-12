@@ -35,6 +35,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -146,7 +147,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             }));
         });
 
-        public static SpellId SummonMonster = ModManager.RegisterNewSpell("RL_SummonMonster", 2, (id, caster, level, inCombat, info) => {
+        public static SpellId SummonMonster = ModManager.RegisterNewSpell("RL_SummonMonster", 1, (id, caster, level, inCombat, info) => {
             int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
             return Spells.CreateModern(Illustrations.SummonMonster, "Summon Monster", [Trait.Conjuration, Trait.Summon],
                     "You conjure a monstrous ally to fight for you.",
@@ -158,6 +159,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 .WithHeighteningSpecial(Heightening.FromSpecificLevels(2, 3, 4, 5))
                 .WithSoundEffect(SfxName.Summoning)
                 .WithVariants(CreateSummoningVariants(cr => (cr.HasTrait(Trait.Beast) || cr.HasTrait(Trait.Animal)) && !cr.HasTrait(Trait.Celestial) && !cr.HasTrait(Trait.Aquatic), maxLevel))
+                .WithCreateVariantDescription((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant!.Id]))
+                .WithEffectOnChosenTargets(async (spell, caster, targets) => { await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile!); });
+        });
+
+        public static SpellId SummonSpider = ModManager.RegisterNewSpell("RL_SummonSpider", 2, (id, caster, level, inCombat, info) => {
+            int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
+            CreatureId[] spiderList = [ CreatureIds.BebilithMinor, CreatureIds.BebilithSpawn ];
+            return Spells.CreateModern(Illustrations.SummonSpider, "Summon Spider", [Trait.Conjuration, Trait.Summon],
+                    "You conjure a spidery companion to fight for you.",
+                    "You summon a spider whose level is " + S.HeightenedVariable(maxLevel, 1) + " or less." + Level1Spells.SummonRulesText + S.HeightenText(level, 2, inCombat,
+                    "{b}Heightened (3rd){/b} The maximum level of the summoned creature is 2." +
+                    "\n{b}Heightened (4th){/b} The maximum level of the summoned creature is 3.\n{b}Heightened (5th){/b} The maximum level of the summoned creature is 5."),
+                    Target.RangedEmptyTileForSummoning(6), level, null)
+                .WithActionCost(3)
+                .WithHeighteningSpecial(Heightening.FromSpecificLevels(3, 4, 5))
+                .WithSoundEffect(SfxName.Summoning)
+                .WithVariants(CreateSummoningVariants(cr => spiderList.Contains(cr.CreatureId) || ((cr.HasTrait(Trait.Animal) || cr.HasTrait(Trait.Beast)) && (cr.HasTrait(ModTraits.Spider) || cr.BaseName.ToLower().Contains("spider"))), maxLevel))
                 .WithCreateVariantDescription((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant!.Id]))
                 .WithEffectOnChosenTargets(async (spell, caster, targets) => { await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile!); });
         });
@@ -278,6 +296,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         caster.AddQEffect(QEffect.Confused(false, spell).WithExpirationNever());
                         break;
                 }
+            });
+        });
+
+        public static SpellId BurrowingDeath = ModManager.RegisterNewSpell("BurrowingDeath", 3, (id, caster, level, inCombat, info) => {
+            return Spells.CreateModern((Illustration)Illustrations.BurrowingDeath, "Burrowing Death", new Trait[] {
+                        ModTraits.RatMonarch,
+                        Trait.Emotion,
+                        Trait.Enchantment,
+                        Trait.Focus,
+                        ModTraits.Roguelike
+                    }, "You command your rats to swarm over the subject of your ire, burrowing their into their flesh with suicidal determination.",
+                    $"All of your rat familiars adjacent to the target immediately die, dealing {S.HeightenedVariable(level, 3)}d6 piercing damage to the target per familiar sacrificed (basic Fortitude save mitigates).",
+            Target.Ranged(6)
+            .WithAdditionalConditionOnTargetCreature((a, d) => d.Battle.AllCreatures.Where(cr => cr.FindQEffect(QEffectIds.RatFamiliar)?.Source == a && cr.DistanceTo(d) <= 1).Count() > 0 ? Usability.Usable : Usability.NotUsableOnThisCreature("no-adjacent-rat-familiars")),
+            level, SpellSavingThrow.Basic(Defense.Fortitude))
+            .WithHeighteningNumerical(level, 3, inCombat, 1, "Increase damage increased by 1d6 per rat familiar sacrificed/")
+            .WithSoundEffect(SfxName.Harp)
+            .WithActionCost(2)
+            .WithGoodnessAgainstEnemy((t, a, d) => d.Battle.AllCreatures.Where(cr => cr.FindQEffect(QEffectIds.RatFamiliar)?.Source == a && cr.DistanceTo(d) <= 1).Count() * 3.5f * level)
+            .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                var rats = target.Battle.AllCreatures.Where(cr => cr.FindQEffect(QEffectIds.RatFamiliar)?.Source == caster && cr.DistanceTo(target) <= 1);
+                foreach (Creature rat in rats) {
+                    await rat.FictitiousSingleTileMove(target.Occupies);
+                    rat.AnimationData.ColorBlink(Color.Red);
+                    rat.Die();
+                }
+                var numRats = rats.Count();
+                await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, numRats * spell.SpellLevel + "d6", DamageKind.Piercing);
             });
         });
 

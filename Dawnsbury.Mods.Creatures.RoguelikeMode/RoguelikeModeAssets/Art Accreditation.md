@@ -67,6 +67,8 @@
 	<li>VomitSwarm.png (Modified)</li>
 	<li>SummonMonster.png (Modified)</li>
 	<li>DeepBeast.png (Modified)</li>
+	<li>BurrowingDeath.png (Modified)</li>
+	<li>SummonSpider.png (Modified)</li>
 </ul>
 
 ### Flaticon.com

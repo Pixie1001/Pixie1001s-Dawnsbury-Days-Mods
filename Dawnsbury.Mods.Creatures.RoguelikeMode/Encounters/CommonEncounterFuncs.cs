@@ -193,7 +193,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
         public static int GetGoldReward(int level, ModEnums.EncounterType type) {
             // ~15 gives average recommended gold
-            float gold = 10 * (level * 0.7f);
+            float gold = 7 * level;
+            if (level >= 4) gold = 37;
+            else if (level >= 5) gold = 50;
+            else if (level >= 6) gold = 75;
+            else if (level >= 7) gold = 110;
+            else if (level >= 8) gold = 150;
+            else if (level >= 9) gold = 215;
+
             if (type == ModEnums.EncounterType.ELITE) {
                 gold *= 1.5f;
             }

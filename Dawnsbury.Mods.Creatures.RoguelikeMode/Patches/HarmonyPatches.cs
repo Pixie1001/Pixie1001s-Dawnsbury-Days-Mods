@@ -432,9 +432,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     return false;
                 }
 
+                if (runestone.RuneProperties.RuneKind == RuneKind.WeaponPoison) {
+                    __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "You can only poison weapons.");
+                    return false;
+                }
+
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.PlaceAsSubitem, null, delegate {
                     equipment.WithModification(new ItemModification(ItemModificationKind.Rune) {
-                        ItemName = runestone.ItemName
+                        StoredItem = runestone
                     });
                     // RunestoneRules.AddRuneTo(Items.CreateNew(runestone.ItemName), equipment);
                     Sfxs.Play(SfxName.AttachRune);

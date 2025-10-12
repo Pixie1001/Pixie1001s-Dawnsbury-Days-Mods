@@ -30,6 +30,10 @@ using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
+using Dawnsbury.Core.StatBlocks.Monsters.L4;
+using Dawnsbury.Core.StatBlocks.Monsters.L5;
+using Dawnsbury.Core.StatBlocks.Monsters.L6;
+using Dawnsbury.Core.StatBlocks.Monsters.L7;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
@@ -111,13 +115,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             var highLvlWaves = new List<Creature[]>();
 
             // High level waves
-            highLvlWaves.Add([DrowShootist.Create(), DrowFighter.Create(), DrowShootist.Create()]);
-            highLvlWaves.Add([DrowInquisitrix.Create(), HuntingSpider.Create()]);
-            highLvlWaves.Add([Skeleton.CreateSkeleton(), SkeletalChampion.CreateSkeletalChampion()]);
-            highLvlWaves.Add([KoboldWarrior.CreateKoboldWarrior(), KoboldWarrior.CreateKoboldWarrior(), KoboldWarrior.CreateKoboldWarrior(), KoboldWarrior.CreateKoboldWarrior()]);
-            highLvlWaves.Add([DrowArcanist.Create(), DrowFighter.Create()]);
-            highLvlWaves.Add([DrowNecromancer.Create(), CrawlingHand.Create()]);
-            highLvlWaves.Add([DemonPest.CreateDemonPest()]);
+            highLvlWaves.Add([DrowHuntress.Create(), DrowBlademaster.Create(), DrowHuntress.Create()]);
+            highLvlWaves.Add([NightmareWeaver.Create(), BebilithMinor.Create()]);
+            highLvlWaves.Add([SkeletalMage.Create(), MummyGuardian.Create()]);
+            highLvlWaves.Add([DrowInquisitrix.Create(), DrowPriestess.Create(), DrowInquisitrix.Create(), DrowTempleGuard.Create()]);
+            highLvlWaves.Add([NightmareWeaver.Create(), WebWarden.Create()]);
+            highLvlWaves.Add([EchidnaditeBroodguard.Create(), WinterWolf.Create()]);
+            highLvlWaves.Add([EchidnaditeMonsterBound.Create(), EchidnaditeMonsterBound.Create()]);
+            highLvlWaves.Add([EchidnaditePriestess.Create(), EchidnaditeWombCultist.Create()]);
+            highLvlWaves.Add([Succubus.Create()]);
 
             var level = battle.Encounter.CharacterLevel;
             Creature[] chosenWave = level <= 4 ? UtilityFunctions.ChooseAtRandom(lowLvlWaves) : UtilityFunctions.ChooseAtRandom(highLvlWaves);

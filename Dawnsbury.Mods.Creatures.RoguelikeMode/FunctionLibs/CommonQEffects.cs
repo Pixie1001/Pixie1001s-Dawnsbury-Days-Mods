@@ -57,6 +57,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        //public static QEffect LightBlindness() {
+        //    return new QEffect("Light Blindess", "The first time each encounter you are affected by an ability with the Light trait, are are blinded until the end of your next turn.") {
+        //        Tag = false,
+        //        AfterYouAreTargeted = async (self, action) => {
+        //            if ((bool)self.Tag! != true && action.HasTrait(Trait.Light)) {
+        //                self.Tag = true;
+        //                self.Owner.AddQEffect();
+        //            }
+        //        }
+        //    };
+        //}
+
         public static QEffect Stalked(Creature source) {
             return new QEffect() {
                 Source = source,
