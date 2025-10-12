@@ -33,9 +33,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
                 if (eliteRewards == null) {
-                    eliteRewards = [LootTables.RollEliteReward(this.CharacterLevel), LootTables.RollEliteReward(this.CharacterLevel)];
+                    eliteRewards = LootTables.RollEliteReward(this.CharacterLevel, 2);
                 } else if (eliteRewards.Count == 1) {
-                    eliteRewards.Add(LootTables.RollEliteReward(this.CharacterLevel));
+                    eliteRewards = eliteRewards.Concat(LootTables.RollEliteReward(this.CharacterLevel)).ToList();
                 }
                 await CommonEncounterFuncs.PresentEliteRewardChoice(battle, eliteRewards);
                 await CommonEncounterFuncs.StandardEncounterResolve(battle);

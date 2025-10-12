@@ -226,7 +226,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             return wearableTable[R.Next(0, wearableTable.Count)];
         }
 
-        public static ValueTuple<Item, string>? RollEliteReward(int level) {
+        public static List<ValueTuple<Item, string>?> RollEliteReward(int level, int amount=1) {
             List<(Item, string)> rewards = null;
 
             if (level <= 4) {
@@ -255,21 +255,30 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             if (rewards == null)
                 return null;
 
-            ValueTuple<Item, string>? output;
+            List<ValueTuple<Item, string>?> output = [];
 
-            output = UtilityFunctions.ChooseAtRandom(rewards);
-            if (output == default(ValueTuple<Item, string>)) {
-                return null;
+            for (int i = 0; i < Math.Min(amount, rewards.Count); i++) {
+                output.Add(UtilityFunctions.ChooseAtRandom(rewards.Where(entry => !output.Contains(entry)).ToList()));
             }
 
-            if (output.Value.Item1.HasTrait(ModTraits.CannotHavePropertyRune)) {
-                if (level <= 2)
-                    output.Value.Item1.WithModificationRune(ItemName.WeaponPotencyRunestone);
-                if (level <= 4)
-                    output.Value.Item1.WithModificationRune(ItemName.StrikingRunestone);
-            }
+            //output = UtilityFunctions.ChooseAtRandom(rewards);
+            //if (output == default(ValueTuple<Item, string>)) {
+            //    return null;
+            //}
 
-            return output == default(ValueTuple<Item, string>) ? null : output;
+            foreach (var reward in output) {
+                if (reward == default(ValueTuple<Item, string>)) continue;
+
+                if (reward!.Value.Item1.HasTrait(ModTraits.CannotHavePropertyRune)) {
+                    if (level <= 2)
+                        reward.Value.Item1.WithModificationRune(ItemName.WeaponPotencyRunestone);
+                    if (level <= 4)
+                        reward.Value.Item1.WithModificationRune(ItemName.StrikingRunestone);
+                }
+            }
+            
+
+            return output;
         }
 
     }
