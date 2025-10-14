@@ -130,7 +130,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static readonly string DevilEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Religion, Intimidation\n\n" +
             "{b}Initial Eidolon Ability (Hellfire Scourage).{/b} Your eidolon gains resistance to fire equal to their level (minimum 1), and an equivalent weakness to good (minimum 1). In addition, the first attack they make against a Frightened creature each turn, deals an additional 1d4 fire damage." +
             "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Legion Commander) {icon:Action}.{/b} Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can use their reaction {icon:Reaction} " +
-            "to make an Intimidation check against an easy DC for their level.\n{b}Critical success{/b} You grant your ally a +2 circumstance bonus to the triggering check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4." +
+            "to make an Intimidation check against an easy DC for their level.\n{b}Critical success{/b} You grant your ally a +2 circumstance bonus to the triggering check. If you're a master with the check you attempted, the bonus is +3, and if you're legendary, it's +4." +
             "\n{b}Success{/b} You grant your ally a +1 circumstance bonus to the triggering check.\n{b}Critical failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nYour ally also deals extra fire damage equal to half your level, " +
             "if the action your eidolon was assisting them with was an attack, and double if the attack was a critial success." +
             "\n\nThis subclass is designed and contributed by {link:https://www.reddit.com/r/Pathfinder2e/comments/1bqusiu/leorandgers_summoning_circle_new_eidolons/}LeoRandger{/}.";
@@ -437,13 +437,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             });
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_WaterElemental", "Water Elemental"), 1, "Your eidolon is formed from elemental water and swims with ease.",
-                "Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.",
+                "Your eidolon has a swim speed, they are not flat-footed while in water, and you don't take the usual penalties for making bludgeoning or slashing melee attacks in water.",
                 new Trait[] { Trait.Water, Enums.tElementalType }, cr => { }, null)
             .WithOnSheet(sheet => {
                 EidolonBond? bond = (EidolonBond?)sheet.AllFeats.FirstOrDefault(ft => ft is EidolonBond);
                 if (bond != null) {
                     bond.eidolonTraits = new List<Trait>() { Trait.Elemental, Trait.Aquatic, Trait.Water };
-                    //bond.AbilityText += "\n{b}Water Elemental.{/b} Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.\n";
+                    //bond.AbilityText += "\n{b}Water Elemental.{/b} Your eidolon has a swim speed, they are not flat-footed while in water, and you don't take the usual penalties for making bludgeoning or slashing melee attacks in water.\n";
                 }
             });
 
@@ -1144,7 +1144,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 tSummoner, Trait.Linguistic, Trait.Concentrate, Trait.Mental, Trait.Emotion },
                             "Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can " +
                             "use their reaction {icon:Reaction} to make an Intimidation check against an easy DC for their level.\n\n{b}Critical success{/b} You grant your ally a +2 circumstance bonus to the triggering " +
-                            "check. If you’re a master with the check you attempted, the bonus is +3, and if you’re legendary, it’s +4.\n{b}Success{/b} You grant your ally a +1 circumstance bonus to " +
+                            "check. If you're a master with the check you attempted, the bonus is +3, and if you're legendary, it's +4.\n{b}Success{/b} You grant your ally a +1 circumstance bonus to " +
                             "the triggering check.\n{b}Critical failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nif the action your eidolon was assisting them with was an " +
                             "attack, it deals extra fire damage equal to half your level.",
                             (Target)Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((source, target) => {
@@ -1164,7 +1164,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
                                     BeforeYourActiveRoll = async (effect, action, innerTarget) => {
                                         if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + effect.Owner + "{/b} is about to use {b}" + action.Name + "{/b} against " + innerTarget?.ToString() + ". \nRoll for Discipline the Legion?")) {
-                                            CheckResult result = CommonSpellEffects.RollCheck("Discipline the Legion", new ActiveRollSpecification(Checks.SkillCheck(new Skill[] { Skill.Intimidation, Skill.Deception }), Checks.FlatDC(GetDCByLevel(self.Level) - 2)), self, effect.Owner);
+                                            CheckResult result = CommonSpellEffects.RollCheck("Discipline the Legion", new ActiveRollSpecification(TaggedChecks.SkillCheck(new Skill[] { Skill.Intimidation, Skill.Deception }), Checks.FlatDC(Checks.LevelBasedDC(self.Level, SimpleDCAdjustment.Easy))), self, effect.Owner);
                                             int bonus = 0;
 
                                             if (result == CheckResult.CriticalSuccess) {
@@ -1578,7 +1578,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     });
                     break;
                 case Trait.Water:
-                    eidolon.AddQEffect(new QEffect("Water Elemental", "Your eidolon has a swim speed, they are not flat-footed while in water, and you don’t take the usual penalties for making bludgeoning or slashing melee attacks in water.") {
+                    eidolon.AddQEffect(new QEffect("Water Elemental", "Your eidolon has a swim speed, they are not flat-footed while in water, and you don't take the usual penalties for making bludgeoning or slashing melee attacks in water.") {
                         YouAcquireQEffect = (self, newEffect) => {
                             if (newEffect.Id == QEffectId.AquaticCombat && newEffect.Name != "Aquatic Combat (water elemental)") {
                                 return new QEffect("Aquatic Combat (water elemental)", "You can't cast fire spells (but fire impulses still work).\nYou can't use slashing or bludgeoning ranged attacks.\nWeapon ranged attacks have their range increments halved.\nYou have resistance 5 to acid and fire.") {

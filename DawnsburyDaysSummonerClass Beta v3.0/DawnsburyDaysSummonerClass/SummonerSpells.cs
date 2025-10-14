@@ -274,7 +274,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Illustration = Enums.illExtendBoost,
                             YouBeginAction = (async (qf, action) => {
                                 if (action.SpellId != null && (action.SpellId == spellList[SummonerSpellId.EidolonBoost] || action.SpellId == spellList[SummonerSpellId.ReinforceEidolon])) {
-                                    CheckResult result = CommonSpellEffects.RollCheck("Extend Boost Check", new ActiveRollSpecification(Checks.SkillCheck(SpellTraditionToSkill(qf.Owner.PersistentCharacterSheet.Calculated.SpellRepertoires[Enums.tSummoner].SpellList)), Checks.FlatDC(GetDCByLevel(qf.Owner.Level))), qf.Owner, qf.Owner);
+                                    CheckResult result = CommonSpellEffects.RollCheck("Extend Boost Check", new ActiveRollSpecification(TaggedChecks.SkillCheck(SpellTraditionToSkill(qf.Owner.PersistentCharacterSheet.Calculated.SpellRepertoires[Enums.tSummoner].SpellList)), Checks.FlatDC(Checks.LevelBasedDC(qf.Owner.Level))), qf.Owner, qf.Owner);
                                     int duration = 0;
                                     if (result == CheckResult.Failure) {
                                         spellcaster.Spellcasting.FocusPoints += 1;
@@ -391,40 +391,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static string HumanizeDamageKind(DamageKind damageKind) {
             return damageKind.HumanizeTitleCase2();
         }
-
-        internal static int GetDCByLevel(int level) {
-            switch (level) {
-                case 0:
-                    return 14;
-                    break;
-                case 1:
-                    return 15;
-                    break;
-                case 2:
-                    return 16;
-                    break;
-                case 3:
-                    return 18;
-                    break;
-                case 4:
-                    return 19;
-                    break;
-                case 5:
-                    return 20;
-                    break;
-                case 6:
-                    return 22;
-                    break;
-                case 7:
-                    return 23;
-                    break;
-                case 8:
-                    return 24;
-                    break;
-                default:
-                    throw new Exception("ERROR: Invalid player level.");
-                    return 30;
-            }
-        }
+        
     }
 }
