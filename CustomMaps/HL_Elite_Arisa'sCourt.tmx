@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="WIP elite fight"/>
+  <property name="EncounterDescription">Though the crawling denizens of the Demon Queen of Spider's domain now lurk in every corner or the Below, rumours speak of a sunken castle from the era of old that now serves as their sinister nest.
+
+And at its centre, between you and the layline, the court of the demon Arisa, who designs herself a princess - beckoning her spidery subjects to entrap her enemies so that she might pass judgement on the behalf of her queen.
+</property>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Arisa's Court"/>
+  <property name="IsDark" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2198" source="DlcTileset.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15">
+ <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <imagelayer id="5" name="Image Layer 1">
+  <image source="ArisasCourt.jpg" width="3840" height="3840"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15" visible="0">
   <data encoding="csv">
 22,22,21,21,21,21,2,2,2,21,21,21,21,22,22,
 22,22,21,21,21,21,2,2,2,21,21,21,21,22,22,

@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="16" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="16" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="As the Demon Queen of Spider's power continues to spread beneath the ground unchecked, the very earth begins to twist and change, bent by the demon queen's power to resemble her inhospitable domain."/>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Nightmare Domain"/>
+  <property name="IsDark" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="128" source="CustomCreatures.tsx"/>
- <tileset firstgid="2194" source="DlcTileset.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="16">
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <imagelayer id="6" name="Image Layer 1">
+  <image source="NightmareDomain.jpg" width="3840" height="4096"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="16" visible="0">
   <data encoding="csv">
 22,22,22,22,22,21,21,21,21,21,22,22,22,22,22,
 22,22,22,21,21,21,21,21,21,21,21,21,22,22,22,
@@ -53,19 +57,19 @@
   <data encoding="csv">
 0,0,0,0,0,39,37,0,36,38,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,2193,0,0,8,0,0,0,0,0,0,2193,0,0,
+0,0,2196,0,0,8,0,0,0,0,0,0,2196,0,0,
 0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,
-0,0,8,0,0,0,2193,0,0,0,0,0,0,0,0,
-0,0,0,0,2193,0,0,0,2193,0,0,8,0,0,0,
+0,0,8,0,0,0,2196,0,0,0,0,0,0,0,0,
+0,0,0,0,2196,0,0,0,2196,0,0,8,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,2193,0,0,0,2193,0,0,0,0,2183,0,0,2193,
-0,0,0,0,2186,0,0,0,0,0,0,0,0,0,0,
-0,0,0,8,0,0,0,2182,0,0,0,0,0,0,0,
-0,0,0,0,0,0,2193,0,0,0,0,0,8,0,0,
-0,8,0,2193,0,0,0,0,0,8,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,2193,0,0,0,
-0,2193,0,0,8,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,2193,0,0,0,0,0,0,0,0,
+0,0,2196,0,0,0,2196,0,0,0,0,2186,0,0,2196,
+0,0,0,0,2189,0,0,0,0,0,0,0,0,0,0,
+0,0,0,8,0,0,0,2185,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2196,0,0,0,0,0,8,0,0,
+0,8,0,2196,0,0,0,0,0,8,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2196,0,0,0,
+0,2196,0,0,8,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2196,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -99,8 +103,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,2166,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
+0,0,0,0,2169,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2169,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

@@ -1156,7 +1156,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 ShortDescription = "Target creature can be assisted via the Aid reaction {icon:Reaction} during the next attack roll they make before the start of your next turn. In addition, the aided attack deals extra fire damage equal to half your level."
                         }
                             .WithActionCost(1)
-                            .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
+                            .WithEffectOnChosenTargets(async (self, targets) => {
                                 targets.ChosenCreature.AddQEffect(new QEffect("Infernal Command", $"This creature has the attention of {self.Name}, and is ready to be spurred into decisive action.") {
                                     Illustration = illDisciplineTheLegion,
                                     Source = self,
@@ -1164,7 +1164,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
                                     BeforeYourActiveRoll = async (effect, action, innerTarget) => {
                                         if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + effect.Owner + "{/b} is about to use {b}" + action.Name + "{/b} against " + innerTarget?.ToString() + ". \nRoll for Discipline the Legion?")) {
-                                            CheckResult result = CommonSpellEffects.RollCheck("Discipline the Legion", new ActiveRollSpecification(TaggedChecks.SkillCheck(new Skill[] { Skill.Intimidation, Skill.Deception }), Checks.FlatDC(Checks.LevelBasedDC(self.Level, SimpleDCAdjustment.Easy))), self, effect.Owner);
+                                            CheckResult result = CommonSpellEffects.RollCheck("Discipline the Legion", new ActiveRollSpecification(TaggedChecks.SkillCheck([Skill.Intimidation, Skill.Deception]), Checks.FlatDC(Checks.LevelBasedDC(self.Level, SimpleDCAdjustment.Easy))), self, effect.Owner);
                                             int bonus = 0;
 
                                             if (result == CheckResult.CriticalSuccess) {
@@ -1198,7 +1198,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                         }
                                     },
                                 });
-                            }))
+                            })
                         );
                     }
                 });

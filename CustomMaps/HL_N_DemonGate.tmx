@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="16" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="16" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="As the demon queen of spider's minions prepare to pour forth from below to join their cousins invading from the stars, sites of power where the gaps between worlds are at their thinnest have become priority targets as the vanguards to find ways to transport in her legions en mass."/>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Demon Gate"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
  <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2198" source="DlcTileset.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="16">
+ <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <imagelayer id="6" name="Image Layer 1">
+  <image source="DemonGate.jpg" width="3840" height="4096"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="16" visible="0">
   <data encoding="csv">
 22,22,22,22,22,18,19,19,19,20,22,22,22,22,22,
 22,22,22,22,22,18,19,19,19,20,22,22,22,22,22,
@@ -61,8 +64,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,2193,0,0,0,0,0,
 0,0,0,0,0,0,0,2185,0,0,0,0,0,0,0,
-0,0,0,0,0,2264,0,0,0,2263,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,2272,0,0,0,2271,0,16,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,16,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

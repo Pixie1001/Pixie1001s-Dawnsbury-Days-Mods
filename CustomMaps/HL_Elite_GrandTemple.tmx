@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription">The next leyline appears to be the site of a great cathedral, dedicated to the Demon Queen of Spiders, no doubt erected so that the drow within might draw from its power for their macabre rituals and bloody offerings.
+
+Chanting fills the cavern, and the slamming of glaives echoes between the rocks. A high priestess and her honour guard no doubt awaits within. And yet, the party must persist.
+</property>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Grand Temple"/>

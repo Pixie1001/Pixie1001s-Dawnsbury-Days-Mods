@@ -298,7 +298,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             FeatName ChildOfTheSpider = ModManager.RegisterFeatName("RL_ChildOfTheSpider", "Child of the Spider");
             FeatName DrowMagic = ModManager.RegisterFeatName("RL_DrowMagic", "Drow Magic");
             FeatName SpiderAffinity = ModManager.RegisterFeatName("RL_SpiderAffinity", "Spider Affinity");
-            FeatName DrowLethargyPoisoner = ModManager.RegisterFeatName("RL_LegargyPoisoner", "Drow Legargy Poisoner");
+            FeatName DrowLethargyPoisoner = ModManager.RegisterFeatName("RL_LegargyPoisoner", "Drow Lethargy Poisoner");
 
             // Drow Heritage
             var drow = new HeritageSelectionFeat(Drow, "Said to be the ancestors of the Demon Queen of Spider's subjects before her apotheosis to the ranks of the Starborn, that followed her down on her pilgrimage to the other side. " +

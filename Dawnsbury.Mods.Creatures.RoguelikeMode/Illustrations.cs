@@ -165,6 +165,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration DiademOfTheSpiderQueen = new ModdedIllustration("RoguelikeModeAssets/Items/DiademOfTheSpiderQueen.png");
         internal static ModdedIllustration LivingCloak = new ModdedIllustration("RoguelikeModeAssets/Items/LivingCloak.png");
         internal static ModdedIllustration LunaRunestone = new ModdedIllustration("RoguelikeModeAssets/Items/LunaRunestone.png");
+        internal static ModdedIllustration Glimmer = new ModdedIllustration("RoguelikeModeAssets/Items/Glimmer.png");
+        internal static ModdedIllustration ChillingDemise = new ModdedIllustration("RoguelikeModeAssets/Items/ChillingDemise.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");
@@ -195,6 +197,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration SerpentileTail = new ModdedIllustration("RoguelikeModeAssets/Icons/NagajiTail.png");
         internal static ModdedIllustration BurrowingDeath = new ModdedIllustration("RoguelikeModeAssets/Icons/BurrowingDeath.png");
         internal static ModdedIllustration SummonSpider = new ModdedIllustration("RoguelikeModeAssets/Icons/SummonSpider.png");
+        internal static ModdedIllustration AzataHeadpats = new ModdedIllustration("RoguelikeModeAssets/Icons/AzataHeadpats.png");
 
         // Other
         internal static ModdedIllustration StatusBackdrop = new ModdedIllustration("RoguelikeModeAssets/Other/StatusBackdrop.png");
@@ -202,5 +205,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration InkCloud = new ModdedIllustration("RoguelikeModeAssets/Other/InkCloud.png");
         internal static ModdedIllustration KinestistCircleWhite = new ModdedIllustration("RoguelikeModeAssets/Other/KineticistAuraCircle.png");
         internal static ModdedIllustration MutatedBorder = new ModdedIllustration("RoguelikeModeAssets/Other/MutatedBorder.png");
+        internal static ModdedIllustration TsundereBaraquielleLarge = new ModdedIllustration("RoguelikeModeAssets/Other/TsundereBaraquielleLarge.png");
     }
 }

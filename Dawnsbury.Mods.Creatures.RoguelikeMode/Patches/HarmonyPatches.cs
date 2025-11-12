@@ -732,8 +732,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 campaign.Tags.Add($"Lv4Encounters", EncounterTables.encounters[3].Count.ToString());
             }
 
+            for (int i = 5; i <= 8; i++) {
+                if (!campaign.Tags.ContainsKey($"Lv{i}Encounters")) {
+                    campaign.Tags.Add($"Lv{i}Encounters", EncounterTables.encounters[i - 1].Count.ToString());
+                }
+                if (!campaign.Tags.ContainsKey($"Lv{i}EliteEncounters")) {
+                    campaign.Tags.Add($"Lv{i}EliteEncounters", EncounterTables.eliteEncounters[i - 1].Count.ToString());
+                }
+            }
+
             if (!campaign.Tags.ContainsKey($"Bosses")) {
-                campaign.Tags.Add($"Bosses", EncounterTables.bossFights.Count.ToString());
+                campaign.Tags.Add($"Bosses", EncounterTables.bossFights[0].Count.ToString());
+            }
+
+            if (!campaign.Tags.ContainsKey($"HighLvlBosses")) {
+                campaign.Tags.Add($"HighLvlBosses", EncounterTables.bossFights[1].Count.ToString());
             }
 
             int removed = 0;
@@ -751,7 +764,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 if (path[i] is EncounterCampaignStop) {
                     fightNum += 1;
-                    ModEnums.EncounterType encounterType = level == 4 && fightNum == 3 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 || level == 4 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
+                    ModEnums.EncounterType encounterType = (level == 4 && fightNum == 3) || level == 8 ? ModEnums.EncounterType.BOSS : fightNum == 1 || fightNum == 3 || level == 4 ? ModEnums.EncounterType.NORMAL : fightNum == 2 ? ModEnums.EncounterType.EVENT : ModEnums.EncounterType.ELITE;
                     if (newTDList && encounterType == ModEnums.EncounterType.NORMAL && R.NextVisualOnly(0, 8) <= 3) {
                         campaign.Tags["TreasureDemonEncounters"] += $"{i}, ";
                     }
@@ -803,23 +816,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 stop = EncounterTables.encounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}Encounters"]) - removed)];
                 EncounterTables.encounters[level - 1].Remove(stop);
             } else if (encounterType == ModEnums.EncounterType.ELITE) {
-                stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]) - (level - 1))];
+                stop = EncounterTables.eliteEncounters[level - 1][rng.Next(0, Int32.Parse(campaign.Tags[$"Lv{level}EliteEncounters"]) - (level - 1) + (level >= 5 ? 4 : 0))];
                 if (level == 1) {
                     EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
                     EncounterTables.eliteEncounters[level + 1].RemoveAll(en => en.Name == stop.Name);
                 } else if (level == 2) {
                     EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
+                } else if (level == 5) {
+                    EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
+                    EncounterTables.eliteEncounters[level + 1].RemoveAll(en => en.Name == stop.Name);
+                } else if (level == 6) {
+                    EncounterTables.eliteEncounters[level].RemoveAll(en => en.Name == stop.Name);
                 }
             } else if (encounterType == ModEnums.EncounterType.BOSS) {
-                stop = EncounterTables.bossFights[rng.Next(0, Int32.Parse(campaign.Tags["Bosses"]))];
-                EncounterTables.bossFights.Remove(stop);
+                if (level == 4) {
+                    stop = EncounterTables.bossFights[0][rng.Next(0, Int32.Parse(campaign.Tags["Bosses"]))];
+                    EncounterTables.bossFights[0].Remove(stop);
+                } else {
+                    stop = EncounterTables.bossFights[1][rng.Next(0, Int32.Parse(campaign.Tags["HighLvlBosses"]))];
+                    EncounterTables.bossFights[1].Remove(stop);
+                }
             } else if (encounterType == ModEnums.EncounterType.EVENT) {
-                if (level == 1) stop = new TypedEncounterCampaignStop<Level1SkillChallenge>();
-                else if (level == 2) stop = new TypedEncounterCampaignStop<Level2SkillChallenge>();
-                else if (level == 3) stop = new TypedEncounterCampaignStop<Level3SkillChallenge>();
+                stop = new TypedEncounterCampaignStop<SkillChallengeEncounter>();
             }
-
-            // Default value for debugging
             return stop;
         }
 

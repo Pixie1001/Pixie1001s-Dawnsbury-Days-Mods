@@ -6,6 +6,7 @@ using Dawnsbury.Campaign.Path;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Core;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 {
@@ -16,7 +17,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
         public BossFightEncounter(string name, string filename, List<Item>? rewards = null) : base(name, filename, rewards, 0) {
 
             this.CharacterLevel = CampaignState.Instance?.CurrentLevel ?? this.Map.Level;
-            this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.BOSS);
             // Handle boss relics here if I extend the game to level 8
             if (Rewards.Count == 0) {
                 this.Rewards.Add(Items.CreateNew(CustomItems.DiademOfTheSpiderQueen));
@@ -24,14 +24,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights
 
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                await CommonEncounterFuncs.StandardEncounterSetup(battle);
+                await Setup(battle);
             });
 
             // Run cleanup
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
 
-                await CommonEncounterFuncs.StandardEncounterResolve(battle);
+                await Cleanup(battle);
             });
+        }
+
+        internal async Task Setup(TBattle battle) {
+            this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.BOSS);
+            await CommonEncounterFuncs.StandardEncounterSetup(battle);
+        }
+
+        internal async Task Cleanup(TBattle battle) {
+            CommonEncounterFuncs.PostFightLoot(battle, CharacterLevel, true);
+            await CommonEncounterFuncs.StandardEncounterResolve(battle);
         }
 
     }

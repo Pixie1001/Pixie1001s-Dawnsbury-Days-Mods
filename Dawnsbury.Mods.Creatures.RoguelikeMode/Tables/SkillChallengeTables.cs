@@ -34,6 +34,10 @@ using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Modding;
 using HarmonyLib;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Dawnsbury.Display.Text;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using static HarmonyLib.Code;
+using Dawnsbury.Display.Illustrations;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -60,7 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     $"Regardless the {PrintItemName(cursedItem)} emanates a dark and terrible aura, no doubt possessed of a great demonic taint. And yet, the party can hardly afford to be picky in times such as these...",
                     $"{opt1.printInfoTag()} Have {opt1.Nominee.Name} perform a ritual to cleanse the {PrintItemName(cursedItem)} of its curse.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes they might be able to find a loophole in the curse.",
-                    $"{opt3.printInfoTag()} {opt3.Nominee.Name} hesitantly suggests that the demon might yet still be bargained with to bequeash the {PrintItemName(cursedItem)} to the party.",
+                    $"{opt3.printInfoTag()} {opt3.Nominee.Name} hesitantly suggests that the demon might yet still be bargained with to bequeath the {PrintItemName(cursedItem)} to the party.",
                     "The party decides to leave the item where it lies."
                     );
                 battle.Cinematics.EnterCutscene();
@@ -157,6 +161,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                                 await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
                                 battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
                                 battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                            } else if (level == 5) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level == 6) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level == 7) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.GreaterHealingPotion));
                             }
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} was poisoned by a puff of spores!", null);
@@ -168,8 +184,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} recreates the ritual to the best of their ability, before sitting down and pressing their head up against the mushroom.", null);
                         result = opt2.Roll();
                         if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushroom's trill happily, illuminating the cavern in eerie bioluminescent light as a thin cobweb of Mycelium roots emerge from the ground to form a cocoon around {opt2.Nominee.Name} as they kneel.", null);
-                            await battle.Cinematics.NarratorLineAsync($"In exchange for spreading their spores to distant caverns, the mushrooms will cleans {opt2.Nominee.Name}'s body of harmful organisms. They gains the Mushroom Symbiote ability, protecting them from poisons for the rest of the adventure.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushroom's trill happily, illuminating the cavern in eerie bioluminescent light as a thin cobweb of mycelium roots emerge from the ground to form a cocoon around {opt2.Nominee.Name} as they kneel.", null);
+                            await battle.Cinematics.NarratorLineAsync($"In exchange for spreading their spores to distant caverns, the mushrooms will cleanse {opt2.Nominee.Name}'s body of harmful organisms. They gains the Mushroom Symbiote ability, protecting them from poisons for the rest of the adventure.", null);
                             opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Symbiote")!);
                         } else {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The mushrooms are angered by {opt2.Nominee.Name}'s meager offering, expelling a large cloud of poisonous spores!", null);
@@ -201,13 +217,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             
                 switch (choice.Index) {
                     case 0:
-                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} suggests that whilst they could hardly ask the reneges to divert resources from their own righteous cause, the two groups could at least share information about enemy movements and hazards they've encountered on their journey so far.", null);
+                        await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} suggests that whilst they could hardly ask the renegades to divert resources from their own righteous cause, the two groups could at least share information about enemy movements and hazards they've encountered on their journey so far.", null);
                         result = opt1.Roll();
                         if (result == CheckResult.CriticalFailure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite {opt1.Nominee.Name}'s best efforts, the renegades remain tight-lipped, sharing only the vaguest of details about their movements.", null);
                             await battle.Cinematics.NarratorLineAsync($"The party is ready to give up, until one young paladin approaches them in private, seemingly disillusioned by her companion's paranoia and needless caution.", null);
                             await battle.Cinematics.NarratorLineAsync($"They talk for many hours, but it isn't until the two groups have long parted ways and the party begin to feel watchful eyes raising the hair on their necks, that they begin to realise her information is subtly but all too insidiously wrong...", null);
-                            await battle.Cinematics.NarratorLineAsync("The enemy knows you're coming. Each member of the party gains {b}Compromised Route{/b}, reducing their inititive by 1.", null);
+                            await battle.Cinematics.NarratorLineAsync("The enemy knows you're coming. Each member of the party gains {b}Compromised Route{/b}, reducing their inititive by 1 until they return to turn.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route", null, null)!);
                             }
@@ -225,7 +241,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} speaks to the group of the surface world, and the beauty of the Cerulean Sky at night, insisting that their mission to foil the Demon Lord's plot is of utmost urgency to their goddess.", null);
                         result = opt2.Roll();
                         if (result == CheckResult.CriticalFailure) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + "The group initially seems uncertain. Whilst they owe a great deal to their goddess, the weight of those still enthralled by the spider queen weighs heavy on their shoulders.", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + "The group initially seems uncertain. Whilst they owe a great deal to their goddess, the weight of those still enthralled by the Demon Queen of Spiders weighs heavy on their shoulders.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet at the last moment a young woman steps up from among their ranks, inspired by {opt2.Nominee.Name}'s words, offering to act as a guide for their journey.", null);
                             await battle.Cinematics.NarratorLineAsync($"It isn't until the group hears the clicking of mandibles, their earnest guide nowhere to be seen, that they realise too late that they've been led into a trap.", null);
                             await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Injured 1{/b}, reducing their max HP by 10% until they rest.", null);
@@ -244,12 +260,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     case 2:
                         await battle.Cinematics.NarratorLineAsync($"The renegades nod in grim agreement, seemingly no strangers to betrayal themselves.", null);
                         await battle.Cinematics.NarratorLineAsync($"Nevertheless, they volunteer a small amount of supplies to hasten the party on their journey, for it is a rare thing indeed to meet a group in the {Loader.UnderdarkName} willing to exchange pleasantries without an ulterior motive.", null);
-                        await battle.Cinematics.NarratorLineAsync("The party obtained {b}" + level * 7 + " gold{/b} worth of supplies.", null);
+                        await battle.Cinematics.NarratorLineAsync("The party obtained {b}" + level * 7 * (level > 4 ? 2 : 1) + " gold{/b} worth of supplies.", null);
                         break;
                 }
             }));
             
             events.Add(new SkillChallenge("Escaped Slaves", async (level, battle) => {
+                var cost = level * 5;
+                if (level >= 5) cost *= 2;
+
                 await battle.Cinematics.NarratorLineAsync("Coming from an opposing cavern, the party spots a group of bedraggled figures shambling towards them, fanning out like starving jackals with hungry sunken eyes.", null);
                 await battle.Cinematics.NarratorLineAsync($"Dirty, emaciated and still wearing the remains of broken shackles, they can only be a group of escaped slaves. Yet even with a common enemy, the harsh environment of the {Loader.UnderdarkName} has little mercy for those who cannot take what they need to survive.", null);
                 await battle.Cinematics.NarratorLineAsync("What does the party do?", null);
@@ -260,10 +279,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} suggests scaring the group away.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes the group can be reasoned with.",
-                    "{DimGray}{b}" + $"[Lose {level * 5} gold]" + "{/b}{/DimGray} Despite the slave's aggression, the party offers what little they can all the same."
+                    "{DimGray}{b}" + $"[Lose {cost} gold]" + "{/b}{/DimGray} Despite the slave's aggression, the party offers what little they can all the same."
                 };
             
-                if (battle.CampaignState?.CommonGold < level * 5) {
+                if (battle.CampaignState?.CommonGold < cost) {
                     choices.RemoveAt(choices.Count - 1);
                 }
             
@@ -309,17 +328,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     case 2:
                         await battle.Cinematics.NarratorLineAsync($"Despite the slave's aggression, the party offers what little they can all the same.", null);
                         await battle.Cinematics.NarratorLineAsync($"The slaves accept the party's offer of aid with wary eyes, before departing, unwilling to push their luck any further against an armed group.", null);
-                        await battle.Cinematics.NarratorLineAsync("The party lost {b}" + level * 5 + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
+                        await battle.Cinematics.NarratorLineAsync("The party lost {b}" + cost + " gold{/b}, but each member gains {b}Hope 1{/b}, granting a +1 status bonus to their Will saves and attack bonus until they rest.", null);
                         foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                             pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Hope", null, 1)!);
                         }
-                        battle.CampaignState!.CommonGold -= level * 5;
+                        battle.CampaignState!.CommonGold -= cost;
                         break;
                 }
             }));
             
             events.Add(new SkillChallenge("Magical Traps", async (level, battle) => {
-                await battle.Cinematics.NarratorLineAsync("Too late to doubleback, the party finds their path black by an abandoned Duergar stronghold built between a narrow passage.", null);
+                await battle.Cinematics.NarratorLineAsync("Too late to doubleback, the party finds their path blocked by an abandoned Duergar stronghold built between a narrow passage.", null);
                 await battle.Cinematics.NarratorLineAsync($"The arrow slits lie empty and dusty, yet the gates glow ominously with cruel arcane runes - no doubt set to unleash their terrible magic on any would-be intruders.", null);
                 await battle.Cinematics.NarratorLineAsync("How does the party proceed?", null);
                 battle.Cinematics.ExitCutscene();
@@ -328,7 +347,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             
                 List<string> choices = new List<string>() {
                     $"{opt1.printInfoTag()} {opt1.Nominee.Name} thinks they might be able to disarm the magical traps.",
-                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes that a particular dexterous thief might be able to avoid the triggering mechanism and safely disable the traps from inside the fortress."
+                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} believes that a particularly dexterous thief might be able to avoid the triggering mechanism and safely disable the traps from inside the fortress."
                 };
             
                 var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
@@ -452,8 +471,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             if (level == 2) {
                                 AlicornWeapon = AlicornWeapon.WithModificationPlusOne();
                             }
-                            if (level >= 3) {
+                            if (level >= 3 && level <= 6) {
                                 AlicornWeapon = AlicornWeapon.WithModificationPlusOneStriking();
+                            }
+                            if (level >= 7) {
+                                AlicornWeapon = AlicornWeapon.WithModificationRune(ItemName.WeaponPotencyRunestone2);
+                                AlicornWeapon = AlicornWeapon.WithModificationRune(ItemName.StrikingRunestone);
                             }
                             battle.CampaignState?.CommonLoot.Add(AlicornWeapon);
                         }
@@ -497,7 +520,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 SCOption opt3 = GetBestPartyMember(battle, level, -2, Skill.Religion);
             
                 List<string> choices = new List<string>() {
-                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they should accept the fiend's challenge, wager their {itemName} for a chance at demonic power.",
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} believes they should accept the fiend's challenge, wagering their {itemName} for a chance at demonic power.",
                     $"{opt2.printInfoTag()} {opt2.Nominee.Name} suggests using some sleight of hand to rig the game in their favour.",
                     $"{opt3.printInfoTag()} {opt3.Nominee.Name} claims no good can come of dealing with demons. The fiend must be banished so that it might tempt travellers no more.",
                     "The party declines the suspicious creature's offer."
@@ -517,12 +540,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} is a shrewd player, diligently stumbling through the rules of the odd card game, but the thing is better.", null);
                             await battle.Cinematics.NarratorLineAsync($"After several tense bouts, {opt1.Nominee.Name} is soon completely out of bone chips... And then quick as lightning, the creature looms high with victorious grin on its muzzle, snatches up the {itemName}...", null);
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"...And the party finds themselves once again standing in the cold open cavern, with no tent or rodent-like demon in tight.", null);
+                            await battle.Cinematics.NarratorLineAsync($"...And the party finds themselves once again standing in the cold open cavern, with no tent or rodent-like demon in sight.", null);
                             await battle.Cinematics.NarratorLineAsync($"The party's {itemName} has been lost.", null);
                             container?.Remove(wageredItem);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);
-                            await battle.Cinematics.NarratorLineAsync($"And yet, the creature's creed and hubris is ultimately its downfall. Feigning, {opt1.Nominee.Name} lures the thing into a false sense of security, overplaying its hand so that it might claim its prize all the sooner.", null);
+                            await battle.Cinematics.NarratorLineAsync($"And yet, the creature's greed and hubris is ultimately its downfall. Feigning, {opt1.Nominee.Name} lures the thing into a false sense of security, overplaying its hand so that it might claim its prize all the sooner.", null);
                             await battle.Cinematics.NarratorLineAsync($"And all at once, a large stack of bone chips are reluctantly swept towards their side of the table.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
@@ -536,14 +559,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         result = opt2.Roll();
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"But when the critical moment comes to swap out the card, the creature's beady eyes lock onto the offending card with a screech of feral rage!", null);
-                            await battle.Cinematics.NarratorLineAsync($"The tent begins to dissolve, deforming into swarm of rats that nibble and crawl across the party, as the creature's eyes glow with baleful power, as it proclaims {opt2.Nominee.Name} a cheater!", null);
+                            await battle.Cinematics.NarratorLineAsync($"The tent begins to dissolve, deforming into swarm of rats that nibble and crawl across the party, the creature's eyes aglow with baleful power, as it proclaims {opt2.Nominee.Name} a cheater!", null);
                             await battle.Cinematics.NarratorLineAsync($"The rats, along with the demon and its treasure vanish as quickly as they come. And yet {opt2.Nominee.Name} is left with a feeling of great dread, their eyes twitching towards the dark corners of the cavern in paranoia, as if something is watching them from the shadows.", null);
-                            await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has been inflicted by the Rat Fiend's Curse, facing a 25% chance for a Giant Rat to crawl out of the corpse of any enemy they defeat until their next rest.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has been inflicted by the Rat Fiend's Curse, facing a 25% chance for a Giant Rat to crawl out of the corpse of any enemy they defeat until their next long rest.", null);
                             opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null)!);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"It doesn't take long to realise the game of bluffing suggested by the creature is clearly rigged in its favour. For what mortal could best a demon of alien mannerisms and tells in a game of deceit?", null);
             
-                            await battle.Cinematics.NarratorLineAsync($"And yet, but {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but within the odds against it, {opt2.Nominee.Name}'s superior guile and sleight of hand makes victory an inevitability.", null);
+                            await battle.Cinematics.NarratorLineAsync($"And yet, {opt2.Nominee.Name} isn't fool enough to play fair either. The game is close, but even with the odds against them, {opt2.Nominee.Name}'s superior guile and sleight of hand makes victory an inevitability.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet the foul creature's grin only seems to grow larger, as its claw extends to bequeath its strange power upon them, as if this, too, was its true intention all along...", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} has won the power of the rat fiend, drawing rat familiars forth to serve them and allowing them to retrain into the Rat Monarch archetype.", null);
                             if (!opt2.Nominee.PersistentCharacterSheet!.Calculated.Sheet.SelectedFeats.ContainsKey("Power of the Rat Fiend"))
@@ -561,12 +584,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} has been inflicted by the Rat Fiend's Curse, facing a 25% chance for a Giant Rat to crawl out of the corpse of any enemy they defeat until their next long rest.", null);
                             opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Curse of the Rat Fiend", null, null)!);
                         } else if (result >= CheckResult.Success) {
-                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The fiend screeches in agony before {opt2.Nominee.Name}'s holy symbol - the very fabric of the tent bursting apart into swarms of grotesquely gauged rats as its sorcery is undone!", null);
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The fiend screeches in agony before {opt2.Nominee.Name}'s holy symbol - the very fabric of the tent bursting apart into swarms of grotesquely gorged rats as its sorcery is undone!", null);
                             await battle.Cinematics.NarratorLineAsync($"With one last forlorn look towards its treasure, the demon cravenly skitters away, leaving its ill gotten horde behind for the taking.", null);
                             int gold = 30 * level;
+                            if (level >= 5) gold *= 2;
                             await battle.Cinematics.NarratorLineAsync($"The party gains {gold} gold from the various coins and shiny trinkets in the creature's treasure hoard.", null);
-                            battle.CampaignState!.CommonGold += 30;
-                            battle.Encounter.RewardGold = 30;
+                            battle.CampaignState!.CommonGold += gold;
+                            battle.Encounter.RewardGold = gold;
                         }
                         break;
                     case 3:
@@ -705,6 +729,386 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                 }
             }));
+
+            events.Add(new SkillChallenge("Azata Encounter", async (level, battle) => {
+
+                await battle.Cinematics.NarratorLineAsync("After forging on, the party stumbles upon a small isolated settlement showing signs of a recent attack.", null);
+                await battle.Cinematics.NarratorLineAsync($"As they approach, they encounter villagers from a variety of races ranging from drow to coal skinned gnomes to humans bearing the telltale scars of manacles so often seen on emancipated slaves.", null);
+                await battle.Cinematics.NarratorLineAsync($"And in the heart of the settlement, towering above the villagers is a winged woman with the lower body of a great coiling serpent.", null);
+                await battle.Cinematics.NarratorLineAsync($"Despite her imposing silhouette, she waves excitedly towards the party, her great tail bobbing up and down as she animatedly introduces herself as Lyra, a celestial azata of the Unbreakable Friendship.", null);
+                await battle.Cinematics.NarratorLineAsync($"She informs the group that she was inspired to come to the aid of this settlement after seeing so many different peoples put aside their differences to live together within the hostile depths of the below in harmony.", null);
+                battle.Cinematics.ExitCutscene();
+                SCOption opt1 = GetBestPartyMember(battle, level, -2, Skill.Athletics, Skill.Crafting, Skill.Medicine);
+                SCOption opt2 = GetBestPartyMember(battle, level, 0, [(cr, skill) => cr.HasFeat(FeatName.TheUnbreakableFriendship) ? (2, "Follower of the Unbreakable Friendship") : null], Skill.Religion);
+                SCOption opt3 = GetBestPartyMember(battle, level, 0, Skill.Diplomacy, Skill.Society);
+
+                List<string> choices = new List<string>() {
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} offers to delay their quest to help the villagers.",
+                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} implores Lyra to grant them a blessing so they too can protect Dawnsbury.",
+                    $"{opt3.printInfoTag()} {opt3.Nominee.Name} feels compelled to compliment the cuteness of Lyra's tail.",
+                    "The party decides to press on."
+                };
+
+                var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+                    $"With the attack repelled, the party seems to have captured a moment of the azata's time.",
+                    choices.ToArray()
+                );
+                battle.Cinematics.EnterCutscene();
+                CheckResult result = CheckResult.Failure;
+
+                switch (choice.Index) {
+                    case 0:
+                        await battle.Cinematics.NarratorLineAsync($"After hearing of the settlement's plight, {opt1.Nominee.Name} readily volunteers the group to set aside time from their quest to help the villagers rebuild after the attack.", null);
+                        result = opt1.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"At first Lyra seems excited about {opt1.Nominee.Name}'s offer, but before long it seems clear she's spending more time babysitting the group and correcting their work than she is helping herself.", null);
+                            await battle.Cinematics.NarratorLineAsync($"When she politely suggests that the party is running out of time on their own quest, they get the message, awkwardly making an excuse to leave the angel to her holy task.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The party was {{b}}Waylaid{{/b}}, reducing their inititive by -1 until they return to town.", null);
+                            foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Waylaid", null, null)!);
+                            }
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Together with Lyra's help, the group is able to collect the wounded together in a makeshift shelter, and restore the villagers defences in record time.", null);
+                            await battle.Cinematics.NarratorLineAsync($"After apologising for delaying their quest, Lyra offers to repay them in kind by travelling by their side for the remainder of her time on the plane that she would've otherwise spent helping to repair the settlement.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The party was {{b}}Waylaid{{/b}}, reducing their inititive by -1 until they return to town, but acquired the aid of an {{b}}Azata Companion{{/b}}.", null);
+                            opt1.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Companion", null, null)!);
+                            foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
+                                pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Waylaid", null, null)!);
+                            }
+                        }
+                        break;
+                    case 1:
+                        await battle.Cinematics.NarratorLineAsync($"Seeing an opportunity for divine aid in their desperate quest, {opt2.Nominee.Name} humbly petitions the azata for a blessing to aid them against whatever awaits them at the next layline.", null);
+                        result = opt2.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Though Lyra agree's {opt2.Nominee.Name}'s cause certainly sounds worthy, she regrets to inform them that she isn't really supposed to hand out boons without authorisation.", null);
+                            await battle.Cinematics.NarratorLineAsync($"But as a consolation prize, she does give {opt2.Nominee.Name} a very fond head pat, which she claims is almost just as good!", null);
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Headpats", null, null)!);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Though azatas apparently aren't supposed to give out boons to mortals without approval, Lyra is so taken by {opt2.Nominee.Name}'s quest and their dedication to the tenets of friendship, that she agrees to make an exception.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Placing one hand over {opt2.Nominee.Name}'s shoulder, she squeezes her eyes tightly shut and summons forth an aurora of rainbow coloured lights, promising that the rainbow of the Unbreakable Friendship will come to their aid when they need it most.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} was granted {{b}}Lyra's Boon{{/b}}, which they can invoke once anytime during their adventure.", null);
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lyra's Boon", null, null)!);
+                        }
+                        break;
+                    case 2:
+                        await battle.Cinematics.NarratorLineAsync($"While the rest of the party introduced themselves, {opt3.Nominee.Name} can't help but gush about how cool and glossy Lyra's tail is.", null);
+                        result = opt3.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"However, to {opt3.Nominee.Name}'s great shame, Lyra seems to grow uncomfortable, her great tail anxiously coiling into a knot as if to hide it from {opt3.Nominee.Name}'s objectifying gaze.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Despite the group's efforts to salvage the awkward atmosphere, it's clear {opt3.Nominee.Name} has committed a great azata faux pas - the kindhearted celestial's attempts to pretend nothing's wrong only making {opt3.Nominee.Name} feel guiltier.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Before long, she makes an excuse to disentangle herself from the conversation, and the party trudges onwards.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} gains {{b}}Guilt 2{{/b}}, reducing their Will saves by 2 until they rest.", null);
+                            opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, 2)!);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Despite the dire circumstances under which they're meeting, Lyra seems excited about {opt3.Nominee.Name}'s whimsy, animatedly sharing all of her favourite snake facts.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Before reluctantly excusing herself to help heal the wounded, she produces a small winged serpent that eagerly coils itself up {opt3.Nominee.Name}'s arm, as a gift from one reptile enjoyer to another.", null);
+                            var reward = level <= 4 ? Items.CreateNew(CustomItems.SacredSerpent) : Items.CreateNew(CustomItems.GreaterSacredSerpent);
+                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} gained a {PrintItemName(reward)}.", null);
+                            CampaignState.Instance!.CommonLoot.Add(reward);
+                        }
+                        break;
+                    case 3:
+                        await battle.Cinematics.NarratorLineAsync("The party spends a few moments exchanging pleasantries, and learning about the village that so inspired Lyra to personally descend from on high to defend it.", null);
+                        await battle.Cinematics.NarratorLineAsync("But despite the novelty of meeting an azata in the flesh they agree, they can't allow it to distract them from their own important quest, wishing the creature the best of luck before departing.", null);
+                        break;
+                }
+            }));
+
+            events.Add(new SkillChallenge("Angel Encounter", async (level, battle) => {
+
+                await battle.Cinematics.NarratorLineAsync("As they set off once more, the party is drawn towards a brilliant golden light emanating from a distant cavern.", null);
+                await battle.Cinematics.NarratorLineAsync($"Drawing closer, discover the source is the radiant glow of a lone angel donned in resplendent golden armour.", null);
+                await battle.Cinematics.NarratorLineAsync($"The angel announces herself to be the archangel Baraquielle, here on a mission of utmost importance. Though her patience seems thin, the party appears to have captured a moment of her time.", null);
+                battle.Cinematics.ExitCutscene();
+                SCOption opt1 = GetBestPartyMember(battle, level, +2, [(cr, skill) => cr.HasFeat(FeatName.TheOracle) ? (2, "Follower of the Oracle") : null], Skill.Athletics, Skill.Intimidation);
+                SCOption opt2 = GetBestPartyMember(battle, level, 0, [(cr, skill) => cr.HasTrait(Trait.Good) && cr.HasTrait(Trait.Lawful) ? (1, "Has a Lawful Good alignment") : null,
+                (cr, skill) => cr.HasFeat(FeatName.TheOracle) ? (2, "Follower of the Oracle") : null], Skill.Religion);
+                SCOption opt3 = GetBestPartyMember(battle, level, +3, [(cr, skill) => cr.PersistentCharacterSheet?.Calculated != null &&
+                cr.PersistentCharacterSheet.Calculated.AllFeats.Any(ft => ft.Name == "Bard" || ft.Name == "Swashbuckler" || ft.Name == "Bard Dedication" || ft.Name == "Swashbuckler Dedication") ? (2, "Is a Bard or Swashbuckler") : null,
+                (cr, skill) => cr.CarriedItems.Any(itm => itm.ItemName == ItemName.LoversGloves) ? (1, "Wearing Lover's Gloves") : null], Skill.Diplomacy);
+
+                List<string> choices = new List<string>() {
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} offers the party's aid in her righteous quest!",
+                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} humbly requests a heavenly boon in their fight against the demon queen of spiders.",
+                    $"{opt3.printInfoTag()} {opt3.Nominee.Name} attempts to seduce the angel...!",
+                    "The party decides not to distract the angel from her important task."
+                };
+
+                var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+                    $"How do they address the archangel?",
+                    choices.ToArray()
+                );
+                battle.Cinematics.EnterCutscene();
+                CheckResult result = CheckResult.Failure;
+
+                switch (choice.Index) {
+                    case 0:
+                        await battle.Cinematics.NarratorLineAsync($"Kneeling before the angel, {opt1.Nominee.Name} humbly pledges the party's support towards their holy cause.", null);
+                        result = opt1.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The angel Baraquielle scowls, her eyes sweeping up and down {opt1.Nominee.Name}'s prostrate form and finding them wanting.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Stating that an archangel of her status needs no help from mere mortals, she harshly dismisses their offer, before launching herself up into the air, leaving as abruptly as she appeared.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Baraquielle considers {opt1.Nominee.Name}'s offer for several long moments, before reluctantly accepting their help, " +
+                                $"claiming that in order to avoid alerting the demon queen's minions of her mission, she's unable to access the full breadth of her heavenly power.", null);
+                            await battle.Cinematics.NarratorLineAsync($"She seems somewhat cagey about sharing too many details, as if even her fellow arch angels don't know of her presence here, but reluctantly agrees to allow the party to join her.", null);
+                            await battle.Cinematics.NarratorLineAsync($"She stiffly explains that she's on a mission of utmost importance to reconsecrate a holy reliquary placed within the bowels of the plane by the Oracle themselves in ages past.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Before entreating the party to follow them, she demands that they assist stand by her side to protect her during this task, and in exchange she shall in turn stand by their side during their own quest.", null);
+                            CampaignState.Instance!.Tags.TryAdd("DefendTheReliquary", $"{CampaignState.Instance.CurrentStopIndex + 2}");
+                            EncounterTables.ApplySpecialEncounters(CampaignState.Instance);
+                        }
+                        break;
+                    case 1:
+                        await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} imparts the circumstances of Dawnsbury's plight, and the dire importance of their mission to disrupt the demonic ritual taking place in the bowels of Our Point of Light, humbly requesting that she might lend them her boon.", null);
+                        result = opt2.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"But the angel Baraquielle merely scoffs at their loathsome begging. She is an archangel of heaven, not some doting movanic deva that simply dispenses boons to any petitioner and their animal companion...!", null);
+                            await battle.Cinematics.NarratorLineAsync($"And with that, she launches herself up into the air, leaving the party to face the Starborn with their own strength alone.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Baraquielle examines {opt2.Nominee.Name} with a steely gaze, before rewarding them with a clipped nod of respect.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Impressed by their devotion to the tenets of heaven, and directness of their request, she solemnly promises them her boon. A weapon bequeathed by one warrior to another in their shared fight against the Starborn.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt2.Nominee.Name} was granted {{b}}Baraquielle's Boon{{/b}}, which they can invoke once anytime during their adventure.", null);
+                            opt2.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Baraquielle's Boon", null, null)!);
+                        }
+                        break;
+                    case 2:
+                        await battle.Cinematics.NarratorLineAsync($"Besmitten by the archangel Baraquielle's stern disapproving glower and fluffy wings, or perhaps merely compelled to attempt to seduce as many monster people as possible, {opt3.Nominee.Name} boldly attempts to seduce the angel...!", null);
+                        result = opt3.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"In a matter of moments Baraquielle's face rapidly shifts from a stern mask, to a look of bewilderment and then abject disgust as if she'd stepped on a particularly odorous gluttony demon.", null);
+                            await battle.Cinematics.NarratorLineAsync($"There's a tense moment as the angel seems almost stunned by the gall of {opt3.Nominee.Name}'s request, before finally gathering the wherewithal to rebuke them with a harsh but visceral \"eww.\"", null);
+                            await battle.Cinematics.NarratorLineAsync($"She departs soon after, proclaiming to the rest of the group that she must seek out an aquifer in which to cleanse herself of this harrowing interaction.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} gains {{b}}Rejected 1{{/b}}, imposing a -1 status penalty to all charimsa-based rolls and DC until they return to town.", null);
+                            opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Rejected", null, 1)!);
+                        } else if (result >= CheckResult.Success) {
+                            var bara = Baraquielle.Create(battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
+                            Sfxs.Play(SfxName.EarthSpell);
+                            await battle.Cinematics.LineAsync(bara, $"W-what...!? A mere mortal and a refined and untouchable archangel such as myself...? What a laughable thought!", null);
+                            await battle.Cinematics.LineAsync(bara, $"You think you can simply woo me with vapid compliments about the impeccable softness of my wings and the definition of my mighty thews!", null);
+                            await battle.Cinematics.LineAsync(bara, $"In all my years I have never seen a mortal show such brazen audacity... such reckless bravery in the face of societal taboo...!", null);
+                            await battle.Cinematics.LineAsync(bara, $"E-even if I did like you, it's not like we could ever be together, stupid!", null);
+                            await battle.Cinematics.LineAsync(bara, $"W-which just to be clear I-I don't!", null);
+                            await battle.Cinematics.LineAsync(bara, $"Stupid!", null);
+                            await battle.Cinematics.NarratorLineAsync($"Before {opt3.Nominee.Name} can get a word in edgewise, Baraquielle abruptly absconds into the air, sending the party stumbling as the blushing angel makes her exit.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} doesn't gain anything, because they're a stupid baka that Baraquielle definitely won't remember...!", null);
+                            opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!", null, null)!);
+                        }
+                        break;
+                    case 3:
+                        await battle.Cinematics.NarratorLineAsync("Baraquielle gives the party a stoic nod of respect, greatful for their consideration of her time, before forging on ahead,", null);
+                        break;
+                }
+            }));
+
+            events.Add(new SkillChallenge("Gnome Merchant", async (level, battle) => {
+
+                await battle.Cinematics.NarratorLineAsync("On the way to their next destination, the party encounters a small deep gnome dwelling. After exchanging pleasanties with the locals, they find themselves at a small storefront, perusing for supplies.", null);
+                await battle.Cinematics.NarratorLineAsync($"The merchant grins, eager to hawk his wares to a new group of customers. \"Welcome to my humble shop, travelers\", he proclaims, \"Is it bombs and armaments you seek, or perhaps to make use of my alchemical brilliance? Or are you here to try your luck against my infamous puzzle box?\"", null);
+                battle.Cinematics.ExitCutscene();
+                SCOption opt1 = GetBestPartyMember(battle, level, 2, Skill.Arcana, Skill.Occultism, Skill.Crafting);
+                SCOption opt2 = GetBestPartyMember(battle, level, -2, [(cr, skill) => cr.PersistentCharacterSheet?.Calculated != null &&
+                cr.PersistentCharacterSheet.Calculated.AllFeats.Any(ft => ft.Name == "Alchemist" || ft.Name == "Alchemist Dedication") ? (2, "Is an Alchemist") : null,
+                (cr, skill) => cr.PersistentCharacterSheet?.Calculated != null &&
+                cr.PersistentCharacterSheet.Calculated.AllFeats.Any(ft => ft.Name == "Herbalist") ? (1, "Has the Herbalist background.") : null], Skill.Nature);
+                SCOption opt3 = GetBestPartyMember(battle, level, -2, Skill.Diplomacy);
+
+                List<string> choices = new List<string>() {
+                    $"{opt1.printInfoTag()} {opt1.Nominee.Name} wants to try their luck against the puzzle box.",
+                    $"{opt2.printInfoTag()} {opt2.Nominee.Name} wants to know if the fungi they collected on the way here is of value."
+                };
+
+                var haggleAmount = 0;
+                if (level == 1) haggleAmount = 7;
+                else if (level == 2) haggleAmount = 15;
+                else if (level == 3) haggleAmount = 20;
+                else if (level == 5) haggleAmount = 50;
+                else if (level == 6) haggleAmount = 75;
+                else if (level >= 7) haggleAmount = 100;
+
+                if (CampaignState.Instance!.CommonGold >= haggleAmount) choices.Add($"{opt3.printInfoTag()} " + "{DimGray}{b}" + $"[Spend {haggleAmount} gold]" + "{/b}{/DimGray} " + $"{opt3.Nominee.Name} attempts to haggle with the merchant for discounted supplies.");
+
+                var choice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+                    $"How does the party spend their time at this strange merchant's humble store?",
+                    choices.ToArray()
+                );
+                battle.Cinematics.EnterCutscene();
+                CheckResult result = CheckResult.Failure;
+
+                switch (choice.Index) {
+                    case 0:
+                        await battle.Cinematics.NarratorLineAsync($"Seeing that the puzzle box has caught {opt1.Nominee.Name}'s eye, the wizened gnome quickly appears at their side to deliver a well rehearsed spiel.", null);
+                        await battle.Cinematics.NarratorLineAsync($"The puzzle box is apparently the central attraction of their village, after they recovered it from an ancient gnome ruin.", null);
+                        await battle.Cinematics.NarratorLineAsync($"Though tinkerers and scholars from several nearby towns have visited to try their hand against it, none have succeeded at unlocking its mysteries.", null);
+
+                        result = opt1.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Lifting the box, {opt1.Nominee.Name} turns the cube in their hands, spotting several gizmos that cause the segments of the box to whirl and spin promisingly.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Yet this early advantage soon turns to consternation as the cube begins to whir faster and faster, turning {opt1.Nominee.Name}'s mind to jelly as they struggle to process the dizzying number of equations and possibilities.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The gnome only grins, obviously unsurprised by the outcome, as {opt1.Nominee.Name} places the puzzle box back onto its plinth in defeat.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} spends several moments carefully inspecting the cube, turning it over in their hands before making a series of quick decisive moments.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The box spins and whirs in response, the clues and possibilities expanding rapidly with each input, as the gnome gives them a knowing grin.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Yet his grin soon begins to falter, and shift entirely into an expression of disbelief and then rapt fascination as he climbs up onto a stool to peer over {opt1.Nominee.Name}'s shoulder, as the puzzle box miraculously clicks open in their hands.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Though he seems loath to part with the box, he insists all the same that his ancestors would want the puzzle box to remain at the side of one worthy enough to solve it.", null);
+                            var reward = Items.CreateNew(CustomItems.GnomishPuzzleBox);
+                            await battle.Cinematics.NarratorLineAsync($"{opt1.Nominee.Name} gained a {PrintItemName(reward)}.", null);
+                            CampaignState.Instance.CommonLoot.Add(reward);
+                        }
+                        break;
+                    case 1:
+                        await battle.Cinematics.NarratorLineAsync($"Rummaging through their bags, {opt2.Nominee.Name} produces several specimens of moss and fungi they collected so far during their journey through the below.", null);
+                        result = opt2.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The gnome spends a few moments inspecting the specimens under a magnifying loupe, turning them over with a practice hand before shaking his head.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Much to their disappointment, what {opt2.Nominee.Name} thought were rare reagents are revealed to be common species of little medicinal value.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The gnome spends only a few moments inspecting the specimens, before excitedly offering to brew {opt2.Nominee.Name}'s specimens into several healing poultices in exchange for the rest of what they've collected.", null);
+                            if (level == 1) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                            } else if (level == 2) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained {PrintItemName(ItemName.LesserHealingPotion)} x2.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                            } else if (level == 3) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                            } else if (level == 5) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level == 6) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level == 7) {
+                                await battle.Cinematics.NarratorLineAsync($"The party gained a {PrintItemName(ItemName.LesserHealingPotion)} and a {PrintItemName(ItemName.ModerateHealingPotion)}.", null);
+                                battle.CampaignState?.CommonLoot.Add(Items.CreateNew(ItemName.GreaterHealingPotion));
+                            }
+                        }
+                        break;
+                    case 2:
+                        await battle.Cinematics.NarratorLineAsync($"After spending some time pursuing the merchant's wares, {opt3.Nominee.Name} engages the merchant into a fierce back and forth as they haggle over the price of alchemical supplies.", null);
+                        result = opt3.Roll();
+                        if (result <= CheckResult.Failure) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"At first {opt3.Nominee.Name} appears to be making headway as they attempt to barter down the price of several items that catch their eyes. Yet the merchant stubbornly refuses to offer a reasonable price.", null);
+                            await battle.Cinematics.NarratorLineAsync($"Before long the friendly negotiating turn to shouting as the merchant grows increasingly irate, offended that {opt3.Nominee.Name} would place such little value on their artisanal goods, culminating in the party getting thrown out.", null);
+                        } else if (result >= CheckResult.Success) {
+                            await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"After several animated moments of negotiation, {opt3.Nominee.Name} succeeds in bartering a lucrative offer - appealing to the merchant's sense of altruism after mentioning all the trade routes they cleared of danger on their way through.\r\n", null);
+                            var poisons = new List<Item>();
+                            var bombs = new List<Item>();
+                            var healing = new List<Item>();
+
+                            static ItemName GetBombType() {
+                                return UtilityFunctions.ChooseAtRandom(new ItemName[] { ItemName.AlchemistsFire, ItemName.AcidFlask, ItemName.FrostVial, ItemName.Thunderstone, ItemName.MudBomb, ItemName.DreadAmpoule });
+                            }
+
+                            if (level == 1) {
+                                poisons.Add(Items.CreateNew(ItemName.BlackAdderVenom));
+                                poisons.Add(Items.CreateNew(ItemName.BlackSmearPoison));
+
+                                bombs.Add(Items.CreateNew(GetBombType()));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+
+                                healing.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                            } else if (level == 2) {
+                                poisons.Add(Items.CreateNew(ItemName.CytilleshOil));
+                                poisons.Add(Items.CreateNew(ItemName.CytilleshOil));
+                                poisons.Add(Items.CreateNew(ItemName.CytilleshOil));
+
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+
+                                healing.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.LesserHealingPotion));
+                            } else if (level == 3) {
+                                poisons.Add(Items.CreateNew(ItemName.HuntingSpiderVenom));
+                                poisons.Add(Items.CreateNew(ItemName.HuntingSpiderVenom));
+
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("moderate-bomb")));
+
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level == 5) {
+                                poisons.Add(Items.CreateNew(ItemName.GiantWaspVenom));
+                                poisons.Add(Items.CreateNew(ItemName.GiantWaspVenom));
+
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("improved-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("improved-bomb")));
+
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level == 6) {
+                                poisons.Add(Items.CreateNew(ItemName.WyvernPoison));
+                                poisons.Add(Items.CreateNew(ItemName.WyvernPoison));
+
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("improved-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("improved-bomb")));
+                                bombs.Add(Items.CreateNew(GetBombType()).WithModification(ItemModification.Create("improved-bomb")));
+
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            } else if (level >= 7) {
+                                poisons.Add(Items.CreateNew(ItemName.WyvernPoison));
+                                poisons.Add(Items.CreateNew(ItemName.WyvernPoison));
+                                poisons.Add(Items.CreateNew(ItemName.WyvernPoison));
+
+                                bombs.Add(Items.CreateNew(ItemName.JavelinOfLightning));
+                                bombs.Add(Items.CreateNew(ItemName.StormBreath));
+
+                                healing.Add(Items.CreateNew(ItemName.ModerateElixirOfLife));
+                                healing.Add(Items.CreateNew(ItemName.ModerateElixirOfLife));
+                                healing.Add(Items.CreateNew(ItemName.ModerateHealingPotion));
+                            }
+
+                            battle.Cinematics.ExitCutscene();
+                            var itemChoice = await CommonQuestions.OfferDialogueChoice(GetParty(battle).First(), GetNarrator(),
+                                $"What does {opt3.Nominee.Name} negotiate for?",
+                                [$"{new SimpleIllustration(IllustrationName.LesserHealingPotion).IllustrationAsIconString} Healing tonics to sustain them on their journey",
+                                    $"{new SimpleIllustration(IllustrationName.AlchemicalPoison).IllustrationAsIconString} Poisons to coat their weapons",
+                                    $"{new SimpleIllustration(IllustrationName.AcidFlask).IllustrationAsIconString} Bombs to lob at their enemies"]
+                            );
+                            battle.Cinematics.EnterCutscene();
+                            if (itemChoice.Index == 0) {
+                                await PurchaseItems(opt3.Nominee, haggleAmount, healing);
+                            } else if (itemChoice.Index == 1) {
+                                await PurchaseItems(opt3.Nominee, haggleAmount, poisons);
+                            } else if (itemChoice.Index == 2) {
+                                await PurchaseItems(opt3.Nominee, haggleAmount, bombs);
+                            }
+
+                            static async Task PurchaseItems(Creature buyer, int gold, List<Item> items) {
+                                var msg = $"{buyer.Name} purchases ";
+                                for (int i = 0; i < items.Count(); i++) {
+                                    if (i == 0)
+                                        msg += PrintItemName(items[i]).WithIndefiniteArticle();
+                                    else if (i == items.Count() - 1)
+                                        msg += " and " + PrintItemName(items[i]).WithIndefiniteArticle();
+                                    else
+                                        msg += ", " + PrintItemName(items[i]).WithIndefiniteArticle();
+                                }
+                                msg += $" for {{b}}{gold}{{/b}} gold.";
+                                await buyer.Battle.Cinematics.NarratorLineAsync(msg, null);
+
+                                foreach (Item item in items) {
+                                    CampaignState.Instance!.CommonLoot.Add(item);
+                                }
+                                CampaignState.Instance!.CommonGold -= gold;
+                            }
+                        }
+                        break;
+                }
+            }));
         }
 
         private static SCOption GetBestPartyMember(TBattle battle, int level, int difficultyModifier, Func<Creature, Skill, (int, string)?>[]? bonusLogic, params Skill[] skills) {
@@ -769,7 +1173,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
         }
 
         public static string PrintItemName(Item item) {
-            return "{i}" + item.Name + "{/i}" + $"{item.Illustration.IllustrationAsIconString}";
+            return "{i}" + item.Name + "{/i} " + $"{item.Illustration.IllustrationAsIconString}";
         }
     }
 

@@ -34,6 +34,7 @@ using Dawnsbury.Core.StatBlocks.Monsters.L4;
 using Dawnsbury.Core.StatBlocks.Monsters.L5;
 using Dawnsbury.Core.StatBlocks.Monsters.L6;
 using Dawnsbury.Core.StatBlocks.Monsters.L7;
+using Dawnsbury.Campaign.LongTerm;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
@@ -70,6 +71,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
                     await battle.Cinematics.LineAsync(baraquielle, "However as you have aided Heaven in this most trying of challenges, so too shall Heaven render her aid upon you.");
                     await battle.Cinematics.LineAsync(baraquielle, "Whatever foul cretin awaits you at the end of your expedition, I shall face it beside you.");
                     battle.Cinematics.ExitCutscene();
+
+                    var pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet?.IsCampaignCharacter ?? false);
+                    if (pm != null)
+                        pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Angel Companion")!);
 
                     await CommonEncounterFuncs.StandardEncounterResolve(battle);
                 }

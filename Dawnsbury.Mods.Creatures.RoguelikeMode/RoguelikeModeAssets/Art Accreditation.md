@@ -50,6 +50,9 @@
 	<li>Javelin.png</li>
 	<li>RodOfHealing.png</li>
 	<li>RingOfDeathDefiance.png</li>
+	<li>Glimmer.png (modified)</li>
+	<li>ChillingDemise.png (modified)</li>
+	<li>AzataHeadpats.png (modified)</li>
 </ul>
 
 ### Rexard
@@ -189,5 +192,5 @@
 ## Volunteer Contributions
 *Assets contributed from other modders or community members.*
 <ul>
-	<li>-</li>
+	<li>TsundereBaraquielleLarge.png by Nacraova. You can message them about commissions [here](https://nacraova.carrd.co/).</li>
 </ul>

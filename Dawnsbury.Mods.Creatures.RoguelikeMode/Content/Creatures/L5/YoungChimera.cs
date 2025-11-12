@@ -97,15 +97,21 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     }
                 }
             })
-            .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.")
-            {
+            .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.") {
                 Id = QEffectId.AttackOfOpportunity,
-                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction)
-                {
+                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction) {
+                    if (attackOfOpportunityQEffect.Tag == provokingAction) return;
+
                     var user = attackOfOpportunityQEffect.Owner;
                     var target = provokingAction.Owner;
-                    if ((await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1)).GetValueOrDefault() == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate))
-                    {
+
+                    var checkResult = await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1);
+
+                    if (checkResult != null) {
+                        attackOfOpportunityQEffect.Tag = provokingAction;
+                    }
+
+                    if (checkResult == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate)) {
                         provokingAction.Disrupted = true;
                     }
                 }

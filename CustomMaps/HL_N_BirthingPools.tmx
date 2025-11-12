@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="13" height="14" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="13" height="14" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="WIP normal fight"/>
+  <property name="EncounterDescription">When a breeding pair cannot be found for one of the Echidna's creations, her flock steps forward in their place, enacting sacred rites and languishing in sacred pools so they might carry new life into the gene pool.
+
+Though once a rare and deeply sacred ritual carried out only by the highest of her clergy, the ritual has become commonplace. Not to preserve endangered phenotypes, but to raise an army.
+</property>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Birthing Pools"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="128" source="CustomCreatures.tsx"/>
- <tileset firstgid="2193" source="DlcTileset.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="13" height="14">
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <imagelayer id="6" name="Image Layer 1">
+  <image source="BirthingPools.jpg" width="3328" height="3584"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="13" height="14" visible="0">
   <data encoding="csv">
 22,22,22,18,19,19,19,19,19,20,22,22,22,
 22,22,22,18,19,19,19,19,19,20,22,22,22,
@@ -53,12 +59,12 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,2168,0,0,0,
+0,0,0,0,0,0,0,0,0,2171,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,2168,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,2191,0,0,0,0,0,0,
+0,0,0,2171,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2194,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
@@ -94,7 +100,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,2166,0,0,0,0,0,0,
+0,0,0,0,0,0,2169,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>

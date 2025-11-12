@@ -268,7 +268,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                         if (!((bool?)self.Tag == false && defender.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= 19)) return null;
 
-                        var bara = Baraquielle.Create(defender.Battle.Encounter);
+                        var bara = Baraquielle.Create(defender.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge).WithIsNamedMonster();
                         defender.Battle.Cinematics.EnterCutscene();
                         defender.Battle.SpawnCreature(bara, defender.Battle.GaiaFriends, defender.Occupies);
                         Sfxs.Play(SfxName.PhaseBolt);
@@ -302,7 +302,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                     if (!((bool?)lteEffect.Tag == false && you.HP <= you.MaxHP / 2 && tile != null && R.NextD20() >= 0)) return;
 
-                    var bara = Baraquielle.Create(you.Battle.Encounter);
+                    var bara = Baraquielle.Create(you.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
                     you.Battle.Cinematics.EnterCutscene();
                     you.Battle.SpawnCreature(bara, you.Battle.GaiaFriends, tile);
                     Sfxs.Play(SfxName.PhaseBolt);
@@ -336,7 +336,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                     if (!((bool?)lteEffect.Tag == false && target.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= 19)) return;
 
-                    var bara = Baraquielle.Create(you.Battle.Encounter);
+                    var bara = Baraquielle.Create(you.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
                     you.Battle.Cinematics.EnterCutscene();
                     you.Battle.SpawnCreature(bara, you.Battle.GaiaFriends, target.Occupies);
                     Sfxs.Play(SfxName.PhaseBolt);
@@ -417,7 +417,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Companion")!),
                     StartOfCombat = async self => {
-                        Creature companion = Lyra.Create(self.Owner.Battle.Encounter);
+                        Creature companion = Lyra.Create(self.Owner.Battle.Encounter).WithIsNamedMonster();
+                        companion.MainName = "Lyra";
                         self.Owner.Battle.SpawnCreature(companion, self.Owner.Battle.GaiaFriends, self.Owner.Occupies);
                         companion.AddQEffect(CommonQEffects.CantOpenDoors());
                         companion.AddQEffect(new QEffect() {
@@ -428,6 +429,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             }
                         });
                     },
+                };
+            });
+
+            LongTermEffects.EasyRegister("Azata Headpats", LongTermEffectDuration.Forever, (_, _) => {
+                return new QEffect("Azata Headpats", "Though this boon has no mechanical effects, Lyra desires that it remain on your sheet anyway as a no less valuable participation prize.") {
+                    HideFromPortrait = true,
+                    Illustration = Illustrations.AzataHeadpats,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Headpats")!),
                 };
             });
 
@@ -498,6 +507,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 };
             });
 
+            LongTermEffects.EasyRegister("Rejected", LongTermEffectDuration.UntilDowntime, (_, val) => {
+                return new QEffect("Rejected", $"The worst they could say was in fact way worse than 'no'. You suffer a -{val} status penalty to all Charisma-based rolls and DCs after your ego crushing rejection.") {
+                    HideFromPortrait = true,
+                    Illustration = IllustrationName.BitingWords,
+                    Value = val,
+                    BonusToAbilityBasedChecksRollsAndDCs = (self, ability) => ability == Ability.Charisma ? new Bonus(-val, BonusType.Status, "Rejected") : null,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Rejected", null, val)!)
+                };
+            });
+
             LongTermEffects.EasyRegister("Unicorn's Curse", LongTermEffectDuration.UntilLongRest, (_, _) => {
                 return new QEffect("Unicorn's Curse", $"You've been cursed by a unicorn for attempting to poach it, reducing your max HP by 5 and your saves by 1 until you take a long rest.") {
                     HideFromPortrait = true,
@@ -557,6 +576,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     Illustration = IllustrationName.Sneak64,
                     BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Compromised Route"),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route")!)
+                };
+            });
+
+            LongTermEffects.EasyRegister("Waylaid", LongTermEffectDuration.UntilDowntime, (_, _) => {
+                return new QEffect("Waylaid", "The party was delayed, forcing them to forge ahead without due caution. You suffer a -1 penalty to inititive.") {
+                    HideFromPortrait = true,
+                    Illustration = IllustrationName.Sneak64,
+                    BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Waylaid"),
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Waylaid")!)
                 };
             });
 

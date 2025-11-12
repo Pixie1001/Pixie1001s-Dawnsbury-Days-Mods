@@ -407,7 +407,7 @@
   <properties>
    <property name="Id" value="Princess of Pandemonium"/>
   </properties>
-  <image source="CustomCreatures/AbyssalHandmaiden.png" width="256" height="256"/>
+  <image source="CustomCreatures/Arisa.png" width="256" height="256"/>
  </tile>
  <tile id="2061">
   <properties>
@@ -455,42 +455,42 @@
   <properties>
    <property name="Id" value="Acid Trap Spawn Location"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/AcidTrapSpawnLocation.png" width="256" height="256"/>
+  <image source="CustomCreatures/AcidTrapSpawnLocation.png" width="256" height="256"/>
  </tile>
  <tile id="2069">
   <properties>
    <property name="Id" value="Hydra"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/Hydra.png" width="256" height="256"/>
+  <image source="CustomCreatures/Hydra.png" width="256" height="256"/>
  </tile>
  <tile id="2070">
   <properties>
    <property name="Id" value="Baraquielle"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/Baraquielle.png" width="256" height="256"/>
+  <image source="CustomCreatures/Baraquielle.png" width="256" height="256"/>
  </tile>
  <tile id="2071">
   <properties>
    <property name="Id" value="Reliquary"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Tiles/GoldenCandelabra.png" width="256" height="256"/>
+  <image source="Tiles/GoldenCandelabra.png" width="256" height="256"/>
  </tile>
  <tile id="2072">
   <properties>
    <property name="Id" value="Drow Champion"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/DrowChampion.png" width="256" height="256"/>
+  <image source="CustomCreatures/DrowChampion.png" width="256" height="256"/>
  </tile>
  <tile id="2073">
   <properties>
    <property name="Id" value="Drow Shadowdancer"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/DrowShadowdancer.png" width="256" height="256"/>
+  <image source="CustomCreatures/DrowShadowdancer.png" width="256" height="256"/>
  </tile>
  <tile id="2074">
   <properties>
    <property name="Id" value="Drow Sorceress"/>
   </properties>
-  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/DrowSorceress.png" width="256" height="256"/>
+  <image source="CustomCreatures/DrowSorceress.png" width="256" height="256"/>
  </tile>
 </tileset>

@@ -46,67 +46,64 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .WithCreatureId(CreatureIds.Chimera)
             .WithCharacteristics(false, true)
             .AddQEffect(QEffect.Flying())
-            .AddQEffect(new("Multiple Reactions", "A chimera gains 2 extra reactions each round that it can use only to make Attacks of Opportunity. It must use a different head for each reaction, and it can't use more than one on the same triggering action.")
-            {
+            .AddQEffect(new("Multiple Reactions", "A chimera gains 2 extra reactions each round that it can use only to make Attacks of Opportunity. It must use a different head for each reaction, and it can't use more than one on the same triggering action.") {
                 Tag = new List<Item>(),
-                StartOfYourPrimaryTurn = async (QEffect effect, Creature user) =>
-                {
+                StartOfYourPrimaryTurn = async (QEffect effect, Creature user) => {
                     //Set up the list that extra reactions come from. These are removed as they are used, then refreshed here every turn.
-                    if (effect.Tag is List<Item> itemList)
-                    {
+                    if (effect.Tag is List<Item> itemList) {
                         itemList.Clear();
 
                         itemList.Add(user.UnarmedStrike);
 
                         var goatHornsEffect = user.QEffects.FirstOrDefault((qEffect) => qEffect.AdditionalUnarmedStrike != null && qEffect.AdditionalUnarmedStrike.Name == "goat horns");
 
-                        if (goatHornsEffect != null)
-                        {
+                        if (goatHornsEffect != null) {
                             itemList.Add(goatHornsEffect.AdditionalUnarmedStrike!);
                         }
 
                         var lionJawsEffect = user.QEffects.FirstOrDefault((qEffect) => qEffect.AdditionalUnarmedStrike != null && qEffect.AdditionalUnarmedStrike.Name == "lion jaws");
 
-                        if (lionJawsEffect != null)
-                        {
+                        if (lionJawsEffect != null) {
                             itemList.Add(lionJawsEffect.AdditionalUnarmedStrike!);
                         }
                     }
                 },
-                StartOfCombat = async (QEffect effect) =>
-                {
+                StartOfCombat = async (QEffect effect) => {
                     //Set up the list that extra reactions come from. These are removed as they are used, then refreshed here every turn.
-                    if (effect.Tag is List<Item> itemList)
-                    {
+                    if (effect.Tag is List<Item> itemList) {
                         itemList.Clear();
 
                         itemList.Add(effect.Owner.UnarmedStrike);
 
                         var goatHornsEffect = effect.Owner.QEffects.FirstOrDefault((qEffect) => qEffect.AdditionalUnarmedStrike != null && qEffect.AdditionalUnarmedStrike.Name == "goat horns");
 
-                        if (goatHornsEffect != null)
-                        {
+                        if (goatHornsEffect != null) {
                             itemList.Add(goatHornsEffect.AdditionalUnarmedStrike!);
                         }
 
                         var lionJawsEffect = effect.Owner.QEffects.FirstOrDefault((qEffect) => qEffect.AdditionalUnarmedStrike != null && qEffect.AdditionalUnarmedStrike.Name == "lion jaws");
 
-                        if (lionJawsEffect != null)
-                        {
+                        if (lionJawsEffect != null) {
                             itemList.Add(lionJawsEffect.AdditionalUnarmedStrike!);
                         }
                     }
                 }
             })
-            .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.")
-            {
+            .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.") {
                 Id = QEffectId.AttackOfOpportunity,
-                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction)
-                {
+                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction) {
+                    if (attackOfOpportunityQEffect.Tag == provokingAction) return;
+
                     var user = attackOfOpportunityQEffect.Owner;
                     var target = provokingAction.Owner;
-                    if ((await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1)).GetValueOrDefault() == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate))
-                    {
+
+                    var checkResult = await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1);
+
+                    if (checkResult != null) {
+                        attackOfOpportunityQEffect.Tag = provokingAction;
+                    }
+
+                    if (checkResult == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate)) {
                         provokingAction.Disrupted = true;
                     }
                 }

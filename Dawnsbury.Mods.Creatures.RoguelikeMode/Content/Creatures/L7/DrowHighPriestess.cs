@@ -71,7 +71,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .WithEffectOnChosenTargets(async (spell, caster, targets) => {
                     caster.AddQEffect(QEffect.Recharging("Abyssal Summoning", Dice.D4));
 
-                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 4, caster.Level - 1) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => pet.HasTrait(Trait.Demon) && CommonEncounterFuncs.Between(pet.Level, caster.Level - 4, caster.Level - 1) && !pet.HasTrait(Trait.NonSummonable) && pet.CreatureId != CreatureIds.WebWarden).ToArray();
 
                     if (list.Count() <= 0) {
                         caster.Overhead("*summon failed*", Color.White, $"There are no valid demons for {caster.Name} to summon.");

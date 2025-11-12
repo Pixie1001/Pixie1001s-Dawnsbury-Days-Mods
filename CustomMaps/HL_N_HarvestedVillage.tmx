@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="14" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="8" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="Though the cult of Echidna was originally a peaceful movement, preaching harmony with the more dangerous of the god's creations, in recent years they have grown increasingly militant. Now those who will not join the cult, are taken away in chains to feed it."/>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Harvested Village"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="128" source="CustomCreatures.tsx"/>
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2206" source="C:/src/dawnsbury-days/Sources/Maps/BasicTileset.tsx"/>
  <imagelayer id="7" name="Image Layer 1">
   <image source="DrowSalvagers.jpg" width="3584" height="4608"/>
  </imagelayer>
@@ -40,8 +41,8 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,8,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,2190,0,0,0,0,0,0,0,0,0,
-0,0,0,28,28,0,0,0,0,0,0,0,2184,0,
+0,0,0,0,2174,0,0,0,0,0,0,0,0,0,
+0,0,0,28,28,0,0,0,0,0,0,0,2177,0,
 0,0,0,0,0,0,0,0,0,0,0,16,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -51,7 +52,7 @@
 0,0,0,0,0,16,0,0,0,0,0,0,0,0,
 0,16,0,0,0,0,0,0,0,0,0,0,0,0,
 0,16,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,2185,0,0,0,0,0,0,0,0,
+0,0,0,0,0,2172,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -62,7 +63,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,2166,0,0,0,0,0,0,0,0,0,
+0,0,0,0,2169,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -84,7 +85,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,2320,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,

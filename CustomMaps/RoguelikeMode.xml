@@ -65,7 +65,7 @@
 		<encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		
-		<beginChapter>Final Expedition</beginChapter>
+		<beginChapter>Disrupt the First Ritual</beginChapter>
 		
 		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
 		<dawnsbury flavorText="The time has finally come. With these latest readings, the location of the subterranean ritual has finally been revealed, and not a moment too soon. The results are clear - magical energy is being drawn from the leylines at an exponential rate. Rest and resupply now, for in the morning, the party must set out into the Below one last time to disrupt the ritual once and for all." shopLevel="4"  />
@@ -74,6 +74,58 @@
 		<encounter filename="HallOfBeginnings.tmx"></encounter>
 		<longRest flavorText="The party takes a moment to rest before the final confrontation... Tomorrow, they put a stop to the ritual once and for all... or die in the attempt." />
 		<encounter filename="HallOfBeginnings.tmx"></encounter>
-		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="4"  />
+		
+		<beginChapter>Expedition 5</beginChapter>
+		
+		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
+		<dawnsbury flavorText="The party return as heroes, yet despite their victory, the threat remains. A second ritual, hidden from the diviner's sight by the first, now reveals itself. Guarded by the denizens of the demon queen of spider's court, portalled into the plane via foul demonic rituals, and the growing cult of The Echidna who would align themselves with otherworldly invaders to turn Our Point of Light into a sanctuary for her monstrous creations, the party must once again venture forth to save the kingdom.
+		
+		[Beta content. May contain placeholder lore, story elements and WIP encounter balance.]"  shopLevel="5"  />
+		
+        <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		
+		<beginChapter>Expedition 6</beginChapter>
+		
+		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
+		<dawnsbury flavorText="[Beta content. May contain placeholder lore, story elements and WIP encounter balance.]"  shopLevel="6"  />
+		
+        <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		
+		<beginChapter>Expedition 7</beginChapter>
+		
+		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
+		<dawnsbury flavorText="[Beta content. May contain placeholder lore, story elements and WIP encounter balance.]"  shopLevel="7"  />
+		
+        <encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		<encounter filename="HallOfBeginnings.tmx">
+        </encounter>
+		
+		<beginChapter>Disrupt the Final Ritual</beginChapter>
+		
+		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
+		<dawnsbury flavorText="[Beta content. May contain placeholder lore, story elements and WIP encounter balance.]" shopLevel="8"  />
+		
+		<encounter filename="HallOfBeginnings.tmx"></encounter>
+		
+		<dawnsbury flavorText="Congratulations on beating this adventure path!"  shopLevel="9"  />
     </encounters>
 </adventurePath>

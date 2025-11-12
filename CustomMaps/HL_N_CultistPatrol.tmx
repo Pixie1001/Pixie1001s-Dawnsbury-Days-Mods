@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="The party seems to have caught the ire of the cult of echidna, their patrols spilling from their temples and sanctuaries, lead by bloodthirsty monstrosities that sniff at the rocky floor for their scent."/>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Echidnadite Patrol"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="128" source="CustomCreatures.tsx"/>
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
  <imagelayer id="6" name="Image Layer 1">
   <image source="DrowPatrol.jpg" width="3840" height="3840"/>
  </imagelayer>
@@ -42,10 +42,10 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,2169,0,0,0,0,0,0,0,0,0,0,0,
-0,91,0,0,0,0,0,0,0,2169,0,0,0,0,0,
+0,0,0,2172,0,0,0,0,0,0,0,0,0,0,0,
+0,91,0,0,0,0,0,0,0,2172,0,0,0,0,0,
 0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2191,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2194,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -62,9 +62,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,2169,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,2172,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2169,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>

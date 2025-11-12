@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="WIP normal fight"/>
+  <property name="EncounterDescription" value="Though perhaps once a mighty temple to the Demon Queen of Spiders, this derelict ruin now serves only as a spawning site for her brood to lurk between forays out into the cavern in search of food."/>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Cathedral of the Spider"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="CustomCreatures.tsx"/>
- <tileset firstgid="2187" source="DlcTileset.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="17" height="18">
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <imagelayer id="6" name="Image Layer 1">
+  <image source="CathedralOfTheSpider.jpg" width="4352" height="4608"/>
+ </imagelayer>
+ <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="17" height="18" visible="0">
   <data encoding="csv">
 22,22,22,22,22,22,18,19,19,19,20,22,22,22,22,22,22,
 22,22,22,22,22,22,18,19,19,19,20,22,22,22,22,22,22,
@@ -62,9 +65,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,2181,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,2187,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,2181,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2187,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,90,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,14,14,14,0,0,0,0,0,0,0,

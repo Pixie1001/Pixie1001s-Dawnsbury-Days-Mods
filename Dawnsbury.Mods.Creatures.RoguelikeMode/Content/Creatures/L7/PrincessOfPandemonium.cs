@@ -23,7 +23,6 @@ using Dawnsbury.Display.Notifications;
 using Dawnsbury.Modding;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.Xna.Framework;
 using System.Xml.Linq;
 

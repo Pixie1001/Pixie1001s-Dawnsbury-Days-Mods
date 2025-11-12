@@ -59,6 +59,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Dawnsbury.Campaign.Path;
 using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using FMOD;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -136,6 +137,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 qf.ExpiresAt = ExpirationCondition.Immediately;
                             }
                         }
+                    });
+                    you.AddQEffect(new QEffect() {
+                        BonusToDefenses = (self, action, def) => {
+                            if (def == Defense.AC && self.Owner.QEffects.Any(qf => qf.Name?.ToLower() == "twin parry") && self.Owner.HeldItems.Count == 2
+                            && self.Owner.HeldItems[0].Traits.Any(trait => trait.HumanizeLowerCase2() == "parry")
+                            && self.Owner.HeldItems[1].Traits.Any(trait => trait.HumanizeLowerCase2() == "parry")) {
+                                return new Bonus(2, BonusType.Circumstance, "Twin parry");
+                            } else return null;
+                        },
                     });
                 });
             };
@@ -327,6 +337,77 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         await owner.HealAsync("4", CombatAction.CreateSimple(owner, "Regeneration"));
                     }
                 });
+            };
+
+            return item;
+        });
+
+        public static ItemName ChillingDemise { get; } = ModManager.RegisterNewItemIntoTheShop("ChillingDemise", itemName => {
+            var item = new Item(itemName, Illustrations.ChillingDemise, "chilling demise", 7, 360,
+                Trait.Magical, Trait.Forceful, Trait.Sweep, Trait.Finesse, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicWeapon, ModTraits.Roguelike)
+            .WithMainTrait(Trait.Scimitar)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}A frigid scimitar, imbued with the power of a blue dragon and said to be part of a matching set wielded by a legendary drow renegade.{/i}\n\nChilling Demise deals an extra 1d8 cold damage. On a critical hit, the target is also slowed 1 for 1 round (DC 24 Fortitude save negates). In addition, its wielder gains resistance 10 against fire damage.\n\n" +
+            "It has the Finesse trait and gains the Agile traits if wielded alongside its sister blade, Glimmer.")
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)
+                .WithAdditionalDamage("1d8", DamageKind.Cold)
+                .WithOnTarget(async (spell, caster, target, result) =>
+                {
+                    if (result == CheckResult.CriticalSuccess) {
+                        spell.Traits.Add(Trait.InflictsSlow);
+                        if (CommonSpellEffects.RollSavingThrow(target, spell, Defense.Fortitude, 24) <= CheckResult.Failure) {
+                            target.AddQEffect(QEffect.Slowed(1).WithExpirationAtStartOfSourcesTurn(caster, 1));
+                        }
+                    }
+                })
+                .WithItemBonus(2)
+            );
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.WeaknessAndResistance.AddResistance(DamageKind.Fire, 10);
+
+                wielder.AddQEffect(new QEffect() {
+                    AdjustStrikeAction = (self, action) => {
+                        if (action.Item?.ItemName == ChillingDemise && self.Owner.HeldItems.Any(item => item.ItemName == Glimmer)) {
+                            action.Traits.Add(Trait.Agile);
+                        }
+                    }
+                }.WithExpirationEphemeral());
+            };
+
+            return item;
+        });
+
+        public static ItemName Glimmer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Glimmer", itemName => {
+            var item = new Item(itemName, Illustrations.Glimmer, "glimmer", 7, 360,
+                Trait.Magical, Trait.Forceful, Trait.Sweep, Trait.Finesse, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicWeapon, ModTraits.Roguelike)
+            .WithMainTrait(Trait.Scimitar)
+            .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
+            .WithItemGroup("Roguelike mode")
+            .WithDescription("{i}A glimmering scimitar, forged by the elves of old and said to be part of a matching set wielded by a legendary drow renegade.{/i}" +
+            "\n\nGlimmer grants its wielder a +2 circumstance bonus to AC, has the Finesse trait and gains the Agile traits if wielded alongside its sister blade, Chilling Demise. " +
+            "In addition, if you have previously attacked with Chilling Demise this turn, Glimmer deals 4 extra damage.")
+            .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing) {
+                ItemBonus = 2
+            });
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(2, BonusType.Circumstance, "glimmer") : null,
+                    AdjustStrikeAction = (self, action) => {
+                        if (action.Item?.ItemName == Glimmer && self.Owner.HeldItems.Any(item => item.ItemName == ChillingDemise)) {
+                            action.Traits.Add(Trait.Agile);
+                        }
+                    },
+                    BonusToDamage = (self, action, defender) => {
+                        if (action == null || action.Item != item) return null;
+                        if (self.Owner.Actions.ActionHistoryThisTurn.Any(a => a.HasTrait(Trait.Strike) && a.Item?.ItemName == ChillingDemise && a.Item != action.Item))
+                            return new Bonus(4, BonusType.Circumstance, "Matching set");
+                        return null;
+                    }
+                }.WithExpirationEphemeral());
+
             };
 
             return item;
@@ -755,7 +836,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static ItemName GnomishPuzzleBox { get; } = ModManager.RegisterNewItemIntoTheShop("GnomishPuzzleBox", itemName => {
-            Item item = new Item(itemName, Illustrations.ProtectiveAmulet, "gnomish puzzle box", 2, 25, [Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike, Trait.Transmutation])
+            Item item = new Item(itemName, IllustrationName.PrismaticHexahedron, "gnomish puzzle box", 2, 25, [Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike, Trait.Transmutation])
             .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This intricate cube whirs, twitches and glows with even the slightest touch, ready to defend the one who proved themselves worthy be solving it.{/i}\n\n" +
             "{b}Deploy Puzzle Box {icon:Action}{/b}. The puzzle box deploys in a space within 20 feet, as an immobile construct capable of autonomously shocking nearby enemies, that scales with the user's level.\n\n" +
@@ -2498,7 +2579,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             CreateWand(SpellId.StagnateTime, null);
             CreateWand(SpellId.QuickenTime, null);
             CreateWand(SpellId.IncendiaryFog, null);
-            CreateWand(SpellId.Blister, null);
+            // CreateWand(SpellId.Blis, null);
             CreateWand(SpellId.WyvernSting, null);
             CreateWand(SpellId.ConeOfCold, null);
             CreateWand(SpellId.CrushingDespair, null);
@@ -3209,6 +3290,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         return (int)(15000 * mod);
                     case 19:
                         return (int)(40000 * mod);
+                    case 21:
+                        return (int)(100000 * mod);
                     default:
                         return 0;
                 }
@@ -3225,6 +3308,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     return 260;
                 case 9:
                     return 560;
+                case 11:
+                    return (int)(750);
+                case 13:
+                    return (int)(1500);
+                case 15:
+                    return (int)(6500 / 2);
+                case 17:
+                    return (int)(15000 / 2);
+                case 19:
+                    return (int)(40000 / 2);
+                case 21:
+                    return (int)(100000 / 2);
                 default:
                     return 0;
             }

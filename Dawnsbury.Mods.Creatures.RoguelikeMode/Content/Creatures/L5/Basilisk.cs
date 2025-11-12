@@ -150,22 +150,24 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     menu.Subsections.Add(section);
 
                     section.AddPossibility((ActionPossibility)new CombatAction(self.Owner, Illustrations.AvertGaze, "Avert Gaze", [Trait.Basic], "You avert your gaze from danger. You gain a +2 circumstance bonus to saves against visual abilities until the end of your next turn.",
-                        Target.Self().WithAdditionalRestriction(user => user.QEffects.Any(qf => qf.Id == QEffectId.Blinded || (qf.Tag != null && qf.Tag is string && ((string)qf.Tag == "CoverEyes"))) ? "gaze already protected" : null))
+                        Target.Self().WithAdditionalRestriction(user => user.QEffects.Any(qf => user.Actions.ActionHistoryThisTurn.Any(ca => ca.Name == "Cover Eyes" || ca.Name == "Avert Gaze")) ? "gaze already protected" : null))
                     .WithActionCost(1)
                     .WithSoundEffect(SfxName.StowItem)
-                    .WithEffectOnSelf(caster => caster.AddQEffect(new QEffect("Avert Gaze", "You gain a +2 circumstance bonus to saves against visual abilities.", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, Illustrations.AvertGaze) {
-                        CannotExpireThisTurn = true,
-                        BonusToDefenses = (self, action, defence) => action != null && action.HasTrait(Trait.Visual) && defence != Defense.AC ? new Bonus(2, BonusType.Circumstance, "Avert Gaze", true) : null,
-                    })));
+                    .WithEffectOnSelf(caster => {
+                        caster.AddQEffect(new QEffect("Avert Gaze", "You gain a +2 circumstance bonus to saves against visual abilities.", ExpirationCondition.Never, caster, Illustrations.AvertGaze) {
+                            Key = "AvertGaze",
+                            BonusToDefenses = (self, action, defence) => action != null && action.HasTrait(Trait.Visual) && defence != Defense.AC ? new Bonus(2, BonusType.Circumstance, "Avert Gaze", true) : null
+                        }.WithExpirationAtEndOfOwnersNextTurn());
+                    }));
 
                     section.AddPossibility((ActionPossibility)new CombatAction(self.Owner, Illustrations.CoverEyes, "Cover Eyes", [Trait.Basic],
                         "You squeeze your eyes shut, blinding yourself, but protecting you visual abilities until the end of your next turn.",
-                        Target.Self().WithAdditionalRestriction(user => user.QEffects.Any(qf => qf.Tag != null && qf.Tag is string && ((string)qf.Tag == "CoverEyes")) ? "gaze already protected" : null))
+                        Target.Self().WithAdditionalRestriction(user => user.Actions.ActionHistoryThisTurn.Any(ca => ca.Name == "Cover Eyes") ? "gaze already protected" : null))
                     .WithActionCost(0)
                     .WithSoundEffect(SfxName.StowItem)
                     .WithEffectOnSelf(caster => {
-                        var blindness = QEffect.Blinded().WithExpirationAtEndOfSourcesNextTurn(caster, true);
-                        blindness.Tag = "CoverEyes";
+                        var blindness = QEffect.Blinded().WithExpirationAtEndOfOwnersNextTurn();
+                        blindness.Name = "Blinded (Covering Eyes)";
                         blindness.Key = "CoverEyes";
                         caster.AddQEffect(blindness);
                     })

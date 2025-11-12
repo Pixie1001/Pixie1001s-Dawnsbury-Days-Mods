@@ -87,6 +87,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             items.Add(Items.CreateNew(CustomItems.ThrowersBandolier).WithModificationRune(ItemName.WeaponPotencyRunestone));
             items.Add(Items.CreateNew(CustomItems.ThrowersBandolier).WithModificationRune(ItemName.WeaponPotencyRunestone).WithModificationRune(ItemName.StrikingRunestone));
             items.Add(Items.CreateNew(CustomItems.RingOfMonsters));
+            items.Add(Items.CreateNew(CustomItems.ChillingDemise));
+            items.Add(Items.CreateNew(CustomItems.Glimmer));
 
             return items;
         }
@@ -246,16 +248,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     new ValueTuple<Item, string>(Items.CreateNew(CustomItems.GreaterCompanionBunny), "Your adversary appears to have been attempted this keep this little guy as a pet. Perhaps you'd do a better job?"),
                     new ValueTuple<Item, string>(Items.CreateNew(ItemName.GreaterBackfireMantle), "A protective mantle to shield you from your allies' spells."),
                     new ValueTuple<Item, string>(Items.CreateNew(ItemName.GlovesOfStoring), "An enchanted glove, used to secret away potions for emergency use."),
-                    new ValueTuple<Item, string>(Items.CreateNew(ItemName.LoversGloves), "The glove's previous owners tragically had nobody they cared enough about to invoke their power.")
+                    new ValueTuple<Item, string>(Items.CreateNew(ItemName.LoversGloves), "The glove's previous owners tragically had nobody they cared enough about to invoke their power."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.Glimmer), "A glimmering scimitar, forged by the elves of old and said to be part of a matching set wielded by a legendary drow renegade."),
+                    new ValueTuple<Item, string>(Items.CreateNew(CustomItems.ChillingDemise), "A frigid scimitar, imbued with the power of a blue dragon and said to be part of a matching set wielded by a legendary drow renegade.")
                 };
             }
 
             // Populate highl evel rewards here
+            List<ValueTuple<Item, string>?> output = [];
 
             if (rewards == null)
-                return null;
-
-            List<ValueTuple<Item, string>?> output = [];
+                return output;
 
             for (int i = 0; i < Math.Min(amount, rewards.Count); i++) {
                 output.Add(UtilityFunctions.ChooseAtRandom(rewards.Where(entry => !output.Contains(entry)).ToList()));

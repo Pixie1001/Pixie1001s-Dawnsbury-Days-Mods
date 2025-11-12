@@ -1,67 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury;
-using Dawnsbury.Audio;
-using Dawnsbury.Auxiliary;
-using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
-using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
-using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Campaign.Encounters.Tutorial;
@@ -90,7 +30,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static string Credits { get; } =
             "{b}CREDITS for the Roguelike Mode Mod{/b}\n\n" +
             "{b}Lead design, writing, direction and programming: {/b} Pixie1001\n" +
-            "{b}Artists: {/b} Pixie1001\n" +
+            "{b}Artists: {/b} Pixie1001, Nacraova, Lobot922\n" +
             "{b}Additional design: {/b} SudoProgramming, DINGLEBOB, El Moondo\n" +
             "{b}Additional writers: {/b} El Moondo\n" +
             "{b}Additional programming: {/b} SudoProgramming, DINGLEBOB, El Moondo\n" +
@@ -226,7 +166,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<SplitTheParty>("SplittheParty.tmx");
 
             // High Level Encounters
-            ModManager.RegisterEncounter<DemonGateLv6>("HL_N_DemonGate.tmx");
+            ModManager.RegisterEncounter<DemonGate>("HL_N_DemonGate.tmx");
+            ModManager.RegisterEncounter<BirthingPools>("HL_N_BirthingPools.tmx");
+            ModManager.RegisterEncounter<CathedralOfTheSpider>("HL_N_CathedralOfTheSpider.tmx");
+            ModManager.RegisterEncounter<CultistCheckPoint>("HL_N_CultistCheckPoint.tmx");
+            ModManager.RegisterEncounter<CultistPatrol1>("HL_N_CultistPatrol.tmx");
+            ModManager.RegisterEncounter<CultistPatrol2>("HL_N_CultistPatrol2.tmx");
+            ModManager.RegisterEncounter<DemonicAmbush>("HL_N_DemonicAmbush.tmx");
+            ModManager.RegisterEncounter<DragonflyTemple>("HL_N_DragonflyTemple.tmx");
+            ModManager.RegisterEncounter<DrowScoutingParty>("HL_N_DrowScoutingParty.tmx");
+            ModManager.RegisterEncounter<FrozenCrevasse>("HL_N_FrozenCrevasse.tmx");
+            ModManager.RegisterEncounter<HarvestedVillage>("HL_N_HarvestedVillage.tmx");
+            ModManager.RegisterEncounter<NightmareDomain>("HL_N_NightmareDomain.tmx");
+            ModManager.RegisterEncounter<VipersNest>("HL_N_ViperNest.tmx");
+            ModManager.RegisterEncounter<AbandonedVillage>("HL_N_AbandonedVillage.tmx");
+
+            // High Level Elite Encounters
+            ModManager.RegisterEncounter<SpinnerOfLies>("HL_Elite_WeaverOfLies.tmx");
+            ModManager.RegisterEncounter<ArisasCourt>("HL_Elite_Arisa'sCourt.tmx");
+            ModManager.RegisterEncounter<ChimeraDen>("HL_Elite_ChimeraDen.tmx");
+            ModManager.RegisterEncounter<EchidnaditeHighPriestess>("HL_Elite_EchidnaditeHighPriestess.tmx");
+            ModManager.RegisterEncounter<GrandTemple>("HL_Elite_GrandTemple.tmx");
+            ModManager.RegisterEncounter<Medusa>("HL_Elite_Medusa.tmx");
 
             // Skill Challenge Fights
             ModManager.RegisterEncounter<DefendTheReliquary>("Event_ReliquaryDefence.tmx");
@@ -257,17 +218,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             RegisterEncounter<LairOfTheDriderLv2>("Elite_LairOfTheDrider.tmx", "LairOfTheDriderLv2");
             RegisterEncounter<LairOfTheDriderLv3>("Elite_LairOfTheDrider.tmx", "LairOfTheDriderLv3");
 
-            // Boss fights
+            // Low Lvl Boss fights
             ModManager.RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx");
             ModManager.RegisterEncounter<Boss_WitchCoven>("Elite_WitchCoven.tmx");
             ModManager.RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx");
             ModManager.RegisterEncounter<Boss_FrozenTemple>("FrozenTemple.tmx");
             ModManager.RegisterEncounter<Boss_CoralCourt>("Boss_CourtOfTheCoralQueen.tmx");
 
+            // High Lvl Boss fights
+            ModManager.RegisterEncounter<Boss_DrowPrincesses>("HL_Boss_DrowPrincesses.tmx");
+            ModManager.RegisterEncounter<Boss_DragonWitch>("HL_Boss_DragonWitch.tmx");
+
             // Skill Challenges
-            RegisterEncounter<Level1SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv1");
-            RegisterEncounter<Level2SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv2");
-            RegisterEncounter<Level3SkillChallenge>("SkillChallenge.tmx", "SkillChallengeLv3");
+            ModManager.RegisterEncounter<SkillChallengeEncounter>("SkillChallenge.tmx");
 
             // Other
             ModManager.RegisterEncounter<TestMap>("TestHall.tmx");

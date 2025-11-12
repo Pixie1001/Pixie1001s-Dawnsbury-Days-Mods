@@ -230,6 +230,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             }
         }
 
+        public static void PostFightLoot(TBattle battle, int level, bool setLoot) {
+            if (CampaignState.Instance == null) return;
+
+            CampaignState.Instance.CommonGold += battle.Encounter.RewardGold;
+            if (!setLoot)
+                CampaignState.Instance.CommonLoot.AddRange(battle.Encounter.Rewards);
+        }
+
         public static async Task StandardEncounterSetup(TBattle battle, ModEnums.EncounterType type=ModEnums.EncounterType.NORMAL) {
             Sfxs.BeginSong(Songname.Battle);
             if (battle.CampaignState != null && battle.CampaignState.Tags.ContainsKey("TreasureDemonEncounters")) {

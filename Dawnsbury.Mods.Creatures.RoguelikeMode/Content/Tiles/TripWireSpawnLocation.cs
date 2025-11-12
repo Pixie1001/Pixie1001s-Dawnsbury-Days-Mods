@@ -68,6 +68,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             // cr.Occupies.Overhead("*trap triggered*", Color.White, $"Trip Wire triggered by {cr.Name}!");
             Sfxs.Play(SfxName.ElementalBlastEarth);
             var trap = Creature.CreateSimpleCreature("Trip Wire");
+            trap.Battle = cr.Battle;
             trap.OwningFaction = cr.Battle.Enemy;
             var ca = CombatAction.CreateSimple(trap, "Falling Rocks", []);
             var result = CommonSpellEffects.RollSavingThrow(cr, ca, Defense.Reflex, DC);

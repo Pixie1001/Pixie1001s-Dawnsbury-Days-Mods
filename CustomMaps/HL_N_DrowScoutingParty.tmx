@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="7" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription" value="The drow swarm the below in ever greater numbers, buoyed by the assistance of their cursed god's demonic subjects."/>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="6"/>
   <property name="EncounterName" value="Drow Hunting Party"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="128" source="CustomCreatures.tsx"/>
+ <tileset firstgid="131" source="CustomCreatures.tsx"/>
  <imagelayer id="6" name="Image Layer 1">
   <image source="DrowPatrol.jpg" width="3840" height="3840"/>
  </imagelayer>
@@ -38,14 +38,14 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,91,91,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,91,0,
-0,0,0,0,0,0,0,0,0,0,0,2183,0,0,0,
-0,0,0,2189,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,2186,0,0,0,
+0,0,0,2192,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,91,0,0,0,0,0,0,0,0,2185,0,0,0,0,
+0,91,0,0,0,0,0,0,0,0,2188,0,0,0,0,
 0,91,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,2185,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2188,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -58,11 +58,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,115,0,0,0,
-0,0,0,2166,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2169,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,2166,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,2169,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

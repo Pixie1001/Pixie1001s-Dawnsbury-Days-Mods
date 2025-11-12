@@ -21,10 +21,11 @@ using Dawnsbury.Core.Creatures.Parts;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
-    internal class DemonGateLv6 : Level6Encounter {
-        public DemonGateLv6(string filename) : base("Demon Gate", filename) {
+    internal class DemonGate : NormalEncounter {
+        public DemonGate(string filename) : base("Demon Gate", filename) {
 
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
+                await base.Setup(battle);
                 await ExplainPortal(battle);
             });
 
@@ -33,8 +34,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             });
 
             this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                if (battle.RoundNumber >= 7)
-                    await CommonEncounterFuncs.StandardEncounterResolve(battle);
+                if (battle.RoundNumber >= 7) {
+                    await base.Cleanup(battle);
+                }
             });
         }
 
@@ -171,40 +173,40 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
     }
 
-    internal class DemonGateLv5 : Level5Encounter {
-        public DemonGateLv5(string filename) : base("Demon Gate", filename) {
+    //internal class DemonGateLv5 : Level5Encounter {
+    //    public DemonGateLv5(string filename) : base("Demon Gate", filename) {
 
-            this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                await DemonGateLv6.ExplainPortal(battle);
-            });
+    //        this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
+    //            await DemonGateLv6.ExplainPortal(battle);
+    //        });
 
-            this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-                await DemonGateLv6.HandlePortal(battle);
-            });
+    //        this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
+    //            await DemonGateLv6.HandlePortal(battle);
+    //        });
 
-            this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                if (battle.RoundNumber >= 7)
-                    await CommonEncounterFuncs.StandardEncounterResolve(battle);
-            });
-        }
-    }
+    //        this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
+    //            if (battle.RoundNumber >= 7)
+    //                await CommonEncounterFuncs.StandardEncounterResolve(battle);
+    //        });
+    //    }
+    //}
 
-    internal class DemonGateLv7 : Level7Encounter {
-        public DemonGateLv7(string filename) : base("Demon Gate", filename) {
+    //internal class DemonGateLv7 : Level7Encounter {
+    //    public DemonGateLv7(string filename) : base("Demon Gate", filename) {
 
-            this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                await DemonGateLv6.ExplainPortal(battle);
-            });
+    //        this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
+    //            await DemonGateLv6.ExplainPortal(battle);
+    //        });
 
-            this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-                await DemonGateLv6.HandlePortal(battle);
-            });
+    //        this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
+    //            await DemonGateLv6.HandlePortal(battle);
+    //        });
 
-            this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                if (battle.RoundNumber >= 7)
-                    await CommonEncounterFuncs.StandardEncounterResolve(battle);
-            });
-        }
-    }
+    //        this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
+    //            if (battle.RoundNumber >= 7)
+    //                await CommonEncounterFuncs.StandardEncounterResolve(battle);
+    //        });
+    //    }
+    //}
     
 }

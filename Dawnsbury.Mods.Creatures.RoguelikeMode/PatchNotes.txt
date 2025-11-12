@@ -1,3 +1,8 @@
 RL
-* Added high level rat monach feats
-* Added the Drow heritage for elves
+* Old events now work at higher levels
+* Added the totally origional twin scimitars Chilling Demise and Glimmer
+* Trip wire now links the trap to the battle object
+* Drow High Priestess can no longer summon a second Web Warden
+* Fixed several skill challenge event typos
+* Level 10 wands are now priced correctly
+* Added level 5-8 content to the campaign mode. Encounter balance and story elements are still a WIP.

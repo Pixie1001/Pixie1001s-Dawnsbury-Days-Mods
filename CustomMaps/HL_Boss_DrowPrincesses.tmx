@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="17" height="17" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
-  <property name="EncounterDescription" value="..."/>
+  <property name="EncounterDescription">During the demon queen of spider's pilgrimage to the other side, it is said that the gods, exhausted of all other alternatives, sent the greatest of their angelic servants to bar her path.
+
+The angel never returned, and it is said that the Drow built a great cathedral around the site of their climactic battle.
+
+Now, its cries of anguish reverberate through the dreams of cleric and diviner alike, twisted by some foul abyssal magic to repurpose it into a weapon to use against those who forged it.
+
+Of course such an ill disguised ritual can only be a trap meant to catch the erstwhile adventurers that so thwart the Drow. But it is one the party must step into all the same.</property>
   <property name="EncounterGroup" value="Roguelike (High Level)"/>
   <property name="EncounterLevel" type="int" value="8"/>
   <property name="EncounterName" value="Drow Princesses"/>
