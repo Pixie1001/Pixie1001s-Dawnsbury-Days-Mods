@@ -51,7 +51,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             await advisor1.Battle.Cinematics.LineAsync(advisor1, "But it's still small... If we can clear anything that comes crawling out, we should have time to close the breach before it grows large enough for her generals to march through!");
             await advisor1.Battle.Cinematics.LineAsync(advisor2, "Yes. I'd say about three more pulses should be enough to exhaust it...");
             await advisor1.Battle.Cinematics.LineAsync(demon, "Impudent mortals... You cannot stop the inveitable. I look forward to sampling the taste of your fear when we drag you before our Queen!");
-            advisor1.Battle.Cinematics.ExitCutscene();
+            battle.Cinematics.ExitCutscene();
         }
 
         public async static Task HandlePortal(TBattle battle) {

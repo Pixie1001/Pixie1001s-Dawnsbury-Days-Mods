@@ -36,15 +36,12 @@ using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
 //using static Microsoft.Xna.Framework.Point;
 //using static Microsoft.Xna.Framework.Vector2;
 using Microsoft.Xna.Framework;
@@ -136,6 +133,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public static void LoadMod() {
             AddFeats(Subclasses.LoadSubclasses());
             AddFeats(CreateFeats());
+
+            ModManager.RegisterBooleanSettingsOption("Summoner_AutoUseActTogether", "Summoner: Use Act Together On Turn Start",
+                "When this is enabled, Summoners will immediately use Act Together when their turn starts.", false);
         }
 
         private static void AddFeats(IEnumerable<Feat> feats) {
@@ -1343,6 +1343,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         summoner.Actions.UsedQuickenedAction = true;
                         summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { 3, ActionDisplayStyle.Slowed });
                     }
+
+                    if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_AutoUseActTogether")) {
+                        var ca = (GenerateActTogetherAction(summoner, eidolon, summoner) as ActionPossibility)?.CombatAction;
+                        if (ca != null) {
+                            ca.ChosenTargets.ChosenCreature = summoner;
+                            await ca.AllExecute();
+                        }
+                    }
                 },
                 StateCheckWithVisibleChanges = (async qf => {
                     Creature eidolon = GetEidolon(qf.Owner);
@@ -1389,15 +1397,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Creature eidolon = GetEidolon(summoner);
 
                     eidolon.Actions.ForgetAllTurnCounters();
-                    //summoner.Battle.ActiveCreature = eidolon;
-                    //List<QEffect> sustainEffects = new List<QEffect>();
-                    //foreach (Creature creature in qfEndOfTurn.Owner.Battle.AllCreatures) {
-                    //    sustainEffects = sustainEffects.Concat(creature.QEffects.Where(qf => qf.CannotExpireThisTurn == true)).ToList();
-                    //}
-                    ////await eidolon.Battle.GameLoop.EndOfTurn(eidolon);
-                    //foreach (QEffect effect in sustainEffects) {
-                    //    effect.CannotExpireThisTurn = true;
-                    //}
                     summoner.Battle.ActiveCreature = summoner;
                 }),
                 ProvideMainAction = (Func<QEffect, Possibility>)(qfSummoner => {
@@ -2466,8 +2465,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static Possibility? GenerateTandemStrikeAction(Creature self, Creature partner, Creature summoner) {
             if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
                 return (Possibility)null;
-            if (self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogetherToggle) != null) {
-                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, illTandemStrike, "Cancel Tandem Strike",
+            if (self.QEffects.Any(qf => qf.Name == "Tandem Strike Toggled")) {
+                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemStrike, illCancel), "Cancel Tandem Strike",
                 new Trait[] { tSummoner, tTandem }, $"Cancel tandem strike toggle.", (Target)Target.Self())
                 .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
                     // Remove toggle from self
@@ -2484,7 +2483,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next strike action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single strike action."
                 }
                     .WithActionCost(0)
-                    .WithEffectOnSelf((Action<Creature>)(self => {
+                    .WithEffectOnSelf(self => {
+                        self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
                         // Give toggle qf to self
                         self.AddQEffect(new QEffect("Tandem Strike Toggled", "Your next strike action cost will also grant a free strike action to your bonded partner.") {
                             Id = qfActTogetherToggle,
@@ -2496,11 +2496,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 }
                                 return null;
                             }),
-                            AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
+                            AfterYouTakeAction = async (qf, action) => {
                                 if (action.HasTrait(Trait.Strike)) {
                                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
 
-                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
                                         return;
                                     }
 
@@ -2526,9 +2526,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     }));
                                     partner.RemoveAllQEffects(effect => effect == actTogether);
                                 }
-                            })
+                            }
                         });
-                    }));
+                    });
                 //tandemStrike.WithPossibilityGroup("Tandem Actions");
                 return tandemStrike;
             }
@@ -2537,8 +2537,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static Possibility? GenerateTandemMovementAction(Creature self, Creature partner, Creature summoner) {
             if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
                 return (Possibility)null;
-            if (self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogetherToggle) != null) {
-                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, illTandemMovement, "Cancel Tandem Movement",
+            if (self.QEffects.Any(qf => qf.Name == "Tandem Movement Toggled")) {
+                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemMovement, illCancel), "Cancel Tandem Movement",
                 new Trait[] { tSummoner, tTandem }, $"Cancel tandem movement toggle.", (Target)Target.Self())
                     .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
                     // Remove toggle from self
@@ -2557,6 +2557,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     .WithActionCost(0)
                     .WithEffectOnSelf((Action<Creature>)(self => {
                         // Give toggle qf to self
+                        self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
                         self.AddQEffect(new QEffect("Tandem Movement Toggled", "Your next stride action cost will also grant a free stride action to your bonded partner.") {
                             Id = qfActTogetherToggle,
                             ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
@@ -2607,8 +2608,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static Possibility? GenerateActTogetherAction(Creature self, Creature partner, Creature summoner) {
             if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
                 return (Possibility)null;
-            if (self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogetherToggle) != null) {
-                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, illActTogether, "Cancel Act Together",
+            if (self.QEffects.Any(qf => qf.Name == "Act Together Toggled")) {
+                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illActTogether, illCancel), "Cancel Act Together",
                 new Trait[] { tSummoner, tTandem }, $"Cancel act together toggle.", (Target)Target.Self())
                 .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
                     // Remove toggle from self
@@ -2626,8 +2627,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
                     .WithActionCost(0)
                     .WithEffectOnSelf((Action<Creature>)(self => {
-                    // Give toggle qf to self
-                    self.AddQEffect(new QEffect("Act Together Toggled", "Your next action of 1+ cost will also grant a single quickened action to your bonded partner.") {
+                        self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+                        // Give toggle qf to self
+                        self.AddQEffect(new QEffect("Act Together Toggled", "Your next action of 1+ cost will also grant a single quickened action to your bonded partner.") {
                         Id = qfActTogetherToggle,
                         ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
                         Illustration = illActTogetherStatus,
@@ -2635,7 +2637,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             if (action.ActuallySpentActions > 0) {
                                 self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
 
-                                if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner).Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner).Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
                                     return;
                                 }
 

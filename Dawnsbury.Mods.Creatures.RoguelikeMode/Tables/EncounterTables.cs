@@ -150,13 +150,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[4].Add(new TypedEncounterCampaignStop<BirthingPools>());
             encounters[4].Add(new TypedEncounterCampaignStop<CathedralOfTheSpider>());
             encounters[4].Add(new TypedEncounterCampaignStop<CultistCheckPoint>());
-            encounters[4].Add(new TypedEncounterCampaignStop<DemonGate>());
+            encounters[4].Add(new TypedEncounterCampaignStop<Archways>());
             encounters[4].Add(new TypedEncounterCampaignStop<CultistPatrol1>());
             encounters[4].Add(new TypedEncounterCampaignStop<CultistPatrol2>());
             encounters[4].Add(new TypedEncounterCampaignStop<DemonicAmbush>());
             encounters[4].Add(new TypedEncounterCampaignStop<DrowScoutingParty>());
             encounters[4].Add(new TypedEncounterCampaignStop<DragonflyTemple>());
-            encounters[4].Add(new TypedEncounterCampaignStop<DemonGate>());
             encounters[4].Add(new TypedEncounterCampaignStop<FrozenCrevasse>());
             encounters[4].Add(new TypedEncounterCampaignStop<HarvestedVillage>());
             encounters[4].Add(new TypedEncounterCampaignStop<VipersNest>());
@@ -168,13 +167,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[5].Add(new TypedEncounterCampaignStop<BirthingPools>());
             encounters[5].Add(new TypedEncounterCampaignStop<CathedralOfTheSpider>());
             encounters[5].Add(new TypedEncounterCampaignStop<CultistCheckPoint>());
-            encounters[5].Add(new TypedEncounterCampaignStop<DemonGate>());
+            encounters[5].Add(new TypedEncounterCampaignStop<Archways>());
             encounters[5].Add(new TypedEncounterCampaignStop<CultistPatrol1>());
             encounters[5].Add(new TypedEncounterCampaignStop<CultistPatrol2>());
             encounters[5].Add(new TypedEncounterCampaignStop<DemonicAmbush>());
             encounters[5].Add(new TypedEncounterCampaignStop<DrowScoutingParty>());
             encounters[5].Add(new TypedEncounterCampaignStop<DragonflyTemple>());
-            encounters[5].Add(new TypedEncounterCampaignStop<DemonGate>());
             encounters[5].Add(new TypedEncounterCampaignStop<FrozenCrevasse>());
             encounters[5].Add(new TypedEncounterCampaignStop<HarvestedVillage>());
             encounters[5].Add(new TypedEncounterCampaignStop<VipersNest>());
@@ -186,13 +184,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             encounters[6].Add(new TypedEncounterCampaignStop<BirthingPools>());
             encounters[6].Add(new TypedEncounterCampaignStop<CathedralOfTheSpider>());
             encounters[6].Add(new TypedEncounterCampaignStop<CultistCheckPoint>());
-            encounters[6].Add(new TypedEncounterCampaignStop<DemonGate>());
+            encounters[6].Add(new TypedEncounterCampaignStop<Archways>());
             encounters[6].Add(new TypedEncounterCampaignStop<CultistPatrol1>());
             encounters[6].Add(new TypedEncounterCampaignStop<CultistPatrol2>());
             encounters[6].Add(new TypedEncounterCampaignStop<DemonicAmbush>());
             encounters[6].Add(new TypedEncounterCampaignStop<DrowScoutingParty>());
             encounters[6].Add(new TypedEncounterCampaignStop<DragonflyTemple>());
-            encounters[6].Add(new TypedEncounterCampaignStop<DemonGate>());
             encounters[6].Add(new TypedEncounterCampaignStop<FrozenCrevasse>());
             encounters[6].Add(new TypedEncounterCampaignStop<HarvestedVillage>());
             encounters[6].Add(new TypedEncounterCampaignStop<VipersNest>());
@@ -261,7 +258,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             bossFights[0].Add(new TypedEncounterCampaignStop<Boss_CoralCourt>());
 
             // High Lvl Boss Fights
-            bossFights[1].Add(new TypedEncounterCampaignStop<Boss_DriderFight>());
+            bossFights[1].Add(new TypedEncounterCampaignStop<Boss_DragonWitch>());
+            bossFights[1].Add(new TypedEncounterCampaignStop<Boss_DrowPrincesses>());
         }
     }
 }

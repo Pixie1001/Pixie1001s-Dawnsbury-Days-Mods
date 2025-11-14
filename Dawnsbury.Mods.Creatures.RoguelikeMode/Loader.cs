@@ -53,8 +53,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             CreatureList.LoadTiles();
             CreatureList.ModifyCreatures();
             LTEs.LoadLongTermEffects();
-            //LTEs.LoadBoons();
-            //ScriptHooks.LoadHooks();
             SpellLoader.LoadSpells();
             FeatLoader.LoadFeats();
             MonsterMutatorTable.LoadMutators();
@@ -180,6 +178,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<NightmareDomain>("HL_N_NightmareDomain.tmx");
             ModManager.RegisterEncounter<VipersNest>("HL_N_ViperNest.tmx");
             ModManager.RegisterEncounter<AbandonedVillage>("HL_N_AbandonedVillage.tmx");
+            ModManager.RegisterEncounter<Archways>("HL_N_Archways.tmx");
 
             // High Level Elite Encounters
             ModManager.RegisterEncounter<SpinnerOfLies>("HL_Elite_WeaverOfLies.tmx");

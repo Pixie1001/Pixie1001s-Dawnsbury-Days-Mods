@@ -192,7 +192,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList();
                 weaponTable = weaponTable.Concat(itemList.Where(item => item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart"))).ToList();
             } else if (new string[] { "kineticist", }.Contains(className)) {
-                if (character.CarriedItems.Where(i => i.ItemName == ItemName.GateAttenuator).Count() == 0) {
+                if (!character.CarriedItems.Any(i => i.ItemName == ItemName.GateAttenuator)) {
                     weaponTable = itemList.Where(item => item.HasTrait(Trait.Kineticist)).ToList();
                 } else {
                     weaponTable = new List<Item>() { RollWearable(character, levelRange) };
@@ -212,7 +212,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 weaponTable.RemoveAll(item => sfGuns.Contains(item));
             }
 
-            return weaponTable[R.Next(0, weaponTable.Count)];
+            // Fail safe to prevent crash if list is empty
+            if (weaponTable.Count == 0) {
+                weaponTable.Add(Items.CreateNew(ItemName.ArmorPotencyRunestone));
+            }
+
+            return UtilityFunctions.ChooseAtRandom(weaponTable)!;
         }
 
         public static Item RollWearable(Creature character, Func<int, bool> levelRange) {
@@ -263,11 +268,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             for (int i = 0; i < Math.Min(amount, rewards.Count); i++) {
                 output.Add(UtilityFunctions.ChooseAtRandom(rewards.Where(entry => !output.Contains(entry)).ToList()));
             }
-
-            //output = UtilityFunctions.ChooseAtRandom(rewards);
-            //if (output == default(ValueTuple<Item, string>)) {
-            //    return null;
-            //}
 
             foreach (var reward in output) {
                 if (reward == default(ValueTuple<Item, string>)) continue;

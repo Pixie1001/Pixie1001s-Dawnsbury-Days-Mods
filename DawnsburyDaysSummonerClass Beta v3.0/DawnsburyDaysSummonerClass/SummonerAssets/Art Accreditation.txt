@@ -22,4 +22,6 @@ EidolonPortraits/ConvertedbaseGameAssets/: Everything in this folder is taken fr
 
 BaneCircleWhite.png, KineticistAuraCircle.png, AngelicHaloCircle.png: Base game asset
 
+Cancel.png: Created by Flaticon.com user 'Pixel perfect'. Please support the origional artist here: https://www.flaticon.com/free-icon/close_1828527?term=cancel&related_id=1828527
+
 Dryad.png, MermaidTail.png, StabbingAppendage.png: Self drawn. Support me by playing my mod ^^
