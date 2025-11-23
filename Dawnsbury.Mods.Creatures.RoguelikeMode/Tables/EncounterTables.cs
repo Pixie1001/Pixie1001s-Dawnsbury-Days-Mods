@@ -27,8 +27,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             var index = 0;
 
             if (state.Tags.TryGetValue("DefendTheReliquary", out output) && Int32.TryParse(output, out index)) {
-                state.AdventurePath!.CampaignStops[index] = new TypedEncounterCampaignStop<DefendTheReliquary>();
-                state.AdventurePath!.CampaignStops[index].Index = index;
+                if (state.AdventurePath!.CampaignStops.Count >= index && state.AdventurePath!.CampaignStops[index] is EncounterCampaignStop)
+                {
+                    state.AdventurePath!.CampaignStops[index] = new TypedEncounterCampaignStop<DefendTheReliquary>();
+                    state.AdventurePath!.CampaignStops[index].Index = index;
+                }
             }
 
             // Add more event encounters here

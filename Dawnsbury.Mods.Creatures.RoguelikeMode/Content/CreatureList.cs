@@ -50,7 +50,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 case var v when v.Equals(CreatureIds.DrowInquisitrix):
                     return DrowInquisitrix.Create();
                 case var v when v.Equals(CreatureIds.TreasureDemon):
-                    return TreasureDemon.Create();
+                    return TreasureDemon.Create(encounter);
                 case var v when v.Equals(CreatureIds.DrowRenegade):
                     return DrowRenegade.Create(encounter);
                 case var v when v.Equals(CreatureIds.WitchCrone):

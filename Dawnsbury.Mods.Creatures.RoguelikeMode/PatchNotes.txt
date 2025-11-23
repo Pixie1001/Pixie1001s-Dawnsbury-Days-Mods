@@ -1,8 +1,4 @@
 RL
-* Old events now work at higher levels
-* Added the totally origional twin scimitars Chilling Demise and Glimmer
-* Trip wire now links the trap to the battle object
-* Drow High Priestess can no longer summon a second Web Warden
-* Fixed several skill challenge event typos
-* Level 10 wands are now priced correctly
-* Added level 5-8 content to the campaign mode. Encounter balance and story elements are still a WIP.
+* Added a higher level version of the Treasure Demon for high level content that's harder to kill, but gives greater rewards
+* Fixed a crash related to a skill challenge event
+* Parties with an Alchemist now have a greater chance to find worn items, since they don't have any good weapons

@@ -74,7 +74,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
                     var pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet?.IsCampaignCharacter ?? false);
                     if (pm != null)
-                        pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Angel Companion")!);
+                        pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Angelic Companion")!);
 
                     await CommonEncounterFuncs.StandardEncounterResolve(battle);
                 }
@@ -161,41 +161,4 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
         }  
 
     }
-
-    //internal class DemonGateLv5 : Level5Encounter {
-    //    public DemonGateLv5(string filename) : base("Demon Gate", filename) {
-
-    //        this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-    //            await DemonGateLv6.ExplainPortal(battle);
-    //        });
-
-    //        this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-    //            await DemonGateLv6.HandlePortal(battle);
-    //        });
-
-    //        this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-    //            if (battle.RoundNumber >= 7)
-    //                await CommonEncounterFuncs.StandardEncounterResolve(battle);
-    //        });
-    //    }
-    //}
-
-    //internal class DemonGateLv7 : Level7Encounter {
-    //    public DemonGateLv7(string filename) : base("Demon Gate", filename) {
-
-    //        this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-    //            await DemonGateLv6.ExplainPortal(battle);
-    //        });
-
-    //        this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-    //            await DemonGateLv6.HandlePortal(battle);
-    //        });
-
-    //        this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-    //            if (battle.RoundNumber >= 7)
-    //                await CommonEncounterFuncs.StandardEncounterResolve(battle);
-    //        });
-    //    }
-    //}
-    
 }

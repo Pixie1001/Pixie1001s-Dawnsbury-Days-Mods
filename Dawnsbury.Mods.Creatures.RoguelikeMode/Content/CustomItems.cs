@@ -71,13 +71,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemGreaterGroup ItemGroupRoguelikeMagicArmour { get; } = ModManager.RegisterEnumMember<ItemGreaterGroup>("Roguelike magic armour");
         public static ItemGreaterGroup ItemGroupRoguelikeMagicItem { get; } = ModManager.RegisterEnumMember<ItemGreaterGroup>("Roguelike magic items");
 
-        //public static List<ItemName> items = new List<ItemName>();
-
-        //public static ItemName TestItem { get; } = ModManager.RegisterNewItemIntoTheShop("TEST", itemName => new Item(itemName, Illustrations.DuelingSpear, "TEST", 0, 2,
-        //    Trait.Disarm, Trait.Finesse, Trait.Uncommon, Trait.VersatileS, Trait.TwoHanded, Trait.Spear, Trait.Martial, ModTraits.Roguelike)
-        //.WithModification(new ItemModification(ItemModificationKind.CustomPermanent))
-        //.WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Piercing)));
-
         public static ItemName FightingFan { get; } = ModManager.RegisterNewItemIntoTheShop("RL_FightingFan", itemName => new Item(itemName, Illustrations.FightingFan, "fighting fan", 0, 2,
             Trait.Uncommon, Trait.Agile, Trait.Backstabber, Trait.DeadlyD6, Trait.Finesse, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
         .WithMainTrait(ModTraits.FightingFan)
@@ -115,7 +108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing));
 
             item.ProvidesItemAction = (wielder, wpn) => {
-                if (wielder.QEffects.Any(qf => qf.Id == QEffectIds.Parry && qf.Tag == wpn)) return null!;
+                if (wielder.QEffects.Any(qf => qf.Id == QEffectIds.Parry && qf.Tag == wpn) || wielder.Proficiencies.Get(wpn.Traits) < Proficiency.Trained) return null!;
 
                 return (ActionPossibility)new CombatAction(wielder, new SideBySideIllustration(Illustrations.Parry, wpn.Illustration), $"Parry ({item.Name})", [], "You raise your weapon to parry oncoming attacks, granting yourself a +1 circumstance bonus to AC.", Target.Self())
                 .WithDescription("You position your weapon defensively.",

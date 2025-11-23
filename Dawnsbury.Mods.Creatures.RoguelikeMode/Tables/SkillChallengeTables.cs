@@ -855,7 +855,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync($"She seems somewhat cagey about sharing too many details, as if even her fellow arch angels don't know of her presence here, but reluctantly agrees to allow the party to join her.", null);
                             await battle.Cinematics.NarratorLineAsync($"She stiffly explains that she's on a mission of utmost importance to reconsecrate a holy reliquary placed within the bowels of the plane by the Oracle themselves in ages past.", null);
                             await battle.Cinematics.NarratorLineAsync($"Before entreating the party to follow them, she demands that they assist stand by her side to protect her during this task, and in exchange she shall in turn stand by their side during their own quest.", null);
-                            CampaignState.Instance!.Tags.TryAdd("DefendTheReliquary", $"{CampaignState.Instance.CurrentStopIndex + 2}");
+                            CampaignState.Instance!.Tags.TryAdd("DefendTheReliquary", $"{CampaignState.Instance.CurrentStopIndex + 3}");
                             EncounterTables.ApplySpecialEncounters(CampaignState.Instance);
                         }
                         break;

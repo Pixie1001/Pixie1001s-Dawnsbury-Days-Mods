@@ -1,22 +1,23 @@
-﻿using System;
+﻿using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Encounters.Tutorial;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Modding;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Campaign.Encounters.Tutorial;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
-using System.IO.Enumeration;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using HarmonyLib;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
+using HarmonyLib;
+using System;
+using System.IO.Enumeration;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
@@ -45,6 +46,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             Harmony.DEBUG = false;
             harmony.PatchAll();
 
+            ParryLogic.Load("Roguelike Mode", new ModdedIllustration("RoguelikeModeAssets/Icons/ParryT7.png"), new ModdedIllustration("RoguelikeModeAssets/Icons/ParryT7.png"));
             ActionIds.RegisterConflictedIds();
             QEffectIds.RegisterConflictedIds();
             CustomItems.LoadItems();

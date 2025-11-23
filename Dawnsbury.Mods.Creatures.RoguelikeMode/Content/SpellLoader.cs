@@ -182,7 +182,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static SpellId VomitSwarm = ModManager.RegisterNewSpell("RL_VomitSwarm", 2, (id, caster, level, inCombat, info) => {
             Trait[] traits = null;
-            if (AllSpells.All.Any(spell => spell.Name == "Vomit Swarm"))
+            if (AllSpells.All.Any(spell => spell.Name == "Vomit Swarm" && !spell.HasTrait(ModTraits.Roguelike)))
                 traits = [Trait.Evocation, ModTraits.Roguelike];
             else
                 traits = [Trait.Evocation, Trait.Arcane, Trait.Occult, Trait.Primal, ModTraits.Roguelike];

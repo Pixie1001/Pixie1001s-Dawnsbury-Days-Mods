@@ -201,6 +201,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
                 }
             }
+            else if (new string[] { "alchemist", }.Contains(className))
+            {
+                weaponTable = new List<Item>() { RollWearable(character, levelRange) };
+                if (weaponTable.Count == 0)
+                {
+                    weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
+                }
+            }
 
             // Add banners
             if (className == "commander") {
