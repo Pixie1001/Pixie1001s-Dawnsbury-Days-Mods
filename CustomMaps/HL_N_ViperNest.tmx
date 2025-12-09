@@ -10,8 +10,8 @@ Though the cult of echidna that breed such monstrosities are protected from thei
   <property name="EncounterName" value="Viper's Nest"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2213" source="DlcTileset.tsx"/>
  <imagelayer id="5" name="Image Layer 1">
   <image source="VipersNest.jpg" width="3840" height="3840"/>
  </imagelayer>
@@ -45,8 +45,8 @@ Though the cult of echidna that breed such monstrosities are protected from thei
 0,0,0,0,0,16,14,0,0,0,0,0,0,16,0,
 0,0,0,0,0,0,16,0,16,0,0,0,0,0,0,
 0,0,14,0,0,0,0,0,0,0,0,14,16,0,0,
-0,0,0,0,0,2177,0,0,0,2177,0,16,0,0,0,
-0,0,0,14,0,0,0,2173,0,0,0,0,0,0,0,
+0,0,0,0,0,2184,0,0,0,2184,0,16,0,0,0,
+0,0,0,14,0,0,0,2180,0,0,0,0,0,0,0,
 0,0,0,0,0,14,0,0,0,0,0,14,0,0,0,
 0,0,0,16,16,0,0,14,0,0,0,0,0,0,0,
 0,0,0,0,16,0,0,0,0,0,16,0,0,0,0,

@@ -75,7 +75,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                 return null;
             };
-            return new Creature(Illustrations.Owlbear, "Owl Bear", [Trait.Animal, ModTraits.MeleeMutator], 4, 14, 5, new Defenses(21, 13, 7, 11), 70, new Abilities(6, 1, 5, -4, 3, 0), new Skills(acrobatics: 7, athletics: 14, intimidation: 10))
+            return new Creature(Illustrations.Owlbear, "Owl Bear", [Trait.Animal, ModTraits.MeleeMutator, Trait.Large], 4, 14, 5, new Defenses(21, 13, 7, 11), 70, new Abilities(6, 1, 5, -4, 3, 0), new Skills(acrobatics: 7, athletics: 14, intimidation: 10))
                 .WithAIModification(ai =>
                 {
                     ai.OverrideDecision = (self, options) =>
@@ -116,8 +116,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .AddQEffect(QEffect.MonsterGrab())
                 .AddQEffect(GnawEffect)
                 .Builder
-                .AddNaturalWeapon(NaturalWeaponKind.Talon, 14, [Trait.Reach, Trait.Agile, Trait.Grab], "1d10+6", DamageKind.Piercing)
-                .AddNaturalWeapon(NaturalWeaponKind.Beak, 14, [Trait.Reach], "1d12+6", DamageKind.Piercing)
+                .AddNaturalWeapon(NaturalWeaponKind.Talon, 14, [Trait.Agile, Trait.Grab], "1d10+6", DamageKind.Piercing)
+                .AddNaturalWeapon(NaturalWeaponKind.Beak, 14, [], "1d12+6", DamageKind.Piercing)
                 .AddMainAction((self) =>
                 {
                     return GetBloodcurdlingScreechAction(self);

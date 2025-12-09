@@ -9,7 +9,7 @@ Yet as the procession wanders away, something still feels off...</property>
   <property name="EncounterName" value="Hide and Seek"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="128" source="CustomCreatures.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
  <imagelayer id="4" name="Image Layer 1">
   <image source="HideAndSeek.jpg" width="3840" height="3840"/>
  </imagelayer>
@@ -40,9 +40,9 @@ Yet as the procession wanders away, something still feels off...</property>
 0,0,0,0,0,0,22,16,0,0,0,0,0,0,0,
 0,0,0,0,0,22,0,22,0,0,0,0,16,91,0,
 0,0,0,0,22,0,0,0,0,0,91,0,0,0,0,
-0,0,0,0,0,0,0,129,0,0,0,0,0,0,0,
-0,0,0,0,0,0,129,144,132,0,0,0,0,0,0,
-0,0,0,0,0,0,0,129,0,0,0,0,0,91,22,
+0,0,0,0,0,0,0,139,0,0,0,0,0,0,0,
+0,0,0,0,0,0,139,154,142,0,0,0,0,0,0,
+0,0,0,0,0,0,0,139,0,0,0,0,0,91,22,
 0,0,0,0,0,0,0,0,0,0,0,91,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,37,0,
 38,0,0,0,91,0,0,0,0,0,0,0,0,0,0,
@@ -59,9 +59,9 @@ Yet as the procession wanders away, something still feels off...</property>
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2176,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2166,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2176,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

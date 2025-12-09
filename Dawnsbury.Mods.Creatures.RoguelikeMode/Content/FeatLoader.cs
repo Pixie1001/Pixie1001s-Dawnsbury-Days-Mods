@@ -1,83 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury.Audio;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Archetypes;
+using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
+using Dawnsbury.Core.StatBlocks.Monsters.L_1;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Xml;
-using Dawnsbury.Core.Mechanics.Damage;
-using System.Runtime.CompilerServices;
-using System.ComponentModel.Design;
-using System.Text;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Diagnostics.Metrics;
-using Microsoft.Xna.Framework.Audio;
-using static System.Reflection.Metadata.BlobBuilder;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using System.IO;
-using static HarmonyLib.Code;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Campaign.Path;
-using Dawnsbury.Campaign.LongTerm;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
-using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
-using System.Xml.Linq;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Archetypes;
-using Dawnsbury.Core.StatBlocks.Monsters.L_1;
-using System.IO.Pipelines;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -128,17 +84,26 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
 
                 ReplaceFlurryOfBlows(you);
+            })
+            .WithOnSheet(sheet => {
+                sheet.AtEndOfRecalculation = sheet => {
+                    ReplaceKiStrike(sheet, sheet.Sheet.ToCreature(sheet.CurrentLevel));
+                };
             });
 
             yield return new TrueFeat(ModManager.RegisterFeatName("RL_MonasticArcherStance", "Monastic Archer Stance"), 2, "You enter a specialized stance for a unique martial art centered around the use of a bow.",
                 "While in this stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait. You can use Flurry of Blows with these bows. " +
                 "You can use your other monk feats or monk abilities that normally require unarmed attacks with these bows when attacking within half the first range increment (normally 50 feet for a longbow and 30 feet for a shortbow), " +
                 "so long as the feat or ability doesn't require a single, specific Strike." +
-                "\n\nSpecial When you select this feat, you become trained in the longbow, shortbow, and any simple and martial bows with the monk trait. At later levels, your proficancy with these weapons scales with your unarmed attacks.",
+                "\n\n{b}Special{/b} When you select this feat, you become trained in the longbow, shortbow, and any simple and martial bows with the monk trait. At later levels, your proficancy with these weapons scales with your unarmed attacks.",
                 [Trait.Monk, Trait.Stance, ModTraits.Roguelike], null)
             .WithIllustration(Illustrations.MonasticArcherStance)
             .WithOnSheet(sheet => {
                 sheet.Proficiencies.AddProficiencyAdjustment((item) => (item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial) && item.Contains(Trait.Bow)) || item.ContainsOneOf([Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow]), Trait.Simple);
+
+                sheet.AtEndOfRecalculation = sheet => {
+                    ReplaceKiStrike(sheet, sheet.Sheet.ToCreature(sheet.CurrentLevel));
+                };
             })
             .WithOnCreature(you => {
                 if (!you.HasFeat(MonasticWeaponry))
@@ -167,7 +132,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             && action.Item.HasTrait(Trait.MonkWeapon)
                             && action.Item.HasTrait(Trait.Bow)
                             && !action.Item.HasTrait(Trait.Advanced)) || new Trait?[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(action?.Item?.MainTrait))
-                            ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;  
+                            ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;
 
                     })) {
                         PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
@@ -195,8 +160,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     .WithEffectOnSelf(user => {
                         var stance = KineticistCommonEffects.EnterStance(user, IllustrationName.SprayOfStars,
                             "Shooting Star Stance", "While in this stance, you can use your monk feats or monk abilities " +
-                            "that normally require unarmed attacks with shuriken instead.", QEffectIds.ShootingStarStance);;
-                        
+                            "that normally require unarmed attacks with shuriken instead.", QEffectIds.ShootingStarStance); ;
+
                     })) {
                         PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
                     }
@@ -361,7 +326,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithOnCreature(creature => {
                 creature.AddQEffect(new QEffect("Child of the Spider", "You can move through webs unimpeded and ignore the penalty to demoralize spiders that do not speak common.") {
                     BonusToSkillChecks = (skill, action, target) =>
-                        target != null && action.ActionId ==  ActionId.Demoralize && !action.Owner.HasFeat(FeatName.IntimidatingGlare) && target.HasTrait(ModTraits.Spider) && target.DoesNotSpeakCommon ? new Bonus(4, BonusType.Circumstance, "Spider affinity") : null,
+                        target != null && action.ActionId == ActionId.Demoralize && !action.Owner.HasFeat(FeatName.IntimidatingGlare) && target.HasTrait(ModTraits.Spider) && target.DoesNotSpeakCommon ? new Bonus(4, BonusType.Circumstance, "Spider affinity") : null,
                     Id = QEffectId.IgnoresWeb
                 });
                 var source = creature.GetOrCreateSpellcastingSource(SpellcastingKind.Innate, Trait.Elf, Ability.Charisma, Trait.Divine);
@@ -458,7 +423,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 if (weapons.Count() == 0) {
                                     action.RevertRequested = true;
                                     return;
-                                };
+                                }
+                                ;
                                 Item weapon = weapons.Count() == 1
                                 ? user.HeldItems.First(IsValidTargetForPoison)
                                 : (await user.Battle.AskForConfirmation(user, action.Illustration, "Which weapon would you like to poison?",
@@ -539,8 +505,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 });
             })
             .WithPrerequisite(sheet => {
-                //if (CampaignState.Instance?.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Heroes.First(h => h.CharacterSheet == sheet.Sheet).LongTermEffects.Effects.Any(lte => lte.Id.ToStringOrTechnical() == "Power of the Rat Fiend")) {
-                if (sheet.Sheet.SelectedFeats.TryGetValue("Power of the Rat Fiend", out SelectedChoice val)) {
+                if (sheet.Sheet.SelectedFeats.TryGetValue("Power of the Rat Fiend", out SelectedChoice val) || PlayerProfile.Instance.IsBooleanOptionEnabled("RL_AllowRatMonarch")) {
                     return true;
                 } else {
                     return false;
@@ -573,7 +538,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             if (!await rat.AskToUseReaction("Would you like to attack the target of your master's attack?")) {
                                 return;
                             }
-                            
+
                             StrikeModifiers mod = new StrikeModifiers();
                             if (ranged) {
                                 mod.AdditionalBonusesToAttackRoll = new List<Bonus>() { new Bonus(-2, BonusType.Untyped, "Ranged Trigger") };
@@ -664,7 +629,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             });
         }
 
-        internal static void SpawnRatFamiliar(Creature master, Tile? location=null) {
+        internal static void SpawnRatFamiliar(Creature master, Tile? location = null) {
             Creature rat = GiantRat.CreateGiantRat();
             rat.MainName = master.MainName + "'s Rat Familiar";
             rat.Level = master.Level - 2;
@@ -717,8 +682,59 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             master.Battle.SpawnCreature(rat, master.Battle.GaiaFriends, location ?? master.Occupies);
         }
 
+        public static bool IsMonasticArcheryWeapon(Creature monk, Item weapon) {
+            return (weapon.HasTrait(Trait.MonkWeapon) && weapon.HasTrait(Trait.Bow) && !weapon.HasTrait(Trait.Advanced)) || (new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(weapon.MainTrait));
+        }
+
+        internal static void ReplaceKiStrike(CalculatedCharacterSheetValues sheet, Creature monk) {
+
+            if (monk.HasFeat(FeatName.KiStrike)) {
+                var spellList = sheet.FocusSpells.GetOrCreate(Trait.Monk, () => new FocusSpells(Ability.Wisdom));
+                if (spellList.Spells.Any(spell => spell.SpellId == SpellLoader.ModifiedKiStrike))
+                    return;
+                spellList.Spells.RemoveAll(spell => spell.SpellId == SpellId.KiStrike);
+                spellList.Spells.Add(AllSpells.CreateModernSpell(SpellLoader.ModifiedKiStrike, null, sheet.MaximumSpellLevel, false, new SpellInformation() {
+                    ClassOfOrigin = Trait.Monk
+                }));
+            }
+        }
+
         internal static void ReplaceFlurryOfBlows(Creature monk) {
             monk.RemoveAllQEffects(qf => qf.ProvideMainAction != null && ((ActionPossibility)qf.ProvideMainAction(qf))?.CombatAction?.Name == "Flurry of Blows");
+
+            if (monk.HasFeat(FeatName.OneInchPunch)) {
+                monk.AddQEffect(new QEffect() {
+                    ProvideStrikeModifierAsPossibility = item => {
+                        if (!(item.HasTrait(Trait.MonkWeapon) && item.HasTrait(Trait.Melee)
+                        || (IsMonasticArcheryWeapon(monk, item) && monk.HasEffect(QEffectIds.MonasticArcherStance)))) return null;
+
+                        CombatAction CreateOneInchPunch(Item weapon, int actionCount) {
+                            var strike = monk.CreateStrike(weapon, strikeModifiers: new StrikeModifiers() {
+                                AdditionalWeaponDamageDice = actionCount == 2 ? 1 : 2
+                            });
+                            strike.Traits.Add(Trait.Basic);
+                            strike.Name = "One-Inch Punch (" + actionCount + " actions)";
+                            strike.Illustration = actionCount == 2 ? IllustrationName.TwoActions : IllustrationName.ThreeActions;
+                            strike.ActionCost = actionCount;
+                            return strike;
+                        }
+
+                        return new SubmenuPossibility(new SideBySideIllustration(item.Illustration, IllustrationName.StarHit), "One-Inch Punch", PossibilitySize.Full) {
+                            Subsections =
+                            {
+                            new PossibilitySection("One-Inch Punch")
+                            {
+                                Possibilities =
+                                {
+                                    new ActionPossibility(CreateOneInchPunch(item, 2)),
+                                    new ActionPossibility(CreateOneInchPunch(item, 3))
+                                }
+                            }
+                        }
+                        };
+                    },
+                });
+            }
 
             monk.AddQEffect(new QEffect() {
                 ProvideMainAction = qfSelf => {

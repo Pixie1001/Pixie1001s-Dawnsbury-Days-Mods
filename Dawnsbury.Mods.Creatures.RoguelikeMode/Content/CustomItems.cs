@@ -651,7 +651,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     }
                 });
             })
-            .WithDescription("{i}The powerful illusory enchantment laid upon cloak often cause the beholder to snatch at air as they attempt to locate its true postion.{/i}\n\n" +
+            .WithDescription("{i}The powerful illusory enchantment laid upon this cloak often causes the beholder to snatch at air as they attempt to locate its true postion.{/i}\n\n" +
             "While wearing this cloak, you benefit from the effects of the {i}mirror image{/i} spell at the start of each combat.");
 
             return item;
@@ -661,8 +661,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             Item item = new Item(itemName, Illustrations.RuneOfMirrors, "runestone of {i}opportunism{/i}", 8, 415,
                [Trait.Runestone, Trait.Illusion, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
             .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
-            .WithRuneProperties(new RuneProperties("opportunism", RuneKind.WeaponProperty, "...",
-            "The weapon applies all damage dice and modifiers twice on attacks made outside of your turn.", rune => {
+            .WithRuneProperties(new RuneProperties("opportunism", RuneKind.WeaponProperty, "By embedding the teeth of a vanquished chimera into steel, a measure of its ruthless opportunism can be imparted upon the victor's weapon.",
+            "All attacks made using this weapon outside of your deal double damage.", rune => {
                 if (rune.WeaponProperties != null) {
                     rune.WeaponProperties.WithOnTarget(async (spell, caster, target, result) => {
                         if (spell.HasTrait(Trait.Strike) && caster.Battle.ActiveCreature != caster && result >= CheckResult.Success) {
@@ -1371,13 +1371,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithWornAt(Trait.Mask)
             .WithDescription("{i}This cursed mask fills the wearer with a ghoulish, ravenous hunger for living flesh, alongside a terrible wasting pallor.{/i}\n\n" +
             "The wearer of this mask has their Max HP halved. However, in return they gain a 1d10 unarmed slashing attack with the agile and finesse properties. " +
-            "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wear may consume it to heal for an amount of hit points " +
-            "equal to damage dealt.\n\n{b}Note.{/b} To unequip this cursed item, simply place it in the common loot field at the bottom of the character sheets. It won't despawn between encounters.")
+            "Creatures hit by the attack suffer 1d6 persistent bleeding damage, and if they're blessed of living flesh, the wearer may consume it to heal for an amount of hit points " +
+            "equal to the damage dealt.\n\n{b}Note.{/b} To unequip this cursed item, simply place it in the common loot field at the bottom of the character sheets. It won't despawn between encounters.")
             .WithPermanentQEffectWhenWorn((qfMoC, item) => {
                 qfMoC.Innate = true;
                 qfMoC.Id = QEffectId.Drained;
                 qfMoC.Name = "Mask of Consumption";
-                qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage and deals you for an amount equal to damage dealt.";
+                qfMoC.Description = "Your HP is halved. In return, your hungry claws attack deals 1d6 persistent bleed damage and heals you for an amount equal to the damage dealt.";
                 qfMoC.StateCheck = self => {
                     self.Owner.DrainedMaxHPDecrease = self.Owner.MaxHP / 2;
                     Item unarmed = qfMoC.Owner.UnarmedStrike;
@@ -1387,11 +1387,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         properties.AdditionalPersistentDamageKind = DamageKind.Bleed;
                     });
                 };
-                //qfMoC.AfterYouDealDamage = async (a, strike, d) => {
-                //    if (strike != null && strike.HasTrait(Trait.Strike) && strike.Item != null && strike.Item.Name == a.UnarmedStrike.Name && d.IsLivingCreature) {
-                //        await a.HealAsync(DiceFormula.FromText($"{a.TrueMaximumHP * 0.2}", "Mask of Consumption"), strike);
-                //    }
-                //};
                 qfMoC.AddGrantingOfTechnical(cr => cr.OwningFaction.IsEnemy && cr.IsLivingCreature, qfTechnical => {
                     qfTechnical.Key = "Mask of Consumption Technical";
                     qfTechnical.AfterYouTakeAmountOfDamageOfKind = async (self, strike, damage, kind) => {
@@ -1478,20 +1473,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             qfTech.Source = caster;
                             qfTech.Key = "RL_Coiled";
                         });
-
-                        //owner.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
-                        //    PreventTargetingBy = action => {
-                        //        //if (action.Name.ToLower() == "heal") return null;
-
-                        //        //var t1 = action.Owner.QEffects.Any(qf => qf.Key == "RL_Coiled");
-                        //        //var t2 = ((action.Owner.Battle.ActiveCreature != action.Owner) || action.HasTrait(Trait.ReactiveAttack));
-
-                        //        if (action.Owner.QEffects.Any(qf => qf.Key == "RL_Coiled" && qf.Source == caster) && ((action.Owner.Battle.ActiveCreature != action.Owner) || action.HasTrait(Trait.ReactiveAttack)))
-                        //            return "Cannot use reactions against you.";
-                        //        else
-                        //            return null;
-                        //    }
-                        //});
                         caster.AddQEffect(qEffect);
                     })
                 });
@@ -1648,7 +1629,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                     ca.ChosenTargets.ChosenCreature = target;
                     ca.ChosenTargets.ChosenCreatures.Add(target);
-                    if (ca.CanBeginToUse(ca.Owner) && ca.Target is CreatureTarget creatureTarget && creatureTarget.IsLegalTarget(ca.Owner, target))
+                    if (ca.CanBeginToUse(ca.Owner) && (ca.Target is CreatureTarget creatureTarget && creatureTarget.IsLegalTarget(ca.Owner, target)))
                         await ca.AllExecute();
                 };
                 qfItem.YouAreTargetedByARoll = async (self, action, breakdown) => {
@@ -2862,7 +2843,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 }
 
                 if (creature.BaseArmor.ItemName == DolmanOfVanishing) {
-                    creature.AddQEffect(new QEffect("Cloak of Vanishing", "This creature moves through webs unimpeded.") {
+                    creature.AddQEffect(new QEffect("Cloak of Vanishing", "This creature can attempt to hide, even in plain sight.") {
                         Id = QEffectId.HideInPlainSight,
                         BonusToSkills = skill => skill == Skill.Stealth ? new Bonus(2, BonusType.Item, "Dolman of vanishing") : null
                     });

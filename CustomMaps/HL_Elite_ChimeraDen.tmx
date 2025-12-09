@@ -10,9 +10,9 @@ If the party is to continue unseen, the cult must be blinded. The beast must be 
   <property name="EncounterName" value="Chimera Den"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2206" source="DlcTileset.tsx"/>
- <tileset firstgid="2290" source="C:/src/dawnsbury-days/Sources/Maps/BasicTileset.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2213" source="DlcTileset.tsx"/>
+ <tileset firstgid="2297" source="../../../../../../src/dawnsbury-days/Sources/Maps/BasicTileset.tsx"/>
  <imagelayer id="5" name="Image Layer 1">
   <image source="ChimeraDen.jpg" width="4608" height="3840"/>
  </imagelayer>
@@ -43,8 +43,8 @@ If the party is to continue unseen, the cult must be blinded. The beast must be 
 0,0,8,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,8,8,13,0,16,0,0,0,0,0,0,13,0,0,0,0,
 36,0,0,0,0,0,0,0,8,0,0,13,0,0,0,0,0,0,
-38,0,0,0,0,0,0,0,0,0,0,0,0,2173,0,0,0,0,
-39,0,0,0,0,0,0,0,0,0,13,0,0,2183,0,0,13,0,
+38,0,0,0,0,0,0,0,0,0,0,0,0,2180,0,0,0,0,
+39,0,0,0,0,0,0,0,0,0,13,0,0,2190,0,0,13,0,
 37,0,0,0,0,0,8,8,0,0,0,0,0,0,0,0,0,0,
 0,8,8,0,13,0,8,8,0,0,0,13,0,0,0,0,0,0,
 0,8,8,0,0,0,0,0,0,0,0,0,0,13,0,0,0,0,
@@ -81,7 +81,7 @@ If the party is to continue unseen, the cult must be blinded. The beast must be 
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,2404,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,2411,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

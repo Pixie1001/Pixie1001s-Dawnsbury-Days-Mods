@@ -65,6 +65,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 
             ModManager.RegisterBooleanSettingsOption("RL_Corruption2", "Roguelike Mode: Enable monster archetypes in free encounter mode.",
                 "Makes regular encounters from the Roguelike mode harder.", false);
+
+            ModManager.RegisterBooleanSettingsOption("RL_AllowRatMonarch", "Roguelike Mode: Unlock Skill Challenge Dedications.",
+                "Allows characters to take secret event only archetype dedication feats, such as the Rat Monarch, in all game modes. These archetypes are deliberately designed to be much stronger than a typical archetype, and are not recommended for a balanced challenge.", false);
         }
 
         private static void LoadEncounters()

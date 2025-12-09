@@ -36,15 +36,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             Creature monster = new Creature(Illustrations.DrowChampion, "Drow Champion", [Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow, ModTraits.MeleeMutator],
                level: 8, perception: 16, speed: 4, new Defenses(27, fort: 19, reflex: 16, will: 16), hp: 150,
             new Abilities(6, 3, 4, 2, 3, 4), new Skills(religion: 16, athletics: 19, intimidation: 16))
-            .WithAIModification(ai => {
-                //ai.OverrideDecision = (self, options) => {
-                //    Creature monster = self.Self;
-
-                //    AiFuncs.PositionalGoodness(monster, options, (pos, you, step, cr) => you.DistanceTo(cr) <= 6 && cr.FriendOf(you) && !cr.HasTrait(Trait.Celestial) && (cr.HasTrait(Trait.Animal) || cr.HasTrait(Trait.Beast)), 0.2f, false);
-
-                //    return null;
-                //};
-            })
             .WithCreatureId(CreatureIds.DrowChampion)
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(CommonQEffects.DrowClergy())
@@ -54,12 +45,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .WithProficiency(Trait.Weapon, Proficiency.Master)
             .WithBasicCharacteristics()
-            //.AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Cleric, Ability.Wisdom, Trait.Divine).WithSpells(
-            //    // level1: [SpellId.TrueStrike, SpellId.TrueStrike, SpellId.TrueStrike],
-            //    //level2: [SpellId.SuddenBolt, SpellId.Bless, SpellId.Heal],
-            //    level3: [SpellId.SuddenBolt, SpellId.Fear],
-            //    level4: [SpellLoader.VomitSwarm, SpellId.SuddenBolt]
-            //    ).Done()
             .AddQEffect(new QEffect("Contemptious Retaliation {icon:Reaction}", "{b}Trigger{/b} An enemy within 5 feet attacks you. {b}Effect{/b} You may make a strike against the attacker.") {
                 YouAreTargeted = async (self, action) => {
                     if (action.Owner?.Occupies == null || !action.HasTrait(Trait.Attack) || action.Owner.DistanceTo(self.Owner) > 1) {
@@ -88,7 +73,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 wp.AdditionalDamage.Add(("1d6", DamageKind.Negative));
             })
             .AddMainAction(you => {
-                return new CombatAction(you, IllustrationName.Bane, "Dark Chant", [Trait.Divine, Trait.Concentrate, Trait.Flourish], "...", Target.Self((user, ai) => user.GetQEffectValue(QEffectIds.DemonicPower) < 6 ? 20f : int.MinValue))
+                return new CombatAction(you, IllustrationName.Bane, "Dark Chant", [Trait.Divine, Trait.Concentrate, Trait.Flourish],
+                    "Increase your Demonic Power by 1.",
+                    Target.Self((user, ai) => user.GetQEffectValue(QEffectIds.DemonicPower) < 6 ? 20f : int.MinValue))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.Necromancy)
                 .WithEffectOnSelf(async (action, caster) => {

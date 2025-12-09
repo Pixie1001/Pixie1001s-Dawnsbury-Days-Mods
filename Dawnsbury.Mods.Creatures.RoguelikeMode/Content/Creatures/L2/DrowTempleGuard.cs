@@ -45,15 +45,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddHeldItem(Items.CreateNew(ItemName.Halberd))
             .Builder
             .AddMainAction(you => {
-                return new CombatAction(you, IllustrationName.SanguineMist, "Blood Ward", [Trait.Necromancy, Trait.Abjuration, Trait.Manipulate], "[Manipulate, 15-feet] Grant target cleric a magical barrier until the start of your next turn, that increases their AC by +2 and inflicts 1d6 negative damage to any creature that attacks them.", Target.RangedFriend(3)
+                return new CombatAction(you, IllustrationName.SanguineMist, "Blood Ward", [Trait.Necromancy, Trait.Abjuration, Trait.Manipulate], "[Manipulate, 15-feet] Grant target cleric a magical barrier until the start of your next turn, that grants a +2 status bonus to AC and inflicts 1d6 negative damage to any creature that attacks them.", Target.RangedFriend(3)
                     .WithAdditionalConditionOnTargetCreature((a, d) => d.HasEffect(QEffectIds.DrowClergy) ? Usability.Usable : Usability.NotUsableOnThisCreature("not-a-member-of-the-drow-clergy")))
                 .WithActionCost(2)
                 .WithGoodness((t, a, d) => 2f)
                 .WithSoundEffect(SfxName.Necromancy)
                 .WithProjectileCone(IllustrationName.SanguineMist, 5,ProjectileKind.Cone)
                 .WithEffectOnEachTarget(async (action, user, target, result) => {
-                    target.AddQEffect(new QEffect("Blood Ward", "You gain +2 AC, and enemy creatures that damage you suffer 1d6 negative damage.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, user, IllustrationName.SanguineMist) {
-                        BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(2, BonusType.Untyped, "Blood Ward", true) : null,
+                    target.AddQEffect(new QEffect("Blood Ward", "You gain a +2 status bonus to AC, and enemy creatures that damage you suffer 1d6 negative damage.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, user, IllustrationName.SanguineMist) {
+                        BonusToDefenses = (self, action, def) => def == Defense.AC ? new Bonus(2, BonusType.Status, "Blood Ward", true) : null,
                         AfterYouTakeDamage = async (self, amount, kind, action, crit) => {
                             if (action?.Owner?.Occupies == null || action?.Owner.OwningFaction == self.Owner.OwningFaction) return;
                             await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self.Owner, "Blood Ward"), DiceFormula.FromText("1d6", "Blood Ward"), action!.Owner, CheckResult.Success, DamageKind.Negative);

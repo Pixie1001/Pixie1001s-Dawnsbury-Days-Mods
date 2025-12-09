@@ -126,7 +126,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             return scrolls[R.Next(0, scrolls.Count)];
         }
 
-        // TODO: Modify this to take a lambda funct to specify the level range
         public static Item RollWeapon(Creature character, Func<int, bool> levelRange) {
             Feat classFeat = character.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft is ClassSelectionFeat);
             string className = "";
@@ -136,7 +135,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             List<Item> itemList = Items.ShopItems.Where(item => !item.HasTrait(Trait.DoNotAddToCampaignShop)).Concat(CreateSpecialItems()).Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
 
-            List<Item> weaponTable = itemList.Where(item => (item.Price >= 10 && item.HasTrait(Trait.Runestone) && !item.HasTrait(Trait.Abjuration) || (item.Name.Contains("handwraps of mighty blows") && item.Runes.Count > 0)) && levelRange(item.Level)).ToList();
+            List<Item> weaponTable = itemList.Where(item => (item.Price >= 10 && !item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart") && item.HasTrait(Trait.Runestone)
+            || (item.Name.Contains("handwraps of mighty blows") && item.Runes.Count > 0)
+            || (item.HasTrait(Trait.Material) && item.HasTrait(Trait.ColdIron)))
+            && levelRange(item.Level)).ToList();
             // Add extra basic scaling runes
             if (weaponTable.FirstOrDefault(item => item.ItemName == ItemName.WeaponPotencyRunestone) != null) {
                 weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
@@ -208,6 +210,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 {
                     weaponTable.Add(Items.CreateNew(ItemName.WeaponPotencyRunestone));
                 }
+            }
+
+            // Add shields
+            if (character.HasFeat(FeatName.ShieldBlock))
+            {
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => item.Level > 0 && item.HasTrait(Trait.Shield))).ToList();
             }
 
             // Add banners

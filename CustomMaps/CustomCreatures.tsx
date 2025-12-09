@@ -179,7 +179,7 @@
   <properties>
    <property name="Id" value="Owl Bear"/>
   </properties>
-  <image source="CustomCreatures/Owlbear.png" width="256" height="256"/>
+  <image source="CustomCreatures/Owlbear.png" width="512" height="512"/>
  </tile>
  <tile id="30">
   <properties>

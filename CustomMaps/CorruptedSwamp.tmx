@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="14" height="28" tilewidth="256" tileheight="256" infinite="0" nextlayerid="10" nextobjectid="1">
  <properties>
+  <property name="BansLargeCreatures" type="bool" value="true"/>
   <property name="EncounterDescription">The party's path takes them through a swamp said to be a nexus of dark magics. Wary of ambush, the party stays alert as they trudge through the muck. Their paranoia is well-placed, as they notice a black energy suffusing a gnarled tree in the distance.
 
 It's not the animals that are dangerous here. It's the trees themselves!</property>
@@ -9,7 +10,7 @@ It's not the animals that are dangerous here. It's the trees themselves!</proper
   <property name="EncounterName" value="Corrupted Swamp"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="CustomCreatures.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="14" height="28">
   <data encoding="csv">
 2,2,0,0,3,3,3,2,2,0,0,2,0,3,
@@ -68,7 +69,7 @@ It's not the animals that are dangerous here. It's the trees themselves!</proper
 44,0,44,0,0,44,44,44,44,44,44,0,0,70,
 44,0,0,0,44,44,44,44,44,44,44,44,0,70,
 44,0,5,70,44,0,0,70,0,0,44,0,0,44,
-0,0,70,70,44,44,0,2162,0,44,44,0,70,44,
+0,0,70,70,44,44,0,2175,0,44,44,0,70,44,
 44,44,44,0,0,0,0,0,0,44,44,0,0,0,
 7,44,44,0,44,44,0,0,0,70,70,70,44,44,
 0,70,44,0,44,44,0,44,0,0,6,0,44,44
@@ -100,7 +101,7 @@ It's not the animals that are dangerous here. It's the trees themselves!</proper
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2163,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2176,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0

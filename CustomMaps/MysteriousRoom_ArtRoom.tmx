@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="24" height="18" tilewidth="256" tileheight="256" infinite="0" nextlayerid="12" nextobjectid="1">
  <properties>
+  <property name="BansLargeCreatures" type="bool" value="true"/>
   <property name="EncounterDescription">Stumbling through the tangled stone hewn corridors of the Below, the party soon find themselves before a mysterious door. Unable to pass up the possibility of hidden clues or an off shooting passageway leading to the leyline, they reluctantly prepare themselves for whatever may lie behind it.
 
 (Contributed by SudoProgramming)</property>
@@ -9,8 +10,8 @@
   <property name="EncounterName" value="Mysterious Room"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="125" source="DlcTileset.tsx"/>
- <tileset firstgid="208" source="CustomCreatures.tsx"/>
+ <tileset firstgid="138" source="DlcTileset.tsx"/>
+ <tileset firstgid="222" source="CustomCreatures.tsx"/>
  <imagelayer id="11" name="Image Layer 1">
   <image source="BG_MyseteriousRoom_ArtRoom.jpg" width="2048" height="1536"/>
  </imagelayer>
@@ -42,10 +43,10 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,235,0,0,0,0,0,235,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,249,0,0,0,0,0,249,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,89,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,236,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,250,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,89,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -86,10 +87,10 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2246,0,0,0,0,0,2246,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2260,0,0,0,0,0,2260,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,115,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,2246,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,2260,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,115,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

@@ -81,7 +81,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                             Id = QEffectIds.Exhausted
                                         });
                                         a.RemoveAllQEffects(qf => qf.Name == "Flesh for the Womb");
-                                        var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, a.Level, a.Level + 3) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+                                        var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, a.Level, a.Level + 3) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable) && !(pet.HasTrait(Trait.Large) && a.Battle.Map.BansLargeCreatures)).ToArray();
                                         int rand = R.Next(0, list.Count());
 
                                         if (list.Count() == 0)

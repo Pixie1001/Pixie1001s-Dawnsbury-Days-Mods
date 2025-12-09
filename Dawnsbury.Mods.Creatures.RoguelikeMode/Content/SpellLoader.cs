@@ -82,6 +82,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         //    ;
         //});
 
+        public static SpellId ModifiedKiStrike = ModManager.RegisterNewSpell("RL_KiStrike", 1, (id, caster, level, inCombat, info) => {
+            int kiStrikeDiceCount = (level - 1) / 4 + 1;
+            return Spells.CreateModern(IllustrationName.KiStrike, "’Ki Strike’", [Trait.Monk, Trait.Focus, Trait.Transmutation], "You focus your ki into magical attacks.",
+                    $@"The next time you make an unarmed Strike, you gain a +1 status bonus to your attack rolls on that Strike and the Strike deals {kiStrikeDiceCount}d6 extra force, positive, negative or lawful damage (you can only deal this lawful damage if you're lawful yourself).
+
+If your next Strike is part of a Flurry of Blows, the bonus and extra damage apply to both Strikes of the Flurry.", Target.Self(), level, null)
+                .WithActionCost(0)
+                .WithHeighteningNumerical(level, 1, inCombat, 4, "The extra damage increases by 1d6.")
+                .WithSoundEffect(SfxName.MinorAbjuration)
+                .WithEffectOnEachTarget(async (spell, self, target, result) => {
+                    target.AddQEffect(new QEffect("Ki Strike", $"Your next Strike of Flurry of Blows will get a +1 status bonus to attack, and will deal {kiStrikeDiceCount}d6 extra damage.", ExpirationCondition.ExpiresAtEndOfAnyTurn, self, IllustrationName.KiStrike) {
+                        DoNotShowUpOverhead = true,
+                        BonusToAttackRolls = (effect, action, defender) => {
+                            if (action.HasTrait(Trait.Unarmed)
+                            || (action.Item != null && ((action.Owner.HasEffect(QEffectIds.MonasticArcherStance) && FeatLoader.IsMonasticArcheryWeapon(action.Owner, action.Item)) || action.Owner.HasFeat(FeatLoader.MonasticWeaponry) && action.Item.HasTrait(Trait.MonkWeapon))))
+                            return new Bonus(1, BonusType.Status, "Ki Strike");
+                            return null;
+                        },
+                        AddExtraStrikeDamage = (strike, defender) => {
+                            if (!(strike.HasTrait(Trait.Unarmed)
+                            || (strike.Item != null && ((strike.Owner.HasEffect(QEffectIds.MonasticArcherStance) && FeatLoader.IsMonasticArcheryWeapon(strike.Owner, strike.Item)) || strike.Owner.HasFeat(FeatLoader.MonasticWeaponry) && strike.Item.HasTrait(Trait.MonkWeapon))))) return null;
+                            var possibleDamages =
+                                strike.Owner.HasTrait(Trait.Lawful)
+                                    ? new[] { DamageKind.Force, DamageKind.Lawful, DamageKind.Negative, DamageKind.Positive }
+                                    : new[] { DamageKind.Force, DamageKind.Positive, DamageKind.Negative };
+                            if (strike.Owner.HasEffect(QEffectId.ElementalFist)) {
+                                possibleDamages = possibleDamages.Concat([DamageKind.Electricity, DamageKind.Fire, DamageKind.Cold, DamageKind.Bludgeoning]).ToArray();
+                            }
+                            var bestDamage = defender.WeaknessAndResistance.WhatDamageKindIsBestAgainstMe(possibleDamages);
+                            return (DiceFormula.FromText($"{kiStrikeDiceCount}d6", "Ki Strike"), bestDamage);
+                        },
+                        AfterYouTakeAction = async (qfSelf, action) => {
+                            if (action.ActionId == ActionId.FlurryOfBlows ||
+                                (action.HasTrait(Trait.Strike) && action.ActionCost > 0)) {
+                                qfSelf.ExpiresAt = ExpirationCondition.Immediately;
+                            }
+                        }
+                    });
+                });
+        });
+
         public static SpellId AgonisingDespair = ModManager.RegisterNewSpell("RL_AgonisingDespair", 3, (id, caster, level, inCombat, info) => {
             return Spells.CreateModern(Illustrations.AgonizingDespair, "Agonising Despair", new Trait[] {
                         Trait.Emotion,

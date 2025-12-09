@@ -1,15 +1,10 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.AuraAnimations;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
@@ -86,6 +81,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     }
                 }
             })
+            .AddQEffect(new QEffect() {
+                StateCheckWithVisibleChanges = async self => {
+                    if (self.Owner.Battle.Encounter.CharacterLevel <= 3 && CampaignState.Instance != null && CampaignState.Instance.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Tags.TryGetValue("SeenWebWarden", out string val) == false) {
+                        CampaignState.Instance.Tags.Add("SeenWebWarden", "true");
+                        var advisor1 = R.ChooseAtRandomVisualOnly(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToArray());
+                        var advisor2 = R.ChooseAtRandomVisualOnly(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null && cr != advisor1).ToArray());
+                        if (advisor1 == null || advisor2 == null) return;
+                        advisor1.Battle.Cinematics.EnterCutscene();
+                        Sfxs.Play(SfxName.ZombieAttack, 0.5f);
+                        await advisor1.Battle.Cinematics.LineAsync(self.Owner, "Ughhhh...", null);
+                        await advisor1.Battle.Cinematics.LineAsync(advisor1, "W-what is that poor creature? Is it some kind of demon?", null);
+                        await advisor1.Battle.Cinematics.LineAsync(advisor2, "It looks like a Web Warden demon... I've read it's one of the many punishments the Demon Queen of Spiders inflicts upon the captured souls of her enemies that are drag back to her domain...", null);
+                        await advisor1.Battle.Cinematics.LineAsync(advisor2, "Be careful, it's saod tp entangle all that get too near with a potent death curse that will strike down anyone that dares to harm its tormentors. Keep your distance, or try to put it out of its misery first.", null);
+                        advisor1.Battle.Cinematics.ExitCutscene();
+                    }
+                }
+            })
             .AddQEffect(new QEffect("Web Layer", "At the end of each turn, the web warden fills all spaces within 5ft of it with webs.") {
                 StartOfCombat = async self => await self.StartOfYourPrimaryTurn!(self, self.Owner),
                 StartOfYourPrimaryTurn = async (self, you) => {
@@ -93,9 +105,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     var z = Zone.Spawn(you, ZoneAttachment.StableBurst(webTiles.ToList()));
                     DemonWebspinner.CreateWebZone(z, 22);
                     z.Apply();
-                    //foreach (Tile tile in webTiles) {
-                    //    tile.AddQEffect(DemonWebspinner.CreateWebZone(Zone.Spawn(you, ZoneAttachment.StableBurst(webTiles.ToList())), 22));
-                    //}
                 }
             })
             .Builder

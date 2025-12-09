@@ -879,7 +879,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"In a matter of moments Baraquielle's face rapidly shifts from a stern mask, to a look of bewilderment and then abject disgust as if she'd stepped on a particularly odorous gluttony demon.", null);
                             await battle.Cinematics.NarratorLineAsync($"There's a tense moment as the angel seems almost stunned by the gall of {opt3.Nominee.Name}'s request, before finally gathering the wherewithal to rebuke them with a harsh but visceral \"eww.\"", null);
                             await battle.Cinematics.NarratorLineAsync($"She departs soon after, proclaiming to the rest of the group that she must seek out an aquifer in which to cleanse herself of this harrowing interaction.", null);
-                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} gains {{b}}Rejected 1{{/b}}, imposing a -1 status penalty to all charimsa-based rolls and DC until they return to town.", null);
+                            await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} gains {{b}}Rejected 1{{/b}}, imposing a -1 status penalty to all charisma-based rolls and DCs until they return to town.", null);
                             opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Rejected", null, 1)!);
                         } else if (result >= CheckResult.Success) {
                             var bara = Baraquielle.Create(battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
@@ -945,7 +945,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"Lifting the box, {opt1.Nominee.Name} turns the cube in their hands, spotting several gizmos that cause the segments of the box to whirl and spin promisingly.", null);
                             await battle.Cinematics.NarratorLineAsync($"Yet this early advantage soon turns to consternation as the cube begins to whir faster and faster, turning {opt1.Nominee.Name}'s mind to jelly as they struggle to process the dizzying number of equations and possibilities.", null);
-                            await battle.Cinematics.NarratorLineAsync($"The gnome only grins, obviously unsurprised by the outcome, as {opt1.Nominee.Name} places the puzzle box back onto its plinth in defeat.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The gnome only grins, obviously unsurprised by the outcome as {opt1.Nominee.Name} places the puzzle box back onto its plinth in defeat.", null);
                         } else if (result >= CheckResult.Success) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"{opt1.Nominee.Name} spends several moments carefully inspecting the cube, turning it over in their hands before making a series of quick decisive moments.", null);
                             await battle.Cinematics.NarratorLineAsync($"The box spins and whirs in response, the clues and possibilities expanding rapidly with each input, as the gnome gives them a knowing grin.", null);

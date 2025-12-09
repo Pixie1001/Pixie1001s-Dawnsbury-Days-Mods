@@ -85,7 +85,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .AddQEffect(new QEffect("Monstrous Companion", "The Echidnadite Monsterbound has a Monstrous companion which they can command as a minion once per turn as a free {icon:FreeAction} action.") {
                 StartOfCombat = async self => {
-                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, self.Owner.Level - 2, self.Owner.Level + 1) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+                    var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, self.Owner.Level - 2, self.Owner.Level + 1) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable) && !(pet.HasTrait(Trait.Large) && self.Owner.Battle.Map.BansLargeCreatures)).ToArray();
 
                     int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
                     seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
  <properties>
+  <property name="BansLargeCreatures" type="bool" value="true"/>
   <property name="EncounterDescription">Legends speak of a cold hearted champion of the Echidna who terrorises the woods and royal hunting grounds, turning would be hunters, who would dare to poach her goddess' creations, into the hunted - leaving behind gardens of eerie statues fashioned from their petrified remains as macabre moniker.
 
 Now, the huntress hunts you.
@@ -10,9 +11,9 @@ Now, the huntress hunts you.
   <property name="EncounterName" value="Medusa"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2206" source="DlcTileset.tsx"/>
- <tileset firstgid="2290" source="C:/src/dawnsbury-days/Sources/Maps/BasicTileset.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2213" source="DlcTileset.tsx"/>
+ <tileset firstgid="2297" source="../../../../../../src/dawnsbury-days/Sources/Maps/BasicTileset.tsx"/>
  <imagelayer id="5" name="Image Layer 1">
   <image source="Medusa.jpg" width="3840" height="3840"/>
  </imagelayer>
@@ -48,7 +49,7 @@ Now, the huntress hunts you.
 0,0,14,0,0,0,0,0,14,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,14,0,0,0,
 0,0,0,0,0,14,0,0,14,0,0,14,0,0,0,
-0,0,0,0,0,0,0,2178,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2185,0,0,0,0,0,0,0,
 0,0,0,0,0,14,0,0,14,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
@@ -62,9 +63,9 @@ Now, the huntress hunts you.
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,2404,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,2411,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,2404,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,2411,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -86,7 +87,7 @@ Now, the huntress hunts you.
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2397,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2404,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

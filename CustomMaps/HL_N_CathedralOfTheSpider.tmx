@@ -7,8 +7,8 @@
   <property name="EncounterName" value="Cathedral of the Spider"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2213" source="DlcTileset.tsx"/>
  <imagelayer id="6" name="Image Layer 1">
   <image source="CathedralOfTheSpider.jpg" width="4352" height="4608"/>
  </imagelayer>
@@ -65,9 +65,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,2187,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,2194,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,2187,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,2194,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,90,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,14,14,14,0,0,0,0,0,0,0,

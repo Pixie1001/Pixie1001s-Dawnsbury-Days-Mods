@@ -13,8 +13,8 @@ Of course such an ill disguised ritual can only be a trap meant to catch the ers
   <property name="EncounterName" value="Drow Princesses"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2206" source="DlcTileset.tsx"/>
+ <tileset firstgid="138" source="CustomCreatures.tsx"/>
+ <tileset firstgid="2213" source="DlcTileset.tsx"/>
  <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="17" height="17">
   <data encoding="csv">
 22,22,22,22,22,22,22,21,21,21,22,22,22,22,22,22,22,
@@ -22,11 +22,11 @@ Of course such an ill disguised ritual can only be a trap meant to catch the ers
 22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
 21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
-22,21,21,21,21,21,2254,2254,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,2261,2261,21,21,21,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
-21,21,21,21,21,21,21,21,21,21,2254,21,21,21,21,21,0,
-22,21,21,21,21,21,21,21,21,21,2254,21,21,21,21,21,22,
+21,21,21,21,21,21,21,21,21,21,2261,21,21,21,21,21,0,
+22,21,21,21,21,21,21,21,21,21,2261,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
 21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
@@ -36,7 +36,7 @@ Of course such an ill disguised ritual can only be a trap meant to catch the ers
 22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22
 </data>
  </layer>
- <imagelayer id="5" name="Image">
+ <imagelayer id="5" name="Image" visible="0">
   <image source="DrowPrincesses.jpg" width="4352" height="4352"/>
  </imagelayer>
  <layer id="2" name="Top layer: stones, trees, creatures..." width="17" height="17">
@@ -51,9 +51,9 @@ Of course such an ill disguised ritual can only be a trap meant to catch the ers
 0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,
 8,91,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,
 0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,
-0,8,0,0,0,0,0,0,2203,0,16,0,0,0,0,8,0,
+0,8,0,0,0,0,0,0,2210,0,16,0,0,0,0,8,0,
 0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,
-8,0,0,0,8,0,2204,0,8,0,2205,0,8,0,0,0,8,
+8,0,0,0,8,0,2211,0,8,0,2212,0,8,0,0,0,8,
 0,0,0,0,0,0,0,0,8,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,8,8,8,0,0,0,0,0,0,0,
 0,0,0,0,5,5,5,8,8,8,0,0,0,0,91,0,0,
