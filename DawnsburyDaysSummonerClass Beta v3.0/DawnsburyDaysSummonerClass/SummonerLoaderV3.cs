@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury;
+﻿using Dawnsbury;
 using Dawnsbury.Audio;
-using Dawnsbury.Core;
 using Dawnsbury.Auxiliary;
-using Dawnsbury.Core.Mechanics.Rules;
+using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
@@ -30,6 +24,7 @@ using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
@@ -46,12 +41,18 @@ using Dawnsbury.Modding;
 //using static Microsoft.Xna.Framework.Vector2;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
-using static Dawnsbury.Mods.Classes.Summoner.Enums;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
+using System.Threading;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
+using static Dawnsbury.Mods.Classes.Summoner.Enums;
+using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
 
@@ -415,17 +416,16 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             })
             .WithIllustration(illTandemMovement);
 
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("Tandem Strike {icon:FreeAction}"), 6, "You and your eidolon strike together.",
-                "You and your eidolon each attack, seamlessly targeting the same foe without interfering with each other's movements. Your eidolon makes a melee Strike, " +
-                "and then you make a melee Strike against the same creature. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until " +
-                "after both attacks have been made.", new Trait[] { tSummoner, tTandem }, e => e.AddQEffect(new QEffect {
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Tandem Strike {icon:FreeAction}", "Tandem Strike"), 6, "You and your eidolon strike together.",
+                @"You make a melee strike against the target. Your eidolon may then make a follow up strike against the same target. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after both attacks have been made.", new Trait[] { tSummoner, tTandem }, e => e.AddQEffect(new QEffect {
                     ProvideActionIntoPossibilitySection = (qf, section) => {
                         if (section.Name == "Tandem Actions") {
-                            return GenerateTandemStrikeAction(qf.Owner, GetSummoner(qf.Owner), GetSummoner(qf.Owner));
+                            return GenerateTandemStrikeAction(qf.Owner, GetEidolon(qf.Owner), GetSummoner(qf.Owner));
                         }
                         return null;
                     }
                 }), null)
+            .WithActionCost(2)
             .WithOnCreature((sheet, self) => {
                 self.AddQEffect(new QEffect {
                     ProvideActionIntoPossibilitySection = (qf, section) => {
@@ -1252,6 +1252,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             // TODO: Bookmark: Summoner act together
             .AddQEffect(new QEffect() {
                 ProvideMainAction = (effect) => {
+                    var eidolon = GetEidolon(effect.Owner);
+                    if (eidolon == null || eidolon.Destroyed) return null;
+
                     if (summoner.PersistentCharacterSheet.Calculated.AllFeats.Where(ft => ft.HasTrait(tTandem)).ToList().Count > 0) {
                         SubmenuPossibility tandemActions = new SubmenuPossibility(illActTogether, "Tandem Actions");
                         tandemActions.Subsections.Add(new PossibilitySection("Tandem Actions"));
@@ -1613,11 +1616,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             eidolon.RemoveAllQEffects(qf => qf.Illustration != null);
                             eidolon.AddQEffect(actTogether);
                             eidolon.Battle.SpawnCreature(eidolon, self.OwningFaction, targets.ChosenTile);
-                            eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(eidolon.Actions, new object[] { 0, ActionDisplayStyle.UsedUp });
-                            eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(eidolon.Actions, new object[] { 1, ActionDisplayStyle.UsedUp });
-                            eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(eidolon.Actions, new object[] { 2, ActionDisplayStyle.UsedUp });
-                            eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(eidolon.Actions, new object[] { 3, ActionDisplayStyle.Invisible });
+                            eidolon.Actions.AnimateActionUsedTo(0, ActionDisplayStyle.UsedUp);
+                            eidolon.Actions.AnimateActionUsedTo(1, ActionDisplayStyle.UsedUp);
+                            eidolon.Actions.AnimateActionUsedTo(2, ActionDisplayStyle.UsedUp);
+                            eidolon.Actions.AnimateActionUsedTo(3, ActionDisplayStyle.Invisible);
+
+                            //eidolon.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(eidolon.Actions, new object[] { 3, ActionDisplayStyle.Invisible });
                             eidolon.Destroyed = false;
+                            eidolon.DeathScheduledForNextStateCheck = false;
                             eidolon.Actions.ActionsLeft = 0;
                             eidolon.Actions.UsedQuickenedAction = true;
                             // TODO: Debug reaction being spntaneously used up. Maybed caused here?
@@ -1898,6 +1904,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
             traits = traits.Concat(subclass.eidolonTraits).ToList();
             traits.Add(tEidolon);
+            traits.Add(Trait.NeedNotSurvive);
 
             if (summoner.Battle.Encounter.Name == "24. Living Spell") {
                 traits.Remove(Trait.Evil);
@@ -1961,8 +1968,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     StateCheckWithVisibleChanges = (async qf => {
                         Creature summoner = GetSummoner(qf.Owner);
 
-                        // Handle drained mirror addition
-                        //HandleDrainedSharing(qf.Owner, summoner, false);
+                        // Handle instant death effect
+                        if (qf.Tag is bool && summoner!.Alive) {
+                            await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(qf.Owner, "Eidolon Health Share"), DiceFormula.FromText("999", "Eidolon Hit by Instant Death Effect"), summoner, DamageKind.Untyped);
+                            qf.Tag = null;
+                        }
 
                         // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
                         if (qf.Owner.Destroyed == true) {
@@ -2131,6 +2141,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Creature summoner = GetSummoner(self.Owner);
                             HandleDrainedSharing(self.Owner, summoner, false, true);
                         }
+                    },
+                    WhenMonsterDies = async self => {
+                        Creature summoner = GetSummoner(self.Owner);
+                        if (summoner.Alive) {
+                            self.Tag = true;
+                        }
                     }
                 });
         }
@@ -2197,64 +2213,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 Sfxs.Play(SfxName.StartOfTurn, 0.2f);
             await partner.Battle.GameLoop.StateCheck();
             // Process partner's turn
-            // Handle tandem attack
-            Creature? tandemAttackTarget = partner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null ? (Creature?) partner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether)!.Tag : null;
-            if (tandemAttackTarget != null) {
-                List<Option> options = new List<Option>();
-                List<Item> weapons = partner.HeldItems.Where(item => item.WeaponProperties != null).ToList();
-                List<QEffect> additionalAttackEffects = partner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ToList();
-                List<Item> additionalAttacks = new List<Item>();
-                foreach (QEffect qf in additionalAttackEffects) {
-                    additionalAttacks.Add(qf.AdditionalUnarmedStrike!);
-                }
-                List<Item> strikes = new List<Item>().Concat(additionalAttacks).Concat(weapons).ToList();
-                strikes.Add(partner.UnarmedStrike);
-                foreach (Item obj in strikes) {
-                    CombatAction strike = partner.CreateStrike(obj, partner.Actions.AttackedThisManyTimesThisTurn - 1);
-                    strike.WithActionCost(0);
-                    CreatureTarget targeting = (CreatureTarget) strike.Target;
-                    if ((bool)targeting.IsLegalTarget(partner, tandemAttackTarget)) {
-                        Option option = Option.ChooseCreature(strike.Name, tandemAttackTarget, async delegate {
-                            await partner.Battle.GameLoop.FullCast(strike, new ChosenTargets {
-                                ChosenCreature = tandemAttackTarget,
-                                ChosenCreatures = { tandemAttackTarget }
-                            });
-                        }, -2.14748365E+09f).WithIllustration(strike.Illustration);
-                        string text = strike.TooltipCreator?.Invoke(strike, tandemAttackTarget, 0);
-                        if (text != null) {
-                            option.WithTooltip(text);
-                        } else if (strike.ActiveRollSpecification != null) {
-                            option.WithTooltip(CombatActionExecution.BreakdownAttack(strike, tandemAttackTarget).TooltipDescription);
-                        } else if (strike.SavingThrow != null && (strike.ExcludeTargetFromSavingThrow == null || !strike.ExcludeTargetFromSavingThrow(strike, tandemAttackTarget))) {
-                            option.WithTooltip(CombatActionExecution.BreakdownSavingThrow(strike, tandemAttackTarget, strike.SavingThrow).TooltipDescription);
-                        } else {
-                            option.WithTooltip(strike.Description);
-                        }
-                        option.NoConfirmation = true;
-                        options.Add(option);
-                    }
-                }
-                if (options.Count > 0) {
-                    Option chosenOption;
-                    if (options.Count >= 2) {
-                        options.Add((Option)new CancelOption(true));
-                        chosenOption = (await partner.Battle.SendRequest(new AdvancedRequest(partner, "Choose a creature to Strike.", options) {
-                            TopBarText = $"Choose a creature to Strike or right-click to cancel.",
-                            TopBarIcon = illTandemStrike
-                        })).ChosenOption;
-                    } else
-                        chosenOption = options[0];
-
-                    if (chosenOption is CancelOption) {
-                        return;
-                    }
-                    await chosenOption.Action();
-                }
-            } else {
-                // Run regular turn
-                await (Task)partner.Battle.GameLoop.GetType().GetMethod("Step4_MainPhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?
+            await (Task)partner.Battle.GameLoop.GetType().GetMethod("Step4_MainPhase", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?
                     .Invoke(partner.Battle.GameLoop, new object[] { partner })!;
-            }
             // Reset partner's actions
             if (tandem) {
                 // Reset actions
@@ -2463,82 +2423,109 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static Possibility? GenerateTandemStrikeAction(Creature self, Creature partner, Creature summoner) {
-            if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
-                return (Possibility)null;
-            if (self.QEffects.Any(qf => qf.Name == "Tandem Strike Toggled")) {
-                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemStrike, illCancel), "Cancel Tandem Strike",
-                new Trait[] { tSummoner, tTandem }, $"Cancel tandem strike toggle.", (Target)Target.Self())
-                .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
-                    // Remove toggle from self
-                    self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
-                }));
+            if (partner == null || !partner.Actions.CanTakeActions() || self.HasEffect(Enums.qfActTogether))
+                return null;
 
-                //output.WithPossibilityGroup("Tandem Actions");
-                return output;
-            } else {
-                Possibility tandemStrike = (Possibility)(ActionPossibility)new CombatAction(self, illTandemStrike, "Enable Tandem Strike",
-                new Trait[] { tSummoner, tTandem, Trait.Basic },
-                "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next strike action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single strike action.",
-                (Target)Target.Self()) {
-                    ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next strike action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single strike action."
-                }
-                    .WithActionCost(0)
-                    .WithEffectOnSelf(self => {
-                        self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
-                        // Give toggle qf to self
-                        self.AddQEffect(new QEffect("Tandem Strike Toggled", "Your next strike action cost will also grant a free strike action to your bonded partner.") {
-                            Id = qfActTogetherToggle,
-                            ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
-                            Illustration = illTandemStrike,
-                            PreventTakingAction = (a => {
-                                if (!a.HasTrait(Trait.Strike) && a.Name != "Cancel Tandem Strike") {
-                                    return "Tandem strike can only be activated by the strike action.";
-                                }
-                                return null;
-                            }),
-                            AfterYouTakeAction = async (qf, action) => {
-                                if (action.HasTrait(Trait.Strike)) {
-                                    self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+            int partnerReach = (partner.MeleeWeapons.Any(mw => mw.HasTrait(Trait.Reach)) ? 1 : 0) + partner.Space.NaturalReach;
 
-                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will use their tandem turn to attack the nearest creature. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
-                                        return;
+            Possibility tandemStrike = (Possibility)(ActionPossibility)new CombatAction(self, illTandemStrike, "Enable Tandem Strike",
+            new Trait[] { tSummoner, tTandem, Trait.Basic },
+            (self == summoner ? "You make" : "Your eidolon makes") + " a melee strike against the target. " + (self == summoner ? "Your eidolon" : "You") + " may then make a follow up strike against the same target. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after both attacks have been made.",
+            Target.ReachWithAnyWeapon().WithAdditionalConditionOnTargetCreature((a, d) => {
+                if (self.HasEffect(Enums.qfActTogetherToggle)) return Usability.NotUsable("You cannot use a tandem action to take another tandem action.");
+                if (partner.MeleeWeapons.Count() == 0 || partner.CreateStrike(partner.MeleeWeapons.ToArray()[0]).WithActionCost(0).CanBeginToUse(partner)) return Usability.NotUsableOnThisCreature("partner-cannot-attack");
+                if (!MeleeReachCreatureTargetingRequirement.WithinReach(partner, d, partnerReach)) return Usability.NotUsableOnThisCreature("partner-out-of-range");
+                return Usability.Usable;
+                }))
+                .WithActionCost(2)
+                .WithEffectOnChosenTargets(async (spell, caster, targets) => {
+                    // Handle tandem attack
+                    Creature? tandemAttackTarget = targets.ChosenCreature;
+
+                    var map = self.Actions.AttackedThisManyTimesThisTurn;
+                    foreach (var attacker in new Creature[] { self, partner })
+                    {
+                        if (tandemAttackTarget != null)
+                        {
+                            List<Option> options = new List<Option>();
+                            List<Item> weapons = attacker.HeldItems.Where(item => item.WeaponProperties != null).ToList();
+                            List<QEffect> additionalAttackEffects = attacker.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ToList();
+                            List<Item> additionalAttacks = new List<Item>();
+                            foreach (QEffect qf in additionalAttackEffects)
+                            {
+                                additionalAttacks.Add(qf.AdditionalUnarmedStrike!);
+                            }
+                            List<Item> strikes = new List<Item>().Concat(additionalAttacks).Concat(weapons).ToList();
+                            strikes.Add(attacker.UnarmedStrike);
+                            foreach (Item obj in strikes)
+                            {
+                                CombatAction strike = attacker.CreateStrike(obj, map);
+                                strike.WithActionCost(0);
+                                CreatureTarget targeting = (CreatureTarget)strike.Target;
+                                if ((bool)targeting.IsLegalTarget(attacker, tandemAttackTarget))
+                                {
+                                    Option option = Option.ChooseCreature(strike.Name, tandemAttackTarget, async delegate {
+                                        await attacker.Battle.GameLoop.FullCast(strike, new ChosenTargets
+                                        {
+                                            ChosenCreature = tandemAttackTarget,
+                                            ChosenCreatures = { tandemAttackTarget }
+                                        });
+                                    }, 100f).WithIllustration(strike.Illustration);
+                                    var text = strike.TooltipCreator?.Invoke(strike, tandemAttackTarget, 0);
+                                    if (text != null)
+                                    {
+                                        option.WithTooltip(text);
                                     }
-
-                                    self.AddQEffect(new QEffect {
-                                        PreventTakingAction = action => action.Name == "Enable Tandem Strike" ? "Tandem strike already used this round" : null,
-                                        ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
-                                    });
-                                    partner.AddQEffect(new QEffect {
-                                        PreventTakingAction = action => action.Name == "Enable Tandem Strike" ? "Tandem strike already used this round" : null,
-                                        ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
-                                    });
-                                    QEffect actTogether = new QEffect("Tandem Strike", "Immediately take a single strike action.") {
-                                        Illustration = IllustrationName.Haste,
-                                        Id = qfActTogether,
-                                    };
-                                    partner.AddQEffect(actTogether);
-                                    actTogether.Tag = action.ChosenTargets.ChosenCreature;
-                                    await PartnerActs(self, partner, true, (a => {
-                                        if (!a.HasTrait(Trait.Strike) && a.ActionId != ActionId.EndTurn) {
-                                            return "Only the strike action is allowed during a tandem strike turn.";
-                                        }
-                                        return null;
-                                    }));
-                                    partner.RemoveAllQEffects(effect => effect == actTogether);
+                                    else if (strike.ActiveRollSpecification != null)
+                                    {
+                                        option.WithTooltip(CombatActionExecution.BreakdownAttack(strike, tandemAttackTarget).TooltipDescription);
+                                    }
+                                    else if (strike.SavingThrow != null && (strike.ExcludeTargetFromSavingThrow == null || !strike.ExcludeTargetFromSavingThrow(strike, tandemAttackTarget)))
+                                    {
+                                        option.WithTooltip(CombatActionExecution.BreakdownSavingThrow(strike, tandemAttackTarget, strike.SavingThrow).TooltipDescription);
+                                    }
+                                    else
+                                    {
+                                        option.WithTooltip(strike.Description);
+                                    }
+                                    option.NoConfirmation = true;
+                                    options.Add(option);
                                 }
                             }
-                        });
-                    });
-                //tandemStrike.WithPossibilityGroup("Tandem Actions");
-                return tandemStrike;
-            }
+                            if (options.Count > 0)
+                            {
+                                Option chosenOption;
+                                if (options.Count >= 2)
+                                {
+                                    options.Add(new CancelOption(true));
+                                    chosenOption = (await attacker.Battle.SendRequest(new AdvancedRequest(attacker, "Choose a creature to Strike.", options)
+                                    {
+                                        TopBarText = $"Choose a creature to Strike or right-click to cancel.",
+                                        TopBarIcon = illTandemStrike
+                                    })).ChosenOption;
+                                }
+                                else
+                                    chosenOption = options[0];
+
+                                if (chosenOption is CancelOption)
+                                {
+                                    if (attacker == self)
+                                        spell.RevertRequested = true;
+                                    return;
+                                }
+                                await chosenOption.Action();
+                            }
+                        }
+                    }
+                });
+            return tandemStrike;
         }
 
         private static Possibility? GenerateTandemMovementAction(Creature self, Creature partner, Creature summoner) {
             if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
-                return (Possibility)null;
+                return null;
             if (self.QEffects.Any(qf => qf.Name == "Tandem Movement Toggled")) {
-                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemMovement, illCancel), "Cancel Tandem Movement",
+                Possibility output = (ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemMovement, illCancel), "Cancel Tandem Movement",
                 new Trait[] { tSummoner, tTandem }, $"Cancel tandem movement toggle.", (Target)Target.Self())
                     .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
                     // Remove toggle from self
@@ -2548,9 +2535,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 //output.WithPossibilityGroup("Tandem Actions");
                 return output;
             } else {
-                Possibility tandemMove = (Possibility)(ActionPossibility)new CombatAction(self, illTandemMovement, "Enable Tandem Movement",
+                Possibility tandemMove = (ActionPossibility)new CombatAction(self, illTandemMovement, "Enable Tandem Movement",
                 new Trait[] { tSummoner, tTandem, Trait.Basic },
-                "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next stride action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single stride action.",
+                (self == summoner ? "Your" : "Your eidolon's") + " next stride action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single stride action.",
                 (Target)Target.Self()) {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next stride action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single stride action."
                 }
@@ -2572,7 +2559,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 if (action.ActionId == ActionId.Stride) {
                                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
 
-                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will move randomly. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
+                                    if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will move randomly. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration ?? IllustrationName.UnknownCreature, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
                                         return;
                                     }
 
@@ -2600,7 +2587,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             })
                         });
                     }));
-                    //tandemMove.WithPossibilityGroup("Tandem Actions");
                     return tandemMove;
             }
         }

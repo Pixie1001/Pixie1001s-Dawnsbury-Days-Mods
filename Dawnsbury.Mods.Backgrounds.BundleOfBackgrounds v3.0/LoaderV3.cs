@@ -1359,11 +1359,14 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 "You died. No real doubt about that. Arrow to the eye or knife to the throat, you were dead as dead can be. Then you got back up again. Maybe you had some unfinished business, " +
                 "or maybe you were just so tough and so mean that Hell itself spat you out. Either way, you came back for a reason.",
                 "You're trained in {b}Religion{/b}.\n\nYou gain the {b}Undead{/b} trait, causing negative energy to heal you while positive energy becomes harmful.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Charisma), new FreeAbilityBoost() })
-            .WithOnSheet(sheet => {
-                sheet.GrantFeat(FeatName.Religion);
+            .WithOnCreature((you) =>
+            {
+                you.Traits.Add(Trait.Undead);
+                you.AddQEffect(QEffect.DamageImmunity(DamageKind.Negative));
             })
-            .WithOnCreature(creature => {
-                creature.Traits.Add(Trait.Undead);
+            .WithOnSheet(sheet =>
+            {
+                sheet.GrantFeat(FeatName.Religion);
             });
             output.FeatGroup = PivotalEvent;
             output.Traits.Add(tRare);

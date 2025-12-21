@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .WithCreatureId(CreatureIds.DrowArcanist)
             .WithProficiency(Trait.Melee, Proficiency.Trained)
-            .WithProficiency(Trait.Arcane, Proficiency.Expert)
+            .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()
             .AddHeldItem(Items.CreateNew(ItemName.RepeatingHandCrossbow))
             .AddQEffect(CommonQEffects.Drow())

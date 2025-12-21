@@ -1,4 +1,18 @@
-﻿[*.cs]
+﻿root = true
 
-# CS1998: Async method lacks 'await' operators and will run synchronously
-dotnet_diagnostic.CS1998.severity = none
+[*.cs]
+
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
+csharp_new_line_before_members_in_anonymous_types = false
+csharp_new_line_before_members_in_object_initializers = false
+csharp_new_line_before_open_brace = false
+csharp_new_line_between_query_expression_clauses = false
+
+# CS8600: Converting null literal or possible null value to non-nullable type.
+dotnet_diagnostic.CS8600.severity = silent
+
+[*.{cs,vb}]
+
+dotnet_diagnostic.IDE0051.severity = none

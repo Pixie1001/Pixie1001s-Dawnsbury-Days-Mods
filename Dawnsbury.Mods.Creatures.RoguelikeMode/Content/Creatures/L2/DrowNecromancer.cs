@@ -36,7 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .WithCreatureId(CreatureIds.DrowNecromancer)
             .WithProficiency(Trait.Melee, Proficiency.Trained)
-            .WithProficiency(Trait.Occult, Proficiency.Expert)
+            .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()
             .AddQEffect(CommonQEffects.Drow())
             .AddQEffect(new QEffect() {

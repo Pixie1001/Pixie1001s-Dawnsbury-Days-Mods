@@ -76,7 +76,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(CommonQEffects.DrowClergy())
             .WithBasicCharacteristics()
             .WithProficiency(Trait.Weapon, Proficiency.Trained)
-            .WithProficiency(Trait.Divine, Proficiency.Expert)
+            .WithProficiency(Trait.Spell, Proficiency.Expert)
             .AddHeldItem(Items.CreateNew(CustomItems.ScourgeOfFangs))
             .WithSpellProficiencyBasedOnSpellAttack(11, Ability.Wisdom)
             .AddSpellcastingSource(SpellcastingKind.Prepared, Trait.Cleric, Ability.Wisdom, Trait.Divine).WithSpells(

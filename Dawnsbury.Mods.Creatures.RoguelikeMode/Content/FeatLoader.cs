@@ -126,7 +126,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     .WithEffectOnSelf(user => {
                         var stance = KineticistCommonEffects.EnterStance(user, Illustrations.MonasticArcherStance,
                             "Monastic Archer Stance", "While in this stance, you can use your monk feats or monk abilities " +
-                            "that normally require unarmed attacks with longbows, shortsbows and monk bows instead.", QEffectIds.MonasticArcherStance);
+                            "that normally require unarmed attacks with longbows, shortsbows and monk bows instead at targets within half of your weapon's first range increment.", QEffectIds.MonasticArcherStance);
                         stance.PreventTakingAction = action => action.HasTrait(Trait.Strike)
                             && !((action.Item != null
                             && action.Item.HasTrait(Trait.MonkWeapon)
@@ -716,6 +716,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             strike.Name = "One-Inch Punch (" + actionCount + " actions)";
                             strike.Illustration = actionCount == 2 ? IllustrationName.TwoActions : IllustrationName.ThreeActions;
                             strike.ActionCost = actionCount;
+                            (strike.Target as CreatureTarget)!.CreatureTargetingRequirements.RemoveAll(req => req is MaximumRangeCreatureTargetingRequirement);
+                            (strike.Target as CreatureTarget)!.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(strike.Item?.WeaponProperties?.RangeIncrement / 2 ?? 1));
                             return strike;
                         }
 
@@ -740,7 +742,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 ProvideMainAction = qfSelf => {
                     return (ActionPossibility)new CombatAction(qfSelf.Owner, IllustrationName.FlurryOfBlows,
                         "Flurry of Blows", [Trait.Monk, Trait.Flourish],
-                        "Make two unarmed or shuriken Strikes.\n\nIf both hit the same creature, " +
+                        $"Make two unarmed {(qfSelf.Owner.HasFeat(MonasticWeaponry) ? " or monk weapon" : "")} strikes{(qfSelf.Owner.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance) ? " or two shuriken strike"
+                                : qfSelf.Owner.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance) ? " or two attacks with a bow at half range increment" : "")}.\n\nIf both hit the same creature, " +
                         "combine their damage for the purpose of resistances and weaknesses. Apply your multiple attack penalty to the Strikes normally." +
                         "\n\nAs it has the flourish trait, you can use Flurry of Blows only once per turn.",
                     Target.Self()
@@ -773,7 +776,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         && !user.HeldItems.Any(wp => wp.HasTrait(Trait.MonkWeapon)))
                         || user.PrimaryWeapon == null
                         || user.QEffects.Any(qf => qf.PreventTakingAction != null && qf.PreventTakingAction(user.CreateStrike(user.PrimaryWeapon)) != null))
-                            return $"You must be able to make a melee unarmed{(user.HasFeat(MonasticWeaponry) ? " or monk weapon" : "")} strike{(user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance || qf.Id == QEffectIds.MonasticArcherStance) ? " or ranged attack appropriate to your stance" : "")} to use Flurry of Blows.";
+                            return $"You must be able to make a melee unarmed{(user.HasFeat(MonasticWeaponry) ? " or monk weapon" : "")} strike{(user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance) ? " or shuriken strike"
+                                : user.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance) ? " or an attack with a bow at half its range increment" : "")} to use Flurry of Blows.";
 
                         if (user.MeleeWeapons.Any(weapon => (weapon.HasTrait(Trait.Unarmed) || weapon.HasTrait(Trait.MonkWeapon)) && CommonRulesConditions.CouldMakeStrike(user, weapon))) {
                             return null;
@@ -875,6 +879,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 foreach (var maneuverAction in CombatManeuverPossibilities.GetAllShoveGrappleAndTripOptions(self)) {
                                     GameLoop.AddDirectUsageOnCreatureOptions(maneuverAction.WithActionCost(0), possibilities, true);
                                 }
+                            }
+
+                            if (i == 0 && possibilities.Count == 0) {
+                                spell.RevertRequested = true;
+                                return;
                             }
 
                             if (possibilities.Count > 0) {

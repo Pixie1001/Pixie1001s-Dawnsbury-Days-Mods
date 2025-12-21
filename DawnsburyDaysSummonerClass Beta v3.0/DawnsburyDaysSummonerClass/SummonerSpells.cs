@@ -80,18 +80,24 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     .WithSoundEffect(SfxName.Abjuration)
                     .WithHeightenedAtSpecificLevel(spellLevel, 3, inCombat, "Add the following option:\n• Your eidolon gains reach on all of its attacks.")
                     .WithVariants(new SpellVariant[] {
-                        new SpellVariant("Amphibious", "Amphibious Evolution Surge", (Illustration) IllustrationName.ElementWater),
-                        new SpellVariant("Agility", "Agility Evolution Surge", (Illustration) IllustrationName.FleetStep),
-                        new SpellVariant("Enlarge", "Enlarge Evolution Surge", (Illustration) IllustrationName.SummonAnimal),
-                    }.Where(v => (spellLevel < 3 && v.Id != "Enlarge") || spellLevel >= 3).ToArray())
+                        new SpellVariant("Amphibious", "Amphibious Evolution Surge", IllustrationName.ElementWater),
+                        new SpellVariant("Agility", "Agility Evolution Surge", IllustrationName.FleetStep),
+                        new SpellVariant("Large", "Enlarge Evolution Surge (Large)", IllustrationName.EnlargeCompanion),
+                        new SpellVariant("Huge", "Enlarge Evolution Surge (Huge)", IllustrationName.EnlargeCompanion),
+                        new SpellVariant("Flight", "Winged Evolution Surge", IllustrationName.Fly),
+                    }.Where(v => !(spellLevel < 3 && v.Id == "Large") && !(spellLevel < 5 && (v.Id == "Huge" || v.Id == "Flight"))).ToArray())
                     .WithCreateVariantDescription((_, variant) => {
                         string text = "Until the end of the encounter, your eidolon ";
                         if (variant.Id == "Amphibious") {
                             return text + "gains a swim speed.";
                         } else if (variant.Id == "Agility") {
                             return text + "gains a +20ft status bonus to its speed.";
-                        } else if (variant.Id == "Enlarge") {
-                            return text + "gains reach on all its attacks.";
+                        } else if (variant.Id == "Large") {
+                            return text + "becomes Large, increasing its base reach to 10 feet.";
+                        } else if (variant.Id == "Huge") {
+                            return text + "becomes Huge, increasing its base reach to 15 feet.";
+                        } else if (variant.Id == "Flight") {
+                            return text + "gains a fly Speed equal to its Speed.";
                         }
                         return text;
                     })
@@ -99,7 +105,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         SpellVariant variant = spell.ChosenVariant;
                         if (variant.Id == "Amphibious") {
                             target.AddQEffect(new QEffect(
-                            variant.Name, "Your eidolon gains a +20ft status bonus to its speed.",
+                            variant.Name, "Your eidolon gains a swim speed.",
                             ExpirationCondition.Never, caster, variant.Illustration) {
                                 CountsAsABuff = true,
                                 Id = QEffectId.Swimming
@@ -111,28 +117,54 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 CountsAsABuff = true,
                                 BonusToAllSpeeds = ((Func<QEffect, Bonus>)(_ => new Bonus(4, BonusType.Status, "Evolution Surge")))
                             });
-                        } else if (variant.Id == "Enlarge") {
-                            target.AddQEffect(new QEffect(
-                            variant.Name, "Your eidolon gains reach on all its attacks.",
-                            ExpirationCondition.Never, caster, variant.Illustration) {
-                                CountsAsABuff = true,
-                                Tag = false,
-                                StateCheckWithVisibleChanges = async self => {
-                                    bool triggered = (bool) self.Tag;
-                                    if (!triggered) {
-                                        self.Tag = true;
-                                        self.Owner.UnarmedStrike.Traits.Add(Trait.Reach);
-                                        foreach (QEffect attack in self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee)) {
-                                            attack.AdditionalUnarmedStrike.Traits.Add(Trait.Reach);
+                        } else if (variant.Id == "Large") {
+                            var readdSmall = target.HasTrait(Trait.Small);
+                            if (await target.Space.GrowTo(Size.Large)) {
+                                var enlarge = new QEffect(variant.Name, "Your size is increased to Large.", ExpirationCondition.Never, caster, variant.Illustration) {
+                                    CountsAsABuff = true,
+                                };
+                                target.AddQEffect(enlarge);
+                                target.AddQEffect(new QEffect() {
+                                    StateCheckWithVisibleChanges = async self => {
+                                        if (!self.Owner.QEffects.Any(qf => qf == enlarge) || !self.Owner.AliveOrUnconscious) {
+                                            await target.Space.GrowTo(Size.Medium);
+                                            if (readdSmall) caster.Traits.Add(Trait.Small);
+                                            self.Owner.RemoveAllQEffects(qf => qf == enlarge);
+                                            self.ExpiresAt = ExpirationCondition.Immediately;
                                         }
                                     }
-                                },
-                                WhenExpires = self => {
-                                    self.Owner.UnarmedStrike.Traits.Remove(Trait.Reach);
-                                    foreach (QEffect attack in self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee)) {
-                                        attack.AdditionalUnarmedStrike.Traits.Remove(Trait.Reach);
+                                });
+                            } else {
+                                target.Overhead("nowhere to grow", Color.Red, $"{target.ToColoredBoldedName()} cannot be enlarged because there is no space to fit your eidolon's enlarged form.");
+                                spell.RevertRequested = true;
+                            }
+                        } else if (variant.Id == "Huge") {
+                            var readdSmall = target.HasTrait(Trait.Small);
+                            if (await target.Space.GrowTo(Size.Huge)) {
+                                var enlarge = new QEffect(variant.Name, "Your size is increased to Huge.", ExpirationCondition.Never, caster, variant.Illustration) {
+                                    CountsAsABuff = true,
+                                };
+                                target.AddQEffect(enlarge);
+                                target.AddQEffect(new QEffect() {
+                                    StateCheckWithVisibleChanges = async self => {
+                                        if (!self.Owner.QEffects.Any(qf => qf == enlarge) || !self.Owner.AliveOrUnconscious) {
+                                            await target.Space.GrowTo(Size.Medium);
+                                            if (readdSmall) caster.Traits.Add(Trait.Small);
+                                            self.Owner.RemoveAllQEffects(qf => qf == enlarge);
+                                            self.ExpiresAt = ExpirationCondition.Immediately;
+                                        }
                                     }
-                                }
+                                });
+                            } else {
+                                target.Overhead("nowhere to grow", Color.Red, $"{target.ToColoredBoldedName()} cannot be enlarged because there is no space to fit your eidolon's enlarged form.");
+                                spell.RevertRequested = true;
+                            }
+                        } else if (variant.Id == "Flight") {
+                            target.AddQEffect(new QEffect(
+                            variant.Name, "Your eidolon gains a fly speed.",
+                            ExpirationCondition.Never, caster, variant.Illustration) {
+                                CountsAsABuff = true,
+                                Id = QEffectId.Flying
                             });
                         }
                     }));
@@ -310,7 +342,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         $"Your eidolon releases a powerful energy attack that deals {S.HeightenedVariable(spellLevel * 2 - 1, 5)}d6 " +
                         (spellcaster != null && spellcaster.HasEffect(Enums.qfEidolonsWrath) ? HumanizeDamageKind((DamageKind)spellcaster.FindQEffect(Enums.qfEidolonsWrath).Tag) + " damage" : "damage of the type chosen when you took the Eidolon's Wrath feat") + ".",
                         new EmanationTarget(4, false), spellLevel, SpellSavingThrow.Basic(Defense.Reflex))
-                .WithNoSaveFor((a, c) => c.Destroyed ? true : true )    
+                .WithNoSaveFor((a, c) => c.Destroyed ? true : true)
                 .WithSoundEffect(SfxName.Fireball)
                 .WithHeighteningOfDamageEveryLevel(spellLevel, 3, inCombat, "2d6")
                 .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, _) => {
@@ -391,6 +423,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static string HumanizeDamageKind(DamageKind damageKind) {
             return damageKind.HumanizeTitleCase2();
         }
-        
+
     }
 }

@@ -7,9 +7,9 @@
     <description>
         A roguelike mode where you challenge a party against a variety of randomly selected encounters from levels 1-4 to see how far you can go.
 		
-		The final encounter of each day is an especially difficult elite fight. After beating them, you'll either recieve a random high level item, or your choice of two special items related to the encounter.
+		The final encounter of each day is an especially difficult elite fight. After beating them, you'll recieve your choice of two special high level items.
 		
-		Make it all the way to the final boss at level 4 to win! Your total number of deaths and restarts will be tallied up at the end.
+		Make it all the way to the final boss at level 8 to win! Your total number of deaths and restarts will be tallied up at the end.
     </description>
     <mediumRestFlavorText>Your heroes take a little rest to regain health on their long journey.</mediumRestFlavorText>
     <startingLevel>1</startingLevel>
@@ -25,9 +25,7 @@
 		
         <beginChapter>Expedition 1</beginChapter>
 		
-        <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across Our Point of Light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teeming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury.
-		
-		To assess the threat, the party must seek out the source of this anomaly themselves." shopLevel="1" />
+        <dawnsbury flavorText="The party steels their resolve as they prepare to venture forth into the sprawling subterranean tunnel network known as the Below. It is said the caverns have access points all across Our Point of Light... Some reports even claim strange eldritch creatures slithering up from deep tunnels that extend all the way down to the Other Side. Teeming with the corrupted elves known as the Drow and all manner of foul creatures, long ago shunned from the surface world by the gods, it is a harsh and unforgiving place where few who have braved its depths have ever returned. Yet for the good of the kingdom, our stalwart adventurers must brave it all the same... The first clue is an odd leyline detected by the diviners of Dawnsbury. To assess the threat, the party must seek out the source of this anomaly themselves." shopLevel="1" />
         <encounter filename="HallOfBeginnings.tmx">
         </encounter>
 		<encounter filename="HallOfBeginnings.tmx">
@@ -40,7 +38,7 @@
 		<beginChapter>Expedition 2</beginChapter>
 		
 		<levelUp flavorText="The dangers of the Below will only grow greater with each layline... Yet in turn, the strength of your party is tempered all the more by their trials." />
-		<dawnsbury flavorText="It is as they feared – the leyline is only one part of a larger underground reservoir of power... The taint of demonic sorcery an ominous indicator of whatever foul ritual is tapping into it. After studying their findings, the location of the next node in the leylines is revealed to them... Now all that iseft to do is rest and resupply before once again braving the Below..."  shopLevel="2"  />
+		<dawnsbury flavorText="It is as they feared – the leyline is only one part of a larger underground reservoir of power... The taint of demonic sorcery an ominous indicator of whatever foul ritual is tapping into it. After studying their findings, the location of the next node in the leylines is revealed to them... Now all that is left to do is rest and resupply before once again braving the Below..."  shopLevel="2"  />
 		
         <encounter filename="HallOfBeginnings.tmx">
         </encounter>

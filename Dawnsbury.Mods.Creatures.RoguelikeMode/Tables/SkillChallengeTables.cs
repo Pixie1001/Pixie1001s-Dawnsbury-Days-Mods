@@ -299,7 +299,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         result = opt1.Roll();
                         if (result <= CheckResult.Failure) {
                             await battle.Cinematics.NarratorLineAsync(PrintResult(result) + $"The slaves eyes widen in panic, mistaking the attempt to scare them away as an attack... desperately converging on the party.", null);
-                            await battle.Cinematics.NarratorLineAsync($"The escaped slaves are no match for a group of trained adventurers, and before long the rest are send fearfully scuyrrying away into the cavern... The cooling bodies of their friend's a grim reminder of the party's failure.", null);
+                            await battle.Cinematics.NarratorLineAsync($"The escaped slaves are no match for a group of trained adventurers, and before long the rest are sent fearfully scurrying away into the cavern... The cooling bodies of their friends a grim reminder of the party's failure.", null);
                             await battle.Cinematics.NarratorLineAsync("Each member of the party gains {b}Guilt 2{/b}, reducing their Will saves by 2 until they rest.", null);
                             foreach (Creature pm in battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null)) {
                                 pm.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, 2)!);

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury.Audio;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
@@ -28,7 +21,9 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
@@ -36,30 +31,36 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
-using Microsoft.Xna.Framework;
-using Dawnsbury.Core.Mechanics.Damage;
-using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using System.IO;
-using System.Buffers.Text;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
-using System.Text.RegularExpressions;
-using Dawnsbury.Display.Text;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
-using static HarmonyLib.Code;
 using Dawnsbury.Core.StatBlocks.Monsters.L1;
+using Dawnsbury.Core.StatBlocks.Monsters.L4;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
-using Microsoft.Xna.Framework.Graphics;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display.Text;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
-using Dawnsbury.Campaign.Path;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using FMOD;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Buffers.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Text.RegularExpressions;
+using System.Threading;
+using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using static HarmonyLib.Code;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -1970,7 +1971,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 .WithActionCost(3)
                 .WithSoundEffect(SfxName.DeepNecromancy)
                 .WithEffectOnEachTile(async (action, caster, tiles) => {
-                    Creature demon = MonsterStatBlocks.MonsterExemplarsByName["Abrikandilu"];
+                    Creature demon = Abrikandilu.CreateAbrikandilu();
                     if (caster.Level <= 2) {
                         demon.ApplyWeakAdjustments(false, true);
                     } else if (caster.Level == 3) {
@@ -1996,6 +1997,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                     demon.EntersInitiativeOrder = false;
                     demon.Traits.Add(Trait.Minion);
+                    demon.Traits.Add(Trait.Summoned);
+                    demon.Traits.Add(Trait.Conjuration);
                     QEffect sustainedeffect = new QEffect {
                         Id = QEffectId.SummonMonster,
                         CannotExpireThisTurn = true,
@@ -2127,6 +2130,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     });
                     demon.EntersInitiativeOrder = false;
                     demon.Traits.Add(Trait.Minion);
+                    demon.Traits.Add(Trait.Summoned);
+                    demon.Traits.Add(Trait.Conjuration);
                     QEffect sustainedeffect = new QEffect {
                         Id = QEffectId.SummonMonster,
                         CannotExpireThisTurn = true,

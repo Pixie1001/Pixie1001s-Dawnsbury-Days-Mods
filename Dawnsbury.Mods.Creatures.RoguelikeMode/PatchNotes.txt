@@ -1,8 +1,4 @@
 RL
-* Drow Temple Guard's blood ward now grants a non-stacking status bonus to AC.
-* Fixed several typos, ambiugous effect descriptions and missing text entries.
-* Removed the incorrectly assigned corruption from Duplicity Demon and added it to the lower level enemies instead on the Demonic Ambush encounter.
-* Cold iron and armour property runes are now more likely to drop, so that maxing your your armour runes and material slots is easier at higher levels
-* Shields now drop for characters with the Shield Block feat
-* Monastic Archery and Monastic Weaponry now support Ki Strike and One-Inch Punch
-* Added dialogue on first web warden encounter
+* Fixed more typos
+* Corrected spell DC and attacks mods in certain enemy statblocks
+* 
