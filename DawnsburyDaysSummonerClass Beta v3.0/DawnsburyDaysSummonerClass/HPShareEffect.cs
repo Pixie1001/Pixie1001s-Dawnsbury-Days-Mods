@@ -33,11 +33,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         public void Reset() {
-            Logs.Clear();
+            Logs!.Clear();
         }
 
         public void Clean() {
-            Logs.RemoveAll(log => log.Processed && log.Type != SummonerClassEnums.InterceptKind.TARGET);
+            Logs!.RemoveAll(log => log.Processed && log.Type != SummonerClassEnums.InterceptKind.TARGET);
         }
 
         //public void SoftReset() {
@@ -46,7 +46,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         //}
 
         public void LogAction(Creature self, CombatAction? action, Creature? attacker, SummonerClassEnums.InterceptKind type) {
-            Logs.Add(new HPShareLogEntry(self, action, attacker, type));
+            if (action != null && (action.Name == "SummonerClass: Share HP" || action.HasTrait(Enums.tTandem))) return;
+
+            Logs!.Add(new HPShareLogEntry(self, action, attacker, type));
         }
 
         public void UpdateLogs(int damage, HPShareLogEntry triggeringLog) {
@@ -59,7 +61,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             if (attacker == null) {
                 return false;
             }
-            foreach (HPShareLogEntry log in Logs) {
+            foreach (HPShareLogEntry log in Logs!) {
                 if (log.Type == SummonerClassEnums.InterceptKind.TARGET && log.LoggedAction == action && log.LoggedCreature == attacker && log.ActionHistory == attacker.Actions.ActionHistoryThisTurn && log.LoggedThisTurn) {
                     return true;
                 }
@@ -106,17 +108,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             return SummonerClassEnums.EffectKind.NONE;
         }
 
-        //public bool CompareEffects(HPShareEffect partnerLogs) {
-        //    foreach (HPShareLogEntry log in partnerLogs.Logs) {
-        //        if (this.LoggedAction == log.LoggedAction && this.LoggedCreature == log.LoggedCreature && this.ActionHistory == log.ActionHistory && this.LoggedThisTurn == log.LoggedThisTurn) {
-        //            if (this.HealOrHarm(this.Owner) == log.HealOrHarm(log.Owner)) {
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    return false;
-        //}
-
         public SummonerClassEnums.EffectKind CompareEffects(HPShareEffect partnerLogs, out HPShareLogEntry? matchingLog) {
             foreach (HPShareLogEntry log in partnerLogs.Logs) {
                 if (this.LoggedAction == log.LoggedAction && this.LoggedCreature == log.LoggedCreature && this.ActionHistory == log.ActionHistory && this.LoggedThisTurn == log.LoggedThisTurn) {
@@ -136,12 +127,5 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             matchingLog = null;
             return SummonerClassEnums.EffectKind.NONE;
         }
-
-        //public bool CompareEffects(CombatAction action, Creature attacker) {
-        //    if (this.LoggedAction == action && this.LoggedCreature == attacker && this.ActionHistory == attacker.Actions.ActionHistoryThisTurn && this.LoggedThisTurn == true) {
-        //        return true;
-        //    }
-        //    return false;
-        //}
     }
 }

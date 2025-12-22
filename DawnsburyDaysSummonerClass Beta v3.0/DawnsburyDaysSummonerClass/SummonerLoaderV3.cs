@@ -40,17 +40,9 @@ using Dawnsbury.Modding;
 //using static Microsoft.Xna.Framework.Point;
 //using static Microsoft.Xna.Framework.Vector2;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 
@@ -1304,9 +1296,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return;
                     }
                     eidolon.TurnInformation.ThisTurnIsPrimary = true;
-                    //await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step1_Upkeep", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
-                    //eidolon.Battle.GameLoop.GetType().GetMethod("Step2_Refresh", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
-                    //await (Task)eidolon.Battle.GameLoop.GetType().GetMethod("Step3_StartOfTurn", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static).Invoke(eidolon.Battle.GameLoop, new object[] { eidolon });
 
                     // Share eidolon quickened with summoner
                     if (eidolon.Actions.QuickenedForActions != null) {
@@ -1342,9 +1331,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                     } else if (quickened && sSlowed != null && (eSlowed == null || eSlowed.Value < sSlowed.Value)) {
                         summoner.Actions.ActionsLeft += 1;
-                        summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { sSlowed.Value-1, ActionDisplayStyle.Available });
+                        summoner.Actions.AnimateActionUsedTo(sSlowed.Value-1, ActionDisplayStyle.Available);
                         summoner.Actions.UsedQuickenedAction = true;
-                        summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { 3, ActionDisplayStyle.Slowed });
+                        summoner.Actions.AnimateActionUsedTo(3, ActionDisplayStyle.Slowed);
                     }
 
                     if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_AutoUseActTogether")) {
@@ -1364,9 +1353,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (eidolon.Battle.InitiativeOrder.Any(cr => cr == eidolon)) {
                         eidolon.Battle.InitiativeOrder.Remove(eidolon);
                     }
-
-                    // Handle drained mirror addition
-                    // HandleDrainedSharing(qf.Owner, eidolon, true);
 
                     // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
                     if (eidolon.Destroyed == true) {
@@ -1396,13 +1382,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         eidolon.GainTemporaryHP(qf.Owner.TemporaryHP);
                     }
                 }),
-                EndOfYourTurnBeneficialEffect = (Func<QEffect, Creature, Task>)(async (qfEndOfTurn, summoner) => {
+                EndOfYourTurnBeneficialEffect = async (qfEndOfTurn, summoner) => {
                     Creature eidolon = GetEidolon(summoner);
 
                     eidolon.Actions.ForgetAllTurnCounters();
                     summoner.Battle.ActiveCreature = summoner;
-                }),
-                ProvideMainAction = (Func<QEffect, Possibility>)(qfSummoner => {
+                },
+                ProvideMainAction = qfSummoner => {
                     Creature? eidolon = GetEidolon(qfSummoner.Owner);
                     if (eidolon == null || eidolon.OwningFaction != qfSummoner.Owner.OwningFaction || !eidolon.Actions.CanTakeActions() || qfSummoner.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
                         return (Possibility)null;
@@ -1421,8 +1407,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     //output.WithPossibilityGroup("Summoner");
                     return output;
-                }),
-                YouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfHealOrHarm, action) => {
+                },
+                YouAreTargeted = async (qfHealOrHarm, action) => {
                     if (action.Name == "Command your Eidolon") {
                         return;
                     }
@@ -1432,14 +1418,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }
 
                     HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == GetEidolon(qfHealOrHarm.Owner)));
-                    HPShareEffect eidolonShareHP = (HPShareEffect)GetEidolon(qfHealOrHarm.Owner).QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == qfHealOrHarm.Owner));
+                    HPShareEffect eidolonShareHP = (HPShareEffect)GetEidolon(qfHealOrHarm.Owner).QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond && qf.Source == qfHealOrHarm.Owner);
 
                     if (action == shareHP.CA || action == eidolonShareHP.CA) {
                         return;
                     }
 
                     shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                }),
+                },
                 AfterYouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfShareHP, action) => {
                     if (action.Name == "Command your Eidolon") {
                         return;
@@ -1468,10 +1454,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return null;
                     }
 
-                    // Check if effect is coming from self
-                    if (damageStuff.Power.Name == "SummonerClass: Share HP") {
-                        return null;
-                    }
+                    //// Check if effect is coming from self
+                    //if (damageStuff.Power?.Name == "SummonerClass: Share HP" || (damageStuff.Power != null && damageStuff.Power.HasTrait(tTandem))) {
+                    //    return null;
+                    //}
 
                     HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
 
@@ -1488,10 +1474,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return;
                     }
 
-                    // Check if effect is coming from self
-                    if (action.Name == "SummonerClass: Share HP") {
-                        return;
-                    }
+                    //// Check if effect is coming from self or a tandem action
+                    //if (action != null && (action.Name == "SummonerClass: Share HP" || action.HasTrait(tTandem))) {
+                    //    return;
+                    //}
 
                     Creature summoner = qfPostHazardDamage.Owner;
                     Creature eidolon = GetEidolon(summoner);
@@ -1626,6 +1612,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             eidolon.DeathScheduledForNextStateCheck = false;
                             eidolon.Actions.ActionsLeft = 0;
                             eidolon.Actions.UsedQuickenedAction = true;
+                            eidolon.AnimationData.ChangeSize(eidolon);
                             // TODO: Debug reaction being spntaneously used up. Maybed caused here?
                             // eidolon.Actions.IsReactionUsedUp = summoner.Actions.IsReactionUsedUp;
                             // Balance HP
@@ -1965,7 +1952,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                         return null;
                     },
-                    StateCheckWithVisibleChanges = (async qf => {
+                    StateCheckWithVisibleChanges = async qf => {
                         Creature summoner = GetSummoner(qf.Owner);
 
                         // Handle instant death effect
@@ -1993,12 +1980,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
 
                         // Handle AoO
-                        HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                        HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
                         if (shareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
                             await HandleHealthShare(summoner, qf.Owner, SummonerClassEnums.InterceptKind.TARGET);
                         }
 
-                        HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                        HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
                         if (summonerShareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
                             await HandleHealthShare(qf.Owner, summoner, SummonerClassEnums.InterceptKind.TARGET);
                         }
@@ -2009,17 +1996,72 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         } else if (qf.Owner.TemporaryHP > summoner.TemporaryHP) {
                             summoner.GainTemporaryHP(qf.Owner.TemporaryHP);
                         }
-                    }),
-                    YouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfHealOrHarm, action) => {
-                        HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-                        HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond && qf.Source == qfHealOrHarm.Owner));
+                    },
+                    YouAreTargeted = async (qfHealOrHarm, action) => {
+                        HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
+                        HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond && qf.Source == qfHealOrHarm.Owner);
 
                         if (action == shareHP.CA || action == summonerShareHP.CA) {
                             return;
                         }
 
                         shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                    }),
+                    },
+                    AfterYouAreTargeted = async (qfShareHP, action) => {
+                        Creature summoner = GetSummoner(qfShareHP.Owner);
+                        Creature eidolon = qfShareHP.Owner;
+
+                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.TARGET);
+                    },
+                    YouAreDealtDamage = async (qfPreHazardDamage, attacker, damageStuff, defender) => {
+                        // Check if effect is coming from self
+                        if (damageStuff.Power?.Name == "SummonerClass: Share HP" || (damageStuff.Power != null && damageStuff.Power.HasTrait(tTandem))) {
+                            return null;
+                        }
+
+                        HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
+
+                        // Check if caught by target check
+                        if (shareHP.CheckForTargetLog(damageStuff.Power, attacker)) {
+                            return null;
+                        }
+
+                        shareHP.LogAction(qfPreHazardDamage.Owner, damageStuff.Power, attacker, SummonerClassEnums.InterceptKind.DAMAGE);
+                        return null;
+
+                        //if (attacker == qfPreHazardDamage.Owner.Battle.Pseudocreature) {
+                        //    qfPreHazardDamage.Owner.Battle.Log("{b}HAZARD DAMAGE LOGGED{/b}");
+                        //}
+                        //return null;
+                    },
+                    AfterYouTakeDamageOfKind = async (qfPostHazardDamage, action, kind) => {
+                        Creature summoner = GetSummoner(qfPostHazardDamage.Owner);
+                        Creature eidolon = qfPostHazardDamage.Owner;
+
+                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.DAMAGE);
+                    },
+                    AfterYouAreHealed = async (self, action, amount) => {
+                        if (self.Owner.Destroyed) {
+                            return;
+                        }
+
+                        // Check if effect is coming from self or a tandem action
+                        if (action != null && (action.Name == "SummonerClass: Share HP" || action.HasTrait(tTandem))) {
+                            return;
+                        }
+
+                        Creature eidolon = self.Owner;
+                        Creature summoner = GetSummoner(eidolon);
+
+                        HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
+
+                        // Check if caught by target check
+                        if (shareHP.CheckForTargetLog(action, action.Owner)) {
+                            return;
+                        }
+
+                        summoner.Heal(DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
+                    },
                     BonusToSpellSaveDCs = qf => {
                         if (qf.Owner.Spellcasting == null) {
                             return null;
@@ -2045,13 +2087,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                         return null;
                     },
-                    AfterYouAreTargeted = (Func<QEffect, CombatAction, Task>)(async (qfShareHP, action) => {
-                        Creature summoner = GetSummoner(qfShareHP.Owner);
-                        Creature eidolon = qfShareHP.Owner;
-
-                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.TARGET);
-                    }),
-                    EndOfAnyTurn = (Action<QEffect>)(qfEndOfTurn => {
+                    EndOfAnyTurn = qfEndOfTurn => {
                         HPShareEffect shareHP = (HPShareEffect)qfEndOfTurn.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
                         if (shareHP != null) {
                             shareHP.Reset();
@@ -2068,57 +2104,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             int healing = eidolon.HP - summoner.HP;
                             summoner.Heal($"{healing}", shareHP.CA);
                         }
-                    }),
-                    YouAreDealtDamage = (Func<QEffect, Creature, DamageStuff, Creature, Task<DamageModification?>>)(async (qfPreHazardDamage, attacker, damageStuff, defender) => {
-                        // Check if effect is coming from self
-                        if (damageStuff.Power.Name == "SummonerClass: Share HP") {
-                            return null;
-                        }
-
-                        HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-
-                        // Check if caught by target check
-                        if (shareHP.CheckForTargetLog(damageStuff.Power, attacker)) {
-                            return null;
-                        }
-
-                        shareHP.LogAction(qfPreHazardDamage.Owner, damageStuff.Power, attacker, SummonerClassEnums.InterceptKind.DAMAGE);
-                        return null;
-
-                        //if (attacker == qfPreHazardDamage.Owner.Battle.Pseudocreature) {
-                        //    qfPreHazardDamage.Owner.Battle.Log("{b}HAZARD DAMAGE LOGGED{/b}");
-                        //}
-                        //return null;
-                    }),
-                    AfterYouTakeDamageOfKind = (async (qfPostHazardDamage, action, kind) => {
-                        Creature summoner = GetSummoner(qfPostHazardDamage.Owner);
-                        Creature eidolon = qfPostHazardDamage.Owner;
-
-                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.DAMAGE);
-                    }),
-                    AfterYouAreHealed = async (self, action, amount) => {
-                        if (self.Owner.Destroyed) {
-                            return;
-                        }
-
-                        // Check if effect is coming from self
-                        if (action != null && action.Name == "SummonerClass: Share HP") {
-                            return;
-                        }
-
-                        Creature eidolon = self.Owner;
-                        Creature summoner = GetSummoner(eidolon);
-
-                        HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
-
-                        // Check if caught by target check
-                        if (shareHP.CheckForTargetLog(action, action.Owner)) {
-                            return;
-                        }
-
-                        summoner.Heal(DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
                     },
-                    AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
+                    AfterYouTakeAction = async (qf, action) => {
                         Creature eidolon = qf.Owner;
 
                         // Focus points
@@ -2130,7 +2117,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         if (summoner != null && action.Traits.Contains(Trait.Attack)) {
                             summoner.Actions.AttackedThisManyTimesThisTurn = eidolon.Actions.AttackedThisManyTimesThisTurn;
                         }
-                    }),
+                    },
                     AfterYouAcquireEffect = async (self, nQf) => {
                         if (nQf.Id == QEffectId.Stunned) {
                             Creature summoner = GetSummoner(self.Owner);
@@ -2379,9 +2366,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         partnerLog.Processed = true;
 
                         int healing = self.HP - log.HP;
-                        partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
-
                         int damage = (partnerLog.HP + partnerLog.TempHP) - totalHPPartner;
+                        partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
                         await CommonSpellEffects.DealDirectSplashDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, DamageKind.Untyped);
 
                         selfShareHP.UpdateLogs(damage, log);
@@ -2393,11 +2379,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                         partnerLog.Processed = true;
 
-                        int damage = (log.HP + log.TempHP) - totalHPSelf;
-                        await CommonSpellEffects.DealDirectSplashDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, DamageKind.Untyped);
-
                         int healing = partner.HP - partnerLog.HP;
+                        int damage = (log.HP + log.TempHP) - totalHPSelf;
                         self.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
+                        await CommonSpellEffects.DealDirectSplashDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, DamageKind.Untyped);
 
                         selfShareHP.UpdateLogs(-healing, log);
                         partnerShareHP.UpdateLogs(damage, log);
@@ -2428,12 +2413,31 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             int partnerReach = (partner.MeleeWeapons.Any(mw => mw.HasTrait(Trait.Reach)) ? 1 : 0) + partner.Space.NaturalReach;
 
-            Possibility tandemStrike = (Possibility)(ActionPossibility)new CombatAction(self, illTandemStrike, "Enable Tandem Strike",
+            Possibility tandemStrike = (ActionPossibility)new CombatAction(self, illTandemStrike, "Enable Tandem Strike",
             new Trait[] { tSummoner, tTandem, Trait.Basic },
             (self == summoner ? "You make" : "Your eidolon makes") + " a melee strike against the target. " + (self == summoner ? "Your eidolon" : "You") + " may then make a follow up strike against the same target. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after both attacks have been made.",
             Target.ReachWithAnyWeapon().WithAdditionalConditionOnTargetCreature((a, d) => {
                 if (self.HasEffect(Enums.qfActTogetherToggle)) return Usability.NotUsable("You cannot use a tandem action to take another tandem action.");
-                if (partner.MeleeWeapons.Count() == 0 || partner.CreateStrike(partner.MeleeWeapons.ToArray()[0]).WithActionCost(0).CanBeginToUse(partner)) return Usability.NotUsableOnThisCreature("partner-cannot-attack");
+
+                var ownAttack = a.MeleeWeapons.Count() == 0 ? null : a.CreateStrike(a.MeleeWeapons.ToArray()[0]).WithActionCost(0);
+                var partnerAttack = partner.MeleeWeapons.Count() == 0 ? null : partner.CreateStrike(partner.MeleeWeapons.ToArray()[0]).WithActionCost(0);
+
+                if (ownAttack == null || partnerAttack == null) return Usability.NotUsable("Either the summoner or their eidolon is inacapable of attacking.");
+
+                foreach (QEffect qEffect in a.QEffects) {
+                    string text = qEffect.PreventTakingAction?.Invoke(ownAttack);
+                    if (text != null) {
+                        return Usability.NotUsable("you-cannot-attack");
+                    }
+                }
+
+                foreach (QEffect qEffect in partner.QEffects) {
+                    string text = qEffect.PreventTakingAction?.Invoke(partnerAttack);
+                    if (text != null) {
+                        return Usability.NotUsable("partner-cannot-attack");
+                    }
+                }
+
                 if (!MeleeReachCreatureTargetingRequirement.WithinReach(partner, d, partnerReach)) return Usability.NotUsableOnThisCreature("partner-out-of-range");
                 return Usability.Usable;
                 }))
@@ -2501,7 +2505,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     chosenOption = (await attacker.Battle.SendRequest(new AdvancedRequest(attacker, "Choose a creature to Strike.", options)
                                     {
                                         TopBarText = $"Choose a creature to Strike or right-click to cancel.",
-                                        TopBarIcon = illTandemStrike
+                                        TopBarIcon = attacker.Illustration
                                     })).ChosenOption;
                                 }
                                 else
@@ -2509,8 +2513,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                                 if (chosenOption is CancelOption)
                                 {
-                                    if (attacker == self)
-                                        spell.RevertRequested = true;
+                                    if (attacker == partner) {
+                                        self.Battle.Log("Tandem Strike was converted to a regular Strike.");
+                                        spell.SpentActions = 1;
+                                    }
+                                    spell.RevertRequested = true;
                                     return;
                                 }
                                 await chosenOption.Action();
@@ -2542,7 +2549,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next stride action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single stride action."
                 }
                     .WithActionCost(0)
-                    .WithEffectOnSelf((Action<Creature>)(self => {
+                    .WithEffectOnSelf(self => {
                         // Give toggle qf to self
                         self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
                         self.AddQEffect(new QEffect("Tandem Movement Toggled", "Your next stride action cost will also grant a free stride action to your bonded partner.") {
@@ -2574,19 +2581,22 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     QEffect actTogether = new QEffect("Tandem Movement", "Immediately take a single stride action.") {
                                         Illustration = IllustrationName.Haste,
                                         Id = qfActTogether,
+                                        StateCheckWithVisibleChanges = async qfSelf => {
+                                            if (qfSelf.ExpiresAt == ExpirationCondition.Immediately) return;
+                                            qfSelf.ExpiresAt = ExpirationCondition.Immediately;
+                                            await PartnerActs(self, partner, true, a => {
+                                                if (a.ActionId != ActionId.Stride && a.ActionId != ActionId.EndTurn) {
+                                                    return "Only the stride action is allowed during a tandem movement turn.";
+                                                }
+                                                return null;
+                                            });
+                                        }
                                     };
                                     partner.AddQEffect(actTogether);
-                                    await PartnerActs(self, partner, true, (a => {
-                                        if (a.ActionId != ActionId.Stride && a.ActionId != ActionId.EndTurn) {
-                                            return "Only the stride action is allowed during a tandem movement turn.";
-                                        }
-                                        return null;
-                                    }));
-                                    partner.RemoveAllQEffects(effect => effect == actTogether);
                                 }
                             })
                         });
-                    }));
+                    });
                     return tandemMove;
             }
         }
@@ -2612,14 +2622,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action."
                 }
                     .WithActionCost(0)
-                    .WithEffectOnSelf((Action<Creature>)(self => {
+                    .WithEffectOnSelf(self => {
                         self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
                         // Give toggle qf to self
                         self.AddQEffect(new QEffect("Act Together Toggled", "Your next action of 1+ cost will also grant a single quickened action to your bonded partner.") {
                         Id = qfActTogetherToggle,
                         ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
                         Illustration = illActTogetherStatus,
-                        AfterYouTakeAction = (Func<QEffect, CombatAction, Task>)(async (qf, action) => {
+                        AfterYouTakeAction = async (qf, action) => {
                             if (action.ActuallySpentActions > 0) {
                                 self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
 
@@ -2638,16 +2648,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 QEffect actTogether = new QEffect("Act Together", "Immediately take a single 1 cost action.") {
                                     Illustration = IllustrationName.Haste,
                                     Id = qfActTogether,
+                                    StateCheckWithVisibleChanges = async qfSelf => {
+                                        if (qfSelf.ExpiresAt == ExpirationCondition.Immediately) return;
+                                        qfSelf.ExpiresAt = ExpirationCondition.Immediately;
+                                        await PartnerActs(self, partner, true, null);
+                                    }
                                 };
                                 partner.AddQEffect(actTogether);
-
-                                await PartnerActs(self, partner, true, null);
-                                partner.RemoveAllQEffects(effect => effect == actTogether);
                             }
-                        })
+                        }
                     });
-                }));
-                //actTogether.WithPossibilityGroup("Tandem Actions");
+                });
                 return actTogether;
             }
         }

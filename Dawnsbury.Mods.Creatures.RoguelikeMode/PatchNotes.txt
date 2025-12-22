@@ -1,4 +1,4 @@
 RL
 * Fixed more typos
 * Corrected spell DC and attacks mods in certain enemy statblocks
-* 
+* Fixed bug where Demon Bound Ring could cause a game over or crash
