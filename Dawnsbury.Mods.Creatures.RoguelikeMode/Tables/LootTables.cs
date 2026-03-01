@@ -215,7 +215,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             // Add shields
             if (character.HasFeat(FeatName.ShieldBlock))
             {
-                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => item.Level > 0 && item.HasTrait(Trait.Shield))).ToList();
+                weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => item.Level > 0 && levelRange(item.Level) && item.HasTrait(Trait.Shield))).ToList();
             }
 
             // Add banners
@@ -275,7 +275,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 };
             }
 
-            // Populate highl evel rewards here
+            // Populate high level rewards here
             List<ValueTuple<Item, string>?> output = [];
 
             if (rewards == null)
@@ -284,18 +284,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             for (int i = 0; i < Math.Min(amount, rewards.Count); i++) {
                 output.Add(UtilityFunctions.ChooseAtRandom(rewards.Where(entry => !output.Contains(entry)).ToList()));
             }
-
-            foreach (var reward in output) {
-                if (reward == default(ValueTuple<Item, string>)) continue;
-
-                if (reward!.Value.Item1.HasTrait(ModTraits.CannotHavePropertyRune)) {
-                    if (level <= 2)
-                        reward.Value.Item1.WithModificationRune(ItemName.WeaponPotencyRunestone);
-                    if (level <= 4)
-                        reward.Value.Item1.WithModificationRune(ItemName.StrikingRunestone);
-                }
-            }
-            
 
             return output;
         }

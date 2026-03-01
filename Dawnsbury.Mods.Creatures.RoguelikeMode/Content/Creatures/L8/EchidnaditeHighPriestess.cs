@@ -155,7 +155,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             item.WeaponProperties!.ItemBonus = 1;
             item.WeaponProperties!.WithAdditionalPersistentDamage("1d6", DamageKind.Bleed);
             item.Traits.Add(Trait.HandEphemeral);
-            item.Name = "+1 striking wounding javelin";
+            item.ProsaicName = "+1 striking wounding javelin";
             return item;
         }
 

@@ -63,13 +63,6 @@ using Microsoft.Xna.Framework.Audio;
 using static System.Reflection.Metadata.BlobBuilder;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Campaign.Path;
-using Dawnsbury.Campaign.Path.CampaignStops;
-using Dawnsbury.Core.Animations.Movement;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using Dawnsbury.Campaign.Encounters.Quest_for_the_Golden_Candelabra;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 {

@@ -1,4 +1,8 @@
 RL
-* Fixed more typos
-* Corrected spell DC and attacks mods in certain enemy statblocks
-* Fixed bug where Demon Bound Ring could cause a game over or crash
+* Displayed loot should now match the loot you actually get at the end of an encounter (Skill challenges still need to be scripted to display any gold or items you won from them)
+* Added an icon for the campaign to match the base game adventure paths
+* Fixed a bug where randomly dropped shields could be of a very high level
+* Fixed a bug where spells intended only for use by NPCs appeared as uncastable scrolls
+* Reduced sell price of Blood Bond Amulets
+* The Powerful Adversary modifier used by the Drider and Abyssal Handmaiden now works similarly to the Two-Headed Troll
+* Fixed depreciated code segments

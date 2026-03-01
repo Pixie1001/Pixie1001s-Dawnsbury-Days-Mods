@@ -19,7 +19,6 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Display.Text;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Campaign.Encounters.Evil_from_the_Stars;
 
@@ -27,24 +26,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class FeedingFrenzy : Level4Encounter {
+    internal class FeedingFrenzy : NormalEncounter {
         public FeedingFrenzy(string filename) : base("Feeding Frenzy", filename) {
             this.Map.Description = CommonEncounterFuncs.DefaultAquoticCombatDesc;
-            this.CharacterLevel = 4;
-            this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
-            if (Rewards.Count == 0) {
-                CommonEncounterFuncs.SetItemRewards(Rewards, 4, EncounterType.NORMAL);
-            }
-
-            // Run setup
-            this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                await CommonEncounterFuncs.StandardEncounterSetup(battle);
-            });
-
-            // Run cleanup
-            this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                await CommonEncounterFuncs.StandardEncounterResolve(battle);
-            });
         }
 
         public override void ModifyCreatureSpawningIntoTheEncounter(Creature creature) {

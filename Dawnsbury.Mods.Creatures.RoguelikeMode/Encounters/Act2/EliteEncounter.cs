@@ -7,6 +7,8 @@ using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
 
@@ -19,9 +21,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
             this.CharacterLevel = CampaignState.Instance?.CurrentLevel ?? this.Map.Level;
             this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.ELITE);
             EliteRewards = eliteRewards;
-            if (eliteRewards == null && Rewards.Count == 0) {
-                CommonEncounterFuncs.SetItemRewards(Rewards, CharacterLevel, EncounterType.ELITE);
-            }
 
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
@@ -48,6 +47,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters {
             } else if (EliteRewards.Count == 1) {
                 EliteRewards = EliteRewards.Concat(LootTables.RollEliteReward(this.CharacterLevel)).ToList();
             }
+            // Upgrade low level weapons
+            foreach (var reward in EliteRewards) {
+                if (reward!.Value.Item1.HasTrait(Trait.Weapon) && !reward.Value.Item1.HasTrait(Trait.SpecificMagicWeapon)) {
+                    if (this.CharacterLevel >= 2) {
+                        reward!.Value.Item1.WithModificationRune(ItemName.WeaponPotencyRunestone);
+                    }
+                    if (this.CharacterLevel >= 3) {
+                        reward!.Value.Item1.WithModificationRune(ItemName.StrikingRunestone);
+                    }
+                }
+            }
+
             await CommonEncounterFuncs.PresentEliteRewardChoice(battle, EliteRewards);
             await CommonEncounterFuncs.StandardEncounterResolve(battle);
         }

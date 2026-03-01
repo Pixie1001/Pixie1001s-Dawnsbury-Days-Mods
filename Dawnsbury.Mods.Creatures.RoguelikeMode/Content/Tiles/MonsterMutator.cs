@@ -26,8 +26,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class GrantMonsterMutator {
 
-        public static (string, Func<Tile, Encounter?, TileQEffect>) Create() {
-            return ("MonsterMutator", (tile, encounter) => new TileQEffect(tile) {
+        public static (string, CustomTileKind, Func<Tile, Encounter?, TileQEffect>) Create() {
+            return ("MonsterMutator", CustomTileKind.CreatureModifier, (tile, encounter) => new TileQEffect(tile) {
                 StateCheck = self => {
                     string level = "1";
                     if ((CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("corruption level", out level) && level != "1") || (CampaignState.Instance == null && !PlayerProfile.Instance.IsBooleanOptionEnabled("RL_Corruption2"))) {

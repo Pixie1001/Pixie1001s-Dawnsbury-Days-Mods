@@ -18,9 +18,6 @@ using Dawnsbury.Core.Mechanics.Rules;
 using System.Data;
 using System.Runtime.CompilerServices;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level2;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level3;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics;
 using static Dawnsbury.Core.Mechanics.Rules.RunestoneRules;
@@ -375,9 +372,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     equipment.Description += "\n";
                 Item obj1 = equipment;
                 obj1.Description = obj1.Description + "{b}" + runestone?.RuneProperties?.Prefix.Capitalize() + ".{/b} " + runestone?.RuneProperties?.RulesText;
-                equipment.Name = itemTemplate.Name;
+                equipment.ProsaicName = itemTemplate.Name;
                 foreach (Item obj2 in (IEnumerable<Item>)equipment.Runes.OrderByDescending(rune => rune?.RuneProperties?.RuneKind))
-                    equipment.Name = obj2.RuneProperties?.Prefix + " " + equipment.Name;
+                    equipment.ProsaicName = obj2.RuneProperties?.Prefix + " " + equipment.Name;
                 return false;
             }
             return true;
@@ -501,6 +498,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 
                 i += 1;
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("MainMenuPhase", "Draw")]
+        private static void MainMenuPhaseDrawPatch(MainMenuPhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            if (Loader.SetIcon[0] == true) return;
+
+            var adventure = ModdedAdventurePaths.AllModdedPaths.FirstOrDefault(p => p.Id == "RoguelikeMode");
+            if (adventure != null) adventure.Icon = Illustrations.RLModeIcon;
         }
 
         [HarmonyPostfix]
@@ -784,10 +790,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     if (encounterType == ModEnums.EncounterType.NORMAL) {
                         removed += 1;
                     } else if (encounterType == ModEnums.EncounterType.ELITE) {
-                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(path[i], IllustrationName.GrimTendrils);
+                        path[i].Icon = Illustrations.EliteEncounter;
                     } else if (encounterType == ModEnums.EncounterType.BOSS) {
-                        //typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(path[i], IllustrationName.Evil);
-                        typeof(CampaignStop).GetField("<Icon>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)?.SetValue(path[i], IllustrationName.Evil);
+                        path[i].Icon = Illustrations.BossEncounter;
                     } else if (encounterType == ModEnums.EncounterType.EVENT) {
                         SkillChallengeTables.chosenEvents.Add(i, SkillChallengeTables.events[rand.Next(0, SkillChallengeTables.events.Count())]);
                         SkillChallengeTables.events.Remove(SkillChallengeTables.chosenEvents[i]);

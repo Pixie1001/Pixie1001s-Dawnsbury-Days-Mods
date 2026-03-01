@@ -663,7 +663,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                [Trait.Runestone, Trait.Illusion, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
             .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
             .WithRuneProperties(new RuneProperties("opportunism", RuneKind.WeaponProperty, "By embedding the teeth of a vanquished chimera into steel, a measure of its ruthless opportunism can be imparted upon the victor's weapon.",
-            "All attacks made using this weapon outside of your deal double damage.", rune => {
+            "All attacks made using this weapon outside of your turn deal double damage.", rune => {
                 if (rune.WeaponProperties != null) {
                     rune.WeaponProperties.WithOnTarget(async (spell, caster, target, result) => {
                         if (spell.HasTrait(Trait.Strike) && caster.Battle.ActiveCreature != caster && result >= CheckResult.Success) {
@@ -1857,7 +1857,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![0].Illustration, $"Draw {throwable.Name.CapitalizeEachWord()}", new Trait[] { Trait.Manipulate, Trait.Basic },
                         $"Draw a {throwable.Name} from your thrower's bandolier." +
                         ((throwable.ItemName == CustomItems.Shuriken) ? "\n\n{b}Special{/b} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action." : ""),
-                        Target.Self().WithAdditionalRestriction(you => you.HeldItems.Count == 0 || (you.HeldItems.Count == 1 && !you.HeldItems[0].TwoHanded) ? null : "free hand required"))
+                        Target.Self().WithAdditionalRestriction(you => you.HasFreeHand ? null : "free hand required"))
                         .WithActionCost(cost)
                         .WithSoundEffect(SfxName.ItemGet)
                         .WithEffectOnSelf(async user => {
@@ -2482,7 +2482,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static ItemName BloodBondAmulet { get; } = ModManager.RegisterNewItemIntoTheShop("Blood Bond Amulet", itemName => {
-            return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 40,
+            return new Item(itemName, Illustrations.BloodBondAmulet, "blood bond amulet", 3, 30,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Necromancy, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike })
             .WithWornAt(Trait.Necklace)
             .WithItemGroup("Roguelike mode")

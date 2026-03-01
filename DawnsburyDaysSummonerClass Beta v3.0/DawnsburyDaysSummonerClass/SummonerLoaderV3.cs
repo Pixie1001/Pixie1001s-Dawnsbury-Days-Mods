@@ -3,6 +3,7 @@ using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.AnimationTypes;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
@@ -40,8 +41,10 @@ using Dawnsbury.Modding;
 //using static Microsoft.Xna.Framework.Point;
 //using static Microsoft.Xna.Framework.Vector2;
 using Microsoft.Xna.Framework;
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.Serialization;
 using System.Text;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
@@ -57,7 +60,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         public override Usability Satisfied(Creature source, Creature target) {
-            return target.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == this.qfEidolon && qf.Source == source)) != null ? Usability.Usable : Usability.NotUsableOnThisCreature("This ability can only be used on your eidolon.");
+            return target.QEffects.FirstOrDefault(qf => qf.Id == this.qfEidolon && qf.Source == source) != null ? Usability.Usable : Usability.NotUsableOnThisCreature("This ability can only be used on your eidolon.");
         }
     }
 
@@ -140,9 +143,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static IEnumerable<Feat> CreateFeats() {
             string[] divineTypes = new string[] { "Angel Eidolon", "Empyreal Dragon", "Diabolic Dragon", "Azata Eidolon", "Psychopmp Eidolon", "Demon Eidolon", "Devil Eidolon" };
 
-            //string rootLocation = new FileInfo("../").Directory.Parent.Parent.FullName;
-            //Directory.GetFiles(typeof(SomeTypeInsideYourDll).Location.Fullname.Directory
-            //rootLocation += "/workshop/content/2693730/3315725529/CustomMods/SummonerAssets/EidolonPortraits/";
             string rootLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             rootLocation.Substring(0, rootLocation.Length - "/DawnsburyDaysSummonerClass.dll".Length);
             string extraPath = "/SummonerAssets/EidolonPortraits/";
@@ -1278,7 +1278,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     // Balance HP
                     HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
                     if (eidolon.HP < summoner.HP) {
-                        eidolon.Heal($"{summoner.HP - eidolon.HP}", shareHP.CA);
+                        FlatHeal(eidolon, DiceFormula.FromText($"{summoner.HP - eidolon.HP}"), shareHP.CA);
                     } else if (eidolon.HP > summoner.HP) {
                         await CommonSpellEffects.DealDirectSplashDamage(shareHP.CA, DiceFormula.FromText($"{eidolon.HP - summoner.HP}"), eidolon, DamageKind.Untyped);
                     }
@@ -1338,7 +1338,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                     if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_AutoUseActTogether")) {
                         var ca = (GenerateActTogetherAction(summoner, eidolon, summoner) as ActionPossibility)?.CombatAction;
-                        if (ca != null) {
+                        if (ca != null && summoner.Actions.CanTakeActions() && !summoner.HasEffect(QEffectId.Confused) && !summoner.HasEffect(QEffectId.DurationStunned)) {
                             ca.ChosenTargets.ChosenCreature = summoner;
                             await ca.AllExecute();
                         }
@@ -1362,6 +1362,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     // Reaction
                     if (qf.Owner.Actions.IsReactionUsedUp == true) {
                         eidolon.Actions.UseUpReaction();
+                    }
+
+                    if (eidolon.HasEffect(QEffectId.DurationStunned)) {
+                        qf.Owner.AddQEffect(QEffect.Stunned().WithExpirationEphemeral());
                     }
 
                     // Handle AoO
@@ -1503,8 +1507,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     if (shareHP.CheckForTargetLog(action, action.Owner)) {
                         return;
                     }
-
-                    eidolon.Heal(DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
+                    FlatHeal(eidolon, DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), shareHP.CA);
 
                     //await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.DAMAGE, action.Name);
                 },
@@ -1616,9 +1619,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             // TODO: Debug reaction being spntaneously used up. Maybed caused here?
                             // eidolon.Actions.IsReactionUsedUp = summoner.Actions.IsReactionUsedUp;
                             // Balance HP
-                            HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault<QEffect>((Func<QEffect, bool>)(qf => qf.Id == qfSummonerBond));
+                            HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
                             if (eidolon.Damage > summoner.Damage) {
-                                eidolon.Heal($"{eidolon.Damage - summoner.Damage}", shareHP.CA);
+                                FlatHeal(eidolon, DiceFormula.FromText($"{eidolon.Damage - summoner.Damage}"), shareHP!.CA);
                             } else if (eidolon.Damage < summoner.Damage) {
                                 await CommonSpellEffects.DealDirectSplashDamage(shareHP.CA, DiceFormula.FromText($"{summoner.Damage - eidolon.Damage}"), eidolon, DamageKind.Untyped);
                             }
@@ -1974,6 +1977,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             qf.Owner.OwningFaction = summoner.OwningFaction;
                         }
 
+                        if (summoner.HasEffect(QEffectId.DurationStunned)) {
+                            qf.Owner.AddQEffect(QEffect.Stunned().WithExpirationEphemeral());
+                        }
+
                         // Reaction
                         if (qf.Owner.Actions.IsReactionUsedUp == true) {
                             summoner.Actions.UseUpReaction();
@@ -2060,7 +2067,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             return;
                         }
 
-                        summoner.Heal(DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
+                        FlatHeal(summoner, DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
                     },
                     BonusToSpellSaveDCs = qf => {
                         if (qf.Owner.Spellcasting == null) {
@@ -2099,10 +2106,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         // Catch unhandled hazard healing effects
                         if (summoner.HP > eidolon.HP) {
                             int healing = summoner.HP - eidolon.HP;
-                            eidolon.Heal($"{healing}", shareHP.CA);
+                            FlatHeal(eidolon, DiceFormula.FromText($"{healing}"), shareHP.CA);
                         } else if (summoner.HP < eidolon.HP) {
                             int healing = eidolon.HP - summoner.HP;
-                            summoner.Heal($"{healing}", shareHP.CA);
+                            FlatHeal(summoner, DiceFormula.FromText($"{healing}"), shareHP.CA);
                         }
                     },
                     AfterYouTakeAction = async (qf, action) => {
@@ -2322,9 +2329,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {
             if (self.MaxHPMinusDrained - self.Damage < partner.MaxHPMinusDrained - partner.Damage) {
-                self.Heal(DiceFormula.FromText($"{(partner.MaxHPMinusDrained - partner.Damage) - (self.MaxHPMinusDrained - self.Damage)}", "Eidolon Health Share (failsafe)"), null);
+                FlatHeal(self, DiceFormula.FromText($"{(partner.MaxHPMinusDrained - partner.Damage) - (self.MaxHPMinusDrained - self.Damage)}", "Eidolon Health Share (failsafe)"), null);
             } else if (self.MaxHPMinusDrained - self.Damage > partner.MaxHPMinusDrained - partner.Damage) {
-                partner.Heal(DiceFormula.FromText($"{(self.MaxHPMinusDrained - self.Damage) - (partner.MaxHPMinusDrained - partner.Damage)}", "Eidolon Health Share (failsafe)"), null);
+                FlatHeal(partner, DiceFormula.FromText($"{(self.MaxHPMinusDrained - self.Damage) - (partner.MaxHPMinusDrained - partner.Damage)}", "Eidolon Health Share (failsafe)"), null);
             }
         }
 
@@ -2353,10 +2360,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     } else if (aoeCheck == SummonerClassEnums.EffectKind.HEAL) {
                         if (partner.HP < self.HP) {
                             int healing = self.HP - partner.HP;
-                            partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
+                            FlatHeal(partner, DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
                         } else if (partner.HP > self.HP) {
                             int healing = partner.HP - self.HP;
-                            self.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
+                            FlatHeal(self, DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
                         }
                     } else if (aoeCheck == SummonerClassEnums.EffectKind.HEAL_HARM) {
                         if (partnerLog.Processed) {
@@ -2367,7 +2374,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         int healing = self.HP - log.HP;
                         int damage = (partnerLog.HP + partnerLog.TempHP) - totalHPPartner;
-                        partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
+                        FlatHeal(partner, DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
                         await CommonSpellEffects.DealDirectSplashDamage(partnerShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), self, DamageKind.Untyped);
 
                         selfShareHP.UpdateLogs(damage, log);
@@ -2381,7 +2388,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         int healing = partner.HP - partnerLog.HP;
                         int damage = (log.HP + log.TempHP) - totalHPSelf;
-                        self.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
+                        FlatHeal(self, DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partnerShareHP.CA);
                         await CommonSpellEffects.DealDirectSplashDamage(selfShareHP.CA, DiceFormula.FromText($"{damage}", $"Eidolon Health Share ({log.LoggedAction.Name})"), partner, DamageKind.Untyped);
 
                         selfShareHP.UpdateLogs(-healing, log);
@@ -2396,7 +2403,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         selfShareHP.UpdateLogs(damage, log);
                     } else if (log.HealOrHarm(self) == SummonerClassEnums.EffectKind.HEAL) {
                         int healing = self.HP - log.HP;
-                        partner.Heal(DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
+                        FlatHeal(partner, DiceFormula.FromText($"{healing}", $"Eidolon Health Share ({log.LoggedAction.Name})"), selfShareHP.CA);
                         selfShareHP.UpdateLogs(-healing, log);
                     }
                 }
@@ -2606,7 +2613,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 return (Possibility)null;
             if (self.QEffects.Any(qf => qf.Name == "Act Together Toggled")) {
                 Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illActTogether, illCancel), "Cancel Act Together",
-                new Trait[] { tSummoner, tTandem }, $"Cancel act together toggle.", (Target)Target.Self())
+                new Trait[] { tSummoner, tTandem }, $"Cancel act together toggle.", Target.Self())
                 .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
                     // Remove toggle from self
                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
@@ -2618,7 +2625,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 Possibility actTogether = (Possibility)(ActionPossibility)new CombatAction(self, illActTogether, "Enable Act Together",
                 new Trait[] { tSummoner, tTandem, Trait.Basic },
                 "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action.",
-                (Target)Target.Self()) {
+                Target.Self()) {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action."
                 }
                     .WithActionCost(0)
@@ -2630,6 +2637,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
                         Illustration = illActTogetherStatus,
                         AfterYouTakeAction = async (qf, action) => {
+                            if (qf.Owner.HasEffect(QEffectId.Confused)) {
+                                qf.Owner.Overhead("act together cancelled", Color.Black, "Act Together was cancelled due to confusion.");
+                                qf.ExpiresAt = ExpirationCondition.Immediately;
+                                return;
+                            }
+
                             if (action.ActuallySpentActions > 0) {
                                 self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
 
@@ -2834,6 +2847,44 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
 
             return num2 + num / 2f;
+        }
+
+        private static void FlatHeal(Creature target, DiceFormula diceFormula, CombatAction? action=null) {
+            if (target.FindQEffect(QEffectId.OutOfCombat) is { } outOfCombat && (outOfCombat.Tag is not bool allowHealing || !allowHealing)) return;
+            if (target.HasTrait(Trait.AttackableShell)) return;
+
+            var (healHowMuch, expandedInformation) = diceFormula.Roll();
+            StringBuilder sb = new StringBuilder(expandedInformation);
+            sb.AppendLine();
+            sb.AppendLine("{b}= " + healHowMuch + " Healing{/b}");
+            int trueHeal = Math.Min(healHowMuch, target.Damage);
+            if (trueHeal < healHowMuch) {
+                sb.AppendLine("{b}= " + trueHeal + " To full HP{/b}");
+            }
+
+            if (trueHeal > 0) {
+                int previousDamage = target.Damage;
+                target.GetType().GetProperty("Damage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)?.SetValue(target, target.Damage - trueHeal);
+                // target.Damage -= trueHeal;
+                if (target.AnimationData.DamageBarAnimation != null) {
+                    target.AnimationData.DamageBarAnimation = new DamageBarAnimation(target.AnimationData.DamageBarAnimation.CurrentlyDisplayedDamage, target.Damage);
+                } else {
+                    target.AnimationData.DamageBarAnimation = new DamageBarAnimation(previousDamage, target.Damage);
+                }
+
+                target.Overhead("+" + trueHeal, Color.Lime, target.Name + " {Green}heals{/} " + trueHeal + " HP.", "Healing", sb.ToString());
+                var dying = target.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Dying);
+                if (dying != null) {
+                    dying.Value = 0;
+                }
+                if (target.Damage == 0 && target.RemoveAllQEffects(qf => qf.Id == QEffectId.PersistentDamage && qf.GetPersistentDamageKind() == DamageKind.Bleed) > 0) {
+                    target.Overhead("bleed removed", Color.Lime);
+                }
+                if (target.RemoveAllQEffects(qf => qf.Id == QEffectId.Unconscious) > 0) {
+                    target.Overhead("woke up", Color.Lime);
+                    target.AnimationData.ChangeSize(target);
+                }
+            }
         }
     }
 }

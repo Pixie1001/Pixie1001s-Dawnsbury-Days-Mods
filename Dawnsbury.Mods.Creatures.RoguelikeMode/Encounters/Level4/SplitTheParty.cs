@@ -16,31 +16,16 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Display.Text;
-using Microsoft.Xna.Framework;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.Creatures.Parts;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class SplitTheParty : Level4Encounter {
+    internal class SplitTheParty : NormalEncounter {
 
 
         public SplitTheParty(string filename) : base("Lost", filename) {
-            this.CharacterLevel = 4;
-            this.RewardGold = CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL);
-            if (Rewards.Count == 0) {
-                CommonEncounterFuncs.SetItemRewards(Rewards, 4, EncounterType.NORMAL);
-            }
-
-            // Run setup
-            this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
-                await CommonEncounterFuncs.StandardEncounterSetup(battle);
-            });
 
             this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
                 if (battle.RoundNumber == 1) {
@@ -52,11 +37,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
                         cr.DieFastAndWithoutAnimation();
                     });
                 }
-            }); 
-
-            // Run cleanup
-            this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                await CommonEncounterFuncs.StandardEncounterResolve(battle);
             });
         }
 

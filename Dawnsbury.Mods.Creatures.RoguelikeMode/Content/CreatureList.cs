@@ -220,9 +220,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             creatures.Add(id, creatureFunction);
         }
 
-        internal static void RegisterTile((string, Func<Tile, Encounter?, TileQEffect>) effect) {
-            ModManager.RegisterCustomTile(effect.Item1, (tile, map, encounter) => {
-                var qf = effect.Item2.Invoke(tile, encounter);
+        internal static void RegisterTile((string, CustomTileKind, Func<Tile, Encounter?, TileQEffect>) effect) {
+            ModManager.RegisterCustomTile(effect.Item1, effect.Item2, (tile, map, encounter) => {
+                var qf = effect.Item3.Invoke(tile, encounter);
                 tile.AddQEffect(qf);
             });
         }

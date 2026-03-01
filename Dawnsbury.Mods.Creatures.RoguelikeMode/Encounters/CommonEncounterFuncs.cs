@@ -335,8 +335,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             foreach (var option in itemOptions) {
                 if (option.Key == choice.Caption) {
                     battle.CampaignState.CommonLoot.Add(option.Value.Item1);
+                    battle.Encounter.Rewards.Add(option.Value.Item1);
                     if (option.Value.Item1.ItemName == CustomItems.BloodBondAmulet) {
                         battle.CampaignState.CommonLoot.Add(option.Value.Item1);
+                        battle.Encounter.Rewards.Add(option.Value.Item1);
                     }
                     battle.Encounter.RewardGold += option.Value.Item1.Price;
                 }

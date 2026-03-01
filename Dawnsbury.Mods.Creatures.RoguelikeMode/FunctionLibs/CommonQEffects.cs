@@ -829,10 +829,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
         /// Creature with this qeffect should be counted as two creatures for the purpose of encounter balancing. You can use it to create a boss monster with appropriate stats, without also giving them a frustrating amount of AC.
         /// </summary>
         public static QEffect MiniBoss() {
-            QEffect effect = new QEffect("Powerful Adversary", "The first time this creature acts each round while above half HP, it only drops down two places in the intitive order. In addition it has significantly increased HP for its level.") {
+            const int INIT_DROP = 10;
+
+            QEffect effect = new QEffect("Powerful Adversary", $"This creature acts twice in the initiative order each round while above half HP, once at their regular postion and again {INIT_DROP} points below that. In addition it has significantly increased HP for its level.") {
                 StartOfCombat = async self => {
+                    self.Owner.AddQEffect(new QEffect() { Id = QEffectId.ActsMultipleTimesInInitiative });
                     self.Owner.MaxHP = self.Owner.MaxHP * 2;
-                    self.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in inititve order after this turn.") {
+                    self.Owner.AddQEffect(new QEffect("Extra Turn", "This creature acts twice in initiative each round while above half HP.") {
                         Innate = false,
                         Illustration = IllustrationName.Haste,
                         Id = QEffectIds.ExtraTurn,
@@ -841,79 +844,94 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                                 self.Illustration = null;
                                 self.Name = null;
                                 self.Description = null;
+                                if (self.Owner.Battle.InitiativeOrder.Where(cr => cr == self.Owner).Count() > 1) {
+                                    var index = self.Owner.Battle.InitiativeOrder.FindLastIndex(cr => cr == self.Owner);
+                                    self.Owner.Battle.InitiativeOrder.RemoveAt(index);
+                                }
                             } else {
                                 self.Illustration = IllustrationName.Haste;
                                 self.Name = "Extra Turn";
-                                self.Description = "This creature will only move down two spaces in inititve order after this turn.";
+                                self.Description = "This creature acts twice in initiative each round while above half HP.";
+                                if (self.Owner.Battle.InitiativeOrder.Where(cr => cr == self.Owner).Count() < 2) {
+                                    var secondInitiative = self.Owner.Initiative - INIT_DROP;
+                                    var index = Math.Max(self.Owner.Battle.InitiativeOrder.FindLastIndex(cr => cr.Initiative > secondInitiative) + 1, 0);
+                                    self.Owner.Battle.InitiativeOrder.Insert(index, self.Owner);
+                                }
                             }
+                        },
+                        StartOfCombatAfterInitiativeOrderIsSetUp = async qfSelf =>
+                        {
+                            var secondInitiative = qfSelf.Owner.Initiative - INIT_DROP;
+                            var index = Math.Max(qfSelf.Owner.Battle.InitiativeOrder.FindLastIndex(cr => cr.Initiative > secondInitiative) + 1, 0);
+                            qfSelf.Owner.Battle.InitiativeOrder.Insert(index, qfSelf.Owner);
                         }
                     });
                 },
             };
 
-            effect.AddGrantingOfTechnical(cr => effect.Owner.Battle.InitiativeOrder.Contains(cr), qf => {
-                qf.StartOfYourPrimaryTurn = async (tmp, owner) => {
-                    List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder.Where(cr => cr.AliveOrUnconscious).ToList();
+            //effect.AddGrantingOfTechnical(cr => effect.Owner.Battle.InitiativeOrder.Contains(cr), qf => {
+            //    qf.StartOfYourPrimaryTurn = async (tmp, owner) => {
+            //        List<Creature> initOrder = effect.Owner.Battle.InitiativeOrder.Where(cr => cr.AliveOrUnconscious).ToList();
 
-                    if (effect.Owner.Battle.ActiveCreature == null) return;
+            //        if (effect.Owner.Battle.ActiveCreature == null) return;
 
-                    // Skip if boss isn't going on your next turn
-                    if (initOrder.IndexOf(effect.Owner) != initOrder.IndexOf(effect.Owner.Battle.ActiveCreature) - 1) {
-                        // Stop if you aren't last in the turn order AND the boss goes first (wrap around check)
-                        if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First()) || owner.Battle.RoundNumber == 1) {
-                            return;
-                        }
-                    }
+            //        // Skip if boss isn't going on your next turn
+            //        if (initOrder.IndexOf(effect.Owner) != initOrder.IndexOf(effect.Owner.Battle.ActiveCreature) - 1) {
+            //            // Stop if you aren't last in the turn order AND the boss goes first (wrap around check)
+            //            if (!(effect.Owner == initOrder.Last() && effect.Owner.Battle.ActiveCreature == initOrder.First()) || owner.Battle.RoundNumber == 1) {
+            //                return;
+            //            }
+            //        }
 
-                    // Skip if under half HP
-                    if (effect.Owner.Damage >= effect.Owner.MaxHP * 0.5f) {
-                        return;
-                    }
+            //        // Skip if under half HP
+            //        if (effect.Owner.Damage >= effect.Owner.MaxHP * 0.5f) {
+            //            return;
+            //        }
 
-                    // Skip if boss doesn't have the extra turn buff
-                    if (!effect.Owner.HasEffect(QEffectIds.ExtraTurn)) {
-                        effect.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in initiative order after this turn.") {
-                            Illustration = IllustrationName.Haste,
-                            Id = QEffectIds.ExtraTurn
-                        });
-                        return;
-                    }
+            //        // Skip if boss doesn't have the extra turn buff
+            //        if (!effect.Owner.HasEffect(QEffectIds.ExtraTurn)) {
+            //            effect.Owner.AddQEffect(new QEffect("Extra Turn", "This creature will only move down two spaces in initiative order after this turn.") {
+            //                Illustration = IllustrationName.Haste,
+            //                Id = QEffectIds.ExtraTurn
+            //            });
+            //            return;
+            //        }
 
-                    int pos = initOrder.IndexOf(effect.Owner);
-                    initOrder.Remove(effect.Owner);
+            //        int pos = initOrder.IndexOf(effect.Owner);
+            //        initOrder.Remove(effect.Owner);
 
-                    int newPos = 0;
-                    if (pos == initOrder.Count + 1) {
-                        newPos = 2;
-                    } else if (pos == initOrder.Count) {
-                        newPos = 1;
-                    } else if (pos == initOrder.Count - 1) {
-                        newPos = 0;
-                    } else {
-                        newPos = pos + 2;
-                    }
+            //        int newPos = 0;
+            //        if (pos == initOrder.Count + 1) {
+            //            newPos = 2;
+            //        } else if (pos == initOrder.Count) {
+            //            newPos = 1;
+            //        } else if (pos == initOrder.Count - 1) {
+            //            newPos = 0;
+            //        } else {
+            //            newPos = pos + 2;
+            //        }
 
-                    List<Creature> newOrder = new List<Creature>();
+            //        List<Creature> newOrder = new List<Creature>();
 
-                    bool added = false;
-                    for (int i = 0; i < initOrder.Count; i++) {
-                        if (i == newPos && added == false) {
-                            newOrder.Add(effect.Owner);
-                            added = true;
-                            i--;
-                        } else {
-                            newOrder.Add(initOrder[i]);
-                        }
-                    }
+            //        bool added = false;
+            //        for (int i = 0; i < initOrder.Count; i++) {
+            //            if (i == newPos && added == false) {
+            //                newOrder.Add(effect.Owner);
+            //                added = true;
+            //                i--;
+            //            } else {
+            //                newOrder.Add(initOrder[i]);
+            //            }
+            //        }
 
-                    if (!newOrder.Contains(effect.Owner)) {
-                        newOrder.Add(effect.Owner);
-                    }
+            //        if (!newOrder.Contains(effect.Owner)) {
+            //            newOrder.Add(effect.Owner);
+            //        }
 
-                    effect.Owner.Battle.InitiativeOrder = newOrder;
-                    effect.Owner.RemoveAllQEffects(qf => qf.Id == QEffectIds.ExtraTurn);
-                };
-            });
+            //        effect.Owner.Battle.InitiativeOrder = newOrder;
+            //        effect.Owner.RemoveAllQEffects(qf => qf.Id == QEffectIds.ExtraTurn);
+            //    };
+            //});
 
             return effect;
             //StateCheckWithVisibleChanges = async (self) => {

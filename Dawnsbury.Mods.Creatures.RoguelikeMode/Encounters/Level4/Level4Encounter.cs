@@ -7,6 +7,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [Obsolete("Use NormalEncounter instead.")]
     internal class Level4Encounter : Encounter {
 
         public Level4Encounter(string name, string filename, List<Item>? rewards = null) : base(name, filename, rewards, 0) {

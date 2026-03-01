@@ -34,8 +34,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
         private const int DC = 16;
 
-        public static (string, Func<Tile, Encounter?, TileQEffect>) Create() {
-            return ("Trip Wire", (tile, encounter) => {
+        public static (string, CustomTileKind, Func<Tile, Encounter?, TileQEffect>) Create() {
+            return ("Trip Wire", CustomTileKind.HazardSpecialEffect, (tile, encounter) => {
                 var trap = CommonTraps.CreateBasicTrap(tile, "Trip Wire", Illustrations.TripWire, DC, $"When a creature enters this tile, a rock falls from the ceiling dealing 3d6 bludgeoning damage vs. a basic Reflex save. On a crital failure, the victim is knocked prone. An adjacent creature can {{icon:TwoActions}} disable the trap with a DC {DC} Thievery check.");
                 Task OnTrigger(Creature enterer) => TriggerEffect(enterer);
                 CommonTraps.AddDoNotStepHere(trap);

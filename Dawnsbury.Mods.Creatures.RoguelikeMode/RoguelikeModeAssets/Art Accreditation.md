@@ -187,10 +187,12 @@
 	<li>DrowChampion.png</li>
 	<li>DrowSorceress.png</li>
 	<li>DrowShadowdancer.png</li>
+	<li>RLModeCampaignIcon.png</li>
 </ul>
 
 ## Volunteer Contributions
 *Assets contributed from other modders or community members.*
 <ul>
 	<li>TsundereBaraquielleLarge.png by Nacraova. You can message them about commissions [here](https://nacraova.carrd.co/).</li>
+	<li>Arisa.png by Lobot922. Check out their retexture mod here [here](https://steamcommunity.com/sharedfiles/filedetails/?id=3560127851&searchtext=retexture).</li>
 </ul>

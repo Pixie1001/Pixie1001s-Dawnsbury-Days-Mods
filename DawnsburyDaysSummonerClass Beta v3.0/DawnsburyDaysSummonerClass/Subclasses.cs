@@ -859,7 +859,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             Target.Emanation(30))
                         .WithActionCost(2)
                         .WithSoundEffect(SfxName.BeastRoar)
-                        .WithActiveRollSpecification(new ActiveRollSpecification(Checks.SkillCheck(Skill.Intimidation), Checks.DefenseDC(Defense.Will)))
+                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Intimidation), Checks.DefenseDC(Defense.Will)))
                         .WithNoSaveFor((action, target) => target.OwningFaction == action.Owner.OwningFaction || target.QEffects.FirstOrDefault(qf => qf.Name == "Immunity to " + ActionId.Demoralize.HumanizeTitleCase2() + " by " + action.Owner.Name) != null)
                         .WithEffectOnEachTarget(async (action, self, target, checkResult) => {
                             if (target.OwningFaction == action.Owner.OwningFaction) {
@@ -923,7 +923,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         if (await eidolon.Battle.AskToUseReaction(eidolon, "{b}" + action.Owner.Name + "{/b} uses {b}" + action.Name + "{/b} which provokes Dutiful Retaliation.\nUse your reaction {icon:Reaction} to make an attack of opportunity?")) {
                             int map = eidolon.Actions.AttackedThisManyTimesThisTurn;
                             eidolon.Overhead("*dutiful devotion*", Color.White);
-                            await eidolon.MakeStrike(action.Owner, eidolon.UnarmedStrike, 0);
+                            //await eidolon.MakeStrike(action.Owner, eidolon.UnarmedStrike, 0);
+                            await eidolon.MakeStrike(eidolon.CreateStrike(eidolon.UnarmedStrike, 0).WithActionCost(0).WithExtraTrait(Trait.ActionDoesNotRequireLegalTarget), action.Owner);
                             eidolon.Actions.AttackedThisManyTimesThisTurn = map;
                         }
                     }

@@ -89,6 +89,7 @@ public static class ParryLogic
             {
                 Name = "[PARRY GRANTER: " + modName + "]",
                 Key = "ParryGranter",
+                Value = 11,
                 ProvideActionsIntoPossibilitySection = (qfThis, section) =>
                 {
                     if (section.PossibilitySectionId != PossibilitySectionId.ItemActions)

@@ -35,7 +35,6 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -154,7 +153,8 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
                         Trait.Enchantment,
                         Trait.Incapacitation,
                         Trait.Mental,
-                        Trait.AssumesDirectControl
+                        Trait.AssumesDirectControl,
+                        Trait.Uncommon
                     }, "You take command of the target, forcing it to obey your orders.", "The target makes a Will save." + S.FourDegreesOfSuccess("The target is unaffected.", "The target is stunned 1.", "You gain control of the target until the end of their next turn.", "As failure, but you maintain control for 2 turns."),
             (Target)Target.Ranged(6)
             .WithAdditionalConditionOnTargetCreature((Func<Creature, Creature, Usability>)((a, d) => !d.HasTrait(Trait.Minion) && !d.Traits.Any(tr => tr.HumanizeLowerCase2() == "eidolon") ? Usability.Usable : Usability.NotUsableOnThisCreature("minion"))), 5, SpellSavingThrow.Standard(Defense.Will))
@@ -190,7 +190,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
 
         public static SpellId SummonMonster = ModManager.RegisterNewSpell("RL_SummonMonster", 1, (id, caster, level, inCombat, info) => {
             int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
-            return Spells.CreateModern(Illustrations.SummonMonster, "Summon Monster", [Trait.Conjuration, Trait.Summon],
+            return Spells.CreateModern(Illustrations.SummonMonster, "Summon Monster", [Trait.Conjuration, Trait.Summon, Trait.Uncommon, Trait.Divine, Trait.Primal],
                     "You conjure a monstrous ally to fight for you.",
                     "You summon a monstrous creature whose level is " + S.HeightenedVariable(maxLevel, -1) + " or less." + Level1Spells.SummonRulesText + S.HeightenText(level, 1, inCombat,
                     "{b}Heightened (2nd){/b} The maximum level of the summoned creature is 1.\n{b}Heightened (3rd){/b} The maximum level of the summoned creature is 2." +
@@ -207,7 +207,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
         public static SpellId SummonSpider = ModManager.RegisterNewSpell("RL_SummonSpider", 2, (id, caster, level, inCombat, info) => {
             int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
             CreatureId[] spiderList = [ CreatureIds.BebilithMinor, CreatureIds.BebilithSpawn ];
-            return Spells.CreateModern(Illustrations.SummonSpider, "Summon Spider", [Trait.Conjuration, Trait.Summon],
+            return Spells.CreateModern(Illustrations.SummonSpider, "Summon Spider", [Trait.Conjuration, Trait.Summon, Trait.Uncommon, Trait.Divine, Trait.Primal],
                     "You conjure a spidery companion to fight for you.",
                     "You summon a spider whose level is " + S.HeightenedVariable(maxLevel, 1) + " or less." + Level1Spells.SummonRulesText + S.HeightenText(level, 2, inCombat,
                     "{b}Heightened (3rd){/b} The maximum level of the summoned creature is 2." +
