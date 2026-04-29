@@ -167,6 +167,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration LunaRunestone = new ModdedIllustration("RoguelikeModeAssets/Items/LunaRunestone.png");
         internal static ModdedIllustration Glimmer = new ModdedIllustration("RoguelikeModeAssets/Items/Glimmer.png");
         internal static ModdedIllustration ChillingDemise = new ModdedIllustration("RoguelikeModeAssets/Items/ChillingDemise.png");
+        internal static ModdedIllustration BroochOfShielding = new ModdedIllustration("RoguelikeModeAssets/Items/BroochOfShielding.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");

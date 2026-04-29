@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="34" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="51" columns="0">
   <grid orientation="orthogonal" width="1" height="1" />
   <tile id="0">
     <properties>
@@ -170,5 +170,91 @@
     <properties>
       <property name="Id" value="LavaChannel" />
     </properties>
+  </tile>
+  <tile id="34">
+    <properties>
+      <property name="Id" value="IzzyDragon" />
+    </properties>
+  </tile>
+  <tile id="35">
+    <properties>
+      <property name="Id" value="IzzyHuman" />
+    </properties>
+  </tile>
+  <tile id="36">
+    <properties>
+      <property name="Id" value="GnollOracle" />
+    </properties>
+  </tile>
+  <tile id="37">
+    <properties>
+      <property name="Id" value="FrostGiant" />
+    </properties>
+  </tile>
+  <tile id="38">
+    <properties>
+      <property name="Id" value="SongElemental" />
+    </properties>
+  </tile>
+  <tile id="39">
+    <properties>
+      <property name="Id" value="GreaterAirElemental" />
+    </properties>
+  </tile>
+  <tile id="40">
+    <properties>
+      <property name="Id" value="Megadragon" />
+    </properties>
+  </tile>
+  <tile id="41">
+    <properties>
+      <property name="Id" value="FireGiant" />
+    </properties>
+  </tile>
+  <tile id="42">
+    <properties>
+      <property name="Id" value="GnollWhiteSorcerer" />
+    </properties>
+  </tile>
+  <tile id="43">
+    <properties>
+      <property name="Id" value="GnollBlackSorcerer" />
+    </properties>
+  </tile>
+  <tile id="44">
+    <properties>
+      <property name="Id" value="GnollGreenSorcerer" />
+    </properties>
+  </tile>
+  <tile id="45">
+    <properties>
+      <property name="Id" value="FrostWorm" />
+    </properties>
+  </tile>
+  <tile id="46">
+    <properties>
+      <property name="Id" value="Tarantula" />
+    </properties>
+  </tile>
+  <tile id="47">
+    <properties>
+      <property name="Id" value="Morrigna" />
+    </properties>
+  </tile>
+  <tile id="48">
+    <properties>
+      <property name="Id" value="Remorhaz" />
+    </properties>
+  </tile>
+  <tile id="49">
+    <properties>
+      <property name="Id" value="GnollRabble" />
+    </properties>
+  </tile>
+  <tile id="50">
+    <properties>
+      <property name="Id" value="Snow" />
+    </properties>
+    <image source="Tiles/NewSnow.png" width="256" height="256" />
   </tile>
 </tileset>

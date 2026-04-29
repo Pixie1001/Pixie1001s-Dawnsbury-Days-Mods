@@ -187,18 +187,20 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             foreach (ModdedIllustration portrait in portraits) {
                 Trait category = Trait.None;
                 string featName = DirToFeatName(portrait.Filename, out category);
-                portraitFeatList.Add(new Feat(ModManager.RegisterFeatName(featName), "", "", new List<Trait>() { tPortrait, category }, null).WithIllustration(portrait));
+                portraitFeatList.Add(new Feat(ModManager.RegisterFeatName("EidolonPortrait_" + featName, featName), "", "", new List<Trait>() { tPortrait, category }, null).WithIllustration(portrait));
                 yield return portraitFeatList.Last();
             }
 
+            var uploadExplanation = "If you'd like to upload a custom portrait for your own personal use, go to 'C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\2693730\\3315725529\\CustomMods\\SummonerAssets\\EidolonPortraits' and place your custom portrait into one of the relevant category subfolders that best describe it. It will then show up here upon reloading.";
+
             // Create portrait category feats
-            yield return new Feat(ModManager.RegisterFeatName("BeastPortraits", "Category: Beast"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Beast)).ToList());
-            yield return new Feat(ModManager.RegisterFeatName("ConstructPortraits", "Category: Construct"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Construct)).ToList());
-            yield return new Feat(ModManager.RegisterFeatName("DragonPortraits", "Category: Dragon"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Dragon)).ToList());
-            yield return new Feat(ModManager.RegisterFeatName("ElementalPortraits", "Category: Elemental"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Elemental)).ToList());
-            yield return new Feat(ModManager.RegisterFeatName("HumanoidPortraits", "Category: Humanoid"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Humanoid)).ToList());
-            yield return new Feat(ModManager.RegisterFeatName("OutsiderPortraits", "Category: Outsider"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(tOutsider)).ToList());
-            yield return new Feat(ModManager.RegisterFeatName("UndeadPortraits", "Category: Undead"), "", "", new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Undead)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("BeastPortraits", "Category: Beast"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Beast)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("ConstructPortraits", "Category: Construct"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Construct)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("DragonPortraits", "Category: Dragon"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Dragon)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("ElementalPortraits", "Category: Elemental"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Elemental)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("HumanoidPortraits", "Category: Humanoid"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Humanoid)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("OutsiderPortraits", "Category: Outsider"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(tOutsider)).ToList());
+            yield return new Feat(ModManager.RegisterFeatName("UndeadPortraits", "Category: Undead"), "", uploadExplanation, new List<Trait>() { tPortraitCategory }, portraitFeatList.Where(ft => ft.HasTrait(Trait.Undead)).ToList());
 
             // Init class
             yield return new ClassSelectionFeat(classSummoner, SummonerFlavour, tSummoner,
@@ -2541,10 +2543,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             if (self.QEffects.Any(qf => qf.Name == "Tandem Movement Toggled")) {
                 Possibility output = (ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemMovement, illCancel), "Cancel Tandem Movement",
                 new Trait[] { tSummoner, tTandem }, $"Cancel tandem movement toggle.", (Target)Target.Self())
-                    .WithActionCost(0).WithEffectOnSelf((Action<Creature>)(self => {
+                    .WithActionCost(0).WithEffectOnSelf(self => {
                     // Remove toggle from self
                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
-                }));
+                });
 
                 //output.WithPossibilityGroup("Tandem Actions");
                 return output;

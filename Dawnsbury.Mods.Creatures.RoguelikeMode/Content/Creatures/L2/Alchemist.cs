@@ -40,7 +40,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.AnimalForm, "Beast Elixir", [Trait.Manipulate, Trait.Morph, Trait.Basic], "You drink an elixir that transforms your hands and feet into brutal claws.", Target.Self())
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.AnimalForm, "Beast Elixir", [Trait.Manipulate, Trait.Elixir, Trait.Morph, Trait.Basic], "You drink an elixir that transforms your hands and feet into brutal claws.", Target.Self())
                     .WithActionCost(1)
                     .WithGoodness((Target _, Creature user, Creature _) =>
                     {
@@ -70,7 +70,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.ConeOfCold, "Cold Breath Elixir", [Trait.Manipulate, Trait.Cold, Trait.Basic], $"You drink an elizir that causes you to exhale lightning, dealing {ModifyDamageString(effect.Owner, "2d4")} cold damage to all creatures in a 15-foot cone (DC {GetDC(effect.Owner)} basic Fortitude save). Creatures that fail gain weakness 2 to bludgeoning and fire for 1 round (1 minute on a critical failure). You can't drink another breath weapon elixir for 1d4 rounds.", Target.Cone(3))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.ConeOfCold, "Cold Breath Elixir", [Trait.Manipulate, Trait.Elixir, Trait.Cold, Trait.Basic], $"You drink an elixir that causes you to exhale lightning, dealing {ModifyDamageString(effect.Owner, "2d4")} cold damage to all creatures in a 15-foot cone (DC {GetDC(effect.Owner)} basic Fortitude save). Creatures that fail gain weakness 2 to bludgeoning and fire for 1 round (1 minute on a critical failure). You can't drink another breath weapon elixir for 1d4 rounds.", Target.Cone(3))
                     .WithActionCost(2)
                     .WithSavingThrow(new(Defense.Fortitude, GetDC(effect.Owner)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.ConeOfCold))
@@ -126,7 +126,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.AcidArrow, "Great Acid Bomb", [Trait.Manipulate, Trait.Acid, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} acid damage plus 1d4 persistent acid damage to all creatures in a 10 foot burst within 20 feet (DC {GetDC(effect.Owner)} basic Reflex save). You can't throw another great bomb for 1d4 rounds.", Target.Burst(4, 2))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.AcidArrow, "Great Acid Bomb", [Trait.Manipulate, Trait.Bomb, Trait.Acid, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} acid damage plus 1d4 persistent acid damage to all creatures in a 10 foot burst within 20 feet (DC {GetDC(effect.Owner)} basic Reflex save). You can't throw another great bomb for 1d4 rounds.", Target.Burst(4, 2))
                     .WithActionCost(2)
                     .WithSavingThrow(new(Defense.Reflex, GetDC(effect.Owner)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.AcidArrow))
@@ -162,7 +162,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Fireball, "Great Fire Bomb", [Trait.Manipulate, Trait.Fire, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d6")} fire damage to all creatures in a 10 foot burst within 20 feet (DC {GetDC(effect.Owner)} basic Reflex save). You can't throw another great bomb for 1d4 rounds.", Target.Burst(4, 2))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Fireball, "Great Fire Bomb", [Trait.Manipulate, Trait.Bomb, Trait.Fire, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d6")} fire damage to all creatures in a 10 foot burst within 20 feet (DC {GetDC(effect.Owner)} basic Reflex save). You can't throw another great bomb for 1d4 rounds.", Target.Burst(4, 2))
                     .WithActionCost(2)
                     .WithSavingThrow(new(Defense.Reflex, GetDC(effect.Owner)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Fireball))
@@ -197,7 +197,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.AnimalForm, "Healing Bomb", [Trait.Manipulate, Trait.Healing, Trait.Basic], "You throw a restorative bomb at an ally within 20 feet. The target regains 1d4+4 hit points. You can't use another healing bomb for 1d4 rounds.", Target.RangedFriend(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.AnimalForm, "Healing Bomb", [Trait.Manipulate, Trait.Bomb, Trait.Healing, Trait.Basic], "You throw a restorative bomb at an ally within 20 feet. The target regains 1d4+4 hit points. You can't use another healing bomb for 1d4 rounds.", Target.RangedFriend(4))
                     .WithActionCost(1)
                     .WithSoundEffect(Audio.SfxName.Healing)
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Heal))
@@ -227,7 +227,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.PersistentBleed, "Lacerating Bomb", [Trait.Attack, Trait.Ranged, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} slashing damage plus 1 persistent bleed damage to a target within 20 feet. You can't throw another lava bomb for 1d4 rounds.", Target.Ranged(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.PersistentBleed, "Lacerating Bomb", [Trait.Attack, Trait.Bomb, Trait.Ranged, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} slashing damage plus 1 persistent bleed damage to a target within 20 feet. You can't throw another lava bomb for 1d4 rounds.", Target.Ranged(4))
                     .WithActionCost(1)
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.PersistentBleed))
@@ -271,7 +271,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Fireball, "Lava Bomb", [Trait.Attack, Trait.Ranged, Trait.Fire, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d8")} fire damage to a target within 20 feet. You can't throw another lava bomb for 1d4 rounds.", Target.Ranged(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Fireball, "Lava Bomb", [Trait.Attack, Trait.Bomb, Trait.Ranged, Trait.Fire, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d8")} fire damage to a target within 20 feet. You can't throw another lava bomb for 1d4 rounds.", Target.Ranged(4))
                     .WithActionCost(1)
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Fireball))
@@ -306,7 +306,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.LightningBolt, "Lightning Breath Elixir", [Trait.Manipulate, Trait.Electricity, Trait.Basic], $"You drink an elixir that causes you to exhale lightning, dealing {ModifyDamageString(effect.Owner, "2d4")} electricity damage to all creatures in a 20-foot line (DC {GetDC(effect.Owner)} basic Reflex save). You can't drink another breath weapon elixir for 1d4 rounds.", Target.Line(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.LightningBolt, "Lightning Breath Elixir", [Trait.Manipulate, Trait.Elixir, Trait.Electricity, Trait.Basic], $"You drink an elixir that causes you to exhale lightning, dealing {ModifyDamageString(effect.Owner, "2d4")} electricity damage to all creatures in a 20-foot line (DC {GetDC(effect.Owner)} basic Reflex save). You can't drink another breath weapon elixir for 1d4 rounds.", Target.Line(4))
                     .WithActionCost(2)
                     .WithSavingThrow(new(Defense.Reflex, GetDC(effect.Owner)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.LightningBolt))
@@ -341,7 +341,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.ElectricArc, "Lightning Shield Elixir", [Trait.Manipulate, Trait.Electricity, Trait.Basic], $"You drink an elixir that surrounds you in bands of electricity. Enemies that end their turn within 5 feet of you take {ModifyDamageString(effect.Owner, "2d4")} electricity damage (DC {GetDC(effect.Owner)} basic Reflex save). You gain 3 temporary hit points when you drink this elixir and at the start of your turn.", Target.Self())
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.ElectricArc, "Lightning Shield Elixir", [Trait.Manipulate, Trait.Elixir, Trait.Electricity, Trait.Basic], $"You drink an elixir that surrounds you in bands of electricity. Enemies that end their turn within 5 feet of you take {ModifyDamageString(effect.Owner, "2d4")} electricity damage (DC {GetDC(effect.Owner)} basic Reflex save). You gain 3 temporary hit points when you drink this elixir and at the start of your turn.", Target.Self())
                     .WithActionCost(1)
                     .WithGoodness((Target _, Creature user, Creature _) =>
                     {
@@ -403,7 +403,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Fear, "Frightening Bomb", [Trait.Attack, Trait.Ranged, Trait.Mental, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} mental damage to a target within 20 feet. On a hit, the target becomes frightened 1 (frightened 2 on a critical hit). You can't throw another frightening bomb for 1d4 rounds.", Target.Ranged(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Fear, "Frightening Bomb", [Trait.Attack, Trait.Bomb, Trait.Ranged, Trait.Mental, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} mental damage to a target within 20 feet. On a hit, the target becomes frightened 1 (frightened 2 on a critical hit). You can't throw another frightening bomb for 1d4 rounds.", Target.Ranged(4))
                     .WithActionCost(1)
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Fear))
@@ -432,7 +432,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Sickened, "Sickening Bomb", [Trait.Attack, Trait.Ranged, Trait.Poison, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} poison damage to a target within 20 feet. On a hit, the target becomes sickened 1 (sickened 2 on a critical hit). You can't throw another sickening bomb for 1d4 rounds.", Target.Ranged(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.Sickened, "Sickening Bomb", [Trait.Attack, Trait.Bomb, Trait.Ranged, Trait.Poison, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} poison damage to a target within 20 feet. On a hit, the target becomes sickened 1 (sickened 2 on a critical hit). You can't throw another sickening bomb for 1d4 rounds.", Target.Ranged(4))
                     .WithActionCost(1)
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.Sickened))
@@ -461,7 +461,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             {
                 ProvideMainAction = (QEffect effect) =>
                 {
-                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.ConeOfCold, "Slowing Bomb", [Trait.Attack, Trait.Ranged, Trait.Cold, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} cold damage to a target within 20 feet. On a hit, the target must make a DC {GetDC(effect.Owner)} Fortitude save or become Slowed 1 for 1 round (Slowed 2 on a critical failure). You can't throw another slowing bomb for 1d4 rounds.", Target.Ranged(4))
+                    return (ActionPossibility)new CombatAction(effect.Owner, IllustrationName.ConeOfCold, "Slowing Bomb", [Trait.Attack, Trait.Bomb, Trait.Ranged, Trait.Cold, Trait.Basic], $"You throw a bomb, dealing {ModifyDamageString(effect.Owner, "2d4")} cold damage to a target within 20 feet. On a hit, the target must make a DC {GetDC(effect.Owner)} Fortitude save or become Slowed 1 for 1 round (Slowed 2 on a critical failure). You can't throw another slowing bomb for 1d4 rounds.", Target.Ranged(4))
                     .WithActionCost(1)
                     .WithActiveRollSpecification(new ActiveRollSpecification(Checks.Attack(Items.CreateNew(ItemName.AlchemistsFire)), Checks.DefenseDC(Defense.AC)))
                     .WithProjectileCone(VfxStyle.BasicProjectileCone(IllustrationName.ConeOfCold))

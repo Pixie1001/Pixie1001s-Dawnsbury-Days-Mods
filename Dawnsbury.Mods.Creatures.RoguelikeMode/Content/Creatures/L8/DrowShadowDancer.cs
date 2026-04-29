@@ -63,7 +63,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             //    ).Done()
             .AddQEffect(new QEffect("Shadow Strike {icon:Reaction}", "{b}Trigger{/b} An enemy damages you. {b}Effect{/b} You may make immediately teleport to the target, and strike them.") {
                 YouAreDealtDamage = async (self, attacker, dmg, you) => {
-                    if (attacker.Occupies == null || !attacker.Occupies.Neighbours.TilesPlusSelf.Any(t => t.IsTrulyGenuinelyFreeTo(self.Owner))) {
+                    if (self.Owner.HasEffect(QEffectId.DimensionalAnchor) || attacker.Occupies == null || !attacker.Occupies.Neighbours.TilesPlusSelf.Any(t => t.IsTrulyGenuinelyFreeTo(self.Owner))) {
                         return null;
                     }
 
@@ -98,7 +98,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 wp.AdditionalDamage.Add(("1d8", DamageKind.Negative));
             })
             .AddMainAction(you => {
-                return new CombatAction(you, IllustrationName.ShadowProjectile, "Shadow Abduction", [Trait.Divine, Trait.Concentrate, Trait.Flourish], "Teleport target creature within 30 feet up to 30 feet away, and then immediately teleport next to them.", Target.Ranged(6))
+                return new CombatAction(you, IllustrationName.ShadowProjectile, "Shadow Abduction", [Trait.Divine, Trait.Concentrate, Trait.Flourish, Trait.Teleportation], "Teleport target creature within 30 feet up to 30 feet away, and then immediately teleport next to them.", Target.Ranged(6))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.Necromancy)
                 .WithGoodnessAgainstEnemy((_, a, d) => 20f)

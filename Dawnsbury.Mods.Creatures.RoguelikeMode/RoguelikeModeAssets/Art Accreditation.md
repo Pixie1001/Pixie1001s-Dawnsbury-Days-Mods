@@ -27,7 +27,8 @@
 ### Concept Hamster
 *Please support Concept Hamster [here (Unity Asset Store)](https://assetstore.unity.com/packages/2d/gui/icons/rpg-item-icons-240226).*
 <ul>
-	<li>ChillwindBow.png</li>
+	<li>BottomlessFlask.png</li>
+	<li>BroochOfShielding.png</li>
 </ul>
 
 ### YusufArtun

@@ -234,7 +234,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
             Target.Cone(6), 2, SpellSavingThrow.Basic(Defense.Reflex))
             .WithSoundEffect(SoundEffects.VomitSwarm)
             .WithHeighteningOfDamageEveryLevel(level, 2, inCombat, "1d8")
-            .WithGoodnessAgainstEnemy((t, a, d) => a.AI.Sicken(d) + level * 4.5f)
+            .WithGoodnessAgainstEnemy((t, a, d) => Math.Max(a.AI.Sicken(d), 0) + level * 4.5f)
             .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                 if (result < CheckResult.Success)
                     target.AddQEffect(QEffect.Sickened(1, spell.SpellcastingSource?.GetSpellSaveDC() ?? 10).WithSourceAction(spell));

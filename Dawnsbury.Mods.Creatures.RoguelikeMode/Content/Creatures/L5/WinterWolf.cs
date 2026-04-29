@@ -29,7 +29,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         public static Creature Create() {
             var creature = new Creature(Illustrations.WinterWolf,
                 "Winter Wolf",
-                [Trait.Evil, Trait.Beast, ModTraits.MeleeMutator],
+                [Trait.Evil, Trait.Beast, Trait.Large, ModTraits.MeleeMutator],
                 5, 14, 8,
                 new Defenses(23, 13, 15, 10),
                 70,
@@ -43,7 +43,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .WithCharacteristics(true, true)
             .WithProficiency(Trait.Unarmed, Proficiency.Expert)
             .AddQEffect(QEffect.DamageImmunity(DamageKind.Cold))
-            .AddQEffect(QEffect.TraitImmunity(Trait.Cold))
+            //.AddQEffect(QEffect.TraitImmunity(Trait.Cold))
             .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 5))
             .AddQEffect(QEffect.PackAttack("Winter Wolf", "1d6"))
             .AddQEffect(QEffect.MonsterKnockdown())
@@ -64,19 +64,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             })
             .Done();
 
-            QEffect effect = new QEffect("Avenging Bite {icon:Reaction}", "{b}Trigger{/b} A creature within reach of the winter wolf’s jaws attacks one of the winter wolf’s allies. " +
-                        "{b}Effect{/b} Make a melee Strike against the triggering creature.") {
+            QEffect effect = new QEffect("Avenging Bite {icon:Reaction}", "When creature within reach of the winter wolf’s jaws attacks one of its allies, it makes a melee Strike against the triggering creature.") {
                 Innate = true
             };
 
             effect.AddGrantingOfTechnical(cr => cr.FriendOfAndNotSelf(effect.Owner), qf => {
                 qf.YouAreDealtDamage = async (qfAlly, attacker, damageStuff, defender) => {
-                    if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > 1)
+                    if (attacker == null || attacker.Occupies == null || !attacker.EnemyOf(effect.Owner) || attacker.DistanceTo(effect.Owner) > creature.UnarmedStrike.DetermineReach(creature))
                         return null;
 
-                    var strike = effect.Owner.CreateStrike(effect.Owner.PrimaryWeapon!).WithActionCost(0); ;
+                    var strike = effect.Owner.CreateStrike(effect.Owner.PrimaryWeapon!).WithExtraTrait(Trait.AttackOfOpportunity).WithActionCost(0);
 
-                    if (!strike.CanBeginToUse(attacker) || !(strike.Target as CreatureTarget)!.IsLegalTarget(effect.Owner, attacker)) {
+                    if (!strike.CanBeginToUse(creature) || !(strike.Target as CreatureTarget)!.IsLegalTarget(effect.Owner, attacker)) {
                         return null;
                     }
 

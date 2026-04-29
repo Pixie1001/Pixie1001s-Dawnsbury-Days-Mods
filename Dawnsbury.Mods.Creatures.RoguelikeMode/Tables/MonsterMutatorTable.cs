@@ -1,7 +1,5 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.Creatures;
@@ -11,21 +9,11 @@ using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Dawnsbury.Display;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using FMOD;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
-using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Core.Roller;
 using Microsoft.Xna.Framework;
@@ -35,10 +23,7 @@ using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Display.Illustrations;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.StatBlocks.Monsters.L5;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.StatBlocks;
@@ -261,7 +246,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                             Tile pos = self.Owner.Occupies;
                             self.Owner.Battle.RemoveCreatureFromGame(self.Owner);
 
-                            var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, self.Owner.Level - 1, self.Owner.Level + 2) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable)).ToArray();
+                            var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, self.Owner.Level - 1, self.Owner.Level + 2) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable) && !pet.HasTrait(Trait.MustSurvive) && !pet.IsNamedMonster).ToArray();
                             int rand = R.Next(0, list.Count());
 
                             if (list.Count() == 0)
@@ -371,7 +356,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 creature.AnimationData.AuraAnimations.Last().MaximumOpacity = 0.7f;
 
                 mutator.description = $"This creature is empowered by the element of {elementTrait.HumanizeTitleCase2()}," +
-                    $" gaining immunity to {elementTrait.HumanizeTitleCase2()} and {(physical ? "resistance 5 to" : "")} {element.HumanizeTitleCase2()} damage{(hasWeakness ? $", as well as weakness 5 to {weakness.HumanizeTitleCase2()} damage" : "")}." +
+                    $" gaining {(physical ? "resistance 5" : "immunity")} to {element.HumanizeTitleCase2()} damage{(hasWeakness ? $", as well as weakness 5 to {weakness.HumanizeTitleCase2()} damage" : "")}." +
                     $" It also gains an aura that deals 1d6+{creature.Level} {element.HumanizeTitleCase2()} " +
                     $"damage (Basic fort vs. DC {SkillChallengeTables.GetDCByLevel(creature.Level) + 2}) to enemy creatures who end their turn within 10ft of it. In addition, their spells deal +2 {element.HumanizeTitleCase2()} damage.";
 
@@ -387,7 +372,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         }
                         self.Owner.WeaknessAndResistance.AddImmunity(element);
                     },
-                    ImmuneToTrait = elementTrait,
                     AfterYouDealDamage = async (caster, action, target) => {
                         if (action.HasTrait(Trait.Spell)) {
                             await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(caster, action.Name), DiceFormula.FromText("2", name), target, element);
@@ -398,7 +382,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     qfTechnical.EndOfYourTurnBeneficialEffect = async (self, you) => {
                         if (you.DistanceTo(effect.Owner) <= 2) {
                             var ca = CombatAction.CreateSimple(creature, name + " aura");
-                            var result = CommonSpellEffects.RollSavingThrow(you, ca, Defense.Fortitude, SkillChallengeTables.GetDCByLevel(creature.Level) + 2);
+                            var result = await CommonSpellEffects.RollSavingThrowAsync(you, ca, Defense.Fortitude, SkillChallengeTables.GetDCByLevel(creature.Level) + 2);
                             await CommonSpellEffects.DealBasicDamage(ca, creature, you, result, DiceFormula.FromText($"1d6+{creature.Level}", ca.Name), element);
                         }
                     };

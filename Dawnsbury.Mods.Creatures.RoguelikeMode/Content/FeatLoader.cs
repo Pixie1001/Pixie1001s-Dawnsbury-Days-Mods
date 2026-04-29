@@ -7,6 +7,7 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Archetypes;
 using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
@@ -91,55 +92,55 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 };
             });
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("RL_MonasticArcherStance", "Monastic Archer Stance"), 2, "You enter a specialized stance for a unique martial art centered around the use of a bow.",
-                "While in this stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait. You can use Flurry of Blows with these bows. " +
-                "You can use your other monk feats or monk abilities that normally require unarmed attacks with these bows when attacking within half the first range increment (normally 50 feet for a longbow and 30 feet for a shortbow), " +
-                "so long as the feat or ability doesn't require a single, specific Strike." +
-                "\n\n{b}Special{/b} When you select this feat, you become trained in the longbow, shortbow, and any simple and martial bows with the monk trait. At later levels, your proficancy with these weapons scales with your unarmed attacks.",
-                [Trait.Monk, Trait.Stance, ModTraits.Roguelike], null)
-            .WithIllustration(Illustrations.MonasticArcherStance)
-            .WithOnSheet(sheet => {
-                sheet.Proficiencies.AddProficiencyAdjustment((item) => (item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial) && item.Contains(Trait.Bow)) || item.ContainsOneOf([Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow]), Trait.Simple);
+            //yield return new TrueFeat(ModManager.RegisterFeatName("RL_MonasticArcherStance", "Monastic Archer Stance"), 1, "You enter a specialized stance for a unique martial art centered around the use of a bow.",
+            //    "While in this stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait. You can use Flurry of Blows with these bows. " +
+            //    "You can use your other monk feats or monk abilities that normally require unarmed attacks with these bows when attacking within half the first range increment (normally 50 feet for a longbow and 30 feet for a shortbow), " +
+            //    "so long as the feat or ability doesn't require a single, specific Strike." +
+            //    "\n\n{b}Special{/b} When you select this feat, you become trained in the longbow, shortbow, and any simple and martial bows with the monk trait. At later levels, your proficancy with these weapons scales with your unarmed attacks.",
+            //    [Trait.Monk, Trait.Stance, ModTraits.Roguelike], null)
+            //.WithIllustration(Illustrations.MonasticArcherStance)
+            //.WithOnSheet(sheet => {
+            //    sheet.Proficiencies.AddProficiencyAdjustment((item) => (item.Contains(Trait.MonkWeapon) && item.Contains(Trait.Martial) && item.Contains(Trait.Bow)) || item.ContainsOneOf([Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow]), Trait.Simple);
 
-                sheet.AtEndOfRecalculation = sheet => {
-                    ReplaceKiStrike(sheet, sheet.Sheet.ToCreature(sheet.CurrentLevel));
-                };
-            })
-            .WithOnCreature(you => {
-                if (!you.HasFeat(MonasticWeaponry))
-                    ReplaceFlurryOfBlows(you);
-            })
-            .WithPermanentQEffect(null, (qfMAS) => {
-                qfMAS.ProvideMainAction = self => {
-                    return new ActionPossibility(new CombatAction(self.Owner, Illustrations.MonasticArcherStance, "Monastic Archer Stance", [Trait.Monk, Trait.Stance],
-                        "Enter a stance.\n\nWhile in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead.\n\nYou can't enter this stance if you're wearing armour.",
-                        Target.Self().WithAdditionalRestriction(self => {
-                            if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance))
-                                return "You're already in this stance.";
-                            if (self.Armor.WearsArmor)
-                                return "You're wearing armour.";
-                            return null;
-                        })) {
-                        ShortDescription = "You can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead."
-                    }
-                    .WithActionCost(1)
-                    .WithEffectOnSelf(user => {
-                        var stance = KineticistCommonEffects.EnterStance(user, Illustrations.MonasticArcherStance,
-                            "Monastic Archer Stance", "While in this stance, you can use your monk feats or monk abilities " +
-                            "that normally require unarmed attacks with longbows, shortsbows and monk bows instead at targets within half of your weapon's first range increment.", QEffectIds.MonasticArcherStance);
-                        stance.PreventTakingAction = action => action.HasTrait(Trait.Strike)
-                            && !((action.Item != null
-                            && action.Item.HasTrait(Trait.MonkWeapon)
-                            && action.Item.HasTrait(Trait.Bow)
-                            && !action.Item.HasTrait(Trait.Advanced)) || new Trait?[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(action?.Item?.MainTrait))
-                            ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;
+            //    sheet.AtEndOfRecalculation = sheet => {
+            //        ReplaceKiStrike(sheet, sheet.Sheet.ToCreature(sheet.CurrentLevel));
+            //    };
+            //})
+            //.WithOnCreature(you => {
+            //    if (!you.HasFeat(MonasticWeaponry))
+            //        ReplaceFlurryOfBlows(you);
+            //})
+            //.WithPermanentQEffect(null, (qfMAS) => {
+            //    qfMAS.ProvideMainAction = self => {
+            //        return new ActionPossibility(new CombatAction(self.Owner, Illustrations.MonasticArcherStance, "Monastic Archer Stance", [Trait.Monk, Trait.Stance],
+            //            "Enter a stance.\n\nWhile in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead.\n\nYou can't enter this stance if you're wearing armour.",
+            //            Target.Self().WithAdditionalRestriction(self => {
+            //                if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance))
+            //                    return "You're already in this stance.";
+            //                if (self.Armor.WearsArmor)
+            //                    return "You're wearing armour.";
+            //                return null;
+            //            })) {
+            //            ShortDescription = "You can use your monk feats or monk abilities that normally require unarmed attacks with longbows, shortsbows and monk bows instead."
+            //        }
+            //        .WithActionCost(1)
+            //        .WithEffectOnSelf(user => {
+            //            var stance = KineticistCommonEffects.EnterStance(user, Illustrations.MonasticArcherStance,
+            //                "Monastic Archer Stance", "While in this stance, you can use your monk feats or monk abilities " +
+            //                "that normally require unarmed attacks with longbows, shortsbows and monk bows instead at targets within half of your weapon's first range increment.", QEffectIds.MonasticArcherStance);
+            //            stance.PreventTakingAction = action => action.HasTrait(Trait.Strike)
+            //                && !((action.Item != null
+            //                && action.Item.HasTrait(Trait.MonkWeapon)
+            //                && action.Item.HasTrait(Trait.Bow)
+            //                && !action.Item.HasTrait(Trait.Advanced)) || new Trait?[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(action?.Item?.MainTrait))
+            //                ? "While in the monastic Archer Stance, the only Strikes you can make are those using longbows, shortbows, or bows with the monk trait." : null;
 
-                    })) {
-                        PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
-                    }
-                    ;
-                };
-            });
+            //        })) {
+            //            PossibilityGroup = Constants.POSSIBILITY_GROUP_STANCES
+            //        }
+            //        ;
+            //    };
+            //});
 
             yield return new TrueFeat(ModManager.RegisterFeatName("RL_ShootingStarStance", "Shooting Star Stance"), 2, "You enter a stance that lets you throw shuriken with lightning speed.",
                 "While in this stance, you can use your monk feats or monk abilities that normally require unarmed attacks with shuriken instead.",
@@ -717,7 +718,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             strike.Illustration = actionCount == 2 ? IllustrationName.TwoActions : IllustrationName.ThreeActions;
                             strike.ActionCost = actionCount;
                             (strike.Target as CreatureTarget)!.CreatureTargetingRequirements.RemoveAll(req => req is MaximumRangeCreatureTargetingRequirement);
-                            (strike.Target as CreatureTarget)!.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(strike.Item?.WeaponProperties?.RangeIncrement / 2 ?? 1));
+                            (strike.Target as CreatureTarget)!.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(strike.Item?.WeaponProperties?.RangeIncrement / (monk.HasEffect(QEffectId.FarShot) ? 1 : 2) ?? 1));
                             return strike;
                         }
 
@@ -761,23 +762,27 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             }
                         }
 
-                        if (user.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
-                            Item? bow = user.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
-                            if (bow != null) {
-                                CombatAction combatAction = StrikeRules.CreateStrike(user, bow, RangeKind.Ranged, -1, true);
-                                if (combatAction.CanBeginToUse(user) && (bow.HasTrait(Trait.TwoHanded) || user.HasFreeHand)) {
-                                    return null;
-                                }
-                            }
+                        //if (user.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
+                        //    Item? bow = user.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
+                        //    if (bow != null) {
+                        //        CombatAction combatAction = StrikeRules.CreateStrike(user, bow, RangeKind.Ranged, -1, true);
+                        //        if (combatAction.CanBeginToUse(user) && (bow.HasTrait(Trait.TwoHanded) || user.HasFreeHand)) {
+                        //            return null;
+                        //        }
+                        //    }
+                        //}
+
+                        if (!user.CanMakeBasicUnarmedAttack && user.QEffects.All(qf => qf.AdditionalUnarmedStrike == null)) return "You must be able to make an unarmed Strike to use Flurry of Blows.";
+
+                        if (user.Weapons.Any(weapon => Monk.CountsAsUnarmed(user, weapon) && CommonRulesConditions.CouldMakeStrike(user, weapon))) {
+                            return null;
                         }
 
-                        if ((!user.CanMakeBasicUnarmedAttack
-                        && user.QEffects.All(qf => qf.AdditionalUnarmedStrike == null)
-                        && !user.HeldItems.Any(wp => wp.HasTrait(Trait.MonkWeapon)))
+                        if ((!user.HeldItems.Any(wp => wp.HasTrait(Trait.MonkWeapon)))
                         || user.PrimaryWeapon == null
                         || user.QEffects.Any(qf => qf.PreventTakingAction != null && qf.PreventTakingAction(user.CreateStrike(user.PrimaryWeapon)) != null))
-                            return $"You must be able to make a melee unarmed{(user.HasFeat(MonasticWeaponry) ? " or monk weapon" : "")} strike{(user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance) ? " or shuriken strike"
-                                : user.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance) ? " or an attack with a bow at half its range increment" : "")} to use Flurry of Blows.";
+                            return $"You must be able to make a melee unarmed{(user.HasFeat(FeatName.MonasticArcherStance) ? " or monk weapon" : "")} strike{(user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance) ? " or shuriken strike"
+                                : user.QEffects.Any(qf => qf.Id == QEffectId.MonasticArcherStance) ? " or an attack with a bow at half its range increment" : "")} to use Flurry of Blows.";
 
                         if (user.MeleeWeapons.Any(weapon => (weapon.HasTrait(Trait.Unarmed) || weapon.HasTrait(Trait.MonkWeapon)) && CommonRulesConditions.CouldMakeStrike(user, weapon))) {
                             return null;
@@ -800,7 +805,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 // Add shurikens
                                 Item? bandolier = self.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn);
 
-                                if (bandolier != null && self.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken)) {
+                                if (bandolier != null || self.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken)) {
                                     var uniqueShurikens = new List<(Item?, Item)>();
                                     int numShurikens = 0;
                                     var allShurikens = new List<(Item?, Item)>();
@@ -834,7 +839,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                 user.CarriedItems.Remove(shuriken.Item2);
                                             user.AddHeldItem(shuriken.Item2);
                                         });
-                                        strike.Name += " (" + shuriken.Item2.Name + ")";
+                                        strike.WithFullRename(strike.Name + " (" + shuriken.Item2.Name + ")");
                                         shurikenThrows.Add(strike);
                                     }
 
@@ -851,7 +856,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             user.AddHeldItem(shuriken);
                                         });
-                                        strike.Name += " from bandolier (" + shuriken.Name + ")";
+                                        strike.WithFullRename(strike.Name + " from bandolier (" + shuriken.Name + ")");
                                         shurikenThrows.Add(strike);
                                     }
 
@@ -863,13 +868,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 Item? bow = self.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
                                 if (bow != null) {
                                     var combatAction = self.CreateStrike(bow);
-                                    (combatAction.Target as CreatureTarget)?.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties!.RangeIncrement / 2));
+                                    (combatAction.Target as CreatureTarget)?.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties?.RangeIncrement / (monk.HasEffect(QEffectId.FarShot) ? 1 : 2) ?? 1));
                                     combatAction.WithActionCost(0);
                                     GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
                                 }
                             }
 
-                            foreach (var item in self.MeleeWeapons.Where(weapon => weapon.HasTrait(Trait.Unarmed) || weapon.HasTrait(Trait.MonkWeapon))) {
+                            foreach (var item in self.Weapons.Where(weapon => Monk.CountsAsUnarmed(self, weapon))) {
                                 var combatAction = self.CreateStrike(item);
                                 combatAction.WithActionCost(0);
                                 GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);

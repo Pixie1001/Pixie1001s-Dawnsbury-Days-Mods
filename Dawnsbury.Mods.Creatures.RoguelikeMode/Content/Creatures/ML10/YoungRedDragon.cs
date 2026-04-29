@@ -36,7 +36,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .WithCharacteristics(true, true)
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(QEffect.DamageImmunity(DamageKind.Fire))
-                .AddQEffect(QEffect.TraitImmunity(Trait.Fire))
+                //.AddQEffect(QEffect.TraitImmunity(Trait.Fire))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Paralyzed))
                 .AddQEffect(QEffect.DamageWeakness(DamageKind.Cold, 10))
                 .AddQEffect(QEffect.BreathWeapon("fiery breath", Target.Cone(8), Defense.Reflex, 30, DamageKind.Fire, DiceFormula.FromText("11d6", "fiery breath"), SfxName.FireRay))

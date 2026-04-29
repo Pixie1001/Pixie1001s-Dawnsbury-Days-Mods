@@ -20,6 +20,7 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
@@ -27,22 +28,17 @@ using System;
 using System.Linq;
 using static System.Collections.Specialized.BitVector32;
 
-namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
-{
+namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class Homunculus
-    {
-        public static Affliction HomunculusPoison = new Affliction(QEffectIds.HomunculusPoison, "Homunculus Poison", 15, "{b}Stage 1{/b} 1d6 poison damage and enfeebled 1", 1, (int stage) => stage switch
-        {
+    public class Homunculus {
+        public static Affliction HomunculusPoison = new Affliction(QEffectIds.HomunculusPoison, "Homunculus Poison", 15, "{b}Stage 1{/b} 1d6 poison damage and enfeebled 1", 1, (int stage) => stage switch {
             1 => "1d6",
             _ => throw new Exception("Unknown stage."),
-        }, delegate (QEffect qfPoison)
-        {
+        }, delegate (QEffect qfPoison) {
             qfPoison.Owner.AddQEffect(QEffect.Enfeebled(1).WithExpirationEphemeral());
         });
 
-        public static Creature Create()
-        {
+        public static Creature Create() {
             return new Creature(Illustrations.Homunculus, "Homunculus", [Trait.Construct, ModTraits.MeleeMutator], 0, 3, 8, new Defenses(17, 2, 7, 3), 17, new Abilities(-1, 3, 0, 0, 1, -2), new Skills(acrobatics: 5, stealth: 5))
                 .WithCreatureId(CreatureIds.Homunculus)
                 .WithCharacteristics(false, true)
@@ -51,64 +47,46 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .AddQEffect(QEffect.TraitImmunity(Trait.Healing))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious))
                 .AddQEffect(QEffect.Flying())
-                .AddQEffect(new QEffect("Master Link", "If this has a master then it is linked to its master, and adopts the same alignment. If the homunculus is destroyed, the master takes 2d10 mental damage.")
-                {
-                    WhenCreatureDiesAtStateCheckAsync = async (qfDies) =>
-                    {
+                .AddQEffect(new QEffect("Master Link", "If this has a master then it is linked to its master, and adopts the same alignment. If the homunculus is destroyed, the master takes 2d10 mental damage.") {
+                    StartOfCombat = async (qfSelf) => {
+                        qfSelf.Description = $"If this has a master then it is linked to its master, and adopts the same alignment. If the homunculus is destroyed, the master takes {S.HeightenedVariable(qfSelf.Owner.Level + 2, 2)}d10 mental damage.";
+                    },
+                    WhenCreatureDiesAtStateCheckAsync = async (qfDies) => {
                         Creature self = qfDies.Owner;
-                        if (!self.QEffects.Any(qe => qe.Name == "Death in progress"))
-                        {
+                        if (!self.QEffects.Any(qe => qe.Name == "Death in progress")) {
                             self.AddQEffect(new QEffect("Death in progress", "[technical trait]"));
                             Creature? master = ((Creature?)(self.FindQEffect(QEffectIds.HomunculusMaster)?.Tag ?? null));
-                            if (master != null && master.Alive)
-                            {
-                                //CombatAction deathDamage = new CombatAction(self, IllustrationName.Unknown, "Master Link Death", [Trait.Arcane, Trait.Divination, Trait.Mental, Trait.ExecuteEvenIfCasterCannotTakeActions, Trait.UsableEvenWhenUnconsciousOrParalyzed], "Deals 2d10 mental damage to the master.", Target.Self())
-                                //.WithActionCost(0)
-                                //.WithSoundEffect(SfxName.PhaseBolt)
-                                //.WithEffectOnSelf(async (action, innerself) =>
-                                //{
-                                //    await CommonSpellEffects.DealDirectDamage(action, DiceFormula.FromText("2d10"), master, CheckResult.Success, DamageKind.Mental);
-                                //});
-                                //await self.Battle.GameLoop.FullCast(deathDamage);
-
+                            if (master != null && master.Alive) {
                                 Sfxs.Play(SfxName.PhaseBolt);
-                                master.Overhead("*master link feedback*", Color.Violet, $"{master.Name} suffers 2d10 mental damage from the psychic shock of losing their bonded Homunculus.");
-                                await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self, "Master Link Death"), DiceFormula.FromText("2d10"), master, CheckResult.Success, DamageKind.Mental);
+                                master.Overhead("*master link feedback*", Color.Violet, $"{master.Name} suffers {self.Level + 2}d10 mental damage from the psychic shock of losing their bonded Homunculus.");
+                                await CommonSpellEffects.DealDirectDamage(CombatAction.CreateSimple(self, "Master Link Death"), DiceFormula.FromText((self.Level + 2) + "d10"), master, CheckResult.Success, DamageKind.Mental);
                             }
                         }
                     }
                 })
-                .AddQEffect(new QEffect("Homunculus Poison", "When this deals damage to an enemy with it's jaws Strike, the enemy must succeed a DC 15 Fortitude save or be affected by the poison ({i}maximum duration{/i} 6 rounds; {i}stage 1{/i} 1d6 poison damage and enfeebled 1).")
-                {
-                    YouBeginAction = async (qfBeginAction, action) =>
-                    {
+                .AddQEffect(new QEffect("Homunculus Poison", "When this deals damage to an enemy with it's jaws Strike, the enemy must succeed a DC 15 Fortitude save or be affected by the poison ({i}maximum duration{/i} 6 rounds; {i}stage 1{/i} 1d6 poison damage and enfeebled 1).") {
+                    YouBeginAction = async (qfBeginAction, action) => {
                         Creature self = qfBeginAction.Owner;
-                        if (!self.QEffects.Any(qe => qe.Name == "Empty Homunculus Reservior"))
-                        {
+                        if (!self.QEffects.Any(qe => qe.Name == "Empty Homunculus Reservior")) {
                             QEffect affliction = Affliction.CreateInjuryQEffect(HomunculusPoison);
                             affliction.Id = QEffectIds.HomunculusPoison;
                             self.AddQEffect(affliction);
                         }
                     },
-                    AfterYouTakeAction = async (qfAfterAction, action) =>
-                    {
+                    AfterYouTakeAction = async (qfAfterAction, action) => {
                         Creature self = qfAfterAction.Owner;
                         self.RemoveAllQEffects(qe => qe.Id == QEffectIds.HomunculusPoison);
-                        if (action.CheckResult >= CheckResult.Success && action.HasTrait(Trait.AddsInjuryPoison))
-                        {
+                        if (action.CheckResult >= CheckResult.Success && action.HasTrait(Trait.AddsInjuryPoison)) {
                             self.AddQEffect(new QEffect("Empty Homunculus Reservior", "You can not apply Homunculus Poison until you spend an action to refill your poison reservior."));
                         }
                     },
-                    ProvideMainAction = (qfMainAction) =>
-                    {
+                    ProvideMainAction = (qfMainAction) => {
                         Creature self = qfMainAction.Owner;
-                        if (self.QEffects.Any(qe => qe.Name == "Empty Homunculus Reservior"))
-                        {
+                        if (self.QEffects.Any(qe => qe.Name == "Empty Homunculus Reservior")) {
                             return new ActionPossibility(new CombatAction(self, IllustrationName.Unknown, "Refill Poison", [Trait.Manipulate], "Refill your Homunculus Poison reservior.", Target.Self())
                                 .WithActionCost(1)
                                 .WithGoodness((t, a, d) => self.Battle.AllCreatures.Any(creature => !creature.FriendOf(self) && creature.IsAdjacentTo(self)) ? AIConstants.EXTREMELY_PREFERRED : AIConstants.NEVER)
-                                .WithEffectOnSelf((innerself) =>
-                                {
+                                .WithEffectOnSelf((innerself) => {
                                     innerself.RemoveAllQEffects(qe => qe.Name == "Empty Homunculus Reservior");
                                 }));
                         }
@@ -121,10 +99,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .Done();
         }
 
-        public static void AddMasterEffect(Creature homunculus, Creature master)
-        {
-            homunculus.AddQEffect(new QEffect()
-            {
+        public static void AddMasterEffect(Creature homunculus, Creature master) {
+            homunculus.AddQEffect(new QEffect() {
                 Id = QEffectIds.HomunculusMaster,
                 Tag = master,
                 Illustration = IllustrationName.Dominate,
@@ -132,8 +108,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 Description = $"{master.Name} is {homunculus.Name}'s master"
             });
             Trait[] alignments = [Trait.Good, Trait.Lawful, Trait.Evil, Trait.Chaotic];
-            foreach (Trait alignment in alignments.Except(homunculus.Traits).Intersect(master.Traits))
-            {
+            foreach (Trait alignment in alignments.Except(homunculus.Traits).Intersect(master.Traits)) {
                 homunculus.Traits.Add(alignment);
             }
             homunculus.MainName = master.Name + "'s " + homunculus.BaseName;

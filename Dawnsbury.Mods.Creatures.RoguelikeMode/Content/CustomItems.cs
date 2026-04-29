@@ -173,10 +173,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithMainTrait(ModTraits.LightHammer)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
 
-        public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, ModTraits.ThrownOnly, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
-        .WithMainTrait(ModTraits.Shuriken)
-        .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
+        public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => {
+            Item item = new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
+                Trait.Agile, Trait.Thrown20Feet, ModTraits.ThrownOnly, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
+            .WithMainTrait(ModTraits.Shuriken)
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing));
+
+            item.StateCheckWhenWielded = (wielder, shuriken) => {
+                ShurikenStrikeModofierLogic(wielder, shuriken);
+            };
+            return item;
+        });
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 60,
@@ -350,7 +357,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 {
                     if (result == CheckResult.CriticalSuccess) {
                         spell.Traits.Add(Trait.InflictsSlow);
-                        if (CommonSpellEffects.RollSavingThrow(target, spell, Defense.Fortitude, 24) <= CheckResult.Failure) {
+                        if (await CommonSpellEffects.RollSavingThrowAsync(target, spell, Defense.Fortitude, 24) <= CheckResult.Failure) {
                             target.AddQEffect(QEffect.Slowed(1).WithExpirationAtStartOfSourcesTurn(caster, 1));
                         }
                     }
@@ -1802,6 +1809,47 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             return item;
         });
 
+        const int BROOCH_CHARGES = 4;
+
+        public static ItemName BroochOfShielding { get; } = ModManager.RegisterNewItemIntoTheShop("RL_BroochOfShielding", itemName => new Item(itemName, Illustrations.BroochOfShielding, "brooch of shielding", 2, 30,
+            Trait.Abjuration, Trait.Invested, Trait.Worn, Trait.Magical, ModTraits.Roguelike)
+        .WithDescription(@"{i}This bejewled shield shaped brooch thrums with abjuring energies and can be used to fasten a cloak or cape.{/i}
+
+The next {b}" + BROOCH_CHARGES + "{/b} times you are targeted by the {i}magic missile{/i} spell, it is absorbed and nullified by this brooch. Afterwards, the brooch is destroyed.")
+        .WithOnSheetWhenInInventory((item, sheet) => {
+            var charges = BROOCH_CHARGES - item.ItemModifications.Where(mod => mod.Tag is string tag && tag.StartsWith("brooch_of_shielding_use_marker")).Count();
+            item.Description = @"{i}This piece of silver or gold jewelry is adorned with miniature images of kite shields and can be used to fasten a cloak or cape.{/i}
+
+The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/i} spell, it is absorbed and nullified by this brooch. Afterwards, the brooch is destroyed.";
+        })
+        .WithOnCreatureWhenWorn((item, wearer) => {
+            var charges = BROOCH_CHARGES - item.ItemModifications.Where(mod => mod.Tag is string tag && tag.StartsWith("brooch_of_shielding_use_marker")).Count();
+            var baseCharges = charges;
+            if (charges <= 0) {
+                wearer.CarriedItems.Remove(item);
+                return;
+            }
+            wearer.AddQEffect(new QEffect($"Brooch of Shielding ({charges}/{BROOCH_CHARGES})", $"The next {charges} times you are targeted by the {{i}}magic missile{{/i}} spell, it is absorbed and nullified by this brooch. Afterwards, the brooch is destroyed.") {
+                YouAreDealtDamage = async (self, a, dmg, d) => {
+                    if (dmg.Power != null && dmg.Power.SpellId == SpellId.MagicMissile) {
+                        charges -= 1;
+                        if (charges <= 0) {
+                            wearer.CarriedItems.Remove(item);
+                            Sfxs.Play(SfxName.AuraDismissal);
+                            wearer.Overhead("*brooch of shielding shattered*", Color.AliceBlue, wearer + "'s brooch of shielding shatters after running out of charges!");
+                            self.ExpiresAt = ExpirationCondition.Immediately;
+                        } else {
+                            item.ItemModifications.Add(ItemModification.Create("custom_brooch_of_shielding_use_marker"));
+                            self.Name = $"Brooch of Shielding ({charges}/{BROOCH_CHARGES})";
+                            self.Description = $"The next {charges} times you are targeted by the {{i}}magic missile{{/i}} spell, it is absorbed and nullified by this brooch. Afterwards, the brooch is destroyed.";
+                        }
+                        return new ReduceDamageModification(999, "Brooch of shielding");
+                    }
+                    return null;
+                }
+            });
+        }));
+
         public static ItemName ThrowersBandolier { get; } = ModManager.RegisterNewItemIntoTheShop("Thrower's Bandolier", itemName => {
             return new Item(itemName, Illustrations.ThrowersBandolier, "thrower's bandolier", 3, 35,
                 new Trait[] { Trait.Magical, Trait.Invested, Trait.Worn, Trait.Conjuration, ModTraits.Roguelike })
@@ -2818,7 +2866,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 CombatAction dummyAction = new CombatAction(self.Owner, self.Owner.Illustration, "Inquisitrix Leathers", new Trait[] { Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental },
                                     $"You deal 1d6+{Math.Max(1, self.Owner.Level / 2)} mental damage to a creature that attacked you.", Target.Uncastable());
 
-                                var result = CommonSpellEffects.RollSavingThrow(action.Owner, dummyAction, Defense.Will, self.Owner.ClassOrSpellDC());
+                                var result = await CommonSpellEffects.RollSavingThrowAsync(action.Owner, dummyAction, Defense.Will, self.Owner.ClassOrSpellDC());
 
                                 await CommonSpellEffects.DealBasicDamage(dummyAction, self.Owner, action.Owner, result, DiceFormula.FromText($"1d6+{Math.Max(1, self.Owner.Level / 2)}", "Inquisitrix Leathers"), DamageKind.Mental);
                             }
@@ -3244,6 +3292,205 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             if (animalCompanion.HasEffect(QEffectId.Paralyzed)) return "Your animal companion is paralyzed.";
             if (animalCompanion.Actions.ActionsLeft == 0 && (animalCompanion.Actions.QuickenedForActions == null || animalCompanion.Actions.UsedQuickenedAction)) return "You animal companion has no actions it could take.";
             return null;
+        }
+
+        public static async Task MakeShurikenStrike(Creature self, Creature? target=null, int map=-1) {
+            Item? bandolier = self.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn);
+            var possibilities = new List<Option>();
+
+            if (bandolier != null || self.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken)) {
+                var uniqueShurikens = new List<(Item?, Item)>();
+                int numShurikens = 0;
+                var allShurikens = new List<(Item?, Item)>();
+                foreach (var item in self.CarriedItems) {
+                    if (item.ItemName == CustomItems.Shuriken)
+                        allShurikens.Add((null, item));
+                    foreach (var subItem in item.StoredItems) {
+                        if (subItem.ItemName == CustomItems.Shuriken)
+                            allShurikens.Add((item, subItem));
+                    }
+                }
+                allShurikens.ForEach(tuple => {
+                    numShurikens += 1;
+                    bool unique = true;
+                    foreach ((Item?, Item) skn in uniqueShurikens) {
+                        if (tuple.Item2.Name == skn.Item2.Name)
+                            unique = false;
+                    }
+                    if (unique)
+                        uniqueShurikens.Add(tuple);
+                });
+
+                List<CombatAction> shurikenThrows = new List<CombatAction>();
+                foreach ((Item?, Item) shuriken in uniqueShurikens) {
+                    var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, map, true).WithActionCost(0);
+                    (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                    strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
+                        if (shuriken.Item1 != null)
+                            shuriken.Item1.StoredItems.Remove(shuriken.Item2);
+                        else
+                            user.CarriedItems.Remove(shuriken.Item2);
+                        user.AddHeldItem(shuriken.Item2);
+                    });
+                    strike.WithFullRename(strike.Name + " (" + shuriken.Item2.Name + ")");
+                    shurikenThrows.Add(strike);
+                }
+
+                if (bandolier != null) {
+                    var shuriken = Items.CreateNew(CustomItems.Shuriken);
+                    shuriken.Traits.Add(Trait.EncounterEphemeral);
+                    foreach (Item rune in bandolier.Runes) {
+                        if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
+                            shuriken.WithModificationRune(rune.ItemName);
+                    }
+
+                    var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, map, true).WithActionCost(0);
+                    (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
+                    strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
+                        user.AddHeldItem(shuriken);
+                    });
+                    strike.WithFullRename(strike.Name + " from bandolier (" + shuriken.Name + ")");
+                    shurikenThrows.Add(strike);
+                }
+
+                if (target != null) {
+                    foreach (CombatAction strike in shurikenThrows) {
+                        (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => d != target ? Usability.NotUsableOnThisCreature("invalid target") : Usability.Usable);
+                    }
+                }
+
+                foreach (var strike in shurikenThrows) {
+                    GameLoop.AddDirectUsageOnCreatureOptions(strike, possibilities, false);
+                }
+
+                possibilities.Add(new CancelOption(true));
+                Option chosenOption;
+                if (possibilities.Count >= 3) {
+                    var result = await self.Battle.SendRequest(new AdvancedRequest(self, "Choose a creature to Strike.", possibilities) {
+                        TopBarText = "Choose a creature to Strike or right-click to cancel.",
+                        TopBarIcon = Illustrations.Shuriken
+                    });
+                    chosenOption = result.ChosenOption;
+                } else {
+                    chosenOption = possibilities[0];
+                }
+
+                if (chosenOption is CancelOption) {
+                    return;
+                }
+
+                await chosenOption.Action();
+            }
+        }
+
+        public static bool HasExtraShurikens(Creature self, int num) {
+            if (self.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn) != null) return true;
+
+            var count = -1;
+
+            count += self.CarriedItems.Where(item => item.ItemName == CustomItems.Shuriken).Count();
+
+            foreach (var item in self.CarriedItems) {
+                foreach (var subItem in item.StoredItems) {
+                    if (subItem.ItemName == CustomItems.Shuriken)
+                        count += 1;
+                }
+            }
+
+            return count >= num;
+        }
+
+        public static void ShurikenStrikeModofierLogic(Creature wielder, Item shuriken) {
+            // Hunted shot
+                if (wielder.HasFeat(FeatName.HuntedShot)) {
+                    wielder.AddQEffect(new QEffect() {
+                        ProvideStrikeModifier = wpn => {
+                            if (wpn != shuriken) return null;
+                            var strike = StrikeRules.CreateStrike(wielder, wpn, RangeKind.Ranged, -1, true);
+                            return new CombatAction(wielder, new SideBySideIllustration(wpn.Illustration, IllustrationName.Twinshot), "Hunted Shot", [Trait.Flourish, Trait.Basic, Trait.AlwaysHits, Trait.Thrown], "Make two Strikes against your prey with a ranged weapon that doesn't need reloading (like a bow). If both hit the same creature, combine their damage for the purpose of resistances and weaknesses. Apply your multiple attack penalty to each Strike normally.",
+                                    ((CreatureTarget)strike.Target)
+                                    .WithAdditionalConditionOnTargetCreature((a, _) => HasExtraShurikens(a, 1) ? Usability.Usable : Usability.NotUsable("Not enough shurikens"))
+                                    .WithAdditionalConditionOnTargetCreature(new HuntedPreyCreatureTargetingRequirement())
+                                    .WithAdditionalConditionOnTargetCreature((a, d) => {
+                                        foreach (var effect in a.QEffects.Where(qf => qf.PreventTakingAction != null)) {
+                                            if (effect.PreventTakingAction!(strike) != null)
+                                                return Usability.NotUsable(effect.PreventTakingAction!(strike));
+                                        }
+
+                                        return Usability.Usable;
+                                    }))
+                                .WithGoodness((t, a, d) => AIConstants.NEVER)
+                                .WithActionCost(1)
+                                .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                                    await wielder.MakeStrike(StrikeRules.CreateStrike(wielder, wpn, RangeKind.Ranged, -1, true).WithActionCost(0), target);
+                                    await MakeShurikenStrike(caster, target);
+                                });
+                        }
+                    }.WithExpirationEphemeral());
+                }
+
+                CombatAction? DoubleShot(Item wpn, bool tripleShot) {
+                    if (wpn != shuriken) return null;
+                    var basicStrike = StrikeRules.CreateStrike(wielder, wpn, RangeKind.Ranged, -1, true);
+                    var hasTripleShotFeat = wielder.HasEffect(QEffectId.TripleShot);
+                    int dartCount = tripleShot ? 3 : 2;
+                    return new CombatAction(wielder, new SideBySideIllustration(wpn.Illustration, tripleShot ? IllustrationName.TripleShot : IllustrationName.Twinshot), tripleShot ? "Triple Shot" : "Double Shot", [Trait.Fighter, Trait.Basic, Trait.AlwaysHits, Trait.Flourish, Trait.Thrown],
+                            tripleShot
+                                ? "Make three Strikes, each with a –4 penalty. All attacks count toward your multiple attack penalty, but the penalty doesn't increase until after you've all made all of them."
+                                : (hasTripleShotFeat
+                                    ? "Make two Strikes, each with a –2 penalty. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after you've made both of them."
+                                    : "Make two Strikes, each against a separate target and with a –2 penalty. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after you've made both of them."),
+                            tripleShot
+                                ? Target.MultipleCreatureTargets(wpn.DetermineStrikeTarget(RangeKind.Ranged), wpn.DetermineStrikeTarget(RangeKind.Ranged), wpn.DetermineStrikeTarget(RangeKind.Ranged))
+                                : (hasTripleShotFeat
+                                    ? Target.MultipleCreatureTargets(wpn.DetermineStrikeTarget(RangeKind.Ranged), wpn.DetermineStrikeTarget(RangeKind.Ranged))
+                                    : Target.MultipleCreatureTargets(wpn.DetermineStrikeTarget(RangeKind.Ranged), wpn.DetermineStrikeTarget(RangeKind.Ranged)).WithMustBeDistinct()))
+                        .WithActionCost(tripleShot ? 3 : 2)
+                        .WithTargetingTooltip((power, creature, index) => {
+                            var indexString = S.EnglishOrdinalNumber(index + 1);
+                            return "Make the " + indexString + " Strike against " + creature + ". (" + (index + 1) + "/" + dartCount + ")";
+                        })
+                        .WithGoodnessAgainstEnemy((target, a, d) => 2 * a.AI.DealDamage(d, basicStrike.StrikeModifiers.CalculatedTrueDamageFormula?.ExpectedValueMinimumOne ?? 0, target.OwnerAction))
+                        .WithEffectOnChosenTargets((async (fighter, targets) => {
+                            var map = fighter.Actions.AttackedThisManyTimesThisTurn;
+                            QEffect qPenalty;
+                            if (tripleShot) {
+                                qPenalty = new QEffect("Triple Shot penalty", QEffect.NoDescription, ExpirationCondition.Never, fighter, IllustrationName.None) {
+                                    BonusToAttackRolls = (qf2, ca, de) => new Bonus(-4, BonusType.Untyped, "Triple Shot penalty")
+                                };
+                            } else {
+                                qPenalty = new QEffect("Double Shot penalty", QEffect.NoDescription, ExpirationCondition.Never, fighter, IllustrationName.None) {
+                                    BonusToAttackRolls = (qf2, ca, de) => new Bonus(-2, BonusType.Untyped, "Double Shot penalty")
+                                };
+                            }
+
+                            fighter.AddQEffect(qPenalty);
+                            await wielder.MakeStrike(StrikeRules.CreateStrike(wielder, wpn, RangeKind.Ranged, map, true).WithActionCost(0), targets.ChosenCreatures[0]);
+                            await MakeShurikenStrike(fighter, targets.ChosenCreatures[1], map);
+                            if (tripleShot) {
+                                await MakeShurikenStrike(fighter, targets.ChosenCreatures[2], map);
+                            }
+
+                            fighter.RemoveAllQEffects(qfr => qfr == qPenalty);
+                        }));
+                }
+
+                // Double shot
+                if (wielder.HasFeat(FeatName.DoubleShot)) {
+                    wielder.AddQEffect(new QEffect() {
+                        ProvideStrikeModifier = wpn => {
+                            return DoubleShot(wpn, false);
+                        }
+                    }.WithExpirationEphemeral());
+                }
+
+                if (wielder.HasEffect(QEffectId.TripleShot)) {
+                    wielder.AddQEffect(new QEffect() {
+                        ProvideStrikeModifier = wpn => {
+                            return DoubleShot(wpn, true);
+                        }
+                    }.WithExpirationEphemeral());
+                }
         }
 
         private static int GetWandPrice(int level, WandType type) {

@@ -1,8 +1,11 @@
 RL
-* Displayed loot should now match the loot you actually get at the end of an encounter (Skill challenges still need to be scripted to display any gold or items you won from them)
-* Added an icon for the campaign to match the base game adventure paths
-* Fixed a bug where randomly dropped shields could be of a very high level
-* Fixed a bug where spells intended only for use by NPCs appeared as uncastable scrolls
-* Reduced sell price of Blood Bond Amulets
-* The Powerful Adversary modifier used by the Drider and Abyssal Handmaiden now works similarly to the Two-Headed Troll
-* Fixed depreciated code segments
+* Rebalanced homunculous
+* Dimensional Anchor now blocks teleport based reactions used by enemies
+* Fixed bug where Huge creatures when summoned by an Echidnadite Monsterbound crashed the game.
+* Made Winter Wolf large and fixed bug with Avenging Bite
+* Remove Monastic Archery to consolidate to 'new' base game version.
+* Taking monastic weaponry or shooting star stance should no longer break base game Monastic Archery
+* Added the Brooch of Shielding, a consumerable item that can deflect the magic missile spell.
+* Added item traits to Drow Alchemist
+* Removed trait immunity to energy damage traits, which were adversly punishing Kineticists
+* Shurikens can now be used with multi-attack strike modifiers, including: Hunter's Shot, Double Shot and Triple Shot. Future modifiers will still need to be added manually.

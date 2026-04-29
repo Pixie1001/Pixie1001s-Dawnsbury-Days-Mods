@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(QEffect.DamageImmunity(DamageKind.Cold))
-                .AddQEffect(QEffect.TraitImmunity(Trait.Cold))
+                //.AddQEffect(QEffect.TraitImmunity(Trait.Cold))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Paralyzed))
                 .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 5))
                 .AddQEffect(QEffect.BreathWeapon("icy breath", Target.Cone(6), Defense.Reflex, 24, DamageKind.Cold, DiceFormula.FromText("7d6", "icy breath"), SfxName.RayOfFrost))

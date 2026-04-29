@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(CommonQEffects.SpiderVenomAttack(22, "shortbow"))
             .AddQEffect(new QEffect("Shadowstep {icon:Reaction}", "{b}Trigger{/b} The drow huntress is damaged by a melee attack. {b}Effect{/b} The drow huntress teleports to an unoccupied space up to 30ft away.") {
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || action.HasTrait(Trait.Ranged)) {
+                    if (self.Owner.HasEffect(QEffectId.DimensionalAnchor) || action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || action.HasTrait(Trait.Ranged)) {
                         return;
                     }
 
