@@ -30,7 +30,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             // Could have a qEffect with a Tag that can be populated with wave information?
             var level = UtilityFunctions.GetEncounterLevel(encounter) ?? 1;
 
-            Creature reliquary = new Creature(IllustrationName.GoldenCandelabra, "Reliquary", [Trait.Lawful, Trait.Good, Trait.Object], level, 0, 0, new Defenses(10, 10, 0, 0), (level + 1) * 15, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            Creature reliquary = new Creature(IllustrationName.GoldenCandelabra, "Reliquary", [Trait.Lawful, Trait.Good, Trait.Object], level, 0, 0, new Defenses(16+level, 11+level, 4+level, level), (level + 1) * 15, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
             .WithSpawnAsGaiaFriends()
             .WithEntersInitiativeOrder(false)
             .WithTactics(Tactic.DoNothing)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="51" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="76" columns="0">
   <grid orientation="orthogonal" width="1" height="1" />
   <tile id="0">
     <properties>
@@ -256,5 +256,130 @@
       <property name="Id" value="Snow" />
     </properties>
     <image source="Tiles/NewSnow.png" width="256" height="256" />
+  </tile>
+  <tile id="51">
+    <properties>
+      <property name="Id" value="Balor" />
+    </properties>
+  </tile>
+  <tile id="52">
+    <properties>
+      <property name="Id" value="Sacristan" />
+    </properties>
+  </tile>
+  <tile id="53">
+    <properties>
+      <property name="Id" value="Evangelist" />
+    </properties>
+  </tile>
+  <tile id="54">
+    <properties>
+      <property name="Id" value="Interlocutor" />
+    </properties>
+  </tile>
+  <tile id="55">
+    <properties>
+      <property name="Id" value="Proselytizer" />
+    </properties>
+  </tile>
+  <tile id="56">
+    <properties>
+      <property name="Id" value="SadisticErinys" />
+    </properties>
+  </tile>
+  <tile id="57">
+    <properties>
+      <property name="Id" value="Brutarion" />
+    </properties>
+  </tile>
+  <tile id="58">
+    <properties>
+      <property name="Id" value="AcidDraugr" />
+    </properties>
+  </tile>
+  <tile id="59">
+    <properties>
+      <property name="Id" value="AcidDraugrArcher" />
+    </properties>
+  </tile>
+  <tile id="60">
+    <properties>
+      <property name="Id" value="GreatShrieker" />
+    </properties>
+  </tile>
+  <tile id="61">
+    <properties>
+      <property name="Id" value="PhaseDrake" />
+    </properties>
+  </tile>
+  <tile id="62">
+    <properties>
+      <property name="Id" value="ColdPhoenix" />
+    </properties>
+  </tile>
+  <tile id="63">
+    <properties>
+      <property name="Id" value="NardarGraveknight" />
+    </properties>
+  </tile>
+  <tile id="64">
+    <properties>
+      <property name="Id" value="LostSavior" />
+    </properties>
+  </tile>
+  <tile id="65">
+    <properties>
+      <property name="Id" value="FireElementalWyrm" />
+    </properties>
+  </tile>
+  <tile id="66">
+    <properties>
+      <property name="Id" value="ColdElementalWyrm" />
+    </properties>
+  </tile>
+  <tile id="67">
+    <properties>
+      <property name="Id" value="AcidElementalWyrm" />
+    </properties>
+  </tile>
+  <tile id="68">
+    <properties>
+      <property name="Id" value="SonicElementalWyrm" />
+    </properties>
+  </tile>
+  <tile id="69">
+    <properties>
+      <property name="Id" value="ElectricityElementalWyrm" />
+    </properties>
+  </tile>
+  <tile id="70">
+    <properties>
+      <property name="Id" value="CelestialGeometry" />
+    </properties>
+  </tile>
+  <tile id="71">
+    <properties>
+      <property name="Id" value="Magnorn" />
+    </properties>
+  </tile>
+  <tile id="72">
+    <properties>
+      <property name="Id" value="DwarvenDefender" />
+    </properties>
+  </tile>
+  <tile id="73">
+    <properties>
+      <property name="Id" value="Kimn" />
+    </properties>
+  </tile>
+  <tile id="74">
+    <properties>
+      <property name="Id" value="Viki" />
+    </properties>
+  </tile>
+  <tile id="75">
+    <properties>
+      <property name="Id" value="Vraul" />
+    </properties>
   </tile>
 </tileset>

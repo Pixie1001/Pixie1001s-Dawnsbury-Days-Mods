@@ -53,7 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             trap.Battle = cr.Battle;
             trap.OwningFaction = cr.Battle.Enemy;
             var ca = CombatAction.CreateSimple(trap, "Falling Rocks", []);
-            var result = CommonSpellEffects.RollSavingThrow(cr, ca, Defense.Reflex, DC);
+            var result = await CommonSpellEffects.RollSavingThrowAsync(cr, ca, Defense.Reflex, DC);
             if (result == CheckResult.CriticalFailure) {
                 cr.AddQEffect(QEffect.Prone());
             }

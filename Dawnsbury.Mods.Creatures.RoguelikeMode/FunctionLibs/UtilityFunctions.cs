@@ -59,11 +59,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             return array[R.NextAi(0, max)];
         }
 
+        internal static async Task RunCombatStartSetup(Creature creature) {
+            foreach (var effect in creature.QEffects.ToList()) {
+                await effect.StartOfCombatBeforeOpeningCutscene.InvokeIfNotNull(effect);
+                await effect.StartOfCombat.InvokeIfNotNull(effect);
+                await effect.StartOfCombatAfterInitiativeOrderIsSetUp.InvokeIfNotNull(effect);
+            }
+        }
+
         internal static bool DiedThisRun(CampaignState save) {
             if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_HideDeathIcon")) {
                 return false;
             }
-            
+
             if (!save.Tags.TryGetValue("deaths", out string deaths) || !save.Tags.TryGetValue("restarts", out string restarts)) {
                 return false;
             }
@@ -73,7 +81,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             }
             return false;
         }
-
 
         //internal static void ReplaceSpiderSprite(Creature monster) {
         //    if (monster.Illustration == Illustrations.HuntingSpider) {
@@ -208,7 +215,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             if (CampaignState.Instance != null)
                 level = CampaignState.Instance.CurrentLevel;
             else
-                level = CharacterLibrary.Instance.SelectedRandomEncounter?.Level ?? 1;
+                level = CharacterLibrary.Instance.PreferredPartyLevel;
             level = Math.Min(Math.Max(min, level), max);
 
             return level;

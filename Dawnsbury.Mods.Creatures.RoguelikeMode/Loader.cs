@@ -17,6 +17,7 @@ using HarmonyLib;
 using System;
 using System.IO.Enumeration;
 using Dawnsbury.Campaign.Path;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
 

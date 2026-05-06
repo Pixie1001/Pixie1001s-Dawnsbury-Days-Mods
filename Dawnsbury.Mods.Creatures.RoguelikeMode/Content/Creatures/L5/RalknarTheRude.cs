@@ -163,7 +163,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                                     {
                                         EndOfYourTurnDetrimentalEffect = async (QEffect boilingEffect, Creature effectOwner) =>
                                         {
-                                            await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("2d4"), effectOwner, CommonSpellEffects.RollSavingThrow(effectOwner, new(ralknar, IllustrationName.Dominate, "Dominating Presence", [Trait.Mental, Trait.Emotion], "", Target.Touch()), Defense.Will, 19), DamageKind.Mental);
+                                            await CommonSpellEffects.DealDirectDamage(null, DiceFormula.FromText("2d4"), effectOwner, await CommonSpellEffects.RollSavingThrowAsync(effectOwner, new(ralknar, IllustrationName.Dominate, "Dominating Presence", [Trait.Mental, Trait.Emotion], "", Target.Touch()), Defense.Will, 19), DamageKind.Mental);
                                         }
                                     });
                                 }

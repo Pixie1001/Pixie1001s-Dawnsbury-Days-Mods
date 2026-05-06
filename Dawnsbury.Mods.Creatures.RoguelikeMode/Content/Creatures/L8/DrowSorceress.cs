@@ -59,7 +59,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 ).Done()
             .AddQEffect(new QEffect("Shadowstep {icon:Reaction}", "{b}Trigger{/b} You are damaged by a melee attack. {b}Effect{/b} You teleport to an unoccupied space up to 30ft away.") {
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || action.HasTrait(Trait.Ranged)) {
+                    if (self.Owner.HasEffect(QEffectId.DimensionalAnchor) || action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || action.HasTrait(Trait.Ranged)) {
                         return;
                     }
 

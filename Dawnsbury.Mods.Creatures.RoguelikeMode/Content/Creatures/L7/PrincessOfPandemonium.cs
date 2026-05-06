@@ -138,7 +138,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                         await CommonAnimations.CreateConeAnimation(telegraph.Battle, telegraph.Occupies.ToCenterVector(), telegraph.Battle.Map.AllTiles.Where(t => t.DistanceTo(telegraph.Occupies) <= 2).ToList(), 15, ProjectileKind.Cone, IllustrationName.Confusion);
                         foreach (Creature creature in telegraph.Battle.AllCreatures.Where(cr => cr.DistanceTo(telegraph) <= 2 && cr.EnemyOf(caster) && cr != telegraph && !cr.HasEffect(QEffectId.OutOfCombat))) {
-                            var result = CommonSpellEffects.RollSavingThrow(creature, action, Defense.Will, caster.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC() ?? 0);
+                            var result = await CommonSpellEffects.RollSavingThrowAsync(creature, action, Defense.Will, caster.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC() ?? 0);
                             await CommonSpellEffects.DealBasicDamage(action, caster, creature, result, DiceFormula.FromText("6d6", "Invoke Pandemonium"), DamageKind.Mental);
                         }
                     }

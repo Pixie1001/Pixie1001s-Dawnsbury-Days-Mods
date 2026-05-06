@@ -110,13 +110,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .Builder
             .Done();
 
-            var aura = new QEffect("Web of Curses", $"(aura, curse) {AURA_SIZE * 5} feet. Enemies within the emanation that damage an ally of the web warden suffer a stack of Web Warden's Curse. After reaching 2 stacks, they suffer 10d10 negative damage.") {
+            var aura = new QEffect("Web of Curses", $"(aura, curse) {AURA_SIZE * 5} feet. Enemies within the emanation that damage a non-web warden ally of the web warden suffer a stack of Web Warden's Curse. After reaching 2 stacks, they suffer 10d10 negative damage.") {
 
             };
 
             aura.AddGrantingOfTechnical(cr => cr.EnemyOf(monster) && cr.DistanceTo(monster) <= AURA_SIZE, qfTech => {
                 qfTech.AfterYouDealDamage = async (attacker, action, defender) => {
-                    if (attacker.Occupies == null || defender == monster || !defender.FriendOf(monster)) return;
+                    if (attacker.Occupies == null || defender == monster || !defender.FriendOf(monster) || defender.CreatureId == CreatureIds.WebWarden) return;
 
                     QEffect? curse = attacker.FindQEffect(QEffectIds.WebWardensCurse);
 

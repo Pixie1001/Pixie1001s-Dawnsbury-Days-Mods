@@ -55,7 +55,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     {
                         if (result >= CheckResult.Success)
                         {
-                            CheckResult savingThrow = CommonSpellEffects.RollSavingThrow(d, gnawAction, Defense.Will, 22);
+                            CheckResult savingThrow = await CommonSpellEffects.RollSavingThrowAsync(d, gnawAction, Defense.Will, 22);
                             if (savingThrow <= CheckResult.Success)
                             {
                                 QEffect sickedEffect = QEffect.Sickened(1, 22).WithSourceAction(gnawAction);
@@ -139,7 +139,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                                 Creature owlBear = qfStateCheck.Owner;
                                 foreach (Creature newTarget in owlBear.Battle.AllCreatures.Where(creature => creature != owlBear && !creature.HasEffect(QEffectIds.BloodcurdlingScreechImmunity) && owlBear.DistanceTo(creature.Occupies) <= 16))
                                 {
-                                    BloodcurdlingScreechAgainstCreature(owlBear, newTarget);
+                                    await BloodcurdlingScreechAgainstCreature(owlBear, newTarget);
                                 }
                             }
                         };
@@ -161,12 +161,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .Done();
         }
 
-        private static void BloodcurdlingScreechAgainstCreature(Creature self, Creature creature)
+        private static async Task BloodcurdlingScreechAgainstCreature(Creature self, Creature creature)
         {
             if (!creature.HasEffect(QEffectIds.BloodcurdlingScreechImmunity) && !creature.HasTrait(Trait.Indestructible) && !creature.IsImmuneTo(Trait.Mental))
             {
                 CombatAction bloodcurlingScreech = GetBloodcurdlingScreechAction(self);
-                CheckResult result = CommonSpellEffects.RollSavingThrow(creature, bloodcurlingScreech, Defense.Will, 20);
+                CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(creature, bloodcurlingScreech, Defense.Will, 20);
 
                 creature.AddQEffect(new QEffect("Immunity to Bloodcurdling Screech", "You are no longer affected by Bloodcurdling Screen.")
                 {
@@ -200,7 +200,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 .WithSoundEffect(SfxName.BeastRoar)
                 .WithEffectOnEachTarget(async (bloodcurdlingScreech, attacker, defender, result) =>
                 {
-                    BloodcurdlingScreechAgainstCreature(attacker, defender);
+                    await BloodcurdlingScreechAgainstCreature(attacker, defender);
                 });
         }
     }

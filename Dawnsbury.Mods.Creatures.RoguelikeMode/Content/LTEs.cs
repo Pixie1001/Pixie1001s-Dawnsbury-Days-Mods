@@ -38,6 +38,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using Dawnsbury.Core.Mechanics.Damage;
 using Microsoft.Xna.Framework.Graphics;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -222,7 +223,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 effect.ExpiresAt = ExpirationCondition.Immediately;
 
                                 int ac = SkillChallengeTables.GetDCByLevel(caster.Level) + 2;
-                                QEffect form = CommonSpellEffects.EnterBattleform(caster, Illustrations.AngelForm, ac, 8, false);
+                                QEffect form = CommonSpellEffects.EnterBattleform(caster, Illustrations.AngelForm, ac, 8, false, null, true);
                                 form.Name = "Angel Form";
                                 form.StateCheck = (Action<QEffect>)Delegate.Combine(form.StateCheck, delegate (QEffect qfForm) {
                                     qfForm.Owner.ReplacementUnarmedStrike = new Item(IllustrationName.Halberd, "Lance of Retribution", [Trait.Good, Trait.Fire, Trait.Reach, Trait.VersatileS, Trait.Polearm, Trait.BattleformAttack])
@@ -447,7 +448,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")!),
                     StartOfCombat = async self => {
-                        FeatLoader.SpawnRatFamiliar(self.Owner);
+                        RatMonarch.SpawnRatFamiliar(self.Owner);
                     },
                 };
             });
@@ -794,7 +795,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 QEffect qEffect2 = cr.QEffects.FirstOrDefault((QEffect qff) => qff.Id == QEffectId.Sickened);
                                 if (qEffect2 != null) {
                                     var dc = (int)qEffect2.Tag!;
-                                    switch (CommonSpellEffects.RollSavingThrow(cr, action, Defense.Fortitude, dc)) {
+                                    switch (await CommonSpellEffects.RollSavingThrowAsync(cr, action, Defense.Fortitude, dc)) {
                                         case CheckResult.Failure:
                                             qEffect2.Value--;
                                             break;

@@ -1,11 +1,3 @@
 RL
-* Rebalanced homunculous
-* Dimensional Anchor now blocks teleport based reactions used by enemies
-* Fixed bug where Huge creatures when summoned by an Echidnadite Monsterbound crashed the game.
-* Made Winter Wolf large and fixed bug with Avenging Bite
-* Remove Monastic Archery to consolidate to 'new' base game version.
-* Taking monastic weaponry or shooting star stance should no longer break base game Monastic Archery
-* Added the Brooch of Shielding, a consumerable item that can deflect the magic missile spell.
-* Added item traits to Drow Alchemist
-* Removed trait immunity to energy damage traits, which were adversly punishing Kineticists
-* Shurikens can now be used with multi-attack strike modifiers, including: Hunter's Shot, Double Shot and Triple Shot. Future modifiers will still need to be added manually.
+* Fixed monastic weaponry to now work with melee monk weapons after accidentally breaking it in a previous patch
+* Drow Sorceress's Shadow Step is now prevented by Dimensional Anchor.

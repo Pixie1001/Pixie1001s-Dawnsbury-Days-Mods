@@ -209,7 +209,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return;
                 }
                 var ca = CombatAction.CreateSimple(owner, "Choking Spores", Trait.Poison);
-                CheckResult result = CommonSpellEffects.RollSavingThrow(victim, ca, Defense.Fortitude, 17);
+                CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(victim, ca, Defense.Fortitude, 17);
                 await CommonSpellEffects.DealBasicDamage(ca, owner, victim, result, new KindedDamage(DiceFormula.FromText("1d4", "Choking Spores"), DamageKind.Poison));
                 if (result == CheckResult.CriticalFailure) {
                     victim.AddQEffect(QEffect.Sickened(1, 17).WithSourceAction(ca));

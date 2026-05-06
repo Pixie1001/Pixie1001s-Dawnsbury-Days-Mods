@@ -63,7 +63,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                             Key = "SigbinStench",
                             BonusToDefenses = (_, action, def) => action?.ActionId == ActionId.Retch ? new Bonus(-2, BonusType.Circumstance, "Sigbin Stench") : null,
                             StartOfYourPrimaryTurn = async (_, you) => {
-                                var result = CommonSpellEffects.RollSavingThrow(you, CombatAction.CreateSimple(self.Owner, "Sigbin Stench", [Trait.Olfactory, Trait.Aura]), Defense.Fortitude, 14 + self.Owner.Level);
+                                var result = await CommonSpellEffects.RollSavingThrowAsync(you, CombatAction.CreateSimple(self.Owner, "Sigbin Stench", [Trait.Olfactory, Trait.Aura]), Defense.Fortitude, 14 + self.Owner.Level);
                                 var action = CombatAction.CreateSimple(self.Owner, "Stench");
                                 if (result == CheckResult.CriticalFailure)
                                     you.AddQEffect(QEffect.Sickened(2, 14 + self.Owner.Level).WithSourceAction(action));

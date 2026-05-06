@@ -383,7 +383,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                                                 var action = new CombatAction(damageEffect.Source, IllustrationName.ElectricArc, "Lightning Barrier", [], "", Target.AdjacentCreature());
                                                 action.ChosenTargets.ChosenCreature = effectOwner;
 
-                                                var saveResult = CommonSpellEffects.RollSavingThrow(effectOwner, action, Defense.Fortitude, GetDC(effect.Owner));
+                                                var saveResult = await CommonSpellEffects.RollSavingThrowAsync(effectOwner, action, Defense.Fortitude, GetDC(effect.Owner));
 
                                                 await CommonSpellEffects.DealBasicDamage(action, damageEffect.Source, effectOwner, saveResult, ModifyDamageString(alchemist, "1d6"), DamageKind.Electricity);
                                             }
@@ -473,7 +473,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                         if (result >= CheckResult.Success)
                         {
-                            var saveResult = CommonSpellEffects.RollSavingThrow(target, action, Defense.Fortitude, GetDC(effect.Owner));
+                            var saveResult = await CommonSpellEffects.RollSavingThrowAsync(target, action, Defense.Fortitude, GetDC(effect.Owner));
 
                             if (saveResult == CheckResult.Failure)
                             {

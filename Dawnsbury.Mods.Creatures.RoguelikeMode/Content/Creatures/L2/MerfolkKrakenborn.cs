@@ -99,7 +99,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         .WithGoodness((t, a, d) => a.Actions.AttackedThisManyTimesThisTurn != 0 ? avgDmg * a.Battle.AllCreatures.Where(cr => cr.QEffects.Any(qf => qf.Id == QEffectId.Grappled && qf.Source == a && cr.Alive)).Count() : 1f)
                         .WithEffectOnSelf(async (action, user) => {
                             foreach (Creature target in user.Battle.AllCreatures.Where(cr => cr.QEffects.Any(qf => qf.Id == QEffectId.Grappled && qf.Source == user))) {
-                                CheckResult result = CommonSpellEffects.RollSavingThrow(target, action, Defense.Fortitude, dc);
+                                CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(target, action, Defense.Fortitude, dc);
                                 await CommonSpellEffects.DealBasicDamage(action, user, target, result, DiceFormula.FromText(dmg, "Crushing Tentacles"), DamageKind.Bludgeoning);
                             }
                         })

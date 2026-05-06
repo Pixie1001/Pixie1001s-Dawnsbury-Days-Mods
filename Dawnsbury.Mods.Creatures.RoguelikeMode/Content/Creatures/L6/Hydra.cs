@@ -145,7 +145,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     var stumpQf = you.FindQEffect(QEffectIds.HydraStumps);
                     if (stumpQf == null || stumpQf.Value == 0) return;
 
-                    var result = CommonSpellEffects.RollSavingThrow(you, CombatAction.CreateSimple(you, "Hydra Regeneration"), Defense.Fortitude, 25);
+                    var result = await CommonSpellEffects.RollSavingThrowAsync(you, CombatAction.CreateSimple(you, "Hydra Regeneration"), Defense.Fortitude, 25);
 
                     if (result >= CheckResult.Success) {
                         bool crit = result == CheckResult.CriticalSuccess && stumpQf.Value >= 2;

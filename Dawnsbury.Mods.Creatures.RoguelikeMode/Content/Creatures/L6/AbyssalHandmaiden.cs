@@ -115,7 +115,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             auraDebuff.Value += 1;
                             if (auraDebuff.Value >= 3) {
                                 CombatAction action = CombatAction.CreateSimple(monster, "Aura of Madness", Trait.Demon, Trait.Divine, Trait.Mental, Trait.Emotion);
-                                CheckResult result = CommonSpellEffects.RollSavingThrow(you, action, Defense.Will, dc);
+                                CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(you, action, Defense.Will, dc);
                                 if (result < CheckResult.Success) {
                                     you.AddQEffect(QEffect.Confused(false, action).WithExpirationAtStartOfOwnerTurn());
                                     you.Overhead("*madness*", Color.Crimson, $"{you.Name} succumbs to madness!");

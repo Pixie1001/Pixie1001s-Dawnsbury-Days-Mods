@@ -109,7 +109,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                     if (cr.FriendOf(caster)) return;
 
                                     var ca = CombatAction.CreateSimple(caster, "Demonic Aura", Trait.Evil, Trait.Divine, Trait.Demon);
-                                    var result = CommonSpellEffects.RollSavingThrow(cr, ca, Defense.Fortitude, 23 - 8 + caster.Level);
+                                    var result = await CommonSpellEffects.RollSavingThrowAsync(cr, ca, Defense.Fortitude, 23 - 8 + caster.Level);
                                     await CommonSpellEffects.DealBasicDamage(ca, caster, cr, result, "2d8", DamageKind.Negative);
                                 };
                             }

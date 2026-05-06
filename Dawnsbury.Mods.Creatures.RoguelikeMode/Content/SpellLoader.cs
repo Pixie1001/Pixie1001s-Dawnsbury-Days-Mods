@@ -1,8 +1,6 @@
-﻿using System;
-using Dawnsbury.Audio;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
@@ -18,23 +16,29 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.StatBlocks;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Microsoft.Xna.Framework;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Core.Mechanics.Damage;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
+using Microsoft.Xna.Framework;
+using System;
+using System.Runtime.InteropServices;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -95,13 +99,13 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
                         DoNotShowUpOverhead = true,
                         BonusToAttackRolls = (effect, action, defender) => {
                             if (action.HasTrait(Trait.Unarmed)
-                            || (action.Item != null && ((action.Owner.HasEffect(QEffectIds.MonasticArcherStance) && FeatLoader.IsMonasticArcheryWeapon(action.Owner, action.Item)) || action.Owner.HasFeat(FeatLoader.MonasticWeaponry) && action.Item.HasTrait(Trait.MonkWeapon))))
+                            || (action.Item != null && ((action.Owner.HasEffect(QEffectIds.MonasticArcherStance) && MonkFeats.IsMonasticArcheryWeapon(action.Owner, action.Item)) || action.Owner.HasFeat(MonkFeats.MonasticWeaponry) && action.Item.HasTrait(Trait.MonkWeapon))))
                             return new Bonus(1, BonusType.Status, "Ki Strike");
                             return null;
                         },
                         AddExtraStrikeDamage = (strike, defender) => {
                             if (!(strike.HasTrait(Trait.Unarmed)
-                            || (strike.Item != null && ((strike.Owner.HasEffect(QEffectIds.MonasticArcherStance) && FeatLoader.IsMonasticArcheryWeapon(strike.Owner, strike.Item)) || strike.Owner.HasFeat(FeatLoader.MonasticWeaponry) && strike.Item.HasTrait(Trait.MonkWeapon))))) return null;
+                            || (strike.Item != null && ((strike.Owner.HasEffect(QEffectIds.MonasticArcherStance) && MonkFeats.IsMonasticArcheryWeapon(strike.Owner, strike.Item)) || strike.Owner.HasFeat(MonkFeats.MonasticWeaponry) && strike.Item.HasTrait(Trait.MonkWeapon))))) return null;
                             var possibleDamages =
                                 strike.Owner.HasTrait(Trait.Lawful)
                                     ? new[] { DamageKind.Force, DamageKind.Lawful, DamageKind.Negative, DamageKind.Positive }
@@ -366,6 +370,31 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
                 var numRats = rats.Count();
                 await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, numRats * spell.SpellLevel + "d6", DamageKind.Piercing);
             });
+        });
+
+        // Angelfire Adept spells
+        public static SpellId AngelfireBarrier = ModManager.RegisterNewSpell("RL_AngelfireBarrier", 3, (id, caster, level, inCombat, info) => {
+            var wof = Level4Spells.CreateWallOfFire(caster, level, inCombat)
+            .WithName("Angelfire Barrier")
+            .WithDescription($"You create either a wall of flame in a straight line up to 60 feet, or a 10-foot-radius ring. The wall initially deals no damage, but it deals {S.HeightenedVariable(level, 2)}d6 fire damage {{i}}(no save){{/i}} to each creature that enters the wall or starts its turn there.")
+            .WithExtraTrait(Trait.Good)
+            .WithEffectOnChosenTargets(async (spell, caster, chosenTargets) => {
+                var wallTiles = chosenTargets.ChosenTiles;
+                Task WallOfFireDamage(Creature cr) => CommonAbilityEffects.TileDealsFireDamageToCreature(cr, "Angelfire Barrier", level + "d6", true);
+                Zone.SpawnStaticAndApply(caster, wallTiles, zone => {
+                    zone.AfterCreatureBeginsItsTurnHere = WallOfFireDamage;
+                    zone.AfterCreatureEntersOrMovesWithin = WallOfFireDamage;
+                    zone.TileEffectCreator = wallTile => new TileQEffect(wallTile) {
+                        Illustration = spell.Illustration,
+                        VisibleDescription = $"{{b}}Angelfire Barrier.{{/b}} A creature that enters here or starts its turn here takes {level}d6 fire damage {{i}}(no save){{/i}}.",
+                        TransformsTileIntoHazardousTerrain = true
+                    };
+                });
+            });
+
+            wof.Illustration = IllustrationName.WallOfFire; // Swap out
+
+            return wof;
         });
 
         internal static void LoadSpells() {
