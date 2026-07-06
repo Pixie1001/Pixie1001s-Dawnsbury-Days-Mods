@@ -1,43 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using Dawnsbury;
-using Dawnsbury.Audio;
-using Dawnsbury.Auxiliary;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
+using Dawnsbury.Core.Coroutines.Options.Reactive;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
-using Dawnsbury.Core.Mechanics.Damage;
-using Dawnsbury.Core.Tiles;
 
 namespace Dawnsbury.Mods.Ancestries.Nagaji {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -51,6 +39,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         // QEffects
         internal static QEffectId qfHypnoticLureUsed = ModManager.RegisterEnumMember<QEffectId>("HypnoticLureUsed");
         internal static QEffectId qfFangs = ModManager.RegisterEnumMember<QEffectId>("Nagaji_Fangs");
+        internal static QEffectId qfImmuneToDisruptingStare = ModManager.RegisterEnumMember<QEffectId>("ImmuneToDisruptingStare");
 
         // Feats
         internal static FeatName ftHoodedNagaji = ModManager.RegisterFeatName("Hooded Nagaji");
@@ -60,6 +49,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
         internal static FeatName ftNagajiVenomLore = ModManager.RegisterFeatName("Nagaji Venom Lore");
         internal static FeatName ftVenomousSecrets = ModManager.RegisterFeatName("Venomous Secrets");
+        internal static FeatName ftNagajiSpellMysteries = ModManager.RegisterFeatName("Nagaji Spell Mysteries");
 
         // Illustrations
         internal static ModdedIllustration illBlightBomb = new ModdedIllustration("NagajiAssets/BlightBomb.png");
@@ -67,6 +57,8 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         internal static ModdedIllustration illRaiseNeck = new ModdedIllustration("NagajiAssets/RaiseNeck.png");
         internal static ModdedIllustration illEnvenomStrike = new ModdedIllustration("NagajiAssets/EnvenomStrike.png");
         internal static ModdedIllustration illSerpentcoilSlam = new ModdedIllustration("NagajiAssets/SerpentcoilSlam.png");
+        internal static ModdedIllustration illPitOfSnakes = new ModdedIllustration("NagajiAssets/PitOfSnakes.png");
+        internal static ModdedIllustration illPitOfSnakesTile = new ModdedIllustration("NagajiAssets/PitOfSnakesTile.png");
 
         internal static ItemName blightBomb = ModManager.RegisterNewItemIntoTheShop("blight bomb", itemName => {
             return new Item(itemName, illBlightBomb, "blight bomb (lesser)", 1, 3, new Trait[] { Trait.Alchemical, Trait.Bomb, Trait.Consumable, Trait.Poison, Trait.Splash, Trait.Thrown, Trait.Martial })
@@ -141,7 +133,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
 
             Feat nagajiSpellFamiliarity = new TrueFeat(ModManager.RegisterFeatName("Nagaji Spell Familiarity"), 1, "Either through study, exposure, or familial devotion, you have the magic of nagas bubbling in your blood.", "You can cast the Daze cantrip as an innate Occult spell, using your Charisma ability score.", new Trait[] { tNagaji }, null)
             .WithOnCreature(creature => {
-                creature.GetOrCreateSpellcastingSource(SpellcastingKind.Innate, tNagaji, Ability.Charisma, Trait.Occult).WithSpells(new SpellId[1] { SpellId.Daze}, 1);
+                creature.GetOrCreateSpellcastingSource(SpellcastingKind.Innate, tNagaji, Ability.Charisma, Trait.Occult).WithSpells(new SpellId[1] { SpellId.Daze }, 1);
             })
             .WithRulesBlockForSpell(SpellId.Daze);
 
@@ -226,8 +218,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                                 S.FourDegreesOfSuccess(null, "The target is unaffected.", "On its turn, the target must spend its first action to approach you. It can't Delay or take reactions until it has done so.",
                                 "The target must use all its actions on its next turn to approach you. It can't Delay or take any reactions until it has reached a space that's adjacent to you (or as close to you as possible if it reaches an impassable barrier)." +
                                 (!gaze ? "" : "\n\n{b}Special.{/b} Although hypnotic Gaze can only be used once per day, using it does not prevent you from using Hypnotic Lure in future encounters.")),
-                                !gaze ? Target.Ranged(6) : Target.Cone(6))
-                            {
+                                !gaze ? Target.Ranged(6) : Target.Cone(6)) {
                                 ShortDescription = "30 foot range; Will save; On a failure save, command target creature to move towards you on its next turn as per the {i}command{/i} spell."
                             }
                             .WithSoundEffect(SfxName.SnakeHiss)
@@ -245,7 +236,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                                 int num = 1;
 
                                 if (result == CheckResult.CriticalFailure)
-                                num = 3;
+                                    num = 3;
 
                                 target.AddQEffect(new QEffect("Hypnotic Lure", "This creature will approach you for the given number of actions on its next turn. It can't take reactions until then.", ExpirationCondition.ExpiresAtEndOfYourTurn, user, (Illustration)IllustrationName.Dominate) {
                                     CannotExpireThisTurn = true,
@@ -253,8 +244,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                                     Id = QEffectId.Commanded,
                                     Tag = "APPROACH",
                                     CountsAsADebuff = true,
-                                    StateCheck = sc => sc.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral)
-                                    {
+                                    StateCheck = sc => sc.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                                         Id = QEffectId.CannotTakeReactions
                                     })
                                 });
@@ -326,7 +316,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             })
             .WithIllustration(IllustrationName.AcidSplash);
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("Nagaji Spell Mysteries"), 5, "You've learned more naga magic.", $"You can cast either {AllSpells.CreateModernSpellTemplate(SpellId.Heal, tNagaji).ToSpellLink()} or {AllSpells.CreateModernSpellTemplate(SpellId.FleetStep, tNagaji).ToSpellLink()} as a 1st-level occult innate spell once per day.", new Trait[] { tNagaji }, new List<Feat> {
+            yield return new TrueFeat(ftNagajiSpellMysteries, 5, "You've learned more naga magic.", $"You can cast either {AllSpells.CreateModernSpellTemplate(SpellId.Heal, tNagaji).ToSpellLink()} or {AllSpells.CreateModernSpellTemplate(SpellId.FleetStep, tNagaji).ToSpellLink()} as a 1st-level occult innate spell once per day.", new Trait[] { tNagaji }, new List<Feat> {
                 new Feat(ModManager.RegisterFeatName("Nagaji Spell Mysteries: Heal", "Heal"), "You're privy to the ancient Nagaji healing arts.", "You can cast heal as a 1st-level occult innate spell once per day.", new List<Trait>() { }, null)
                 .WithOnCreature(creature => {
                     creature.GetOrCreateSpellcastingSource(SpellcastingKind.Innate, tNagaji, Ability.Charisma, Trait.Occult).WithSpells(new SpellId[] { SpellId.Heal }, 1);
@@ -399,7 +389,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                         if (self.Owner.QEffects.Any(qf => qf.Key == "Envenom Strike Used Up")) return null;
 
                         return new ActionPossibility(new CombatAction(creature, illEnvenomStrike, "Envenom Strike", [tNagaji],
-                            $"{{b}}Frequency{{/b}} once per encounter\n{{b}}Range{{/b}} 30 feet\n\nYou spit venom onto {(self.Owner.HasFeat(ftSacredNagaji) ? "" :  "your fangs or ")}" +
+                            $"{{b}}Frequency{{/b}} once per encounter\n{{b}}Range{{/b}} 30 feet\n\nYou spit venom onto {(self.Owner.HasFeat(ftSacredNagaji) ? "" : "your fangs or ")}" +
                             $"a weapon held by you or an ally within range. If the next Strike with the chosen weapon before the start of your next turn hits and deals damage, the Strike " +
                             $"deals an additional 2d6 poison damage.", Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((a, d) => (a == d && !a.HasFeat(ftSacredNagaji)) || d.HeldItems.Any(item => item.WeaponProperties != null) ? Usability.Usable : Usability.NotUsableOnThisCreature("no eligable weapon")))
                             .WithActionCost(1)
@@ -513,6 +503,139 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                     return strike;
                 };
             });
+
+            // Level 13
+            yield return new TrueFeat(ModManager.RegisterFeatName("nagaji_PitOfSnakes", "Pit of Snakes"), 13, "Mundane serpents obey your summons.",
+                @"{b}Frequency{/b} once per day
+
+You create a 20-foot-radius writhing mass of snakes within 120 feet of you that lasts for the rest of the encounter. Each creature in the area when its created must attempt a Fortitude save against the higher of your class DC or spell DC. Any creature that fails is grabbed by a snake and takes 3d6 bludgeoning damage. 
+
+Whenever a creature ends its turn in the area, the snakes attempt to Grab that creature if they aren't already grabbing it. Any creature already grabbed instead takes 2d6 bludgeoning damage.
+
+The snakes' Escape DC is equal to the higher of your class DC or spell DC. You can Dismiss the effect.", [tNagaji, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Occult], null)
+                .WithActionCost(3)
+                .WithIllustration(illPitOfSnakes)
+                .WithPermanentQEffect("Summon a writhing mass of snakes in a 20-foot burst that grapple creatures inside.", qfFeat => {
+                    qfFeat.ProvideMainAction = qfSelf => {
+                        if (qfSelf.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Nagaji_PitOfSnakes")) return null;
+
+                        return new ActionPossibility(new CombatAction(qfSelf.Owner, illPitOfSnakes, "Pit of Snakes", [tNagaji, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Occult],
+                        @"{b}Frequency{/b} once per day
+{b}Saving Throw{/b} Fortitude
+{b}Range{/b} 120 feet
+{b}Area{/b} 20-foot burst
+
+You create a 20-foot-radius writhing mass of snakes within 120 feet of you that lasts for the rest of the encounter. Each creature in the area when its created must attempt a Fortitude save against the higher of your class DC or spell DC. Any creature that fails is grabbed by a snake and takes 3d6 bludgeoning damage. 
+
+Whenever a creature ends its turn in the area, the snakes attempt to Grab that creature if they aren't already grabbing it. Any creature already grabbed instead takes 2d6 bludgeoning damage.
+
+The snakes' Escape DC is equal to the higher of your class DC or spell DC. You can Dismiss the effect.",
+                        Target.Burst(24, 4))
+                        .WithActionCost(3)
+                        .WithSoundEffect(SfxName.SnakeHiss)
+                        .WithEffectOnChosenTargets(async (spell, caster, targets) => {
+                            caster.PersistentUsedUpResources.UsedUpActions.Add("Nagaji_PitOfSnakes");
+
+                            var ca = CombatAction.CreateSimple(caster, "Pit of Snakes", spell.Traits.ToArray());
+
+                            // Create zone
+                            Zone z = Zone.Spawn(caster, ZoneAttachment.StableBurst(targets.ChosenTiles));
+                            z.ApplyDismissible(spell);
+                            z.AfterCreatureEndsItsTurnHere = async creature => {
+                                Sfxs.Play(SfxName.SnakeHiss);
+
+                                // Snakes checks if the creature is grabbed
+                                if (creature.QEffects.Any(qf => qf.Key == "Grabbed by Pit of Snakes")) {
+                                    await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("2d6", "pit of snakes"), creature, CheckResult.Success, DamageKind.Bludgeoning);
+                                    return;
+                                }
+
+                                // Have snakes grab creature
+                                var result = await CommonSpellEffects.RollSavingThrowAsync(creature, spell, new SavingThrow(Defense.Fortitude, caster.ClassOrSpellDC()));
+                                if (result <= CheckResult.Failure) {
+                                    creature.AddQEffect(PitOfSnakesGrab(spell, caster, z));
+                                }
+                            };
+                            z.TileEffectCreator = tile => new TileQEffect(tile) {
+                                Illustration = illPitOfSnakesTile,
+                                VisibleDescription = $"{{b}}Pit of Snakes.{{/b}} The snakes attempt to grapple any creature that ends its turn here. A creature that is already grappled by the snakes takes 2d6 bludgeoning damage instead."
+                            };
+                            z.Apply();
+
+                            // On cast effect
+                            foreach (var target in targets.AllCreaturesInArea) {
+                                var result = await CommonSpellEffects.RollSavingThrowAsync(target, spell, new SavingThrow(Defense.Fortitude, caster.ClassOrSpellDC()));
+                                if (result <= CheckResult.Failure) {
+                                    await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("3d6", "pit of snakes"), target, result, DamageKind.Bludgeoning);
+                                    target.AddQEffect(PitOfSnakesGrab(spell, caster, z));
+                                }
+                            }
+
+                            static QEffect PitOfSnakesGrab(CombatAction spell, Creature caster, Zone zone) {
+                                return new QEffect("Pit of Snakes", $"You've been grabbed by {caster.Name}'s pit of snakes.", ExpirationCondition.Never, caster, spell.Illustration) {
+                                    Key = "Grabbed by Pit of Snakes",
+                                    Source = caster,
+                                    StateCheck = sc => {
+                                        if (caster.QEffects.All(qf => qf != zone.ControllerQEffect)) sc.ExpiresAt = ExpirationCondition.Immediately;
+                                        else {
+                                            var effect = QEffect.Grabbed(caster).WithExpirationEphemeral();
+                                            effect.Description = "You're grabbed by " + caster.ToString() + "'s pit of snakes.\n\nYou're flat-footed and immobilized. If you attempt a manipulate action, you must succeed at a DC 5 flat check or it is lost.";
+                                            sc.Owner.AddQEffect(effect);
+                                        }
+                                    },
+                                    ProvideContextualAction = self => {
+                                        return new ActionPossibility(Possibilities.CreateEscapeAgainstEffect(self.Owner, self, "Pit of Snakes", caster.ClassOrSpellDC()))
+                                            .WithPossibilityGroup(Constants.POSSIBILITY_GROUP_CONTEXTUAL_GET_RID_OF_DEBUFF);
+                                    }
+                                };
+                            }
+                        })
+                        ).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
+                    };
+                });
+
+            yield return new TrueFeat(ModManager.RegisterFeatName("nagaji_DisruptiveStare", "Disruptive Stare"), 13, "Your frigid gaze can turn a foe's blood to ice.",
+                @"When an enemy creature within 30 feet attempts to Cast a Spell with the concentrate trait, you may force them to make a Will saving throw as {icon:Reaction} a reaction. The target then becomes immune to this ability for the rest of the encounter." +
+                S.FourDegreesOfSuccess(null, null, "The spell takes a –2 status penalty to its spell attack rolls and DCs.", "The spell is disrupted."), [tNagaji, Trait.Mental, Trait.Visual], null)
+                .WithActionCost(Constants.ACTION_COST_REACTION)
+                .WithPermanentQEffect("When an enemy creature within 30 feet attempts to Cast a Spell with the concentrate trait, you may force them to make a Will saving throw as {icon:Reaction} a reaction. The target then becomes immune to this ability for the rest of the encounter.", qfFeat => {
+                    qfFeat.AddGrantingOfTechnical(cr => cr.EnemyOf(qfFeat.Owner) && cr.Spellcasting != null && !cr.HasEffect(qfImmuneToDisruptingStare), qfTech => {
+                        qfTech.YouBeginActionReaction = (qfSelf, action) => {
+                            if (action != null && action.HasTrait(Trait.Spell) && qfSelf.Owner.DistanceTo(qfFeat.Owner) <= 6 && qfSelf.Owner.HasLineOfEffectToIgnoreLesser(qfFeat.Owner) != CoverKind.Blocked) {
+                                if (qfTech.Owner.IsImmuneTo(Trait.Visual)) return null;
+                                var reaction = CombatAction.CreateSimple(qfFeat.Owner, "Disrupting Stare", [tNagaji, Trait.Mental, Trait.Visual]);
+                                reaction.Description = @"When an enemy creature within 30 feet attempts to Cast a Spell with the concentrate trait, you may force them to make a Will saving throw as {icon:Reaction} a reaction. The target then becomes immune to this ability for the rest of the encounter." +
+                S.FourDegreesOfSuccess(null, null, "The spell takes a –2 status penalty to its spell attack rolls and DCs.", "The spell is disrupted.");
+                                reaction.Illustration = action.Illustration;
+                                return ReactionOption.CreateFromCombatActionCustom(reaction, qfTech.Owner + " is attempting to cast {i}" + action.Name.ToLower() + "{/i}. Force them to make a Will saving throw as {icon:Reaction} a reaction to impose a -2 penalty on their spell attack and spell save DC for this spell on a failure, and to disrupt it on a critical failure?", async () => {
+                                    var result = await CommonSpellEffects.RollSavingThrowAsync(qfTech.Owner, reaction, new SavingThrow(Defense.Will, qfFeat.Owner.ClassOrSpellDC()));
+                                    if (result == CheckResult.Failure) {
+                                        qfTech.Owner.Overhead("*disrupting stare*", Color.YellowGreen, qfFeat.Owner + $" distracted {qfTech.Owner}, imposing a -2 status penalty to the spell's save DC and attack bonus.");
+                                        Sfxs.Play(SfxName.SnakeHiss);
+                                        qfTech.Owner.AddQEffect(new QEffect() {
+                                            BonusToSpellSaveDCsForSpecificSpell = (_, spell) => spell == action ? new Bonus(-2, BonusType.Status, "disrupting stare") : null,
+                                            BonusToAttackRolls = (_, spell, _) => spell == action ? new Bonus(-2, BonusType.Status, "disrupting stare") : null,
+                                        }.WithExpirationAtEndOfOwnerTurn());
+                                    } else if (result == CheckResult.CriticalFailure) {
+                                        action!.Disrupted = true;
+                                        qfTech.Owner.Overhead("*disrupting stare*", Color.YellowGreen, qfFeat.Owner + " {YellowGreen}disrupted{/YellowGreen} this.");
+                                        Sfxs.Play(SfxName.SnakeHiss);
+                                    }
+                                    qfTech.Owner.AddQEffect(new QEffect() { Id = qfImmuneToDisruptingStare });
+                                });
+                            }
+                            return null;
+                        };
+                    });
+                });
+
+            yield return new TrueFeat(ModManager.RegisterFeatName("nagaji_NagajiSpellExpertise", "Nagaji Spell Expertise"), 13, "Your magical skill rivals that of accomplished naga spellcasters.",
+                @"You can Cast {i}blink{/i} as a 5th-level occult innate spell once that day. You become expert in spellcasting.", [tNagaji, Trait.Mental, Trait.Visual], null)
+                .WithOnSheet(sheet => {
+                    sheet.SetProficiency(Trait.Spell, Proficiency.Expert);
+                    sheet.AddInnateSpell(tNagaji, Trait.Occult, SpellId.Blink, 5);
+                })
+                .WithPrerequisite(ftNagajiSpellMysteries, "Nagaji Spell Mysteries");
         }
 
         private static IEnumerable<Feat> LoadHeritages() {
@@ -522,7 +645,8 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             .WithOnCreature((sheet, creature) => {
                 creature.AddQEffect(new QEffect() {
                     AdditionalUnarmedStrike = new Item(IllustrationName.AcidSplash, "venomous spit", new Trait[] { Trait.Unarmed, Trait.Ranged }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Poison) {
-                        Sfx = SfxName.AcidSplash, VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.AcidSplash )
+                        Sfx = SfxName.AcidSplash,
+                        VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.AcidSplash)
                     }.WithRangeIncrement(2)),
                     AfterYouDealDamage = async (user, action, target) => {
                         if (action.Item != null && action.Item.Name == "venomous spit" && action.CheckResult == CheckResult.CriticalSuccess && action.TrueDamageFormula != null) {
