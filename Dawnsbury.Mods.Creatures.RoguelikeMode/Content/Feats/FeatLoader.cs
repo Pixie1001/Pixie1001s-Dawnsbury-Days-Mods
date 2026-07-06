@@ -30,6 +30,7 @@ using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
@@ -66,15 +67,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats {
             var nightmareDomain = ClericClassFeatures.CreateDomain(NightmareDomain, "You fill minds with horror and dread.", SpellLoader.WakingNightmare, SpellLoader.SharedNightmare);
             nightmareDomain.Traits.Add(ModTraits.Roguelike);
             ClericClassFeatures.AllDomainFeats.Add(nightmareDomain);
+            CreateAdvancedDomainFeat(nightmareDomain);
 
-            //AllFeats.All.Find(ft => ft.FeatName == FeatName.AdvancedDomain).Subfeats.Add(CreateAdvancedDomainFeat(Trait.Cleric, nightmareDomain));
-            //AllFeats.All.Find(ft => ft.FeatName == FeatName.AdvancedDeitysDomain).Subfeats.Add(CreateAdvancedDomainFeat(Trait.Champion, nightmareDomain));
-            //AllFeats.All.Find(ft => ft.FeatName == FeatName.DomainFluency).Subfeats.Add(CreateAdvancedDomainFeat(Trait.Oracle, nightmareDomain));
+            //AllFeats.All.Find(ft => ft.FeatName == FeatName.AdvancedDomain)?.Subfeats?.Add(CreateAdvancedDomainFeat(Trait.Cleric, nightmareDomain));
+            //AllFeats.All.Find(ft => ft.FeatName == FeatName.AdvancedDeitysDomain)?.Subfeats?.Add(CreateAdvancedDomainFeat(Trait.Champion, nightmareDomain));
+            //AllFeats.All.Find(ft => ft.FeatName == FeatName.DomainFluency)?.Subfeats?.Add(CreateAdvancedDomainFeat(Trait.Oracle, nightmareDomain));
             yield return nightmareDomain;
-
-            yield return CreateAdvancedDomainFeat(Trait.Cleric, nightmareDomain);
-            yield return CreateAdvancedDomainFeat(Trait.Champion, nightmareDomain);
-            yield return CreateAdvancedDomainFeat(Trait.Oracle, nightmareDomain);
 
             var echidnaDiety = new DeitySelectionFeat(ModManager.RegisterFeatName("Diety: The Echidna"),
                 "While the other deities busied themselves crafting the sky, peoples and land of Our Point of Light, The The Echidna refused to collaborate with their efforts, instead crafting all manner of unusual and grotesque" +
@@ -114,25 +112,30 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats {
         //    });
         //}
 
-        internal static Feat CreateAdvancedDomainFeat(Trait forClass, Feat domainFeat) {
+        internal static void CreateAdvancedDomainFeat(Feat domainFeat) {
+            ValueTuple<Trait, FeatName>[] domainAccessFeats = [(Trait.Cleric, FeatName.AdvancedDomain), (Trait.Champion, FeatName.AdvancedDeitysDomain), (Trait.Oracle, FeatName.DomainFluency)];
             var name = domainFeat.FeatName.HumanizeTitleCase2();
             var advancedSpell = (SpellId)domainFeat.Tag!;
             //var spell = AllSpells.All.Concat((List<SpellId>)typeof(ModManager).GetProperty("NewSpells", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public).GetValue(null)).FirstOrDefault(spell => spell.SpellId == advancedSpell);
-            var spell = AllSpells.CreateModernSpellTemplate(advancedSpell, forClass);
-            return new TrueFeat(ModManager.RegisterFeatName("AdvancedDomain:" + forClass.HumanizeTitleCase2() + ":" + name, name + ": " + spell.Name), 8, "Your studies or prayers have unlocked deeper secrets of the " + name.ToLower() + " domain.",
-                $"You learn the {forClass.HumanizeTitleCase2().ToLower()} focus spell " + AllSpells.CreateSpellLink(advancedSpell, forClass) + ", and you gain 1 focus point, up to a maximum 3.", [forClass, ModTraits.Roguelike], null)
-            .WithIllustration(spell.Illustration)
-            .WithRulesBlockForSpell(advancedSpell, forClass)
-            .WithPrerequisite(values => values.HasFeat(domainFeat.FeatName), "You must have the " + name + " domain.")
-            .WithOnSheet(sheet => {
-                if (sheet.Sheet.Class?.ClassTrait == Trait.Cleric) {
-                    sheet.AddFocusSpellAndFocusPoint(Trait.Cleric, Ability.Wisdom, advancedSpell);
-                } else if (sheet.Sheet.Class?.ClassTrait == Trait.Champion) {
-                    sheet.AddFocusSpellAndFocusPoint(Trait.Champion, Ability.Charisma, advancedSpell);
-                } else if (sheet.Sheet.Class?.ClassTrait == Trait.Oracle) {
-                    sheet.AddFocusSpellAndFocusPoint(Trait.Oracle, Ability.Charisma, advancedSpell);
-                }
-            });
+            foreach (var pair in domainAccessFeats) {
+                var spell = AllSpells.CreateModernSpellTemplate(advancedSpell, pair.Item1);
+                var feat = new Feat(ModManager.RegisterFeatName("RL_AdvancedDomain:" + pair.Item1.HumanizeTitleCase2() + ":" + name, name + ": " + spell.Name), "Your studies or prayers have unlocked deeper secrets of the " + name.ToLower() + " domain.",
+                    $"You learn the {pair.Item1.HumanizeTitleCase2().ToLower()} focus spell " + AllSpells.CreateSpellLink(advancedSpell, pair.Item1) + ", and you gain 1 focus point, up to a maximum 3.", [ModTraits.Roguelike], null)
+                .WithIllustration(spell.Illustration)
+                .WithRulesBlockForSpell(advancedSpell, pair.Item1)
+                .WithPrerequisite(values => values.HasFeat(domainFeat.FeatName), "You must have the " + name + " domain.")
+                .WithOnSheet(sheet => {
+                    if (sheet.Sheet.Class?.ClassTrait == pair.Item1) {
+                        sheet.AddFocusSpellAndFocusPoint(pair.Item1, Ability.Wisdom, advancedSpell);
+                    } else if (sheet.Sheet.Class?.ClassTrait == Trait.Champion) {
+                        sheet.AddFocusSpellAndFocusPoint(pair.Item1, Ability.Charisma, advancedSpell);
+                    } else if (sheet.Sheet.Class?.ClassTrait == Trait.Oracle) {
+                        sheet.AddFocusSpellAndFocusPoint(pair.Item1, Ability.Charisma, advancedSpell);
+                    }
+                });
+                AllFeats.All.Find(ft => ft.FeatName == pair.Item2)?.Subfeats?.Add(feat);
+                ModManager.AddFeat(feat);
+            }
         }
     }
 }

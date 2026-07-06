@@ -212,13 +212,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 return;
             }
 
-            (__instance.CampaignState?.AdventurePath?.CampaignStops?.Last() as DawnsburyStop)!.CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
-            "{b}Stats{/b}\n" +
-            "{b}Deaths:{/b} " + __instance.CampaignState.Tags["deaths"] + "\n" +
-            "{b}Restarts:{/b} " + __instance.CampaignState.Tags["restarts"] + "\n" +
-            "{b}Corruption Level:{/b} " + __instance.CampaignState.Tags["corruption level"] +
-            "\n\n" + Loader.Credits;
-
             if (!victory) {
                 if (Int32.TryParse(__instance.CampaignState.Tags["deaths"], out int deaths)) {
                     ++deaths;
@@ -227,6 +220,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                     CampaignState.Autosave();
                 }
             }
+
+            UtilityFunctions.UpdateEndOfCampaignText(__instance.CampaignState);
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(BattlePhase), "Draw")]
+        private static void BattlePhaseDrawPatch(BattlePhase __instance, SpriteBatch sb, Game game, float elapsedSeconds) {
+            if (__instance.Battle.CampaignState == null || __instance.Battle.CampaignState.AdventurePath?.Id != "RoguelikeMode") {
+                return;
+            }
+
+            if (__instance.Battle.Victory.HasValue && __instance.Battle.Victory == false) {
+                CampaignState? backup = (CampaignState?)__instance.GetType().GetField("temporarySave", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)?.GetValue(__instance);
+                if (backup == null) return;
+                if (backup.Tags.ContainsKey("deaths") && __instance.Battle.CampaignState.Tags.ContainsKey("deaths")) {
+                    backup.Tags["deaths"] = __instance.Battle.CampaignState.Tags["deaths"];
+                }
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CampaignState), "RefreshTagsFrom")]
+        private static void CampaignStateRefreshTagsFromPatch(CampaignState? campaignStateAtStartOfEncounter) {
+            if (campaignStateAtStartOfEncounter == null || CampaignState.Instance?.AdventurePath?.Id != "RoguelikeMode") {
+                return;
+            }
+
+            if (CampaignState.Instance.Tags.ContainsKey("deaths") && campaignStateAtStartOfEncounter.Tags.ContainsKey("deaths")) {
+                campaignStateAtStartOfEncounter.Tags["deaths"] = CampaignState.Instance.Tags["deaths"];
+                campaignStateAtStartOfEncounter.Tags["restarts"] = CampaignState.Instance.Tags["restarts"];
+            }
+
+            if (CampaignState.Instance.Tags.ContainsKey("restarts") && campaignStateAtStartOfEncounter.Tags.ContainsKey("restarts")) {
+                campaignStateAtStartOfEncounter.Tags["restarts"] = CampaignState.Instance.Tags["restarts"];
+            }
+
+            UtilityFunctions.UpdateEndOfCampaignText(CampaignState.Instance);
+
+            CampaignState.Autosave();
         }
 
         [HarmonyPostfix]
@@ -675,8 +707,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(typeof(CampaignMenuPhase), "CreateViews")]
-        private static void CreateViewsPatch() {
+        [HarmonyPatch(typeof(CampaignMenuPhase), "CreateViewsWithKeepingIndex")]
+        private static void CreateViewsPatch(bool keepCurrentIndex) {
             CampaignState state = CampaignState.Instance;
             if (state == null || state?.AdventurePath?.Name != "Roguelike Mode") return;
 
@@ -719,7 +751,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 throw new ArgumentException("ERROR: Seed is not an integer (Roguelike Mod)");
             }
 
-            
+
 
             var rand = new Random(result);
 

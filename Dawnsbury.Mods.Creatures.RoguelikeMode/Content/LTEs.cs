@@ -3,42 +3,37 @@ using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Campaign.LongTerm;
-using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.Movement;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
+using Dawnsbury.Core.StatBlocks.Monsters.L_1;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Core.StatBlocks;
 using Microsoft.Xna.Framework;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Display.Text;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.Tiles;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
-using Dawnsbury.Display;
-using Dawnsbury.Core.StatBlocks.Monsters.L_1;
-using System;
-using Dawnsbury.Display.Notifications;
-using Microsoft.Xna.Framework.Audio;
+using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
-using Dawnsbury.Core.Mechanics.Damage;
-using Microsoft.Xna.Framework.Graphics;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -171,6 +166,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Lyra's Boon", $"You can use the Lyra's Boon once.", ExpirationCondition.Never, null, Illustrations.Lyra) {
                     HideFromPortrait = true,
                     LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Lyra's Boon")!),
                     ProvideActionIntoPossibilitySection = (effect, section) => {
                         if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
                         return new ActionPossibility(new CombatAction(effect.Owner, effect.Illustration!, $"Use Lyra's Boon",
@@ -211,6 +207,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Baraquielle's Boon", $"You can use the Baraquielle's Boon once.", ExpirationCondition.Never, null, Illustrations.Baraquielle) {
                     HideFromPortrait = true,
                     LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Baraquielle's Boon")!),
                     ProvideActionIntoPossibilitySection = (effect, section) => {
                         if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
                         return new ActionPossibility(new CombatAction(effect.Owner, effect.Illustration!, $"Use Baraquielle's Boon",
@@ -229,7 +226,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     qfForm.Owner.ReplacementUnarmedStrike = new Item(IllustrationName.Halberd, "Lance of Retribution", [Trait.Good, Trait.Fire, Trait.Reach, Trait.VersatileS, Trait.Polearm, Trait.BattleformAttack])
                                     .WithWeaponProperties(new WeaponProperties("2d8", DamageKind.Piercing))
                                     .WithMonsterWeaponSpecialization(caster.Level)
-                                    .WithAdditionalWeaponProperties(wp => { 
+                                    .WithAdditionalWeaponProperties(wp => {
                                         wp.WithAdditionalDamage("1d4", DamageKind.Good);
                                         wp.WithAdditionalDamage("1d4", DamageKind.Fire);
                                     });
@@ -253,11 +250,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             });
 
             LongTermEffects.EasyRegister("It's Not Like I Like You!", LongTermEffectDuration.Forever, (_, _) => {
+                var requiredRoll = 18;
                 var lteEffect = new QEffect("It's Not like I Like You!", $"B-Baka...!", ExpirationCondition.Never, null, IllustrationName.BaraquielleLarge) {
                     HideFromPortrait = true,
                     LongTermEffectDuration = LongTermEffectDuration.Forever,
                     Tag = false,
                     EndOfAnyTurn = self => self.Tag = false,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!")!),
                     YouAreDealtLethalDamage = async (self, attacker, dmg, defender) => {
                         string[] defendLines = [
                             "Noooo...! I- I mean, b-be more careful next time or whatever. Y-you're embarrasing heaven!",
@@ -267,11 +266,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             "Just to be clear, I-I'm only doing this so I don't have to see you around in Heaven or whatever...!"
                         ];
 
-                        if (!((bool?)self.Tag == false && defender.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= 19)) return null;
+                        if (!((bool?)self.Tag == false && defender.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= requiredRoll)) return null;
 
                         var bara = Baraquielle.Create(defender.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge).WithIsNamedMonster();
                         defender.Battle.Cinematics.EnterCutscene();
-                        defender.Battle.SpawnCreature(bara, defender.Battle.GaiaFriends, defender.Occupies);
+                        defender.Battle.SpawnIllusoryCreature(bara, defender.Occupies.GetShuntoffTile(bara));
                         Sfxs.Play(SfxName.PhaseBolt);
                         bara.AnimationData.ColorBlinkFast(Color.Yellow);
                         defender.Battle.SmartCenterCreatureAlways(bara);
@@ -301,11 +300,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                     Tile? tile = attacker.Battle.Map.AllTiles.Where(t => t.HasLineOfEffectToIgnoreLesser(you.Occupies) < CoverKind.Blocked && t.DistanceTo(you) <= 19).MinBy(t => t.DistanceTo(you));
 
-                    if (!((bool?)lteEffect.Tag == false && you.HP <= you.MaxHP / 2 && tile != null && R.NextD20() >= 0)) return;
+                    if (!((bool?)lteEffect.Tag == false && you.HP <= you.MaxHP / 2 && tile != null && R.NextD20() >= requiredRoll)) return;
 
                     var bara = Baraquielle.Create(you.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
                     you.Battle.Cinematics.EnterCutscene();
-                    you.Battle.SpawnCreature(bara, you.Battle.GaiaFriends, tile);
+                    you.Battle.SpawnIllusoryCreature(bara, tile.GetShuntoffTile(bara));
                     Sfxs.Play(SfxName.PhaseBolt);
                     bara.AnimationData.ColorBlinkFast(Color.Yellow);
                     you.Battle.SmartCenterCreatureAlways(bara);
@@ -335,11 +334,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             "So cool... {i}(looks around frantically){/i}. W-wait the plane shift spell wasn't supposed to... Ummm... {b}V-VIOLENCE!{/b}"
                     ];
 
-                    if (!((bool?)lteEffect.Tag == false && target.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= 19)) return;
+                    if (!((bool?)lteEffect.Tag == false && target.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= requiredRoll)) return;
 
                     var bara = Baraquielle.Create(you.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
                     you.Battle.Cinematics.EnterCutscene();
-                    you.Battle.SpawnCreature(bara, you.Battle.GaiaFriends, target.Occupies);
+                    you.Battle.SpawnIllusoryCreature(bara, you.Occupies.GetShuntoffTile(bara));
                     Sfxs.Play(SfxName.PhaseBolt);
                     bara.AnimationData.ColorBlinkFast(Color.Yellow);
                     you.Battle.SmartCenterCreatureAlways(bara);
@@ -381,6 +380,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         companion.AddQEffect(CommonQEffects.CantOpenDoors());
                         companion.AddQEffect(new QEffect() {
                             HideFromPortrait = true,
+                            Illustration = Illustrations.Unicorn,
                             Source = self.Owner,
                             WhenMonsterDies = qfDeathCheck => {
                                 self.ExpiresAt = ExpirationCondition.Immediately;
@@ -621,6 +621,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.ChokingMushroom),
                     BonusToAllChecksAndDCs = (qf) => new Bonus(-qf.Value, BonusType.Status, "sickened"),
                     PreventTakingAction = (ca) => ca.ActionId != ActionId.Drink ? null : "You're sickened.",
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness")!),
                 };
                 effect.PreventTargetingBy = ca => ca.ActionId != ActionId.Administer || effect.Owner.HasEffect(QEffectId.Unconscious) ? null : "sickened";
 
@@ -1118,7 +1119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             item9.Die();
                         }
 
-                        DifficultSpells.CreateProtectorTree(caster3, targets.ChosenTile!, timberSentinel: true);
+                        DifficultSpells.CreateProtectorTree(caster3, caster3.MaximumSpellRank, targets.ChosenTile!, timberSentinel: true);
                     })),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect(ColosseumFeatNames[ColosseumFeat.TimberSentinel].Item2)!)
                 };

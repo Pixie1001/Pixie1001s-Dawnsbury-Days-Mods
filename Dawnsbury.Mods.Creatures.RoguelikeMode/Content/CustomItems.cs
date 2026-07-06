@@ -2,6 +2,7 @@
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder;
@@ -23,7 +24,6 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
@@ -38,6 +38,7 @@ using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Modding;
+using Dawnsbury.Mods.Creatures.RoguelikeMode;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
@@ -102,6 +103,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithMainTrait(ModTraits.Kama)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
 
+        public static ItemName Torch { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Torch", itemName => {
+            var torch = new Item(itemName, Illustrations.Torch, "torch", 0, 0, Trait.Simple, Trait.Fire, ModTraits.Improvised, ModTraits.Roguelike)
+            .WithMainTrait(ModTraits.Torch)
+            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning).WithAdditionalDamage("1", DamageKind.Fire));
+
+            torch.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(new QEffect() {
+                    BonusToAttackRolls = (qfSelf, ca, d) => ca?.Item?.ItemName == itemName ? new Bonus(-2, BonusType.Item, "improvised weapon") : null
+                }.WithExpirationEphemeral());
+            };
+
+            return torch;
+        });
+
         public static ItemName HookSword { get; } = ModManager.RegisterNewItemIntoTheShop("RL_HookSword", itemName => {
             Item item = new Item(itemName, Illustrations.HookSword, "hook sword", 0, 2,
             ModTraits.Parry, ModTraits.Twin, Trait.Disarm, Trait.Trip, Trait.Uncommon, Trait.Sword, Trait.Advanced, Trait.MonkWeapon, ModTraits.Roguelike)
@@ -140,7 +155,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 return new Bonus(2, BonusType.Circumstance, "Twin parry");
                             } else return null;
                         },
-                    });
+                });
                 });
             };
 
@@ -176,7 +191,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => {
             Item item = new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
                 Trait.Agile, Trait.Thrown20Feet, ModTraits.ThrownOnly, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
-            .WithMainTrait(ModTraits.Shuriken)
+        .WithMainTrait(ModTraits.Shuriken)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing));
 
             item.StateCheckWhenWielded = (wielder, shuriken) => {
@@ -359,7 +374,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         spell.Traits.Add(Trait.InflictsSlow);
                         if (await CommonSpellEffects.RollSavingThrowAsync(target, spell, Defense.Fortitude, 24) <= CheckResult.Failure) {
                             target.AddQEffect(QEffect.Slowed(1).WithExpirationAtStartOfSourcesTurn(caster, 1));
-                        }
+                    }
                     }
                 })
                 .WithItemBonus(2)
@@ -571,6 +586,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 target.AddQEffect(webbed);
                             }
                         });
+                    },
+                    EndOfCombat = async (self, won) => {
+                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
                     }
                 });
             };
@@ -583,7 +601,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
-            .WithDescription("{i}This gaudy jewled sceptre is legended to have passed int othe treasure troves of many a would be ruler of Our Point of Light... Each undone at the hands of rioting mobs after their kingdoms collapsed in anarchy.{/i}\n\n" +
+            .WithDescription("{i}This gaudy jewled sceptre is said to have passed into the treasure troves of many a would be ruler of Our Point of Light... Each undone at the hands of rioting mobs after their kingdoms collapsed in anarchy.{/i}\n\n" +
             $"Once per encounter, the rod can be used to cast {AllSpells.CreateModernSpellTemplate(SpellId.Confusion, Trait.Innate).ToSpellLink()} with a DC of 21 or the wielder's spell save DC if its higher.");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
@@ -603,6 +621,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             action.Item?.UseUp();
                         });
                         return spell;
+                    },
+                    EndOfCombat = async (self, win) => {
+                        item.RevertUseUp();
                     }
                 });
             };
@@ -634,7 +655,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithRuneProperties(new RuneProperties("mirrored", RuneKind.WeaponProperty, "This small gem shard is polished to a perfect mirror shine that reflect back distorted, grinning dopplegangers of the beholder.",
             "The weapon deals an extra 1d6 slashing damage, and creates a mirror image of the wielder as per the {i}mirror image{/i} spell, on a critical hit.", rune => {
                 if (rune.WeaponProperties != null) {
-                    rune.WeaponProperties.WithAdditionalDamage("1d6", DamageKind.Mental).WithOnTarget(async (spell, caster, target, result) => {
+                    rune.WeaponProperties.WithAdditionalDamage("1d6", DamageKind.Slashing).WithOnTarget(async (spell, caster, target, result) => {
                         if (result == CheckResult.CriticalSuccess) {
                             var qf = Level2Spells.CreateMirrorImageEffect(caster);
                             qf.Value = 1;
@@ -670,16 +691,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                [Trait.Runestone, Trait.Illusion, Trait.Magical, Trait.DoNotAddToCampaignShop, ModTraits.Roguelike])
             .WithItemGreaterGroup(ItemGreaterGroup.PropertyRunes)
             .WithRuneProperties(new RuneProperties("opportunism", RuneKind.WeaponProperty, "By embedding the teeth of a vanquished chimera into steel, a measure of its ruthless opportunism can be imparted upon the victor's weapon.",
-            "All attacks made using this weapon outside of your turn deal double damage.", rune => {
-                if (rune.WeaponProperties != null) {
-                    rune.WeaponProperties.WithOnTarget(async (spell, caster, target, result) => {
-                        if (spell.HasTrait(Trait.Strike) && caster.Battle.ActiveCreature != caster && result >= CheckResult.Success) {
-                            await CommonSpellEffects.DealAttackRollDamage(spell, caster, target, result, spell.TrueDamageFormula ?? DiceFormula.FromText("1d4"), spell.Item?.WeaponProperties?.DamageKind ?? DamageKind.Slashing);
+            "All attacks made using this weapon outside of your turn deal an additional 3d6 damage.", (rune, weapon) => {
+                weapon.StateCheckWhenWielded = (wielder, item) => {
+                    wielder.AddQEffect(new QEffect() {
+                        YouDealDamageEvent = async (qfSelf, damage) => {
+                            if (damage.CombatAction?.Item == weapon && damage.CombatAction.HasTrait(Trait.Strike) && wielder.Battle.ActiveCreature != wielder) {
+                                var kind = damage.KindedDamages.Count > 0 ? damage.KindedDamages[0].DamageKind : DamageKind.Slashing;
+                                damage.KindedDamages.Add(new KindedDamage(DiceFormula.FromText("3d6", "runestone of {i}opportunism{/i}"), kind));
+                            }
                         }
-                    });
-                }
-            }))
-            ;
+                    }.WithExpirationEphemeral());
+                };
+            }));
             return item;
         });
 
@@ -800,6 +823,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     QEffect effect = new QEffect("Protective Amulet {icon:Reaction}", "{b}Trigger{/b} You or an ally within 15-feet would be damaged by an attack. {b}Effect{/b} Reduce the damage by an amount equal to 1 + your level.");
                     effect.ExpiresAt = ExpirationCondition.Ephemeral;
                     effect.Tag = weapon;
+                    effect.EndOfCombat = async (self, won) => {
+                        item.ItemModifications.RemoveAll(mod => mod.Kind == ItemModificationKind.UsedThisDay);
+                    };
                     effect.ProvideContextualAction = self => {
                         if (item.ItemName == ProtectiveAmulet && item.ItemModifications.Any(mod => mod.Kind == ItemModificationKind.UsedThisDay)) {
                             return (ActionPossibility)new CombatAction(effect.Owner, Illustrations.ProtectiveAmulet, "Recharge Amulet", new Trait[] { Trait.Magical, Trait.Abjuration, Trait.Concentrate },
@@ -946,7 +972,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithItemGroup("Roguelike mode")
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)
             .WithRangeIncrement(12))
-            .WithDescription("{i}This lethal bow is engraved into the shape of a pair of two entwined brass serpents, that seem to lend a portion of their potency venom to each arrow nocked within it.{/i}\n\n...");
+            .WithDescription("{i}This lethal bow is engraved into the shape of a pair of two entwined brass serpents, that seem to lend a portion of their potency venom to each arrow nocked within it.{/i}\n\nEnemies damaged by the bow are afflcited by serpent venom, with a DC equa lto the higher of wielder's spell or class save DC.\n\n{b}Serpent Venom{/b}\n{b}Stage 1{/b} 1d6 poison damage and enfeebled 1; {b}Stage 2{/b} 2d6 poison damage and enfeebled 2");
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 wielder.AddQEffect(CommonQEffects.SerpentVenomAttack(wielder.ClassOrSpellDC() - wielder.Level, weapon.Name).WithExpirationEphemeral());
@@ -983,6 +1009,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             "{b}Frequency{/b} Once per day\n{b}Range{/b} 30 feet\n{b}Target{/b} 1 creature\n{b}Saving throw{/b} Fortitude\n\n" +
             "You affix the gaze of the Medusa Eye Choker upon an enemy, turning their flesh to stone." +
             S.FourDegreesOfSuccess("The target is unaffected.", "The target is slowed 1 for 1 round", "The target is slowed 1 for 1 minute.", "The target is permanently petrified."));
+
+            item.StateCheckWhenWielded = (wielder, weapon) => {
+                wielder.AddQEffect(CommonQEffects.SerpentVenomAttack(wielder.ClassOrSpellDC() - wielder.Level, weapon.Name).WithExpirationEphemeral());
+            };
+
             return item;
         });
 
@@ -1407,7 +1438,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         });
 
         public static ItemName SpiderHatchling { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Hatchling", itemName => {
-
             Func<Creature, Creature> companion = (owner) => {
                 int level = owner.Level;
                 int prof = level + 2;
@@ -1455,7 +1485,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 int level = owner.Level;
                 int prof = level + 2;
 
-                return new Creature(IllustrationName.VenomousSnake256, "Sacred Serpent", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                return new Creature(IllustrationName.VenomousSnake256, "Sacred Serpent", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion, Trait.Small],
                     level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
                     new Abilities(3, 3, 1, -4, 1, 0), new Skills())
                 .WithProficiency(Trait.Stealth, Proficiency.Trained)
@@ -1496,7 +1526,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 int level = owner.Level;
                 int prof = level + 2;
 
-                return new Creature(IllustrationName.VenomousSnake256, "Mature Sacred Serpent", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                return new Creature(IllustrationName.VenomousSnake256, "Mature Sacred Serpent", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion, Trait.Small],
                     level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
                     new Abilities(3, 3, 1, -4, 1, 0), new Skills())
                 .WithProficiency(Trait.Stealth, Proficiency.Trained)
@@ -1537,7 +1567,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 int level = owner.Level;
                 int prof = level + 2;
 
-                return new Creature(Illustrations.CompanionBunny, "Companion Bunny", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                return new Creature(Illustrations.CompanionBunny, "Companion Bunny", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion, Trait.Small],
                     level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
                     new Abilities(3, 3, 1, -4, 1, 0), new Skills())
                 .WithProficiency(Trait.Stealth, Proficiency.Trained)
@@ -1577,7 +1607,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 int level = owner.Level;
                 int prof = level + 2;
 
-                return new Creature(Illustrations.CompanionBunny, "Greater Companion Bunny", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion],
+                return new Creature(Illustrations.CompanionBunny, "Greater Companion Bunny", [Trait.Animal, Trait.AnimalCompanion, Trait.BaseGameAnimalCompanion, Trait.Minion, Trait.Small],
                     level, perception: 1 + prof, speed: 6, new Defenses(10 + 3 + prof, 1 + prof, 3 + prof, 1 + prof), hp: 6 * level,
                     new Abilities(3, 3, 1, -4, 1, 0), new Skills())
                 .WithProficiency(Trait.Stealth, Proficiency.Trained)
@@ -1696,7 +1726,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             .WithItemGroup("Roguelike mode")
             .WithDescription("{i}This brilliant gem encrusted sceptre brims with healing energy.{/i}\n\n" +
             "The wielder of the rod can use it twice per day to fire a beam of healing energy.")
-            ;
+                        ;
 
             item.StateCheckWhenWielded = (wielder, weapon) => {
                 var uses = weapon.IsUsedUp ? 0 : weapon.ItemModifications.FirstOrDefault(mod => (string?)mod.Tag == "UsedOnceThisDay") != null ? 1 : 2;
@@ -1705,7 +1735,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                 wielder.AddQEffect(new QEffect($"Rod of Healing Uses Remaining", "The rod of healing can be used this many more times today before its power is exhausted.", ExpirationCondition.Ephemeral, null, Illustrations.RodOfHealing) {
                     Value = uses
-                });
+                        });
             };
 
             item.ProvidesItemAction = (wielder, weapon) => {
@@ -1794,7 +1824,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Intimidation), TaggedChecks.DefenseDC(Defense.Will)))
                             .WithSoundEffect(wielder.HasTrait(Trait.Female) ? SfxName.Intimidate : SfxName.MaleIntimidate)
                             .WithProjectileCone(IllustrationName.Fear, 5, ProjectileKind.Cone)
-                            .WithActionCost(0)
+                        .WithActionCost(0)
                             .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                                 target.AddQEffect(QEffect.Frightened((int)result - 1));
                             });
@@ -1803,8 +1833,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         }
                     },
                     BonusToSkills = (skill) => skill == Skill.Intimidation ? new Bonus(1, BonusType.Item, "Duergar skull shield") : null,
-                });
-            };
+                    });
+                };
 
             return item;
         });
@@ -1847,7 +1877,7 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                     }
                     return null;
                 }
-            });
+        });
         }));
 
         public static ItemName ThrowersBandolier { get; } = ModManager.RegisterNewItemIntoTheShop("Thrower's Bandolier", itemName => {
@@ -1885,9 +1915,8 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                     var javelin = Items.CreateNew(Javelin);
                     foreach (Item rune in item.Runes) {
                         if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, javelin) == null)
-                            shuriken.WithModificationRune(rune.ItemName);
+                            javelin.WithModificationRune(rune.ItemName);
                     }
-
                     qfTB.Tag = new List<Item>() { dagger, javelin, hammer, axe, shuriken };
                 };
 
@@ -1906,13 +1935,13 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                         $"Draw a {throwable.Name} from your thrower's bandolier." +
                         ((throwable.ItemName == CustomItems.Shuriken) ? "\n\n{b}Special{/b} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action." : ""),
                         Target.Self().WithAdditionalRestriction(you => you.HasFreeHand ? null : "free hand required"))
-                        .WithActionCost(cost)
-                        .WithSoundEffect(SfxName.ItemGet)
-                        .WithEffectOnSelf(async user => {
+                    .WithActionCost(cost)
+                    .WithSoundEffect(SfxName.ItemGet)
+                    .WithEffectOnSelf(async user => {
                             Item item = throwable.Duplicate();
-                            item.Traits.Add(Trait.EncounterEphemeral);
-                            user.HeldItems.Add(item);
-                        }));
+                        item.Traits.Add(Trait.EncounterEphemeral);
+                        user.HeldItems.Add(item);
+                    }));
                     }
 
                     return menu;
@@ -2535,9 +2564,15 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
             .WithWornAt(Trait.Necklace)
             .WithItemGroup("Roguelike mode")
             .WithDescription("These matching amulets link the lifeforce of those who wear them, allowing them to freely claw away the vitality of the paired wearer for themselves.\n\n" +
-            "{b}Life Transfer {icon:FreeAction}.{/b} You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
+            @"{b}Life Transfer {icon:FreeAction}.{/b}
+{b}Range{/b} 15 feet
+
+You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.")
             .WithItemAction((item, user) => {
-                return new CombatAction(user, IllustrationName.BloodVendetta, "Siphon Life", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing }, "You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
+                return new CombatAction(user, IllustrationName.BloodVendetta, "Siphon Life", new Trait[] { Trait.Magical, Trait.Necromancy, Trait.Healing },
+                    @"{b}Range{/b} 15 feet
+
+You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 damage, and healing yourself for an equivalent amount of HP.", Target.RangedFriend(3)
                 .WithAdditionalConditionOnTargetCreature(new FriendCreatureTargetingRequirement())
                 .WithAdditionalConditionOnTargetCreature((a, d) => {
                     if (d.CarriedItems.Any(i => i.ItemName == BloodBondAmulet && i.IsWorn == true)) {
@@ -2551,11 +2586,14 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                 .WithProjectileCone(IllustrationName.VampiricExsanguination, 7, ProjectileKind.Ray)
                 .WithEffectOnEachTarget(async (spell, caster, target, checkResult) => {
                     int prevHP = target.HP;
+                    int tempHP = target.TemporaryHP;
+                    target.TemporaryHP = 0;
                     await CommonSpellEffects.DealDirectDamage(spell, DiceFormula.FromText("2d8", "Activate Blood Bond"), target, CheckResult.Success, DamageKind.Bleed);
                     int healAmount = prevHP - target.HP;
                     await caster.HealAsync(DiceFormula.FromText(healAmount.ToString(), "Activate Blood Bond"), spell);
-                })
-                ;
+                    if (tempHP > 0)
+                        target.TemporaryHP = tempHP;
+                });
             }, (_, _) => true);
         });
 
@@ -2649,7 +2687,7 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                     items = items.Concat(creature.CarriedItems.Where(itm => itm.ItemName == itemName).ToList()).ToList();
 
                     foreach (Item item in items) {
-                        creature.AddQEffect(new QEffect() {
+                creature.AddQEffect(new QEffect() {
                             Tag = item,
                             EndOfCombat = async (self, won) => {
                                 item.RevertUseUp();
@@ -3137,9 +3175,9 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                 return new Item(itemName, illustration, name, itemLevel, GetWandPrice(itemLevel, type), traits.ToArray())
                 .WithItemGreaterGroup(ItemGroupWands)
                 .WithItemGroup($"Level {level} {prefix} wands")
-                .WithDescription(desc)
-                .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
-                .WithModification(mod);
+               .WithDescription(desc)
+               .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning))
+               .WithModification(mod);
             });
         }
 
@@ -3153,13 +3191,15 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                 qfItem.Tag = false;
                 qfItem.Innate = false;
                 qfItem.StartOfCombat = async self => {
+                    var renamed = item.ItemModifications.Any(modification => modification.Kind == ItemRenaming.CustomItemNameModification);
+                    companionName = item.Nickname ?? companionName;
                     Creature? companion = self.Owner.Battle.AllCreatures.FirstOrDefault(cr => cr.FindQEffect(QEffectId.RangersCompanion)?.Source == self.Owner);
                     if (companion != null) {
                         self.Tag = true;
                         return;
                     }
                     if (item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.UsedThisDay) != null) {
-                        self.Owner.Overhead("no companion", Color.Green, $"The {companionName} is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
+                        self.Owner.Overhead("no companion", Color.Green, $"{companionName} is injured, and won't be able to fight besides the party until after their next long rest or downtime.");
                     } else {
                         self.Id = QEffectId.AnimalCompanionController;
 
@@ -3215,7 +3255,11 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                         })
                         ;
 
-                        animalCompanion.MainName = self.Owner.Name + "'s " + animalCompanion.MainName;
+                        if (renamed) {
+                            animalCompanion.MainName = companionName;
+                            animalCompanion.WithIsNamedMonster();
+                        } else
+                            animalCompanion.MainName = self.Owner.Name + "'s " + animalCompanion.MainName;
                         animalCompanion.InitiativeControlledBy = self.Owner;
                         animalCompanion.AddQEffect(new QEffect() {
                             Id = QEffectId.RangersCompanion,

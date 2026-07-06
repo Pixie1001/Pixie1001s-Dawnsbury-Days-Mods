@@ -24,22 +24,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
     internal class SpinnerOfLies : EliteEncounter {
         public SpinnerOfLies(string filename) : base("Boudoir of the Spinner of Lies", filename, eliteRewards: new List<(Item, string)?> {
-            (Items.CreateNew(CustomItems.RunestoneOfMirrors), "..."),
-            (Items.CreateNew(CustomItems.CloakOfDuplicity), "...")
+            (Items.CreateNew(CustomItems.RunestoneOfMirrors), "This shimmering weapon rune appears to be imparted with powerful illusory magic."),
+            (Items.CreateNew(CustomItems.CloakOfDuplicity), "A cloak weaved by the spinner of lies herself, interwoven with the deceitful magic that once protected her in life.")
         }) {
 
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 await base.Setup(battle);
                 Sfxs.SlideIntoSong(Songname.HighTensionBegins);
             });
-
-            //this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
-                
-            //});
-
-            //this.ReplaceTriggerWithCinematic(TriggerName.AllEnemiesDefeated, async battle => {
-                
-            //});
         }
     }
 }

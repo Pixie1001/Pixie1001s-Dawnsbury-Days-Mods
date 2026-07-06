@@ -24,8 +24,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
     internal class Medusa : EliteEncounter {
         public Medusa(string filename) : base("Medusa", filename, eliteRewards: new List<(Item, string)?> {
-            (Items.CreateNew(CustomItems.MedusaEyeChoker), "..."),
-            (Items.CreateNew(CustomItems.SerpentineBow), "...")
+            (Items.CreateNew(CustomItems.MedusaEyeChoker), "The huntress' eye could be taken back to town and fashened in a powerful artefact, capable of turning her petrifying gaze onto your enemies."),
+            (Items.CreateNew(CustomItems.SerpentineBow), "The huntress' living serpentile bow, whose arrows are just as lethal as any cobra's venomous bite.")
         }) {
 
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {

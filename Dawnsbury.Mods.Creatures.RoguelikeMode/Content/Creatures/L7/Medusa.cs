@@ -64,23 +64,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             " by petrifying gaze before attempting its save, a failed save causes it to be permanantly petrified. A PC petrified in this way will result in an immediate game loss. " +
             "After attempting its save, the creature is then temporarily immune until the start of the medusa's next turn.",
             Target.Ranged(6).WithAdditionalConditionOnTargetCreature((a, d) => d.QEffects.Any(qf => qf.Key == "Medusa Gaze Immunity") ? Usability.NotUsableOnThisCreature("Already attempted to petrify this round") : Usability.Usable))
-            .WithActionCost(1)
-            .WithSavingThrow(new SavingThrow(Defense.Fortitude, 15 + you.Level))
-            .WithSoundEffect(SfxName.Stoneskin)
-            .WithProjectileCone(IllustrationName.Dominate, 5, ProjectileKind.Ray)
-            .WithGoodness((_, a, d) => {
-                var score = 100f;
+                .WithActionCost(1)
+                .WithSavingThrow(new SavingThrow(Defense.Fortitude, 15 + you.Level))
+                .WithSoundEffect(SfxName.Stoneskin)
+                .WithProjectileCone(IllustrationName.Dominate, 5, ProjectileKind.Ray)
+                .WithGoodness((_, a, d) => {
+                    var score = 100f;
 
-                if (a.Actions.AttackedThisManyTimesThisTurn == 0)
-                    return 2f;
+                    if (a.Actions.AttackedThisManyTimesThisTurn == 0)
+                        return 2f;
 
-                if (d.QEffects.Any(qf => qf.Name == "Avert Gaze"))
-                    score -= 5;
+                    if (d.QEffects.Any(qf => qf.Name == "Avert Gaze"))
+                        score -= 5;
 
-                if (d.QEffects.Any(qf => qf.Key == "Partial Petrification"))
-                    score += 10;
+                    if (d.QEffects.Any(qf => qf.Key == "Partial Petrification"))
+                        score += 10;
 
-                return score;
+                    return score;
             })
             .WithEffectOnEachTarget(async (action, caster, defender, result) => {
                 defender.AddQEffect(new QEffect() { Key = "Medusa Gaze Immunity" }.WithExpirationAtStartOfSourcesTurn(caster, 1));
@@ -122,7 +122,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 }
             };
             glance.AddGrantingOfTechnical(cr => !cr.HasEffect(QEffectId.Blinded) && cr.CreatureId != CreatureIds.PetrifiedGuardian, qfTech => {
-                qfTech.StartOfYourEveryTurn = async (self, you) => {
+                qfTech.EndOfYourTurnDetrimentalEffect = async (self, you) => {
                     if (you.IsImmuneTo(Trait.Visual) || you.QEffects.Any(qf => qf.Key == "Partial Petrification") || glance.Owner.DistanceTo(you) > 6 || glance.Owner.HasLineOfEffectTo(you.Occupies) > CoverKind.Greater)
                         return;
 

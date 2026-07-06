@@ -46,7 +46,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                         return a.CreateStrike(a.HeldItems.First()).CanBeginToUse(a);
                                     }))
                                 .WithActionCost(2)
-                                .WithGoodnessAgainstEnemy((_, a, d) => a.CreateStrike(a.HeldItems.Count > 0 ? a.HeldItems[0] : a.UnarmedStrike).StrikeModifiers.CalculatedTrueDamageFormula?.ExpectedValueMinimumOne * 2 ?? int.MinValue)
+                                .WithGoodnessAgainstEnemy((_, a, d) => a.CreateStrike(a.HeldItems[0] ?? a.UnarmedStrike).StrikeModifiers.CalculatedTrueDamageFormula?.ExpectedValueMinimumOne * 2 ?? int.MinValue)
                                 .WithEffectOnChosenTargets((async (fighter, targets) => {
                                     var map = fighter.Actions.AttackedThisManyTimesThisTurn;
                                     var enemy = targets.ChosenCreature!;
@@ -78,9 +78,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return null;
                 }
             })
+            .AddQEffect(new QEffect("Flensing Slice {icon:Action}", "When you hit with both attacks with Double Slice, you flense the target, making it bleed and creating a weak spot. The target takes 1d8 persistent bleed damage per weapon damage die, and flat-footed until the beginning of your next turn."))
+            .AddQEffect(new QEffect("Twin Parry {icon:Action}", "The Drow Blademaster gains a +1 circumstance bonus to AC for 1 round."))
             .Builder
             .AddMainAction(you => {
-                return new CombatAction(you, new SideBySideIllustration(IllustrationName.Swords, IllustrationName.BloodVendetta), "Flensing Slice", [Trait.Melee], "...", Target.ReachWithAnyWeapon()
+                return new CombatAction(you, new SideBySideIllustration(IllustrationName.Swords, IllustrationName.BloodVendetta), "Flensing Slice", [Trait.Melee, Trait.Basic], "When you hit with both attacks with Double Slice, you flense the target, making it bleed and creating a weak spot. The target takes 1d8 persistent bleed damage per weapon damage die. The target becomes flat-footed until the beginning of your next turn.", Target.ReachWithAnyWeapon()
                     .WithAdditionalConditionOnTargetCreature((a, d) => a.QEffects.Any(qf => qf.Key == "flensing slice" && qf.Source == d) ? Usability.Usable : Usability.NotUsableOnThisCreature("can only be used on creatures hit by both attacks from double slice this turn")))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.SwordStrike)
@@ -94,7 +96,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 ;
             })
             .AddMainAction(you => {
-                return new CombatAction(you, new SideBySideIllustration(IllustrationName.Swords, Illustrations.Parry), "Twin Parry", [], "...", Target.Self((user, ai) => ai.GainBonusToAC(1))
+                return new CombatAction(you, new SideBySideIllustration(IllustrationName.Swords, Illustrations.Parry), "Twin Parry", [Trait.Basic], "The Drow Blademaster gains a +1 circumstance bonus to AC for 1 round.", Target.Self((user, ai) => ai.GainBonusToAC(1))
                     .WithAdditionalRestriction(user => user.HeldItems.Where(item => item.WeaponProperties != null).Count() >= 2 ? null : "you must be dual wielding melee weapons"))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.RaiseShield)

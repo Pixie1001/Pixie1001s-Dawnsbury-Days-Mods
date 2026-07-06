@@ -1,5 +1,6 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.Movement;
@@ -21,14 +22,28 @@ using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Core.Intelligence;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class UnicornFoal {
-        public static Creature Create() {
-            return new Creature(Illustrations.Unicorn, "Unicorn, Foal", new List<Trait>() { Trait.Chaotic, Trait.Good, Trait.Beast, Trait.Fey }, 1, 10, 8, new Defenses(17, 8, 6, 9), 20,
-            new Abilities(3, 3, 3, 0, 3, 4), new Skills(acrobatics: 8, stealth: 9))
+        public static Creature Create(Encounter? encounter) {
+            var encounterLevel = UtilityFunctions.GetEncounterLevel(encounter);
+            bool highLevel = encounterLevel > 4;
+            var hp = !highLevel ? 10 : 95;
+            var defenses = !highLevel ? new Defenses(17, 8, 6, 9) : new Defenses(23, 14, 12, 15);
+            var level = !highLevel ? 1 : 5;
+            var skills = !highLevel ? new Skills(athletics: 8, acrobatics: 8, stealth: 9) : new Skills(athletics: 14, acrobatics: 14, stealth: 15);
+            var abilities = !highLevel ? new Abilities(3, 3, 3, 0, 3, 4) : new Abilities(4, 4, 3, 0, 4, 5);
+            var weapon = new Item(IllustrationName.Horn, "horn", new Trait[] { Trait.Melee, Trait.GhostTouch, Trait.Unarmed, Trait.Brawling })
+                .WithWeaponProperties(new WeaponProperties($"{(!highLevel ? 1 : 2)}d10", DamageKind.Piercing))
+                .WithAdditionalWeaponProperties(wp => {
+                    wp.WithAdditionalDamage(!highLevel ? "1d4" : "1d6", DamageKind.Good);
+                    wp.ItemBonus = !highLevel ? 0 : 1;
+                });
+            var perception = !highLevel ? 8 : 11;
+
+            var unicorn = new Creature(Illustrations.Unicorn, "Unicorn, Foal", new List<Trait>() { Trait.Chaotic, Trait.Good, Trait.Beast, Trait.Fey }, level, perception, perception, defenses, hp,
+            abilities, skills)
             .WithSpawnAsGaiaFriends()
             .WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
@@ -46,14 +61,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .WithProficiency(Trait.Melee, Proficiency.Expert)
             .WithProficiency(Trait.Spell, Proficiency.Expert)
             .WithBasicCharacteristics()
-            .WithUnarmedStrike(new Item(IllustrationName.Horn, "horn", new Trait[] { Trait.Melee, Trait.GhostTouch, Trait.Unarmed, Trait.Brawling }).WithWeaponProperties(new WeaponProperties("1d10", DamageKind.Piercing).WithAdditionalDamage("1d4", DamageKind.Good)))
+            .WithUnarmedStrike(weapon)
             .AddQEffect(new QEffect("Unicorn Miracle", "The unicorn Foal regains all of its spell slots after each encounter."))
             .AddQEffect(new QEffect() {
                 ProvideMainAction = self => {
                     return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.Haste, "Powerful Charge", new Trait[] { Trait.Move },
-                        "Stride up to twice your speed in a direct line, then strike. If you moved at least 20-feet, the strike deals +1d6 damage." +
+                        $"Stride up to twice your speed in a direct line, then strike. If you moved at least 20-feet, the strike deals +{(!highLevel ? 1 : 2)}d6 damage." +
                         "\n\nThis movement will not path around hazards or attacks of opportunity.",
                         Target.Self((user, ai) => {
+                            if (user.HasEffect(QEffectIds.CannotChargeThisTurn)) return 0f;
+
                             if (!user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && cr.Threatens(user.Occupies)) && user.Battle.AllCreatures.Any(cr => cr.EnemyOf(user) && !cr.DetectionStatus.IsUndetectedTo(user) && user.HasLineOfEffectTo(cr.Occupies) <= CoverKind.Lesser && user.DistanceTo(cr) <= user.Speed * (user.HasEffect(QEffectId.AquaticCombat) ? 0.75f : 1.5f) && user.DistanceTo(cr) > 4)) {
                                 return 15f;
                             }
@@ -81,14 +98,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                         if (destTile == null) {
                             action.RevertRequested = true;
+                            self.AddQEffect(new QEffect() { Id = QEffectIds.CannotChargeThisTurn }.WithExpirationAtEndOfThisTurn());
                         } else {
                             movementStyle.Shifting = self.HasEffect(QEffectId.Mobility) && destTile.InIteration.RequiresProvokingAttackOfOpportunity;
                             await self.MoveTo(destTile, action, movementStyle);
                             QEffect? chargeBonus = null;
                             if (self.DistanceTo(startingTile) >= 4) {
-                                self.AddQEffect(chargeBonus = new QEffect("Charge Bonus", "+1d6 damage on your next strike action.") {
+                                self.AddQEffect(chargeBonus = new QEffect("Charge Bonus", $"+{(!highLevel ? 1 : 2)}d6 damage on your next strike action.") {
                                     AddExtraStrikeDamage = (action, user) => {
-                                        return (DiceFormula.FromText("1d6", "Powerful Charge"), DamageKind.Piercing);
+                                        return (DiceFormula.FromText($"{(!highLevel ? 1 : 2)}d6", "Powerful Charge"), DamageKind.Piercing);
                                     },
                                     Illustration = IllustrationName.Horn,
                                 });
@@ -103,9 +121,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         }
                     });
                 },
-            })
-            .AddSpellcastingSource(SpellcastingKind.Innate, Trait.Fey, Ability.Wisdom, Trait.Primal).WithSpells(
-            level1: new SpellId[] { SpellId.Heal }, level3: new SpellId[] { SpellId.NeutralizePoison }).Done();
+            });
+
+            if (!highLevel) {
+                unicorn.AddSpellcastingSource(SpellcastingKind.Innate, Trait.Fey, Ability.Wisdom, Trait.Primal).WithSpells(
+                level1: new SpellId[] { SpellId.Heal }, level3: new SpellId[] { SpellId.NeutralizePoison }).Done();
+            } else {
+                unicorn.AddSpellcastingSource(SpellcastingKind.Innate, Trait.Fey, Ability.Wisdom, Trait.Primal).WithSpells(
+                level3: new SpellId[] { SpellId.NeutralizePoison, SpellId.Heal }).Done();
+            }
+            return unicorn;
         }
     }
 }

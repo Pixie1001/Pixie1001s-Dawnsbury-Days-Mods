@@ -80,7 +80,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 {
                     var user = effect.Owner;
                     
-                    if (!action.HasTrait(Trait.Arcane) && !action.HasTrait(Trait.Divine) && !action.HasTrait(Trait.Occult) && !action.HasTrait(Trait.Primal))
+                    if (action.HasTrait(Trait.Strike) || (!action.HasTrait(Trait.Arcane) && !action.HasTrait(Trait.Divine) && !action.HasTrait(Trait.Occult) && !action.HasTrait(Trait.Primal)))
                     {
                         return false;
                     }
@@ -181,7 +181,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             })
             .AddNaturalWeapon("eye flail", IllustrationName.Flail, 15, [Trait.Sweep, Trait.Forceful], "2d8+6", DamageKind.Bludgeoning)
             .Done();
-            
+
             return creature;
         }
 

@@ -1,14 +1,10 @@
-﻿using Dawnsbury.Audio;
+﻿using System;
+using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
@@ -16,13 +12,10 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
@@ -31,14 +24,9 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Feats;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
-using System;
-using System.Runtime.InteropServices;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -194,7 +182,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
 
         public static SpellId SummonMonster = ModManager.RegisterNewSpell("RL_SummonMonster", 1, (id, caster, level, inCombat, info) => {
             int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
-            return Spells.CreateModern(Illustrations.SummonMonster, "Summon Monster", [Trait.Conjuration, Trait.Summon, Trait.Uncommon, Trait.Divine, Trait.Primal],
+            return Spells.CreateModern(Illustrations.SummonMonster, "Summon Monster", [Trait.Conjuration, Trait.Summon, Trait.Uncommon],
                     "You conjure a monstrous ally to fight for you.",
                     "You summon a monstrous creature whose level is " + S.HeightenedVariable(maxLevel, -1) + " or less." + Level1Spells.SummonRulesText + S.HeightenText(level, 1, inCombat,
                     "{b}Heightened (2nd){/b} The maximum level of the summoned creature is 1.\n{b}Heightened (3rd){/b} The maximum level of the summoned creature is 2." +
@@ -211,7 +199,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
         public static SpellId SummonSpider = ModManager.RegisterNewSpell("RL_SummonSpider", 2, (id, caster, level, inCombat, info) => {
             int maxLevel = CommonSpellEffects.GetMaximumSummonLevel(level);
             CreatureId[] spiderList = [ CreatureIds.BebilithMinor, CreatureIds.BebilithSpawn ];
-            return Spells.CreateModern(Illustrations.SummonSpider, "Summon Spider", [Trait.Conjuration, Trait.Summon, Trait.Uncommon, Trait.Divine, Trait.Primal],
+            return Spells.CreateModern(Illustrations.SummonSpider, "Summon Spider", [Trait.Conjuration, Trait.Summon, Trait.Uncommon],
                     "You conjure a spidery companion to fight for you.",
                     "You summon a spider whose level is " + S.HeightenedVariable(maxLevel, 1) + " or less." + Level1Spells.SummonRulesText + S.HeightenText(level, 2, inCombat,
                     "{b}Heightened (3rd){/b} The maximum level of the summoned creature is 2." +
@@ -228,7 +216,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
         public static SpellId VomitSwarm = ModManager.RegisterNewSpell("RL_VomitSwarm", 2, (id, caster, level, inCombat, info) => {
             Trait[] traits = null;
             if (AllSpells.All.Any(spell => spell.Name == "Vomit Swarm" && !spell.HasTrait(ModTraits.Roguelike)))
-                traits = [Trait.Evocation, ModTraits.Roguelike];
+                traits = [Trait.Evocation, Trait.Arcane, Trait.Occult, Trait.Primal, Trait.SpellCannotBeChosenInCharacterBuilder, ModTraits.Roguelike];
             else
                 traits = [Trait.Evocation, Trait.Arcane, Trait.Occult, Trait.Primal, ModTraits.Roguelike];
 
@@ -338,7 +326,7 @@ If your next Strike is part of a Flurry of Blows, the bonus and extra damage app
                         });
                         break;
                     case CheckResult.CriticalFailure:
-                        caster.AddQEffect(QEffect.Confused(false, spell).WithExpirationNever());
+                        target.AddQEffect(QEffect.Confused(false, spell).WithExpirationNever());
                         break;
                 }
             });

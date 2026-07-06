@@ -48,12 +48,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         public static FeatName PowerOfTheRatFiend { get; } = ModManager.RegisterFeatName("Power of the Rat Fiend");
 
         public static IEnumerable<Feat> CreateFeats() {
-            List<Trait> classTraits = new List<Trait>();
-            AllFeats.All.ForEach(ft => {
-                if (ft is ClassSelectionFeat classFeat) {
-                    classTraits.Add(classFeat.ClassTrait);
-                }
-            });
+            //List<Trait> classTraits = new List<Trait>();
+            //AllFeats.All.ForEach(ft => {
+            //    if (ft is ClassSelectionFeat classFeat) {
+            //        classTraits.Add(classFeat.ClassTrait);
+            //    }
+            //});
+
+            yield return new Feat(PowerOfTheRatFiend, "", "", [ModTraits.Event], null);
 
             var ratMonarch = ArchetypeFeats.CreateAgnosticArchetypeDedication(ModTraits.RatMonarch, "The Rat Monarch lords over their flock of rodents, that emerge from the most neglected corners of the abyss to fulfill their master's will.",
                 "You gain the following actions, allowing to summon forth and direct a swarm of vicious rats:\n\n" +

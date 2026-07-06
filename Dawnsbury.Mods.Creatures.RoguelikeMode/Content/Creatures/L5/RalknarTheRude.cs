@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
         {
             return new Creature(IllustrationName.OrcWarchief256,
                 "Ralknar the Rude",
-                [Trait.Orc, Trait.Humanoid, Trait.Chaotic, Trait.Evil],
+                [Trait.Orc, Trait.Humanoid, Trait.Chaotic, Trait.Evil, Trait.MetalArmor],
                 5, 15, 6,
                 new Defenses(21, 15, 12, 9),
                 90,

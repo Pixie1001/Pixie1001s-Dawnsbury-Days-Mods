@@ -92,6 +92,7 @@
 	<li>RuneOfMirrors.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/crystal_8555383?term=gem&related_id=8555383)</li>
 	<li>RuneOfOpportunism.png (Modified) by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/diamond_4334132?term=gem&related_id=4334132)</li>
 	<li>MaskOfSkills.png by Amythst prime - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/carnival-mask_7590231?term=eye+mask&related_id=7590231)</li>
+	<li>Torch.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/torch_1021216?related_id=1021114&origin=search)</li>
 </ul>
 
 ## Creative Commons Artwork
@@ -119,6 +120,7 @@
 	<li>MutatedBorder.png (Modified)</li>
 	<li>Baraquielle.png (Modified)</li>
 	<li>DiademOfTheSpiderQueen.png (Modified)</li>
+	<li>AngelForm.png (Modified)</li>
 </ul>
 
 ## Self Produced Assets
@@ -189,6 +191,7 @@
 	<li>DrowSorceress.png</li>
 	<li>DrowShadowdancer.png</li>
 	<li>RLModeCampaignIcon.png</li>
+	<li>Brazier.png</li>
 </ul>
 
 ## Volunteer Contributions

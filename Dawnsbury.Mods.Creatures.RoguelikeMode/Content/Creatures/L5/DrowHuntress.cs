@@ -37,7 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(CommonQEffects.SpiderVenomAttack(22, "shortbow"))
             .AddQEffect(new QEffect("Shadowstep {icon:Reaction}", "{b}Trigger{/b} The drow huntress is damaged by a melee attack. {b}Effect{/b} The drow huntress teleports to an unoccupied space up to 30ft away.") {
                 AfterYouTakeDamage = async (self, amount, kind, action, critical) => {
-                    if (self.Owner.HasEffect(QEffectId.DimensionalAnchor) || action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || action.HasTrait(Trait.Ranged)) {
+                    if (self.Owner.HasEffect(QEffectId.DimensionalAnchor) || action == null || !action.HasTrait(Trait.Attack) || action.Owner == null || action.Owner.Occupies == null || action.HasTrait(Trait.Ranged) || !action.IsMeleeAgainst(self.Owner)) {
                         return;
                     }
 
@@ -68,7 +68,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 }
             });
 
-            monster.AddQEffect(new QEffect() {
+            monster.AddQEffect(new QEffect("Archer's Aim {icon:TwoActions}", "The Drow Huntress makes a special ranged attack with her bow, gaining a +2 circumstance bonus to the attack roll and ignoring the target's concealed condition.") {
                 ProvideStrikeModifier = item => {
                     if (!item.HasTrait(Trait.Bow)) return null;
 
@@ -77,7 +77,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         HuntersAim = true,
                     });
 
-                    strike.Name = $"Archer's Aim ({item.Name})";
+                    strike.WithFullRename($"Archer's Aim ({item.Name})");
                     strike.Illustration = new SideBySideIllustration(strike.Illustration, IllustrationName.TargetSheet);
                     strike.ActionCost = 2;
                     strike.Description = StrikeRules.CreateBasicStrikeDescription2(strike.StrikeModifiers);

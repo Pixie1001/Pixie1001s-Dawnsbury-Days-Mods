@@ -90,7 +90,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                 case var v when v.Equals(CreatureIds.MerfolkKrakenBorn):
                     return MerfolkKrakenborn.Create();
                 case var v when v.Equals(CreatureIds.UnicornFoal):
-                    return UnicornFoal.Create();
+                    return UnicornFoal.Create(encounter);
                 case var v when v.Equals(CreatureIds.MinnowOfMulnok):
                     return MinnowOfMulnok.Create();
                 case var v when v.Equals(CreatureIds.Alchemist):
@@ -206,6 +206,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return SpiderQueenShrine.Create(true);
                 case ModEnums.ObjectId.RELIQUARY:
                     return Reliquary.Create(encounter);
+                case ModEnums.ObjectId.BRAZIER:
+                    return Brazier.Create();
                 default:
                     throw new NotSupportedException($"The object id '{id}' is not supported");
             }
@@ -354,6 +356,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.NIGHTMARE_GROWTH);
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.GREATER_SPIDER_QUEEN_SHRINE, "Greater Spider Queen Shrine");
             RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.RELIQUARY);
+            RegisterAndAddCreatureToDictonary(Objects, ModEnums.ObjectId.BRAZIER);
         }
 
         internal static void LoadTiles() {

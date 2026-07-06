@@ -48,7 +48,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             var spellAtk = !highLevel ? 3 : 18;
             var perception = !highLevel ? 11 : 17;
 
-            var angel = new Creature(Illustrations.Lyra, "Azata Mediator", [Trait.Chaotic, Trait.Good, ModTraits.Azata, Trait.Celestial, Trait.Female], level, perception, 9, defenses, hp, abilities, skills)
+            // TODO: Setup so this can be summoned without creating issues with level scaling
+            var angel = new Creature(Illustrations.Lyra, "Azata Mediator", [Trait.Chaotic, Trait.Good, ModTraits.Azata, Trait.Celestial, Trait.Female, Trait.NonSummonable], level, perception, 9, defenses, hp, abilities, skills)
                 .WithSpawnAsGaiaFriends()
                 .WithBasicCharacteristics()
                 .WithProficiency(Trait.Melee, Proficiency.Expert)

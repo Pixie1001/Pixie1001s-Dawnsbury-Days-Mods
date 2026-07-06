@@ -168,6 +168,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration Glimmer = new ModdedIllustration("RoguelikeModeAssets/Items/Glimmer.png");
         internal static ModdedIllustration ChillingDemise = new ModdedIllustration("RoguelikeModeAssets/Items/ChillingDemise.png");
         internal static ModdedIllustration BroochOfShielding = new ModdedIllustration("RoguelikeModeAssets/Items/BroochOfShielding.png");
+        internal static ModdedIllustration Torch = new ModdedIllustration("RoguelikeModeAssets/Items/torch.png");
 
         // Terrain
         internal static ModdedIllustration ChokingMushroom = new ModdedIllustration("RoguelikeModeAssets/Terrain/ChokingMushroom.png");
@@ -177,6 +178,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
         internal static ModdedIllustration DemonicPustule = new ModdedIllustration("RoguelikeModeAssets/Terrain/DemonicPustule.png");
         internal static ModdedIllustration TripWire = new ModdedIllustration("RoguelikeModeAssets/Terrain/TripWire.png");
         internal static ModdedIllustration NightmareGrowth = new ModdedIllustration("RoguelikeModeAssets/Terrain/NightmareGrowth.png");
+        internal static ModdedIllustration Brazier = new ModdedIllustration("RoguelikeModeAssets/Terrain/Brazier.png");
 
         // Icons
         internal static ModdedIllustration RitualOfAscension = new ModdedIllustration("RoguelikeModeAssets/Icons/RitualOfAscension.png");

@@ -69,7 +69,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids
             Maelstrom,
             NIGHTMARE_GROWTH,
             GREATER_SPIDER_QUEEN_SHRINE,
-            RELIQUARY
+            RELIQUARY,
+            BRAZIER
         }
 
         internal enum EncounterType

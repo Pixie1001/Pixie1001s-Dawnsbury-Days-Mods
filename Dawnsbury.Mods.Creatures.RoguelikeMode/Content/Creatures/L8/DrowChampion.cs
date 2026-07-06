@@ -33,7 +33,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class DrowChampion {
         public static Creature Create() {
 
-            Creature monster = new Creature(Illustrations.DrowChampion, "Drow Champion", [Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid, Trait.Female, ModTraits.Drow, ModTraits.MeleeMutator],
+            Creature monster = new Creature(Illustrations.DrowChampion, "Drow Champion", [Trait.Chaotic, Trait.Evil, Trait.Elf, Trait.Humanoid, Trait.Female, Trait.MetalArmor, ModTraits.Drow, ModTraits.MeleeMutator],
                level: 8, perception: 16, speed: 4, new Defenses(27, fort: 19, reflex: 16, will: 16), hp: 150,
             new Abilities(6, 3, 4, 2, 3, 4), new Skills(religion: 16, athletics: 19, intimidation: 16))
             .WithCreatureId(CreatureIds.DrowChampion)

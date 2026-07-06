@@ -1,11 +1,6 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
@@ -19,7 +14,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class Drider {
         public static Creature Create() {
-            return new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Aberration, ModTraits.Spider, Trait.Female, ModTraits.MeleeMutator }, 3, 6, 6, new Defenses(17, 9, 7, 6), 56,
+            return new Creature(Illustrations.Drider, "Drider", new List<Trait>() { Trait.Chaotic, Trait.Evil, Trait.Elf, ModTraits.Drow, Trait.Aberration, ModTraits.Spider, Trait.Female, Trait.MetalArmor, ModTraits.MeleeMutator }, 3, 6, 6, new Defenses(17, 9, 7, 6), 56,
             new Abilities(5, 3, 3, 1, 3, 2), new Skills(athletics: 10, intimidation: 8))
             .WithCreatureId(CreatureIds.Drider)
             .WithProficiency(Trait.Melee, Proficiency.Expert)

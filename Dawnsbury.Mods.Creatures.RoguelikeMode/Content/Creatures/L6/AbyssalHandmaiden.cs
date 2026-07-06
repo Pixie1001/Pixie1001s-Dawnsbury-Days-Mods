@@ -98,9 +98,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     return (ActionPossibility)bite;
                 },
             })
+            //.AddSpellcastingSource(SpellcastingKind.Innate, Trait.Demon, Ability.Charisma, Trait.Divine).Done()
             .AddQEffect(CommonQEffects.AbyssalRotAttack(18, "1d10", "bite"));
-            //.AddSpellcastingSource(SpellcastingKind.Innate, Trait.Demon, Ability.Charisma, Trait.Divine).WithSpells(
-            //    level2: new SpellId[] { SpellId.Harm }).Done()
             var animation = monster.AnimationData.AddAuraAnimation(IllustrationName.AngelicHaloCircle, radius);
             animation.Color = Color.DarkRed;
             int dc = SkillChallengeTables.GetDCByLevel(monster.Level) - 2;
@@ -115,6 +114,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             auraDebuff.Value += 1;
                             if (auraDebuff.Value >= 3) {
                                 CombatAction action = CombatAction.CreateSimple(monster, "Aura of Madness", Trait.Demon, Trait.Divine, Trait.Mental, Trait.Emotion);
+                                var source = new SpellcastingSource(new Spellcasting(Creature.DefaultCreature), SpellcastingKind.Innate, Ability.Intelligence, Trait.Arcane, Trait.FixedDCSpellItem);
+                                source.FixedDC = dc;
+                                action.WithSpellcastingSource(source);
+                                action.WithSpellSavingThrow(Defense.Will);
                                 CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(you, action, Defense.Will, dc);
                                 if (result < CheckResult.Success) {
                                     you.AddQEffect(QEffect.Confused(false, action).WithExpirationAtStartOfOwnerTurn());

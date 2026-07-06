@@ -24,8 +24,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
     internal class ArisasCourt : EliteEncounter {
         public ArisasCourt(string filename) : base("Arisa's Court", filename, eliteRewards: new List<(Item, string)?> {
-            (Items.CreateNew(CustomItems.RunestoneOfPandemomium), "..."),
-            (Items.CreateNew(CustomItems.SceptreOfPandemonium), "...")
+            (Items.CreateNew(CustomItems.RunestoneOfPandemomium), "An ever shifting runestone, sure to bring anyone struck with a weapon engraved with such fel magic to the brink of madness.."),
+            (Items.CreateNew(CustomItems.SceptreOfPandemonium), "A gaudy jewled sceptre stashed away in Arisa's treasury, brimming with her pandemonium sorcery.")
         }) {
 
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {

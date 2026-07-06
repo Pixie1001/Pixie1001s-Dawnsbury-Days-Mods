@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="256" tileheight="256" tilecount="82" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="512" tileheight="512" tilecount="83" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -492,5 +492,11 @@
    <property name="Id" value="Drow Sorceress"/>
   </properties>
   <image source="CustomCreatures/DrowSorceress.png" width="256" height="256"/>
+ </tile>
+ <tile id="2075">
+  <properties>
+   <property name="Id" value="Brazier"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/Brazier.png" width="256" height="256"/>
  </tile>
 </tileset>

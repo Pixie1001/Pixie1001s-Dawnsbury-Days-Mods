@@ -39,16 +39,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     internal static class CommonQEffects {
         public static QEffect Drow() {
             return new QEffect("Drow Resilience", "+2 status bonus vs. mental saves; +1 status bonus vs. magic") {
+                ImmuneToTrait = Trait.Sleep,
                 BonusToDefenses = (self, action, defence) => {
                     if (action == null) {
                         return null;
                     }
 
-                    if (action.HasTrait(Trait.Mental) && !(action.SpellId != SpellId.None && action.Owner.HeldItems.Any(item => item.ItemName == CustomItems.StaffOfSpellPenetration)) && defence != Defense.AC) {
+                    if (action.HasTrait(Trait.Mental) && !(action.SpellId != SpellId.None && action.Owner.HeldItems.Any(item => item.ItemName == CustomItems.StaffOfSpellPenetration)) && defence.IsSavingThrow()) {
                         return new Bonus(2, BonusType.Status, self.Name!);
                     }
 
-                    if (action.SpellId != SpellId.None && !action.Owner.HasEffect(QEffectId.SpellPenetration) && defence != Defense.AC) {
+                    if (action.SpellId != SpellId.None && !action.Owner.HasEffect(QEffectId.SpellPenetration) && defence.IsSavingThrow()) {
                         return new Bonus(1, BonusType.Status, self.Name!);
                     }
 
@@ -137,7 +138,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name.Contains($" ({weapon})")) {
+                    if (action.Name.Contains($" ({weapon})") || action.Item?.Name == weapon) {
                         Affliction poison = Affliction.CreateGiantSpiderVenom(baseDC + attacker.Level);
                         poison.DC = baseDC + attacker.Level;
 
@@ -147,7 +148,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 AdditionalGoodness = (self, action, target) => {
                     int dc = baseDC + self.Owner.Level;
 
-                    if (action == null || !(action.Name.Contains($" ({weapon})") || action.HasTrait(Trait.Strike))) {
+                    if (action == null || !action.HasTrait(Trait.Strike) || !(action.Name.Contains($" ({weapon})") || action.Item?.Name == weapon)) {
                         return 0f;
                     }
 
@@ -181,7 +182,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name.Contains($" ({weapon})")) {
+                    if (action.Name.Contains($" ({weapon})") || action.Item?.Name == weapon) {
                         Affliction poison = sws;
                         poison.DC = baseDC + attacker.Level;
 
@@ -191,7 +192,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 AdditionalGoodness = (self, action, target) => {
                     int dc = baseDC + self.Owner.Level;
 
-                    if (action == null || !(action.Name == weapon || action.HasTrait(Trait.Strike))) {
+                    if (action == null || !action.HasTrait(Trait.Strike) || !(action.Name.Contains($" ({weapon})") || action.Item?.Name == weapon)) {
                         return 0f;
                     }
 
@@ -223,7 +224,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     }
                 },
                 AfterYouDealDamage = async (attacker, action, target) => {
-                    if (action.Name.Contains($" ({weapon})")) {
+                    if (action.Name.Contains($" ({weapon})") || action.Item?.Name == weapon) {
                         Affliction poison = serpentVenom;
                         poison.DC = baseDC + attacker.Level;
 
@@ -233,7 +234,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 AdditionalGoodness = (self, action, target) => {
                     int dc = baseDC + self.Owner.Level;
 
-                    if (weapon != null && !(action.Name.Contains($" ({weapon})") || action.HasTrait(Trait.Strike))) {
+                    if (action == null || !action.HasTrait(Trait.Strike) || !(action.Name.Contains($" ({weapon})") || action.Item?.Name == weapon)) {
                         return 0f;
                     }
 
@@ -701,7 +702,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
         public static QEffect RetributiveStrike(int baseReduction, Func<Creature, bool> filter, string targetDesc, bool step) {
 
-            QEffect effect = new QEffect("Retributive Strike {icon:Reaction}", "...") {
+            QEffect effect = new QEffect("Retributive Strike {icon:Reaction}", "") {
                 Innate = true,
                 StartOfCombat = async self => {
                     self.Description = "{b}Trigger{/b} An enemy damages " + targetDesc + " and both are within 15 feet of you. " +
@@ -856,8 +857,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                                     var secondInitiative = self.Owner.Initiative - INIT_DROP;
                                     var index = Math.Max(self.Owner.Battle.InitiativeOrder.FindLastIndex(cr => cr.Initiative > secondInitiative) + 1, 0);
                                     self.Owner.Battle.InitiativeOrder.Insert(index, self.Owner);
-                                }
                             }
+                        }
                         },
                         StartOfCombatAfterInitiativeOrderIsSetUp = async qfSelf =>
                         {

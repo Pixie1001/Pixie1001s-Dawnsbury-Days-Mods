@@ -28,6 +28,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
         public SplitTheParty(string filename) : base("Lost", filename) {
 
             this.ReplaceTriggerWithCinematic(TriggerName.InitiativeCountZero, async battle => {
+                await base.Setup(battle);
                 if (battle.RoundNumber == 1) {
                     battle.AllCreatures
                     .Where(cr => cr.CreatureId == CreatureId.Door && cr.Occupies != null && CommonEncounterFuncs.DistanceToNearestPartyMember(cr.Occupies, battle) <= 2)
@@ -37,7 +38,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Level4
                         cr.DieFastAndWithoutAnimation();
                     });
                 }
-            });
+            }); 
         }
 
     }

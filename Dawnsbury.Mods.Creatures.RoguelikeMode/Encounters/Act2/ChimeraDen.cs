@@ -24,7 +24,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
     internal class ChimeraDen : EliteEncounter {
         public ChimeraDen(string filename) : base("Chimera Den", filename, eliteRewards: new List<(Item, string)?> {
-            (Items.CreateNew(CustomItems.RunestoneOfOpportunism), "...")
+            (Items.CreateNew(CustomItems.RunestoneOfOpportunism), "A rune forged from the teeth of the chimera's three heads, said to be capable of imbuing a weapon with a measure of it's deadly vigilance.")
         }) {
 
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {

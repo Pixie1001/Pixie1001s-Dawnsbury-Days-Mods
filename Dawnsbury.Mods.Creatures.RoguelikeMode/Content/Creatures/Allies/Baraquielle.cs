@@ -39,12 +39,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             var perception = !highLevel ? 11 : 17;
 
             if (highLevel) {
-                weapon = weapon.WithModificationRune(ItemName.FlamingRunestone);
+                weapon.Traits.Add(Trait.IgnorePropertyRuneLimit);
                 weapon.WeaponProperties!.DamageDieCount = 2;
                 weapon.WeaponProperties!.ItemBonus = 2;
+                weapon = weapon.WithModificationRune(ItemName.FlamingRunestone);
             }
 
-            var angel = new Creature(Illustrations.Baraquielle, "Baraquielle", [Trait.Lawful, Trait.Good, Trait.Angel, Trait.Celestial, Trait.MetalArmor, Trait.Female, Trait.NoDeathOverhead, Trait.NoDeathScream], level, perception, 7, defenses, hp, abilities, skills)
+#pragma warning disable CS0618 // Type or member is obsolete
+            var angel = new Creature(Illustrations.Baraquielle, "Baraquielle", [Trait.Lawful, Trait.Good, Trait.Angel, Trait.Celestial, Trait.MetalArmor, Trait.Female, Trait.NoDeathOverhead, Trait.NoDeathScream, Trait.NonSummonable], level, perception, 7, defenses, hp, abilities, skills)
                 .WithSpawnAsGaiaFriends()
                 .WithCreatureId(CreatureIds.Baraquielle)
                 .WithBasicCharacteristics()

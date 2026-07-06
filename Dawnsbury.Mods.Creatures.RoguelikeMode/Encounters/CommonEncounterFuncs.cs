@@ -115,27 +115,27 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         public static void ApplyEliteAdjustments(TBattle battle) {
             foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList()) {
                 StrengthenCreature(enemy);
+                }
             }
-        }
 
         public static void ApplyWeakAdjustments(TBattle battle) {
             foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList()) {
                 WeakenCreature(enemy);
-            }
+        }
         }
 
         public static void WeakenCreature(Creature enemy) {
-            QEffectId adj = GetAdjustmentRank(enemy);
-            if (adj == QEffectId.Elite) {
-                RemoveDifficultyAdjustment(enemy);
-            } else if (adj == QEffectId.Unspecified) {
-                enemy.ApplyWeakAdjustments(false);
-            } else if (adj == QEffectId.Weak) {
-                RemoveDifficultyAdjustment(enemy);
-                enemy.ApplyWeakAdjustments(false, true);
-            }
+                QEffectId adj = GetAdjustmentRank(enemy);
+                if (adj == QEffectId.Elite) {
+                    RemoveDifficultyAdjustment(enemy);
+                } else if (adj == QEffectId.Unspecified) {
+                    enemy.ApplyWeakAdjustments(false);
+                } else if (adj == QEffectId.Weak) {
+                    RemoveDifficultyAdjustment(enemy);
+                    enemy.ApplyWeakAdjustments(false, true);
+                }
             AdjustEvolvableEnemy(enemy, true);
-        }
+            }
 
         public static void StrengthenCreature(Creature enemy) {
             QEffectId adj = GetAdjustmentRank(enemy);
@@ -146,28 +146,28 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             } else if (adj == QEffectId.Elite) {
                 RemoveDifficultyAdjustment(enemy);
                 enemy.ApplyEliteAdjustments(true);
-            }
+        }
             AdjustEvolvableEnemy(enemy, false);
         }
 
         private static void AdjustEvolvableEnemy(Creature creature, bool levelDrain) {
             QEffectId adj = GetAdjustmentRank(creature);
-            if (levelDrain && adj == QEffectId.Inferior) {
+                if (levelDrain && adj == QEffectId.Inferior) {
                 if (creature.CreatureId == CreatureIds.DrowShadowcaster) {
                     Tile pos = creature.Occupies;
                     Faction faction = creature.OwningFaction;
                     creature.Battle.RemoveCreatureFromGame(creature);
                     creature.Battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowArcanist](creature.Battle.Encounter), faction, pos);
-                }
-            } else if (!levelDrain && adj == QEffectId.Supreme) {
+                    }
+                } else if (!levelDrain && adj == QEffectId.Supreme) {
                 if (creature.CreatureId == CreatureIds.DrowArcanist) {
                     Tile pos = creature.Occupies;
                     Faction faction = creature.OwningFaction;
                     creature.Battle.RemoveCreatureFromGame(creature);
                     creature.Battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowShadowcaster](creature.Battle.Encounter), faction, pos);
+                    }
                 }
             }
-        }
 
         //private static void AdjustEvolvableEnemies(TBattle battle, bool levelDrain) {
         //    List<Creature> creatures = battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList();
@@ -337,7 +337,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                     battle.CampaignState.CommonLoot.Add(option.Value.Item1);
                     battle.Encounter.Rewards.Add(option.Value.Item1);
                     if (option.Value.Item1.ItemName == CustomItems.BloodBondAmulet) {
-                        battle.CampaignState.CommonLoot.Add(option.Value.Item1);
+                        // battle.CampaignState.CommonLoot.Add(option.Value.Item1);
                         battle.Encounter.Rewards.Add(option.Value.Item1);
                     }
                     battle.Encounter.RewardGold += option.Value.Item1.Price;

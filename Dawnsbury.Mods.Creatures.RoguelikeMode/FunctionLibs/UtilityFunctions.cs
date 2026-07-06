@@ -31,6 +31,7 @@ using Dawnsbury.Display.Text;
 using Dawnsbury.Phases.Menus.CampaignViews;
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Core.CharacterBuilder.Library;
+using Dawnsbury.Campaign.Path.CampaignStops;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -71,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             if (PlayerProfile.Instance.IsBooleanOptionEnabled("RL_HideDeathIcon")) {
                 return false;
             }
-
+            
             if (!save.Tags.TryGetValue("deaths", out string deaths) || !save.Tags.TryGetValue("restarts", out string restarts)) {
                 return false;
             }
@@ -105,8 +106,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             }
         }
 
+        internal static void UpdateEndOfCampaignText(CampaignState? state) {
+            if (state == null) return;
+
+            (state.AdventurePath?.CampaignStops?.Last() as DawnsburyStop)!.CustomText = "{b}Congratulations!{/b} You survived the Below and saved Dawnsbury from the Machinations of the Spider Queen! But it won't be long before she tries again, and another brave group of adventurers will need to once again brave the Below...\n\n" +
+            "{b}Stats{/b}\n" +
+            "{b}Deaths:{/b} " + state.Tags["deaths"] + "\n" +
+            "{b}Restarts:{/b} " + state.Tags["restarts"] + "\n" +
+            "{b}Corruption Level:{/b} " + state.Tags["corruption level"] +
+            "\n\n" + Loader.Credits;
+        }
+
         internal static string GetShopBanter() {
             string? lastEliteName = null;
+            if (CampaignState.Instance?.CurrentStopIndex == 0 || CampaignState.Instance?.AdventurePath?.CampaignStops.Count <= 1) return "";
             //int 
             lastEliteName = CampaignState.Instance?.AdventurePath?.CampaignStops[CampaignState.Instance.CurrentStopIndex - 1].Name;
 
@@ -267,8 +280,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 )
                 .WithActionCost(0)
                 ;
-                options.Add(movement.CreateUseOptionOn(tile));
-                pairs.Add(options.Last(), tile);
+                if (self.OwningFaction.IsControlledByHumanUser || tile.Neighbours.Any(n => n.Tile.PrimaryOccupant?.EnemyOf(self) ?? false)) {
+                    options.Add(movement.CreateUseOptionOn(tile));
+                    pairs.Add(options.Last(), tile);
+                }
             }
 
             // Adds a Cancel Option

@@ -1,34 +1,17 @@
 ﻿using Dawnsbury.Audio;
-using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Core.Animations.AuraAnimations;
-using Dawnsbury.Core.Mechanics.Zoning;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Tiles;
-using Dawnsbury.Core.Mechanics.Rules;
-using System;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class DrowShadowDancer {
@@ -101,10 +84,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 return new CombatAction(you, IllustrationName.ShadowProjectile, "Shadow Abduction", [Trait.Divine, Trait.Concentrate, Trait.Flourish, Trait.Teleportation], "Teleport target creature within 30 feet up to 30 feet away, and then immediately teleport next to them.", Target.Ranged(6))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.Necromancy)
-                .WithGoodnessAgainstEnemy((_, a, d) => 20f)
-                .WithEffectOnSelf(async (action, caster) => {
-
-                })
+                .WithGoodnessAgainstEnemy((_, a, d) => d.HasTrait(Trait.Minion) || d.HasTrait(Trait.Conjuration) ? 0f : 20f)
                 .WithEffectOnEachTarget(async (action, user, target, result) => {
                     Tile? bestTile = null;
                     int bestScore = int.MinValue;

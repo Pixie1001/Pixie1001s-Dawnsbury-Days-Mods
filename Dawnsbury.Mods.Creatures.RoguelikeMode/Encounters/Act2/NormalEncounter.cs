@@ -52,7 +52,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         }
 
         internal async Task Cleanup(TBattle battle) {
-            CommonEncounterFuncs.PostFightLoot(battle, this.CharacterLevel, this.SetLoot);
+            // CommonEncounterFuncs.PostFightLoot(battle, this.CharacterLevel, this.SetLoot);
             await CommonEncounterFuncs.StandardEncounterResolve(battle);
         }
     }

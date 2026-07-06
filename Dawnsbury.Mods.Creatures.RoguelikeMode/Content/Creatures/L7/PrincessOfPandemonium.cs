@@ -35,7 +35,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             Creature monster = new Creature(new SpiderIllustration(Illustrations.AbyssalHandmaiden, Illustrations.Bear3), "Princess of Pandemonium",
                 [Trait.Chaotic, Trait.Evil, Trait.Demon, Trait.Fiend, ModTraits.Spider, Trait.NonSummonable],
-                7, 6, 5, new Defenses(24, 12, 18, 15), 145,
+                7, perception: 15, 5, new Defenses(24, 12, 18, 15), 145,
             new Abilities(5, 5, 4, 3, 3, 4), new Skills(acrobatics: 16, athletics: 16, intimidation: 15, religion: 12, arcana: 12))
             .WithCreatureId(CreatureIds.PrincessOfPandemonium)
             .WithProficiency(Trait.Melee, Proficiency.Master)
@@ -132,6 +132,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         target.Overhead("*impending pandemonium*", Color.PaleVioletRed, target.Name + $" starts to feel maddness taking hold of their thoughts. They will become confused the next time {caster.Name} uses {{b}}Invoke Pandemomium{{/b}}, and all allied creature within 10 feet of them will take 6d6 mental damage (Basic will save mitigates).");
                     }
                     if (telegraph != null) {
+                        action.WithSpellcastingSource(caster.Spellcasting!.PrimarySpellcastingSource);
+                        action.WithSpellSavingThrow(Defense.Will);
                         telegraph.RemoveAllQEffects(qf => qf.Id == QEffectIds.ImpendingPandemonium && qf.Source == caster);
                         telegraph.AddQEffect(QEffect.Confused(false, action).WithExpirationAtStartOfSourcesTurn(caster, 1));
                         telegraph.Overhead("*confused*", Color.PaleVioletRed, telegraph.Name + $" becomes confused.");

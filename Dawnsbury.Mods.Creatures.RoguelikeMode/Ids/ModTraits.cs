@@ -37,6 +37,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait Monstrous { get; } = ModManager.RegisterTrait("RL_Monstrous", new TraitProperties("Monstrous", false));
         internal static Trait Haunt { get; } = ModManager.RegisterTrait("RL_Haunt", new TraitProperties("Haunt", true));
         internal static Trait ThrownOnly { get; } = ModManager.RegisterTrait("RL_ThrownOnly", new TraitProperties("Thrown Only", true, "This thrown weapon cannot be used to strike in melee."));
+        internal static Trait Improvised { get; } = ModManager.RegisterTrait("RL_Improvised", new TraitProperties("Improvised", true, "You take a –2 item penalty to attack rolls with an improvised weapon."));
 
         // Mutator Traits
         internal static Trait UniversalMutator { get; } = ModManager.RegisterTrait("UniversalMutator", new TraitProperties("UniversalMutator", false));
@@ -56,5 +57,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static Trait Kusarigama { get; } = ModManager.RegisterTrait("RL_Kusarigama", new TraitProperties("Kusarigama", false));
         internal static Trait FightingFan { get; } = ModManager.RegisterTrait("RL_FightingFan", new TraitProperties("FightingFan", false));
         internal static Trait Javelin { get; } = ModManager.RegisterTrait("RL_Javelin", new TraitProperties("Javelin", false));
+        internal static Trait Torch { get; } = ModManager.RegisterTrait("RL_Torch", new TraitProperties("Torch", false));
     }
 }
