@@ -2829,7 +2829,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
 
             int partnerReach = (partner.MeleeWeapons.Any(mw => mw.HasTrait(Trait.Reach)) ? 1 : 0) + partner.Space.NaturalReach;
 
-            Possibility tandemStrike = (ActionPossibility)new CombatAction(self, illTandemStrike, "Enable Tandem Strike",
+            Possibility tandemStrike = (ActionPossibility)new CombatAction(self, illTandemStrike, "Tandem Strike",
                 new Trait[] { tSummoner, tTandem, Trait.Basic },
             (self == summoner ? "You make" : "Your eidolon makes") + " a melee strike against the target. " + (self == summoner ? "Your eidolon" : "You") + " may then make a follow up strike against the same target. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after both attacks have been made.",
             Target.ReachWithAnyWeapon().WithAdditionalConditionOnTargetCreature((a, d) => {
@@ -2949,7 +2949,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 return null;
             if (self.QEffects.Any(qf => qf.Name == "Tandem Movement Toggled")) {
                 Possibility output = (ActionPossibility)new CombatAction(self, new SideBySideIllustration(illTandemMovement, illCancel), "Cancel Tandem Movement",
-                new Trait[] { tSummoner, tTandem }, $"Cancel tandem movement toggle.", (Target)Target.Self())
+                new Trait[] { tSummoner, tTandem }, $"Cancel tandem movement toggle.", Target.Self())
                     .WithActionCost(0).WithEffectOnSelf(self => {
                     // Remove toggle from self
                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
@@ -2985,15 +2985,6 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                                     if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will move randomly. Are you sure you want to swap to them?", GetEidolon(summoner)?.Illustration ?? IllustrationName.UnknownCreature, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
                                         return;
                                     }
-
-                                    self.AddQEffect(new QEffect {
-                                        PreventTakingAction = action => action.Name == "Enable Tandem Movement" ? "Tandem movement already used this round" : null,
-                                        ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
-                                    });
-                                    partner.AddQEffect(new QEffect {
-                                        PreventTakingAction = action => action.Name == "Enable Tandem Movement" ? "Tandem movement already used this round" : null,
-                                        ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
-                                    });
                                     QEffect actTogether = new QEffect("Tandem Movement", "Immediately take a single stride action.") {
                                         Illustration = IllustrationName.Haste,
                                         Id = qfActTogether,
@@ -3045,6 +3036,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                         Id = qfActTogetherToggle,
                         ExpiresAt = ExpirationCondition.ExpiresAtEndOfYourTurn,
                         Illustration = illActTogetherStatus,
+                        PreventTakingAction = action => action.HasTrait(tTandem) && action.Name != "Cancel Act Together" ? "You cannot use a tandem action to take another tandem action." : null,
                         AfterYouTakeAction = async (qf, action) => {
                             if (qf.Owner.HasEffect(QEffectId.Confused)) {
                                 qf.Owner.Overhead("act together cancelled", Color.Black, "Act Together was cancelled due to confusion.");
@@ -3078,8 +3070,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                                 };
                                 partner.AddQEffect(actTogether);
                             }
-                            }
-                    });
+                        }});
                     });
                 return actTogether;
             }
