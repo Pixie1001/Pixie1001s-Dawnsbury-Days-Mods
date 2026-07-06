@@ -11,20 +11,7 @@ using Dawnsbury.Audio;
 using Dawnsbury.Core;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
@@ -33,43 +20,12 @@ using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display.Text;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.IO;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Summoner;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
-using Dawnsbury.Modding;
-using Dawnsbury.Core.Mechanics;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Reflection.Metadata.Ecma335;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Dawnsbury.Core.Noncombat;
-using Microsoft.VisualBasic;
-using static System.Net.Mime.MediaTypeNames;
-using System.Numerics;
-using System.Text.RegularExpressions;
 using System.Data;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -80,16 +36,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 StateCheck = self => {
                     Creature summoner = GetSummoner(self.Owner);
 
-                    if (summoner.FindQEffect(qfInvestedWeapon) != null) {
+                    if (summoner?.FindQEffect(qfInvestedWeapon) != null) {
                         QEffect investedWeaponQf = summoner.FindQEffect(qfInvestedWeapon);
-                        Item investedWeapon = investedWeaponQf.Tag as Item;
+                        Item investedWeapon = investedWeaponQf?.Tag as Item;
+
+                        if (investedWeaponQf == null || investedWeapon == null) throw new Exception("Invested weapon is null.");
 
                         List<Item> unarmedAttacks = new List<Item>() { self.Owner.UnarmedStrike };
-                        self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike));
+                        self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike!));
 
                         foreach (Item weapon in unarmedAttacks) {
-                            weapon.WeaponProperties.DamageDieCount = 1;
-                            weapon.WeaponProperties.ItemBonus = 0;
+                            weapon.WeaponProperties?.DamageDieCount = 1;
+                            weapon.WeaponProperties?.ItemBonus = 0;
                         }
 
                         ResetWeapons(summoner, investedWeapon, unarmedAttacks);
@@ -102,8 +60,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         int bonus = 0;
 
                         if (investedWeapon.ItemName != ItemName.HandwrapsOfMightyBlows && summoner.HeldItems.Contains(investedWeapon)) {
-                            dice = investedWeapon.WeaponProperties.DamageDieCount;
-                            bonus = investedWeapon.WeaponProperties.ItemBonus;
+                            dice = investedWeapon.WeaponProperties!.DamageDieCount;
+                            bonus = investedWeapon.WeaponProperties!.ItemBonus;
                         }
                         if (self.Owner.QEffects.Any(qf => qf.Name == "Runic Body" && qf.Illustration != null)) {
                             dice = Math.Max(2, dice);
@@ -112,15 +70,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
                         if (dice > 1 || bonus > 0) {
                             foreach (Item weapon in unarmedAttacks) {
-                                weapon.WeaponProperties.DamageDieCount = Math.Max(weapon.WeaponProperties.DamageDieCount, dice);
-                                weapon.WeaponProperties.ItemBonus = Math.Max(weapon.WeaponProperties.ItemBonus, bonus);
+                                weapon.WeaponProperties?.DamageDieCount = Math.Max(weapon.WeaponProperties.DamageDieCount, dice);
+                                weapon.WeaponProperties?.ItemBonus = Math.Max(weapon.WeaponProperties.ItemBonus, bonus);
                             }
                         }
                     } else if (self.Owner.QEffects.Any(qf => qf.Name == "Runic Body" && qf.Illustration != null)) {
                         List<Item> unarmedAttacks = new List<Item>() { self.Owner.UnarmedStrike };
-                        self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike));
+                        self.Owner.QEffects.Where(qf => qf.AdditionalUnarmedStrike != null).ForEach(qf => unarmedAttacks.Add(qf.AdditionalUnarmedStrike!));
                         foreach (Item weapon in unarmedAttacks) {
-                            weapon.WeaponProperties!.DamageDieCount = self.Owner.UnarmedStrike.WeaponProperties.DamageDieCount;
+                            weapon.WeaponProperties!.DamageDieCount = self.Owner.UnarmedStrike.WeaponProperties!.DamageDieCount;
                             weapon.WeaponProperties!.ItemBonus = self.Owner.UnarmedStrike.WeaponProperties.ItemBonus;
                         }
                     }
@@ -151,7 +109,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         return null;
                     }
 
-                    if (naturalWeapon1.WeaponProperties.ItemBonus > 0) {
+                    if (naturalWeapon1.WeaponProperties?.ItemBonus > 0) {
                         return new Bonus(naturalWeapon1.WeaponProperties.ItemBonus, BonusType.Item, $"{action.Name} Trait");
                     }
                     return null;
@@ -178,20 +136,20 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 foreach (Item attack in unarmedAttacks) {
                     if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, attack) == null) {
                         attack.Runes.Add(rune);
-                        rune.RuneProperties!.ModifyItem(attack);
+                        rune.RuneProperties!.ApplyRuneOntoItem(rune, attack);
                     }
                 }
             }
         }
 
         private static WeaponProperties GenerateDefaultWeaponProperties(Item attack) {
-            Item baseItem = new Item(attack.Illustration, attack.Name, attack.Traits.ToArray()).WithWeaponProperties(new WeaponProperties($"1d{attack.WeaponProperties.DamageDieSize}", attack.WeaponProperties.DamageKind));
+            Item baseItem = new Item(attack.Illustration, attack.Name, attack.Traits.ToArray()).WithWeaponProperties(new WeaponProperties($"1d{attack.WeaponProperties?.DamageDieSize}", attack.WeaponProperties!.DamageKind));
 
             if (attack.WeaponProperties.RangeIncrement > 0) {
-                baseItem.WeaponProperties.WithRangeIncrement(attack.WeaponProperties.RangeIncrement);
+                baseItem.WeaponProperties!.WithRangeIncrement(attack.WeaponProperties.RangeIncrement);
             }
 
-            return baseItem.WeaponProperties;
+            return baseItem.WeaponProperties!;
         }
 
         public static QEffect SummonerInvestedWeaponQEffect() {
@@ -214,14 +172,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         itemOptions.Add(handwraps);
                     }
                     List<Item> weapons = self.Owner.HeldItems;
-                    if (weapons.Count >= 1 && weapons[0].WeaponProperties != null && (weapons[0].Runes.Count > 0 || weapons[0].WeaponProperties.ItemBonus > 0 || weapons[0].WeaponProperties.DamageDieCount > 1)) {
+                    if (weapons.Count >= 1 && weapons[0].WeaponProperties != null && (weapons[0].Runes.Count > 0 || weapons[0].WeaponProperties?.ItemBonus > 0 || weapons[0].WeaponProperties?.DamageDieCount > 1)) {
                         itemOptions.Add(weapons[0]);
                     }
-                    if (weapons.Count == 2 && weapons[1].WeaponProperties != null && (weapons[1].Runes.Count > 0 || weapons[1].WeaponProperties.ItemBonus > 0 || weapons[1].WeaponProperties.DamageDieCount > 1)) {
+                    if (weapons.Count == 2 && weapons[1].WeaponProperties != null && (weapons[1].Runes.Count > 0 || weapons[1].WeaponProperties?.ItemBonus > 0 || weapons[1].WeaponProperties?.DamageDieCount > 1)) {
                         itemOptions.Add(weapons[1]);
                     }
                     if (self.Owner.FindQEffect(qfInvestedWeapon) != null) {
-                        itemOptions.Remove((Item)self.Owner.FindQEffect(qfInvestedWeapon).Tag);
+                        itemOptions.Remove((Item)self.Owner.FindQEffect(qfInvestedWeapon)?.Tag!);
                     }
 
                     SubmenuPossibility menu = new SubmenuPossibility(illInvest, "Invest Weapon");
@@ -234,6 +192,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         .WithActionCost(1)
                         .WithEffectOnSelf(async user => {
                             Creature eidolon = GetEidolon(user);
+                            if (eidolon == null) return;
                             eidolon.CarriedItems.Clear();
 
                             QEffect? oldInvestedEffect = self.Owner.FindQEffect(qfInvestedWeapon);
@@ -265,7 +224,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 List<Item> runes = armour.Runes;
 
                 foreach (Item rune in runes) {
-                    switch (rune.RuneProperties.RuneKind) {
+                    switch (rune.RuneProperties?.RuneKind) {
                         case RuneKind.ArmorResilient:
                             eidolon.Defenses.Set(Defense.Fortitude, eidolon.Defenses.GetSavingThrow(Defense.Fortitude).Bonus + 1);
                             eidolon.Defenses.Set(Defense.Reflex, eidolon.Defenses.GetSavingThrow(Defense.Reflex).Bonus + 1);
@@ -287,7 +246,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 };
                 QEffect qf2 = new QEffect();
                 qf2.Owner = summoner.Battle.Pseudocreature;
-                item.PermanentQEffectActionWhenWorn(qf2, item);
+                if (item.PermanentQEffectActionWhenWorn != null)
+                    item.PermanentQEffectActionWhenWorn(qf2, item);
                 qf1.BonusToSkills = qf2.BonusToSkills;
                 qf1.BonusToPerception = qf2.BonusToPerception;
                 qf1.BonusToDefenses = qf2.BonusToDefenses;

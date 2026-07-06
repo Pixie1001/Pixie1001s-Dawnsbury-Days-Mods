@@ -1,52 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
 using Dawnsbury;
 using Dawnsbury.Audio;
-using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
-using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
+using Dawnsbury.Core.Mechanics.Squeezing;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -64,19 +44,21 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public static Dictionary<SummonerSpellId, SpellId> LoadSpells() {
             Dictionary<SummonerSpellId, SpellId> spellList = new Dictionary<SummonerSpellId, SpellId>();
 
-
-
-            //.WithVariants(MonsterStatBlocks.MonsterExemplars.Where(animal => animal.HasTrait(Trait.Elemental) && animal.Level <= elementalLevel)
-            //    .Select(animal => new SpellVariant(animal.Name, "Summon " + animal.Name + " (level " + animal.Level.ToString() + ")", animal.Illustration)).ToArray())
-            //    .WithCreateVariantDescription((Func<int, SpellVariant, string>)((_, variant) => RulesBlock.CreateCreatureDescription(MonsterStatBlocks.MonsterExemplarsByName[variant.Id]))).WithEffectOnChosenTargets((Delegates.EffectOnChosenTargets)(async (spell, caster, targets) => await CommonSpellEffects.SummonMonster(spell, caster, targets.ChosenTile)));
-
-
             spellList.Add(SummonerSpellId.EvolutionSurge, ModManager.RegisterNewSpell("EvolutionSurge", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illEvolutionSurge, "Evolution Surge", new[] { Enums.tSummoner, Trait.Focus, Trait.Morph, Trait.Transmutation, Trait.Uncommon },
                         "You flood your eidolon with power, creating a temporary evolution in your eidolon's capabilities.",
                         "{b}Duration{/b} Until end of encounter.\n\nYour eidolon gains one the following adeptations for the rest of the encounter:\n\n• Your eidolon gains a swim speed.\n• Your eidolom gains a +20-foot status bonus to its speed." +
                         $"{(spellLevel >= 3 ? "\n• Your eidolon gains reach on all of its attacks." : "")}",
-                        Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
+                        Target.DependsOnSpellVariant(varient => {
+                            var baseTarget = Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature(new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond));
+                            if (varient.Id == "Large") baseTarget.WithAdditionalConditionOnTargetCreature((a, d) => d.Space.SizeCategory >= 2 ? Usability.NotUsable("Your eidolon is already large or larger.") : Usability.Usable);
+                            if (varient.Id == "Huge") baseTarget.WithAdditionalConditionOnTargetCreature((a, d) => d.Space.SizeCategory >= 3 ? Usability.NotUsable("Your eidolon is already huge or larger.") : Usability.Usable);
+                            if (varient.Id == "Flight") baseTarget.WithAdditionalConditionOnTargetCreature((a, d) => d.QEffects.Any(qf => qf.Id == QEffectId.Flying && qf.Innate) ? Usability.NotUsable("Your eidolon can already fly.") : Usability.Usable);
+                            if (varient.Id == "Amphibious") baseTarget.WithAdditionalConditionOnTargetCreature((a, d) => d.HasTrait(Trait.Aquatic) || d.HasEffect(QEffectId.Swimming) ? Usability.NotUsable("Your eidolon is already aquotic.") : Usability.Usable);
+
+                            return baseTarget;
+                        }),
+                        spellLevel, null)
                     .WithSoundEffect(SfxName.Abjuration)
                     .WithHeightenedAtSpecificLevel(spellLevel, 3, inCombat, "Add the following option:\n• Your eidolon gains reach on all of its attacks.")
                     .WithVariants(new SpellVariant[] {
@@ -88,10 +70,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     }.Where(v => !(spellLevel < 3 && v.Id == "Large") && !(spellLevel < 5 && (v.Id == "Huge" || v.Id == "Flight"))).ToArray())
                     .WithCreateVariantDescription((_, variant) => {
                         string text = "Until the end of the encounter, your eidolon ";
-                        if (variant.Id == "Amphibious") {
+                        if (variant!.Id == "Amphibious") {
                             return text + "gains a swim speed.";
                         } else if (variant.Id == "Agility") {
-                            return text + "gains a +20ft status bonus to its speed.";
+                            return text + "gains a +20 feet status bonus to its speed.";
                         } else if (variant.Id == "Large") {
                             return text + "becomes Large, increasing its base reach to 10 feet.";
                         } else if (variant.Id == "Huge") {
@@ -101,35 +83,30 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                         return text;
                     })
-                    .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
+                    .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                         SpellVariant variant = spell.ChosenVariant;
-                        if (variant.Id == "Amphibious") {
+                        if (variant!.Id == "Amphibious") {
                             target.AddQEffect(new QEffect(
-                            variant.Name, "Your eidolon gains a swim speed.",
+                            variant.Name, "Your eidolon gains a +20ft status bonus to its speed.",
                             ExpirationCondition.Never, caster, variant.Illustration) {
                                 CountsAsABuff = true,
                                 Id = QEffectId.Swimming
                             });
                         } else if (variant.Id == "Agility") {
                             target.AddQEffect(new QEffect(
-                            variant.Name, "Your eidolon gains a +20ft status bonus to its speed.",
+                            variant.Name, "Your eidolon gains a +20 feet status bonus to its speed.",
                             ExpirationCondition.Never, caster, variant.Illustration) {
                                 CountsAsABuff = true,
-                                BonusToAllSpeeds = ((Func<QEffect, Bonus>)(_ => new Bonus(4, BonusType.Status, "Evolution Surge")))
+                                BonusToAllSpeeds = _ => new Bonus(4, BonusType.Status, "Evolution Surge")
                             });
                         } else if (variant.Id == "Large") {
-                            var readdSmall = target.HasTrait(Trait.Small);
-                            if (await target.Space.GrowTo(Size.Large)) {
-                                var enlarge = new QEffect(variant.Name, "Your size is increased to Large.", ExpirationCondition.Never, caster, variant.Illustration) {
-                                    CountsAsABuff = true,
-                                };
-                                target.AddQEffect(enlarge);
+                            if (await SizeChangeRules.EnlargeCreature(caster, target, Size.Large, IllustrationName.EnlargeCompanion, variant.Name,
+                                    $"Your size is increased to Large.") is { } form) {
+                                form.CountsAsABuff = true;
                                 target.AddQEffect(new QEffect() {
                                     StateCheckWithVisibleChanges = async self => {
-                                        if (!self.Owner.QEffects.Any(qf => qf == enlarge) || !self.Owner.AliveOrUnconscious) {
-                                            await target.Space.GrowTo(Size.Medium);
-                                            if (readdSmall) caster.Traits.Add(Trait.Small);
-                                            self.Owner.RemoveAllQEffects(qf => qf == enlarge);
+                                        if (!self.Owner.QEffects.Any(qf => qf == form) || !self.Owner.AliveOrUnconscious) {
+                                            self.Owner.RemoveAllQEffects(qf => qf == form);
                                             self.ExpiresAt = ExpirationCondition.Immediately;
                                         }
                                     }
@@ -139,19 +116,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 spell.RevertRequested = true;
                             }
                         } else if (variant.Id == "Huge") {
-                            var readdSmall = target.HasTrait(Trait.Small);
-                            if (await target.Space.GrowTo(Size.Huge)) {
-                                var enlarge = new QEffect(variant.Name, "Your size is increased to Huge.", ExpirationCondition.Never, caster, variant.Illustration) {
-                                    CountsAsABuff = true,
-                                };
-                                target.AddQEffect(enlarge);
+                            if (await SizeChangeRules.EnlargeCreature(caster, target, Size.Huge, IllustrationName.EnlargeCompanion, variant.Name,
+                                    $"Your size is increased to Huge.") is { } form) {
+                                form.CountsAsABuff = true;
                                 target.AddQEffect(new QEffect() {
                                     StateCheckWithVisibleChanges = async self => {
-                                        if (!self.Owner.QEffects.Any(qf => qf == enlarge) || !self.Owner.AliveOrUnconscious) {
-                                            await target.Space.GrowTo(Size.Medium);
-                                            if (readdSmall) caster.Traits.Add(Trait.Small);
-                                            self.Owner.RemoveAllQEffects(qf => qf == enlarge);
+                                        if (!self.Owner.QEffects.Any(qf => qf == form) || !self.Owner.AliveOrUnconscious) {
+                                            form.ExpiresAt = ExpirationCondition.Immediately;
                                             self.ExpiresAt = ExpirationCondition.Immediately;
+                                            if (self.Owner.QEffects.Any(qff => qff.Traits.Contains(Trait.SizeChangingEffect) && qff != form))
+                                                return;
+                                            await self.Owner.Space.GrowTo(self.Owner.Space.StandardSize);
                                         }
                                     }
                                 });
@@ -167,7 +142,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 Id = QEffectId.Flying
                             });
                         }
-                    }));
+                    });
             }));
 
             spellList.Add(SummonerSpellId.EidolonBoost, ModManager.RegisterNewSpell("EidolonBoost", 1, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
@@ -187,7 +162,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 if (!action.HasTrait(Trait.Strike)) {
                                     return null;
                                 }
-                                int dice = action.TrueDamageFormula.ToString()[0] - '0';
+                                int dice = action.TrueDamageFormula!.ToString()[0] - '0';
 
                                 return new Bonus(dice * 2, BonusType.Status, "Eidolon Boost");
                             },
@@ -213,7 +188,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                         if (!action.HasTrait(Trait.Strike)) {
                                             return null;
                                         }
-                                        int dice = action.TrueDamageFormula.ToString()[0] - '0';
+                                        int dice = action.TrueDamageFormula!.ToString()[0] - '0';
 
                                         return new Bonus(dice * 2, BonusType.Status, "Eidolon Boost");
                                     },
@@ -301,17 +276,18 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         "If your next action is to cast boost eidolon or reinforce eidolon, attempt a skill check with the skill associated with the tradition of magic you gain from your eidolon (such as Nature for a primal eidolon) vs. a standard-difficulty DC of your level. The effect depends on the result of your check.\n\n{b}Critical success{/b} The spell lasts 4 rounds.\n{b}Success{/b} The spell lasts 3 rounds.\n{b}Failure{/b} The spell lasts 1 round, but you don't spend the Focus Point for casting this spell.",
                         Target.Self(), spellLevel, null)
                     .WithSoundEffect(SfxName.MinorAbjuration)
-                    .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
+                    .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                         target.AddQEffect(new QEffect("Extend Boost Toggled", "The duration of the next Boost Eidolon or Reinforce Eidolon cantrip you cast will be extended.") {
                             Illustration = Enums.illExtendBoost,
-                            YouBeginAction = (async (qf, action) => {
-                                if (action.SpellId != null && (action.SpellId == spellList[SummonerSpellId.EidolonBoost] || action.SpellId == spellList[SummonerSpellId.ReinforceEidolon])) {
-                                    CheckResult result = CommonSpellEffects.RollCheck("Extend Boost Check", new ActiveRollSpecification(TaggedChecks.SkillCheck(SpellTraditionToSkill(qf.Owner.PersistentCharacterSheet.Calculated.SpellRepertoires[Enums.tSummoner].SpellList)), Checks.FlatDC(Checks.LevelBasedDC(qf.Owner.Level))), qf.Owner, qf.Owner);
+                            YouBeginAction = async (qf, action) => {
+                                if (spellcaster == null) return;
+                                if (action.SpellId == spellList[SummonerSpellId.EidolonBoost] || action.SpellId == spellList[SummonerSpellId.ReinforceEidolon]) {
+                                    CheckResult result = CommonSpellEffects.RollCheck("Extend Boost Check", new ActiveRollSpecification(TaggedChecks.SkillCheck(SpellTraditionToSkill(qf.Owner.PersistentCharacterSheet!.Calculated.SpellRepertoires[Enums.tSummoner].SpellList)), Checks.FlatDC(Checks.LevelBasedDC(qf.Owner.Level))), qf.Owner, qf.Owner);
                                     int duration = 0;
                                     if (result == CheckResult.Failure) {
-                                        spellcaster.Spellcasting.FocusPoints += 1;
-                                        GetEidolon(spellcaster).Spellcasting.FocusPoints += 1;
-                                        spellcaster.Occupies.Overhead("Focus point refunded", Color.Green);
+                                        spellcaster.Spellcasting?.FocusPoints += 1;
+                                        GetEidolon(spellcaster)?.Spellcasting?.FocusPoints += 1;
+                                        spellcaster.Overhead("Focus point refunded", Color.Green);
                                     } else if (result == CheckResult.Success) {
                                         duration = 3;
                                     } else if (result == CheckResult.CriticalSuccess) {
@@ -325,34 +301,34 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                         });
                                     }
                                 } else {
-                                    spellcaster.Spellcasting.FocusPoints += 1;
-                                    GetEidolon(spellcaster).Spellcasting.FocusPoints += 1;
-                                    spellcaster.Occupies.Overhead("Focus point refunded", Color.Green);
+                                    spellcaster.Spellcasting?.FocusPoints += 1;
+                                    GetEidolon(spellcaster)?.Spellcasting?.FocusPoints += 1;
+                                    spellcaster.Overhead("Focus point refunded", Color.Green);
                                 }
                                 qf.ExpiresAt = ExpirationCondition.Immediately;
-                            })
+                            }
                         });
 
-                    })).WithActionCost(0);
+                    }).WithActionCost(0);
             }));
 
             spellList.Add(SummonerSpellId.EidolonsWrath, ModManager.RegisterNewSpell("EidolonsWrath", 3, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(IllustrationName.DivineWrath, "Eidolon's Wrath", new[] { Enums.tSummoner, Trait.Focus, Trait.Evocation, Trait.Uncommon },
                         "",
                         $"Your eidolon releases a powerful energy attack that deals {S.HeightenedVariable(spellLevel * 2 - 1, 5)}d6 " +
-                        (spellcaster != null && spellcaster.HasEffect(Enums.qfEidolonsWrath) ? HumanizeDamageKind((DamageKind)spellcaster.FindQEffect(Enums.qfEidolonsWrath).Tag) + " damage" : "damage of the type chosen when you took the Eidolon's Wrath feat") + ".",
+                        (spellcaster != null && spellcaster.HasEffect(Enums.qfEidolonsWrath) ? HumanizeDamageKind((DamageKind)spellcaster.FindQEffect(Enums.qfEidolonsWrath)?.Tag!) + " damage" : "damage of the type chosen when you took the Eidolon's Wrath feat") + ".",
                         new EmanationTarget(4, false), spellLevel, SpellSavingThrow.Basic(Defense.Reflex))
-                .WithNoSaveFor((a, c) => c.Destroyed ? true : true)
+                .WithNoSaveFor((a, c) => c.Destroyed ? true : true )    
                 .WithSoundEffect(SfxName.Fireball)
                 .WithHeighteningOfDamageEveryLevel(spellLevel, 3, inCombat, "2d6")
-                .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, _) => {
-                    if (caster == null || spellcaster.HasEffect(Enums.qfEidolonsWrath) == false) {
+                .WithEffectOnEachTarget(async (spell, caster, target, _) => {
+                    if (caster == null || spellcaster == null || spellcaster.HasEffect(Enums.qfEidolonsWrath) == false) {
                         return;
                     }
-                    CheckResult result = CommonSpellEffects.RollSavingThrow(target, spell, Defense.Fortitude, GetSummoner(caster).ClassOrSpellDC());
-                    DamageKind dk = (DamageKind)caster.FindQEffect(Enums.qfEidolonsWrath).Tag;
+                    CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(target, spell, Defense.Fortitude, GetSummoner(caster)!.ClassOrSpellDC());
+                    DamageKind dk = (DamageKind)caster.FindQEffect(Enums.qfEidolonsWrath)?.Tag!;
                     await CommonSpellEffects.DealBasicDamage(spell, caster, target, result, DiceFormula.FromText($"{2 * spellLevel - 1}d6"), dk);
-                }))
+                })
                 .WithActionCost(2);
             }));
 
@@ -366,16 +342,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             switch (tradition) {
                 case Trait.Divine:
                     return Skill.Religion;
-                    break;
                 case Trait.Arcane:
                     return Skill.Arcana;
-                    break;
                 case Trait.Primal:
                     return Skill.Nature;
-                    break;
                 case Trait.Occult:
                     return Skill.Occultism;
-                    break;
                 default:
                     return Skill.Society;
             }
@@ -386,37 +358,27 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 switch (tradition) {
                     case Trait.Arcane:
                         return AllSpells.CreateModernSpellTemplate(SpellId.MageArmor, Enums.tSummoner, spellLevel);
-                        break;
                     case Trait.Divine:
                         return AllSpells.CreateModernSpellTemplate(SpellId.Bless, Enums.tSummoner, spellLevel);
-                        break;
                     case Trait.Primal:
                         return AllSpells.CreateModernSpellTemplate(SpellId.Grease, Enums.tSummoner, spellLevel);
-                        break;
                     case Trait.Occult:
                         return AllSpells.CreateModernSpellTemplate(SpellId.Fear, Enums.tSummoner, spellLevel);
-                        break;
                     default:
                         throw new Exception("Summoner Class Mod: Invalid spell casting tradition");
-                        return null;
                 }
             }
             switch (tradition) {
                 case Trait.Arcane:
                     return AllSpells.CreateModernSpellTemplate(SpellId.Blur, Enums.tSummoner, spellLevel);
-                    break;
                 case Trait.Divine:
                     return AllSpells.CreateModernSpellTemplate(SpellId.BloodVendetta, Enums.tSummoner, spellLevel);
-                    break;
                 case Trait.Primal:
                     return AllSpells.CreateModernSpellTemplate(SpellId.Barkskin, Enums.tSummoner, spellLevel);
-                    break;
                 case Trait.Occult:
                     return AllSpells.CreateModernSpellTemplate(SpellId.HideousLaughter, Enums.tSummoner, spellLevel);
-                    break;
                 default:
                     throw new Exception("Summoner Class Mod: Invalid spell casting tradition");
-                    return null;
             }
         }
 

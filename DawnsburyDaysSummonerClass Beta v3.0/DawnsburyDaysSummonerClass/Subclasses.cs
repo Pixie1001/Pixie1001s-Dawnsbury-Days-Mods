@@ -1,28 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury;
-using Dawnsbury.Audio;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Core;
 using Dawnsbury.Auxiliary;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.AuraAnimations;
+using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook.Battleforms;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
@@ -32,42 +21,22 @@ using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Squeezing;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
+using Dawnsbury.Core.StatBlocks.Monsters.L5;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Summoner;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
-using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
-using Microsoft.Xna.Framework.Graphics;
-using static System.Collections.Specialized.BitVector32;
-using System.Reflection.Metadata.Ecma335;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using Dawnsbury.Core.Noncombat;
-using Microsoft.VisualBasic;
-using static System.Net.Mime.MediaTypeNames;
-using System.Numerics;
-using System.Text.RegularExpressions;
-using Dawnsbury.Core.Animations.AuraAnimations;
-using System.Runtime.Intrinsics.Arm;
+using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -81,9 +50,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
     "from casting the angelic messenger ritual, even if they somehow learn it.";
 
         private static readonly string AngelicEidolonCrunch = "\n\n• {b}Tradition{/b} Divine\n• {b}Skills{/b} Diplomacy, Religion\n\n{b}Initial Eidolon Ability (Hallowed Strikes).{/b} Your Eidolon's strikes deal +1 good damage." +
-            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Angelic Aegis).{/b} Your eidolon's primary natural weapon attack gains the parry trait. While parrying they can use the Angelic Aegis {icon:FreeAction} action, " +
-            "which grants an adjacent ally a +2 circumstance bonus to AC until the start of their next turn. In addition, your eidolon can intercept {icon:Reaction} attacks that deal physical damage against the subject of their aegis, reducing the damage by an amount equal to their level.\n\n" +
-            "These benefits extend only while the ally is currently adjacent to your eidolon.";
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability.{/b} {i}You gain one of the following features:{/i}\n" +
+            "• {b}Angelic Aegis.{/b} Your eidolon's primary natural weapon attack gains the parry trait. While parrying they can use the Angelic Aegis {icon:FreeAction} action, " +
+            "which grants an adjacent ally a +2 circumstance bonus to AC until the start of their next turn. In addition, your eidolon can intercept {icon:Reaction} attacks that deal physical damage against the subject of their aegis, reducing the damage by an amount equal to their level. These benefits extend only while the ally is currently adjacent to your eidolon.\n" +
+            "• {b}Traveler's Aura.{/b} Your eidolon cannot be flat-footed to hidden or flanking creatures of its level or lower.";
 
         private static readonly string DraconicEidolonFlavour = "Because dragons have a strong connection to magic, their minds can often leave an echo floating in the Astral Plane. Such an entity is extremely powerful " +
             "but unable to interact with the outside world on its own. Dragon eidolons manifest in the powerful, scaled forms they had in life; most take the form of true dragons (albeit smaller), but some manifest as " +
@@ -101,7 +71,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "allows you both to grow in power and influence to keep your home safe from those who would despoil it.";
 
         private static readonly string BeastEidolonCrunch = "\n\n• {b}Tradition{/b} Primal\n• {b}Skills{/b} Intimidation, Nature\n\n{b}Initial Eidolon Ability (Beast's Charge) {icon:TwoActions}.{/b} Stride twice. " +
-            "If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy. If your eidolon moved at least 20ft and ends it's movement in a cardinal diraction, " +
+            "If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy. If your eidolon moved at least 20 feet and ends it's movement in a cardinal diraction, " +
             "it gains a +1 circumstance bonus to this attack roll.\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Primal Roar) {icon:TwoActions}.{/b} Your eidolon unleashes a primal roar or other such terrifying noise that fits your eidolon's form. " +
             "Your eidolon attempts Intimidation checks to Demoralize each enemy that can hear the roar; these Demoralize attempts don't take any penalty for not sharing a language, and gain a +2 bonus.";
 
@@ -110,9 +80,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             "you will grow in strength and fulfill your phantom's devotion.";
 
         private static readonly string DevoPhantomEidolonCrunch = "\n\n• {b}Tradition{/b} Occult\n• {b}Skills{/b} Medicine, Occultism\n\n" +
-            "{b}Initial Eidolon Ability (Dutiful Retaliation) {icon:Reaction}.{/b} Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15ft of you." +
-            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Devotion Stance) {icon:Action}.{/b} Your eidolon takes on a patient defensive stance, steeling their focus with thoughts of their devotion." +
-            "\n\nUntil the start of their next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.";
+            "{b}Initial Eidolon Ability (Dutiful Retaliation) {icon:Reaction}.{/b} Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15 feet of you." +
+            "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability.{/b} Your eidolon gains the following benefits:\n• {b}Devotion Stance {icon:Action}.{/b} Until the start of your eidolon's next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.\n" +
+            "• {b}Steadfast Devotion.{/b} Your eidolon gains a +2 circumstance bonus to saving throws against mental effects, and if they roll a success against such an effect, they get a critical success instead. In addition, at 15th level when your eidolon rolls a critical failure against a mental effect, they get a failure instead.";
 
         private static readonly string AzataEidolonFlavour = "Your eidolon is an azata, a celestial embodiment of freedom, creativity, whimsy and revelry. They usually take humanoid forms, sometimes incorporating nature motifs. " +
             "Your eidolon is happy to serve as your protector and muse as long as you show the same kindness and respect for freedom and autonomy to others as it does.";
@@ -235,26 +205,30 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             // Init subclasses
             subclasses.Add(new EidolonBond(Enums.scAngelicEidolon, AngelicEidolonFlavour, AngelicEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy },
                 new Func<Feat, bool>(ft => new FeatName[] { ftALawfulGood, ftAGood, ftAChaoticGood }.Contains(ft.FeatName)), new List<Trait> { Trait.Celestial })
-            .WithClassFeatures((eidolon, summoner) => AngelEidolonLogic(eidolon))
+            .WithClassFeatures((eidolon, summoner) => AngelEidolonLogic(eidolon, summoner))
             .WithAbilityText("\n{b}Hallowed Strikes.{/b} Your eidolon's unarmed strikes deal +1 extra good damage.\n")
-            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
-                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { Enums.scAngelicEidolonAvenger, Enums.scAngelicEidolonEmmissary }.Contains(ft.FeatName))));
-            })));
+            .WithOnSheet(values => {
+                values.AddSelectionOptionRightNow(new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, ft => new FeatName[] { Enums.scAngelicEidolonAvenger, Enums.scAngelicEidolonEmmissary }.Contains(ft.FeatName)));
+                values.AddSelectionOption(new SingleFeatSelectionOption("Summoner_AngelicEidolon7thLevelFeature", "Angelic Eidolon Feature", 7, ft => new FeatName[] { Enums.ftTravelersAura, Enums.ftAngelicAegis }.Contains(ft.FeatName)).WithIsOptional());
+            }));
 
-            yield return CreateEidolonFeat(Enums.scAngelicEidolonAvenger, "Your eidolon is a fierce warrior of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(Enums.scAngelicEidolonEmmissary, "Your eidolon is a regal emmisary of the heavens.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(Enums.scAngelicEidolonAvenger, "Your eidolon is a fierce warrior of the heavens.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(Enums.scAngelicEidolonEmmissary, "Your eidolon is a regal emmisary of the heavens.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[] { 1, 4, 1, 0, 1, 2 }, 1, 4).WithTag(Ability.Dexterity);
 
+            yield return new Feat(Enums.ftAngelicAegis, "Your eidolon is a righteous protector of the weak.", @"Your eidolon's primary natural weapon attack gains the parry trait. While parrying they can use the Angelic Aegis {icon:FreeAction} action, which grants an adjacent ally a +2 circumstance bonus to AC until the start of their next turn. In addition, your eidolon can intercept {icon:Reaction} attacks that deal physical damage against the subject of their aegis, reducing the damage by an amount equal to their level.
+
+These benefits extend only while the ally is currently adjacent to your eidolon.", [Trait.Homebrew], null).WithIllustration(Enums.illAngelicAegis);
 
             subclasses.Add(new EidolonBond(scAngerPhantom, AngerPhantomFlavour, AngerPhantomCrunch, Trait.Occult, new List<FeatName>() { FeatName.Occultism, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { })
-            .WithClassFeatures((eidolon, summoner) => AngerPhantomEidolonLogic(eidolon, summoner))
+            .WithClassFeatures(AngerPhantomEidolonLogic)
             .WithActionText("{b}Frenzied Assault{/b} {{icon:TwoActions} Your eidolon makes two strikes against a single target, one with each of its unarmed attacks, at its current MAP penalty. " +
                 "The damage from both attacks are combined for the purposes of damage resistance.\n")
-            .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
-                values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngerPhantomEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scAngerPhantomBerserker, scAngerPhantomAssassin }.Contains(ft.FeatName))));
-            })));
+            .WithOnSheet(values => {
+                values.AddSelectionOptionRightNow(new SingleFeatSelectionOption("AngerPhantomEidolonArray", "Eidolon Ability Scores", 1, ft => new FeatName[] { scAngerPhantomBerserker, scAngerPhantomAssassin }.Contains(ft.FeatName)));
+            }));
 
-            yield return CreateEidolonFeat(scAngerPhantomBerserker, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scAngerPhantomAssassin, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, -1, 1 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scAngerPhantomBerserker, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scAngerPhantomAssassin, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 2, 4, 3, 0, -1, 1 }, 1, 4).WithTag(Ability.Dexterity);
 
 
             subclasses.Add(new EidolonBond(Enums.scAzataEidolon, AzataEidolonFlavour, AzataEidolonCrunch, Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy },
@@ -265,32 +239,32 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AzataEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scAzataEidolonCrusader, scAzataEidolonPoet }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scAzataEidolonCrusader, "Your eidolon is a benevolant crusader of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scAzataEidolonPoet, "Your eidolon is an inspiring muse of Elysium.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, -1, 1, 3 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scAzataEidolonCrusader, "Your eidolon is a benevolant crusader of Elysium.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scAzataEidolonPoet, "Your eidolon is an inspiring muse of Elysium.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 1, 4, 1, -1, 1, 3 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
             subclasses.Add(new EidolonBond(scBeastEidolon, BeastEidolonFlavour, BeastEidolonCrunch, Trait.Primal, new List<FeatName>() { FeatName.Nature, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { Trait.Beast, Trait.Animal })
             .WithClassFeatures((eidolon, summoner) => BeastEidolonLogic(eidolon, summoner))
-            .WithActionText("{b}Beast's Charge{/b} {{icon:TwoActions} Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy. If your eidolon moved at least 20ft and ends it's movement in a cardinal diraction, it gains a +1 circumstance bonus to this attack roll.\n")
+            .WithActionText("{b}Beast's Charge{/b} {{icon:TwoActions} Stride twice. If you end your movement within melee reach of at least one enemy, you can make a melee Strike against that enemy. If your eidolon moved at least 20 feet and ends it's movement in a cardinal diraction, it gains a +1 circumstance bonus to this attack roll.\n")
             .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("AngelicEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scBeastEidolonBrutal, scBeastEidolonFleet }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scBeastEidolonBrutal, "Your eidolon is a powerful and brutally strong beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scBeastEidolonFleet, "Your eidolon is a fleet and agile beast.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scBeastEidolonBrutal, "Your eidolon is a powerful and brutally strong beast.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scBeastEidolonFleet, "Your eidolon is a fleet and agile beast.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
             subclasses.Add(new EidolonBond(scDevoPhantomEidolon, DevoPhantomEidolonFlavour, DevoPhantomEidolonCrunch, Trait.Occult, new List<FeatName>() { FeatName.Occultism, FeatName.Medicine }, new Func<Feat, bool>(ft => ft.HasTrait(tAlignment)), new List<Trait> { })
             .WithClassFeatures((eidolon, summoner) => DevoPhantomEidolonLogic(eidolon, summoner))
-            .WithAbilityText("\n{b}Dutiful Retaliation {icon:Reaction}.{/b} Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15ft of you.\n")
+            .WithAbilityText("\n{b}Dutiful Retaliation {icon:Reaction}.{/b} Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15 feet of you.\n")
             .WithOnSheet((Action<CalculatedCharacterSheetValues>)(values => {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DevoPhantomEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scDevoPhantomEidolonStalwart, scDevoPhantomEidolonSwift }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scDevoPhantomEidolonStalwart, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText,new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scDevoPhantomEidolonSwift, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, 0, 0, 0 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scDevoPhantomEidolonStalwart, "Your eidolon is an unyielding guardian.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText,new int[6] { 4, 2, 3, 0, 0, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scDevoPhantomEidolonSwift, "Your eidolon is a vigilant protector.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 2, 4, 3, 0, 0, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
             subclasses.Add(new Feat(Enums.scDraconicEidolon, DraconicEidolonFlavour, DraconicEidolonCrunch, new List<Trait>() { }, null)
@@ -316,8 +290,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("DevilEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scDevilEidolonBarrister, scDevilEidolonLegionnaire }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scDevilEidolonLegionnaire, "Your eidolon is a ruthlessly professional legionnaire of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 2, 0, -1, 2 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scDevilEidolonBarrister, "Your eidolon is a cunning and corruptive barrister of hell.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scDevilEidolonLegionnaire, "Your eidolon is a ruthlessly professional legionnaire of hell.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 2, 0, -1, 2 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scDevilEidolonBarrister, "Your eidolon is a cunning and corruptive barrister of hell.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 1, 4, 1, 0, 1, 2 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -330,8 +304,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow(new SingleFeatSelectionOption("ElementalEidolonArray", "Eidolon Ability Scores", 1, (ft => new FeatName[] { scElementalEidolonAdaptable, scElementalEidolonPrimordial }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scElementalEidolonAdaptable, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 3, 0, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scElementalEidolonPrimordial, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scElementalEidolonAdaptable, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 1, 4, 3, 0, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -341,8 +315,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("FeyEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scFeyEidolonSkirmisher, scFeyEidolonTrickster }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scFeyEidolonSkirmisher, "Your eidolon is an illusive predator of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 2, 0, 0, 1 }, 1, 4).WithTag(Ability.Dexterity);
-            yield return CreateEidolonFeat(scFeyEidolonTrickster, "Your eidolon is a mercurial trickster of the first world.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 1, -1, 3 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scFeyEidolonSkirmisher, "Your eidolon is an illusive predator of the first world.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 2, 4, 2, 0, 0, 1 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scFeyEidolonTrickster, "Your eidolon is a mercurial trickster of the first world.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 1, 4, 1, 1, -1, 3 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -354,8 +328,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("PsychopompEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scPsychopompEidolonGuardian, scPsychopompEidolonScribe }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scPsychopompEidolonGuardian, "Your eidolon is a vigilant protector of lost souls destined for the Boneyard.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, 0, 1, -1 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scPsychopompEidolonScribe, "Your eidolon is diligant archiver of prophecy and mortal transgression.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 1, 2, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scPsychopompEidolonGuardian, "Your eidolon is a vigilant protector of lost souls destined for the Boneyard.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, 0, 1, -1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scPsychopompEidolonScribe, "Your eidolon is diligant archiver of prophecy and mortal transgression.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 1, 4, 1, 2, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -367,8 +341,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("PlantEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scPlantEidolonGuardian, scPlantEidolonCreeping }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scPlantEidolonGuardian, "Your eidolon is a stalward guardian of nature.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scPlantEidolonCreeping, "Your eidolon is patient, predatory plant, such as a carnivorous vine or flytrap.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 1, 4, 3, -1, 2, 0 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scPlantEidolonGuardian, "Your eidolon is a stalward guardian of nature.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, -1, 1, 0 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scPlantEidolonCreeping, "Your eidolon is patient, predatory plant, such as a carnivorous vine or flytrap.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 1, 4, 3, -1, 2, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -380,8 +354,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 values.AddSelectionOptionRightNow((SelectionOption)new SingleFeatSelectionOption("UndeadEidolonArray", "Eidolon Ability Scores", 1, (Func<Feat, bool>)(ft => new FeatName[] { scUndeadEidolonBrute, scUndeadEidolonStalker }.Contains(ft.FeatName))));
             })));
 
-            yield return CreateEidolonFeat(scUndeadEidolonBrute, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
-            yield return CreateEidolonFeat(scUndeadEidolonStalker, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond).AbilityText, (subclasses.Last() as EidolonBond).ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
+            yield return CreateEidolonFeat(scUndeadEidolonBrute, "Your eidolon is a hulking undead abomination.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 4, 2, 3, -1, 0, 1 }, 2, 3).WithTag(Ability.Strength);
+            yield return CreateEidolonFeat(scUndeadEidolonStalker, "Your eidolon is a ghoulish stalker of the living.", (subclasses.Last() as EidolonBond)?.AbilityText, (subclasses.Last() as EidolonBond)?.ActionText, new int[6] { 2, 4, 3, -1, 1, 0 }, 1, 4).WithTag(Ability.Dexterity);
 
 
 
@@ -482,7 +456,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 "{b}Demonic Weakness (Rejection Vulnerability).{/b} When your eidolon fails a Diplomacy check to Embrace, or when a creature succeeds at its save against your eidolon's Bewitch or Passionate Kiss, " +
                 "it takes 1d6 mental damage for every 3 levels it has (minimum 1d6) and when that creature next successfully Demoralizes your eidolon this encounter, it takes that damage again." +
                 "\nIn addition, they gain weakness to Cold Iron and Good damage equal to half their level." +
-                "\n\n{b}Initial Eidolon Ability (Power of Lust).{/b} Your eidolon gains the following abilities, as a demon embodieying the sin of lust:" +
+                "\n\n{b}Initial Eidolon Ability (Power of Lust).{/b} Your eidolon gains the following abilities, as a demon embodying the sin of lust:" +
                 "\n• {b}Embrace {icon:Action}.{/b} Your eidolon can use the embrace action to attempt to grapple an enemy creature, using their diplomacy in place of athletics." +
                 "\n• {b}Seductive Presence.{/b} Creatures susceptible to earthly desires within 10 feet of you take a -1 circumstance penalty to saving throws and DCs against effects with the Mental trait." +
                 "\n• {b}Passionate Kiss {icon:Action}.{/b} Your eidolon can passionately kiss a grappled enemy, dealing 1d6+level negative damage opposed by a basic Will save. If the target fails the save, you gain temporary hit points equal to your level and they can't attempt to Escape or take actions against your eidolon until your next turn." +
@@ -502,7 +476,52 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 "\n\n{i}At level 7{/i}\n{b}Symbiosis Eidolon Ability (Stunning Screech) {icon:TwoActions} [Incapacitation].{/b}\nYour eidolon emits a shrill screech. Each enemy creature within a 15 foot burst must attempt a Fortitude save. On a failure, the creature is stunned 1, " +
                 "and on a critical failure, it's stunned 2. This ability can only be used once per encounter.",
                 Trait.Divine, new List<FeatName>() { FeatName.Religion, FeatName.Diplomacy }, new Func<Feat, bool>(ft => ft.FeatName == ftAChaoticEvil),
-                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures((eidolon, summoner) => WrathDemonEidolonLogic(eidolon, summoner));
+                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(WrathDemonEidolonLogic);
+
+            yield return new EidolonBond(Enums.scArsonDemonEidolon, "Your bound eidolon is a demon of arson, born from the souls of arsonists that continue the work they once pursued in life.",
+                @"{b}Demonic Weakness (Extinguishing Aversion).{/b} If the your eidolon is targeted by an effect with the Water trait, or after entering or beginning its turn in water, it takes 1d6 mental damage for every 3 levels it has (minimum 1d6).
+            In addition, they gain weakness to Cold Iron and Good damage equal to half their level.
+
+            {b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
+            • {b}Flaming Weapon.{/b} Your Eidolon's strikes deal an extra 1 fire damage.
+            • {b}Smoke Vision.{/b} Your eidolon can see through smoke and fog normally. {i}(They ignore the 20% concealment miss chance.){/i}
+            • {b}Fire Immunity.{/b} Your eidolon is immune to fire damage.
+            • {b}Arson Magic.{/b} When you add spells to your repertoire, you can choose from the divine list as well as from fire spells that appear on the arcane spell list, in exchange for being unable to take abjuration spells. As usual for when you add spells of a different tradition to your spell list, you're still a divine spellcaster so all of your spells are divine spells.
+
+            {i}At level 7{/i}
+            {b}Symbiosis Eidolon Ability (Breath Weapon) {icon:TwoActions} [divine, evocation, fire].{/b} Once per encounter, your eidolon may spit their boiling blood in a 20-foot line that deals 4d10 fire damage (basic Reflex save mitigates). The ground within this area becomes slippery as though it were affected by a {i}grease{/i} spell.
+
+            At 9th level and every 2 levels thereafter, the damage increases by 1d10.",
+                Trait.Divine, [FeatName.Religion, FeatName.Stealth], ft => ft.FeatName == ftAChaoticEvil,
+                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(ArsonDemonEidolonLogic);
+
+            yield return new EidolonBond(ModManager.RegisterFeatName("Summoner_DemonSinBlood", "Blood Demon"), "Your bound eidolon is a demon of blood, forged from the souls of murderers and sadists to serve as assassins for the Starborn.",
+                @"{b}Demonic Weakness (Recoil from Wasted Opportunities).{/b} Whenever a dying creature within sight of your eidolon has its dying condition removed, it takes 1d6 mental damage for every 3 levels it has (minimum 1d6).
+            In addition, they gain weakness to Cold Iron and Good damage equal to half their level.
+
+            {b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
+            • Your eidolon gains acid resistance equal to half its level.
+            • {b}Reactive Slime {icon:Reaction}.{/b} When a creature hits your eidolon with a melee Strike, as a reaction, it can excrete slime against that creature, dealing 1d6 acid damage (basic Spell Save DC Reflex save mitigates).
+
+            At 3rd level and every 2 levels thereafter, the damage increases by 1d6.
+
+            {i}At level 7{/i}
+            {b}Symbiosis Eidolon Ability (Grievous Strike) {icon:TwoActions}.{/b} Your eidolon makes a melee Strike. This counts as two attacks when calculating their multiple attack penalty. If this Strike hits, they deal an additional 1d6 damage of the same damage type per weapon die, and the creature struck is frightened 2.",
+                Trait.Divine, [FeatName.Religion, FeatName.Stealth], ft => ft.FeatName == ftAChaoticEvil,
+                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(BloodDemonEidolonLogic);
+
+            yield return new EidolonBond(ModManager.RegisterFeatName("Summoner_DemonSinWorm", "Desecration Demon"), "Your bound eidolon is a demon of desecration, reduced to a loathsome body snatching worm abyss-bent on consuming and making mockery of the dead.",
+                @"{b}Demonic Weakness (Mercy Vulnerability).{/b} When a creature heals from damage that your eidolon dealt on their last turn it takes takes 2d6 mental damage for every 3 levels it has (minimum 2d6). Your eidolon can take this mental damage only once per round.
+            In addition, they gain weakness to Cold Iron, Sonic and Good damage equal to half their level.
+
+            {b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
+            • {b}Inhabit Body {icon:Reaction}.{/b} Whenever an enemy creature within 15 feet of your eidolon and within its line of sight dies, it can spend its reaction to a burrow inside of it's corpse and steal it's body.
+            • {b}Abandon Body {icon:TwoActions}.{/b} While inhabiting a body, your eidolon can use this ability to flee it's hosting, heal itself for a number of hit points equal to twice its level and assuming it's natural form.
+
+            {i}At level 7{/i}
+            {b}Symbiosis Eidolon Ability (Unsettling Movement) [emotion, fear, mental, visual].{/b} Whenever your eidolon Abandons a Body or Inhabits a Body, all enemy creatures within 30 feet who can see it must succeed at a Will save against your spell save DC or become frightened 1. On a critical failure, the creature is frightened 1 and sickened 1. Regardless of the result, creatures are immune to your eidolons unsettling movement for the rest of the encounter.",
+                Trait.Divine, [FeatName.Religion, FeatName.Stealth], ft => ft.FeatName == ftAChaoticEvil,
+                [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(WormDemonEidolonLogic);
 
             // Dragon Type Subfeats
 
@@ -559,17 +578,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
         }
 
-        private static void AngelEidolonLogic(Creature eidolon) {
+        private static void AngelEidolonLogic(Creature eidolon, Creature summoner) {
             eidolon.AddQEffect(new QEffect("Hallowed Strikes", "Your eidolon's unarmed strikes deal +1 extra good damage.") {
                 AddExtraKindedDamageOnStrike = (action, target) => {
                     return new KindedDamage(DiceFormula.FromText("1", "Hallowed Strikes"), DamageKind.Good);
                 },
             });
-            if (eidolon.Level >= 7) {
+            if (eidolon.Level >= 7 && (!(summoner.HasFeat(Enums.ftTravelersAura) && summoner.HasFeat(Enums.ftAngelicAegis)) || summoner.HasFeat(Enums.ftAngelicAegis))) {
                 eidolon.UnarmedStrike.Traits.Add(tParry);
                 eidolon.AddQEffect(new QEffect() {
-                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
-                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, IllustrationName.GenericCombatManeuver, "Parry", new Trait[] { }, "Your eidolon gains a +1 bonus to AC until the start of your next turn, and can use the Angelic Aegis action.", Target.Self()
+                    ProvideMainAction = qfEidolon => {
+                        return (ActionPossibility)new CombatAction(eidolon, IllustrationName.GenericCombatManeuver, "Parry", [Trait.Basic], "Your eidolon gains a +1 bonus to AC until the start of your next turn, and can use the Angelic Aegis action.", Target.Self()
                             .WithAdditionalRestriction(self => self.HasEffect(qfParrying) == true ? "Already parrying" : null))
                         .WithActionCost(1)
                         .WithSoundEffect(SfxName.RaiseShield)
@@ -587,14 +606,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 },
                             });
                         });
-                    })
+                    }
                 });
                 eidolon.AddQEffect(new QEffect() {
-                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
+                    ProvideMainAction = qfEidolon => {
                         if (eidolon.HasEffect(qfParrying) == false) {
                             return null;
                         }
-                        return (Possibility)(ActionPossibility)new CombatAction(eidolon, illAngelicAegis, "Angelic Aegis", new Trait[] { },
+                        return (ActionPossibility)new CombatAction(eidolon, illAngelicAegis, "Angelic Aegis", [],
                             "{b}Frequency{/b} Once per round\n{b}Requirements{/b} Your eidolon is parrying.\n\n" +
                             "Adjacent ally gains a +2 circumstance bonus to their AC and, as a reaction {icon:Reaction}, your eidolon " +
                             "may intercept any attack that deals physical damage to them, reducing the damage taken by an amount equal to your level." +
@@ -618,36 +637,36 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 Source = eidolon,
                                 ExpiresAt = ExpirationCondition.ExpiresAtStartOfSourcesTurn,
                                 BonusToDefenses = (qf, action, defence) => {
-                                    if (defence != Defense.AC || qf.Owner.DistanceTo(qf.Source) > 1) {
+                                    if (defence != Defense.AC || qf.Owner.DistanceTo(qf.Source!) > 1) {
                                         return (Bonus)null;
                                     }
                                     return new Bonus(2, BonusType.Circumstance, "Angelic Aegis");
                                 },
                                 YouAreDealtDamage = async (qf, attacker, damage, defender) => {
-                                    if (qf.Owner.DistanceTo(qf.Source) > 1) {
+                                    if (qf.Owner.DistanceTo(qf.Source!) > 1) {
                                         return null;
                                     }
                                     if (new DamageKind[] { DamageKind.Bludgeoning, DamageKind.Slashing, DamageKind.Piercing }.Contains(damage.Kind) == false) {
                                         return null;
                                     }
-                                    if (await eidolon.Battle.AskToUseReaction(eidolon, (damage.Power != null ? "{b}" + attacker.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" : "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes Angelic Aegis Interception.\nUse your reaction " + "{icon:Reaction}" + $" to reduce the damage by {qf.Source.Level}?")) {
-                                        return (DamageModification)new ReduceDamageModification(qf.Source.Level, "Angelic Aegis Interception");
+                                    if (await eidolon.Battle.AskToUseReaction(eidolon, (damage.Power != null ? "{b}" + attacker.Name + "{/b} uses {b}" + damage.Power.Name + "{/b} on " + "{b}" + qf.Owner.Name + "{/b}" : "{b}" + qf.Owner.Name + "{/b} has been hit") + " for " + damage.Amount + $" damage, which provokes Angelic Aegis Interception.\nUse your reaction " + "{icon:Reaction}" + $" to reduce the damage by {qf.Source?.Level}?")) {
+                                        return new ReduceDamageModification(qf.Source!.Level, "Angelic Aegis Interception");
                                     }
                                     return null;
                                 }
                             });
                         });
-                    }),
+                    },
                 });
             }
         }
 
         private static void DragonEidolonLogic(Creature eidolon, Creature summoner) {
-            SpellRepertoire repertoire = summoner.PersistentCharacterSheet.Calculated.SpellRepertoires[tSummoner];
-            int saveDC = summoner.GetOrCreateSpellcastingSource(SpellcastingKind.Spontaneous, tSummoner, Ability.Charisma, repertoire.SpellList).GetSpellSaveDC();
+            SpellRepertoire repertoire = summoner.PersistentCharacterSheet?.Calculated.SpellRepertoires[tSummoner];
+            int saveDC = summoner.GetOrCreateSpellcastingSource(SpellcastingKind.Spontaneous, tSummoner, Ability.Charisma, repertoire!.SpellList).GetSpellSaveDC();
 
-            Trait damageTrait = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault((Func<Feat, bool>)(ft => ft.HasTrait(tDragonType))).Traits[0];
-            FeatName targetFeat = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault((Func<Feat, bool>)(ft => ft.HasTrait(tBreathWeaponArea))).FeatName;
+            Trait damageTrait = summoner.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tDragonType))!.Traits[0];
+            FeatName targetFeat = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tBreathWeaponArea))!.FeatName;
             Target target;
             if (targetFeat == ftBreathWeaponLine) {
                 target = Target.Line(12);
@@ -667,12 +686,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             Trait[] traits = new Trait[] { };
             if (damageTrait != Trait.VersatileP) {
-                traits = new Trait[] { damageTrait };
+                traits = [damageTrait];
             }
 
             eidolon.AddQEffect(new QEffect() {
                 ProvideMainAction = qfEidolon => {
                     Creature summoner = GetSummoner(qfEidolon.Owner);
+                    if (summoner == null) return null;
                     int dice = 1 + (summoner.Level + 1) / 2;
                     CombatAction breathWeapon = new CombatAction(qfEidolon.Owner, IllustrationName.BreathWeapon, "Breath Weapon", traits, "{b}Range{/b} " +
                         (targetFeat == ftBreathWeaponCone ? "30-foot cone" : "60-foot line") + "\n{b}Saving Throw{/b} " +
@@ -720,19 +740,19 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             if (eidolon.Level >= 7) {
                 eidolon.AddQEffect(new QEffect() {
-                    ProvideMainAction = (Func<QEffect, Possibility>)(qfEidolon => {
-                        Possibility output = (Possibility)(ActionPossibility)new CombatAction(eidolon, illDraconicFrenzy, "Draconic Frenzy", new Trait[] { },
+                    ProvideMainAction = qfEidolon => {
+                        Possibility output = (ActionPossibility)new CombatAction(eidolon, illDraconicFrenzy, "Draconic Frenzy", [],
                             "Your eidolon makes one Strike with their primary unarmed attack and two Strikes with their secondary unarmed attack (in any order). " +
                             "If any of these attacks critically hits an enemy, your eidolon instantly recovers the use of their Breath Weapon.",
-                            Target.Self().WithAdditionalRestriction((Func<Creature, string>)(self => {
-                                if (!self.CanMakeBasicUnarmedAttack && self.QEffects.All<QEffect>(qf => qf.AdditionalUnarmedStrike == null))
+                            Target.Self().WithAdditionalRestriction(self => {
+                                if (!self.CanMakeBasicUnarmedAttack && self.QEffects.All(qf => qf.AdditionalUnarmedStrike == null))
                                     return "You must be able to attack to use Draconic Frenzy.";
                                 foreach (Item obj in self.MeleeWeapons.Where(weapon => weapon.HasTrait(Trait.Unarmed))) {
                                     if (self.CreateStrike(obj).CanBeginToUse(self).CanBeUsed)
                                         return null;
                                 }
                                 return "There is no nearby enemy or you can't make attacks.";
-                            })))
+                            }))
                         .WithActionCost(2)
                         .WithSoundEffect(SfxName.BeastRoar)
                         .WithEffectOnEachTarget(async (action, self, target, result) => {
@@ -778,7 +798,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         });
                         output.PossibilitySize = PossibilitySize.Half;
                         return output;
-                    }),
+                    },
                 });
             }
         }
@@ -890,10 +910,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private static void DevoPhantomEidolonLogic(Creature eidolon, Creature summoner) {
-            eidolon.AddQEffect(new QEffect("Dutiful Retaliation {icon:Reaction}", "Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15ft of you."));
+            eidolon.AddQEffect(new QEffect("Dutiful Retaliation {icon:Reaction}", "Your eidolon makes a strike again an enemy that damaged you. Both your eidolon and your attacker must be within 15 feet of you."));
             summoner.AddQEffect(new QEffect() {
                 AfterYouTakeDamage = (async (qf, amount, damagekind, action, critical) => {
-                    if (!action.HasTrait(Trait.Strike) || action.Owner == null) {
+                    if (action == null || !action.HasTrait(Trait.Strike) || action.Owner == null) {
                         return;
                     }
 
@@ -931,8 +951,25 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 })
             });
             if (eidolon.Level >= 7) {
+                if (eidolon.Level < 15) {
+                    eidolon.AddQEffect(new QEffect("Steadfast Devotion", "You gain a +2 circumstance bonus to saving throws against mental effects; if you roll a success on a saving throw against a mental effect, you get a critical success instead.", ExpirationCondition.Never, null, IllustrationName.None) {
+                        Innate = true,
+                        BonusToDefenses = (QEffect qf, CombatAction? action, Defense defense) => (action != null && action.HasTrait(Trait.Mental) && defense != Defense.AC) ? new Bonus(2, BonusType.Circumstance, "Steadfast Devotion") : null,
+                        AdjustSavingThrowCheckResult = (qf, defense, action, originalResult) => {
+                            return (action.HasTrait(Trait.Mental) && originalResult == CheckResult.Success) ? CheckResult.CriticalSuccess : originalResult;
+                        }
+                    });
+                } else {
+                    eidolon.AddQEffect(new QEffect("Steadfast Devotion", "You gain a +2 circumstance bonus to saving throws against mental effects; if you roll a critical failure on a saving throw against a mental effect, you get a failure instead.", ExpirationCondition.Never, null, IllustrationName.None) {
+                        Innate = true,
+                        BonusToDefenses = (QEffect qf, CombatAction? action, Defense defense) => (action != null && action.HasTrait(Trait.Mental) && defense != Defense.AC) ? new Bonus(2, BonusType.Circumstance, "Steadfast Devotion") : null,
+                        AdjustSavingThrowCheckResult = (qf, defense, action, originalResult) => (action.HasTrait(Trait.Mental) && originalResult == CheckResult.CriticalFailure) ? CheckResult.Failure : originalResult
+                    });
+                }
+                
+
                 eidolon.AddQEffect(new QEffect() {
-                    ProvideMainAction = (Func<QEffect, Possibility?>)(qfEidolon => {
+                    ProvideMainAction = qfEidolon => {
                         return (Possibility)(ActionPossibility)new CombatAction(eidolon, illDevoStance, "Devotion Stance", new Trait[] { },
                             "Your eidolon takes on a patient defensive stance, steeling their focus with thoughts of their devotion." +
                             "\n\nUntil the start of their next turn, they gain a +2 circumstance bonus to AC, and a +4 bonus to damage to attacks made outside their turn.",
@@ -964,7 +1001,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 }
                             });
                         });
-                    })
+                    }
                 });
             }
         }
@@ -975,19 +1012,21 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     Possibility output = new ActionPossibility(new CombatAction(effect.Owner, illFrenziedAssault, "Frenzied Assault", new Trait[4] {
                                 tSummoner, Trait.Basic, Trait.AlwaysHits, Trait.IsHostile },
                       "Make two Strikes against the same target, one with each of your melee natural weapon attacks, each using your current multiple attack penalty." +
-                      "\n\nCombine the damage for the purposes of weakness and resistance. This counts as two attacks when calculating your multiple attack penalty.", (Target)Target.Reach(effect.Owner.UnarmedStrike))
+                      "\n\nCombine the damage for the purposes of weakness and resistance. This counts as two attacks when calculating your multiple attack penalty.", Target.Reach(effect.Owner.UnarmedStrike))
                         .WithActionCost(2)
-                        .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
+                        .WithEffectOnChosenTargets(async (self, targets) => {
                             int map = self.Actions.AttackedThisManyTimesThisTurn;
 
                             Creature enemy = targets.ChosenCreature;
 
+                            if (enemy == null) return;
+
                             await self.MakeStrike(enemy, self.UnarmedStrike, map);
                             await self.MakeStrike(enemy, self.MeleeWeapons.ToArray()[1], map);
 
-                            GetSummoner(eidolon).Actions.AttackedThisManyTimesThisTurn = self.Actions.AttackedThisManyTimesThisTurn;
-                        }))
-                    .WithTargetingTooltip((Func<CombatAction, Creature, int, string>)((power, target, index) => power.Description)));
+                            GetSummoner(eidolon)!.Actions.AttackedThisManyTimesThisTurn = self.Actions.AttackedThisManyTimesThisTurn;
+                        })
+                    .WithTargetingTooltip((power, target, index) => power.Description));
                     if (eidolon.Level >= 7) {
                         output.PossibilitySize = PossibilitySize.Half;
                     }
@@ -1069,7 +1108,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 //auraAnimation.Color = Color.LawnGreen;
                 //auraAnimation.Color = Color.HotPink;
 
-                eidolon.AddQEffect(new QEffect("Whimsical Aura", "Your eidolon has a +5ft status bonus to its speed, and grants this benefit to all allies that start their turn within 15ft of it. At the end of your eidolon's turn, all allies within the aura reduce their frightened condition by 1.") {
+                eidolon.AddQEffect(new QEffect("Whimsical Aura", "Your eidolon has a +5-foot status bonus to its speed, and grants this benefit to all allies that start their turn within 15 feet of it. At the end of your eidolon's turn, all allies within the aura reduce their frightened condition by 1.") {
                     BonusToAllSpeeds = qf => new Bonus(1, BonusType.Status, "Whimsical Aura"),
                     StateCheck = effect => {
                         //qf.Tag = qf.Owner.Battle.AllCreatures.Where(creature => creature.OwningFaction == eidolon.OwningFaction);
@@ -1085,14 +1124,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     List<Creature> auraHavers = self.Battle.AllCreatures.Where(c => c.OwningFaction == self.OwningFaction && c.QEffects.FirstOrDefault(qf => qf.Name == "Whimsical Aura") != null && c.DistanceTo(self) <= 3).ToList();
                                     if (auraHavers.Count > 0) {
                                         effect.Tag = true;
-                                        self.Overhead("*+5ft status bonus to speed*", Color.White);
+                                        self.Overhead("*+5 foot status bonus to speed*", Color.White);
                                     }
                                 },
-                                BonusToAllSpeeds = qf => (bool)qf.Tag == true ? new Bonus(1, BonusType.Status, "Whimsical Aura") : null,
+                                BonusToAllSpeeds = qf => (bool?)qf.Tag == true ? new Bonus(1, BonusType.Status, "Whimsical Aura") : null,
                                 StateCheck = self => {
-                                    if ((bool)self.Tag) {
+                                    if ((bool?)self.Tag == true) {
                                         self.Name = "Blessed by Whimsical Aura";
-                                        self.Description = "You gain a +5 status bonus to your speed.";
+                                        self.Description = "You gain a +5-foot status bonus to your speed.";
                                         self.Illustration = Enums.illWhimsicalAura;
                                     } else {
                                         self.Name = null;
@@ -1114,7 +1153,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 if (frightened.Value == 0) {
                                     frightened.ExpiresAt = ExpirationCondition.Immediately;
                                 }
-                                ally.Occupies.Overhead("*frightened reduced by 1*", Color.White);
+                                ally.Overhead("*frightened reduced by 1*", Color.White);
                             }
                         }
                     }
@@ -1131,8 +1170,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     effect.Tag = false;
                 },
                 AddExtraKindedDamageOnStrike = (action, target) => {
-                    if (target.HasEffect(QEffectId.Frightened) && (bool)action.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Hellfire Scourge").Tag == false) {
-                        action.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Hellfire Scourge").Tag = true;
+                    if (target.HasEffect(QEffectId.Frightened) && (bool?)action.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Hellfire Scourge")?.Tag == false) {
+                        action.Owner.QEffects.FirstOrDefault(qf => qf.Name == "Hellfire Scourge")?.Tag = true;
                         return new KindedDamage(DiceFormula.FromText("1d4"), DamageKind.Fire);
                     }
                     return null;
@@ -1141,14 +1180,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             if (eidolon.Level >= 7) {
                 eidolon.AddQEffect(new QEffect() {
                     ProvideMainAction = effect => {
-                        return new ActionPossibility(new CombatAction(effect.Owner, illDisciplineTheLegion, "Discipline the Legion", new Trait[] {
-                                tSummoner, Trait.Linguistic, Trait.Concentrate, Trait.Mental, Trait.Emotion },
+                        return new ActionPossibility(new CombatAction(effect.Owner, illDisciplineTheLegion, "Discipline the Legion", [tSummoner, Trait.Linguistic, Trait.Concentrate, Trait.Mental, Trait.Emotion],
                             "Your eidolon shouts a commands at one ally within 30-feet. The next time that ally attacks or makes a skill check before the start of your next turn, your eidolon can " +
                             "use their reaction {icon:Reaction} to make an Intimidation check against an easy DC for their level.\n\n{b}Critical success{/b} You grant your ally a +2 circumstance bonus to the triggering " +
                             "check. If you're a master with the check you attempted, the bonus is +3, and if you're legendary, it's +4.\n{b}Success{/b} You grant your ally a +1 circumstance bonus to " +
                             "the triggering check.\n{b}Critical failure{/b} Your ally takes a –1 circumstance penalty to the triggering check.\n\nif the action your eidolon was assisting them with was an " +
                             "attack, it deals extra fire damage equal to half your level.",
-                            (Target)Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((source, target) => {
+                            Target.RangedFriend(6).WithAdditionalConditionOnTargetCreature((source, target) => {
                                 if (target.QEffects.FirstOrDefault(qf => qf.Key == "Infernal Command") == null) {
                                     return Usability.Usable;
                                 }
@@ -1158,6 +1196,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
                             .WithActionCost(1)
                             .WithEffectOnChosenTargets(async (self, targets) => {
+                                if (targets.ChosenCreature == null) return;
                                 targets.ChosenCreature.AddQEffect(new QEffect("Infernal Command", $"This creature has the attention of {self.Name}, and is ready to be spurred into decisive action.") {
                                     Illustration = illDisciplineTheLegion,
                                     Source = self,
@@ -1209,7 +1248,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static void PlantEidolonLogic(Creature eidolon, Creature summoner) {
             eidolon.AddQEffect(new QEffect("Tendril Strike {icon:Action}", "Your eidolon makes a melee unarmed Strike, increasing its reach by 5 feet for that Strike. If the unarmed attack has the disarm, shove, or trip trait, the eidolon can use the corresponding action instead of a Strike.") {
                 ProvideStrikeModifierAsPossibility = item => {
-                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties!.Melee)?.AdditionalUnarmedStrike) {
                         return null;
                     }
 
@@ -1235,7 +1274,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             });
             eidolon.AddQEffect(new QEffect() {
                 ProvideStrikeModifierAsPossibility = item => {
-                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties!.Melee)?.AdditionalUnarmedStrike) {
                         return null;
                     }
 
@@ -1255,7 +1294,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             });
             eidolon.AddQEffect(new QEffect() {
                 ProvideStrikeModifierAsPossibility = item => {
-                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties!.Melee)?.AdditionalUnarmedStrike) {
                         return null;
                     }
 
@@ -1275,7 +1314,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             });
             eidolon.AddQEffect(new QEffect() {
                 ProvideStrikeModifierAsPossibility = item => {
-                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike) {
+                    if (item != eidolon.UnarmedStrike && item != eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties!.Melee)?.AdditionalUnarmedStrike) {
                         return null;
                     }
 
@@ -1294,7 +1333,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
             });
             if (eidolon.Level >= 7) {
-                Item[] attacks = new Item[] { eidolon.UnarmedStrike, eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike };
+                Item[] attacks = new Item[] { eidolon.UnarmedStrike, eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties!.Melee)?.AdditionalUnarmedStrike! };
 
                 foreach (Item attack in attacks) {
                     if (!attack.HasTrait(Trait.Reach)) {
@@ -1307,7 +1346,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static void UndeadEidolonLogic(Creature eidolon, Creature summoner) {
             eidolon.AddQEffect(new QEffect("Negative Essence", "Your eidolon is undead, though unlike true undead, your connection grants it a sliver of life. It has negative healing, but instead of the usual immunities it gets a +2 circumstance bonus to death, disease and poison effects. Additionally, it gains a +5 bonus to staunch persistent bleed damage.") {
                 StartOfCombat = async self => {
-                    string[] qfNames = new string[] { QEffect.DamageImmunity(DamageKind.Bleed).Name, QEffect.DamageImmunity(DamageKind.Poison).Name, QEffect.ImmunityToCondition(QEffectId.Paralyzed).Name };
+                    string[] qfNames = [QEffect.DamageImmunity(DamageKind.Bleed).Name!, QEffect.DamageImmunity(DamageKind.Poison).Name!, QEffect.ImmunityToCondition(QEffectId.Paralyzed).Name!];
 
                     eidolon.RemoveAllQEffects(qf => qfNames.Contains(qf.Name) && qf.Name != null || qf.ImmuneToTrait == Trait.Death);
                 },
@@ -1335,7 +1374,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 if (strikeResult < CheckResult.Success)
                                     return;
 
-                                CheckResult saveResult = CommonSpellEffects.RollSavingThrow(d, action, Defense.Fortitude, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC());
+                                CheckResult saveResult = await CommonSpellEffects.RollSavingThrowAsync(d, action, Defense.Fortitude, summoner.Spellcasting?.PrimarySpellcastingSource!.GetSpellSaveDC() ?? 10);
                                 if (strikeResult == CheckResult.CriticalSuccess && saveResult != CheckResult.CriticalFailure) {
                                     saveResult -= 1;
                                 }
@@ -1366,7 +1405,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         "Your eidolon gains temporary Hit Points equal to the enemy's level, which last for 1 minute.\n{b}Critical failure.{/b} Your eidolon drains an incredible amount of life force " +
                         "and is thoroughly glutted with energy. As failure, but the enemy is drained 2 and the temporary Hit Points are equal to double the enemy's level.";
                         action.ShortDescription += ". On hit; The target must make a fort save to prevent its life force being drained.";
-                        action.Target = (action.Target as CreatureTarget).WithAdditionalConditionOnTargetCreature((a, d) => !d.IsLivingCreature ? Usability.CommonReasons.TargetIsNotAlive : Usability.Usable);
+                        action.Target = (action.Target as CreatureTarget)!.WithAdditionalConditionOnTargetCreature((a, d) => !d.IsLivingCreature ? Usability.CommonReasons.TargetIsNotAlive : Usability.Usable);
                         action.Illustration = new SideBySideIllustration(IllustrationName.VampiricTouch2, item.Illustration);
                         return (ActionPossibility)action;
                     }
@@ -1410,7 +1449,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         .WithSoundEffect(SfxName.Necromancy)
                         .WithSpellInformation(eidolon.Level / 2 + 1, "", null)
                         .WithProjectileCone(illSoulWrench, 5, ProjectileKind.Cone)
-                        .WithSavingThrow(new SavingThrow(Defense.Will, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC()))
+                        .WithSavingThrow(new SavingThrow(Defense.Will, summoner.Spellcasting!.PrimarySpellcastingSource!.GetSpellSaveDC()))
                         .WithEffectOnEachTarget(async (action, a, d, checkResult) => {
                             // Remove soul siphon from previous target
                             self.UsedThisTurn = true;
@@ -1493,8 +1532,16 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         .WithEffectOnSelf(async (action, user) => {
                             self.UsedThisTurn = true;
                             Creature target = user.Battle.AllCreatures.FirstOrDefault(cr => cr.QEffects.FirstOrDefault(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon) != null);
+                            if (target == null) {
+                                action.RevertRequested = true;
+                                return;
+                            }
                             QEffect soulSiphon = target.QEffects.FirstOrDefault(qf => qf.Id == qfSoulSiphon && qf.Source == eidolon);
-                            CheckResult result = CommonSpellEffects.RollSavingThrow(target, action, Defense.Will, summoner.Spellcasting.PrimarySpellcastingSource.GetSpellSaveDC());
+                            if (soulSiphon == null) {
+                                action.RevertRequested = true;
+                                return;
+                            }
+                            CheckResult result = await CommonSpellEffects.RollSavingThrowAsync(target, action, Defense.Will, summoner.Spellcasting?.PrimarySpellcastingSource!.GetSpellSaveDC() ?? 10);
                             
                             soulSiphon.CannotExpireThisTurn = true;
                             if (result == CheckResult.CriticalSuccess) {
@@ -1524,12 +1571,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         private static void ElementalEidolonLogic(Creature eidolon, Creature summoner) {
             eidolon.AddQEffect(new QEffect("Elemental Core", "Your eidolon's elemental nature grants it a +2 circumstance bonus to saves against being poisoned, and against the paralyze spell. Additionally, it gains a +5 bonus to staunch persistent bleed damage.") {
                 StartOfCombat = async self => {
-                    string[] qfNames = new string[] { QEffect.DamageImmunity(DamageKind.Bleed).Name, QEffect.DamageImmunity(DamageKind.Poison).Name, QEffect.ImmunityToCondition(QEffectId.Paralyzed).Name };
+                    string[] qfNames = [QEffect.DamageImmunity(DamageKind.Bleed).Name!, QEffect.DamageImmunity(DamageKind.Poison).Name!, QEffect.ImmunityToCondition(QEffectId.Paralyzed).Name!];
 
                     eidolon.RemoveAllQEffects(qf => qfNames.Contains(qf.Name) && qf.Name != null);
                 },
                 BonusToDefenses = (self, action, defence) => {
-                    if (defence != Defense.AC && action != null && (action.Traits.ContainsOneOf(new Trait[] { Trait.Poison }) || action.SpellId == SpellId.Paralyze)) {
+                    if (defence != Defense.AC && action != null && (action.Traits.ContainsOneOf([Trait.Poison]) || action.SpellId == SpellId.Paralyze)) {
                         return new Bonus(2, BonusType.Circumstance, "Elemental Core");
                     }
                     return null;
@@ -1537,7 +1584,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 ReducesPersistentDamageRecoveryCheckDc = (self, pd, kind) => kind == DamageKind.Bleed
             });
 
-            Trait element = summoner.PersistentCharacterSheet.Calculated.AllFeats.First(ft => ft.HasTrait(tElementalType)).Traits[1];
+            Trait element = summoner.PersistentCharacterSheet!.Calculated.AllFeats.First(ft => ft.HasTrait(tElementalType)).Traits[1];
 
             switch (element) {
                 case Trait.Earth:
@@ -1569,11 +1616,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 case Trait.Metal:
                     Item chosenAttack = summoner.PersistentCharacterSheet.Calculated.AllFeats.First(ft => ft.HasTrait(tMetalElementalAtkType)).FeatName.HumanizeTitleCase2().ToLower().Contains("primary") ?
                         eidolon.UnarmedStrike :
-                        eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties.Melee).AdditionalUnarmedStrike;
+                        eidolon.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.WeaponProperties!.Melee)?.AdditionalUnarmedStrike;
 
-                    Trait[] nTraits = new Trait[3] { Trait.VersatileB, Trait.VersatileP, Trait.VersatileS };
+                    Trait[] nTraits = [Trait.VersatileB, Trait.VersatileP, Trait.VersatileS];
                     nTraits.ForEach(t => {
-                        if (!chosenAttack.Traits.Contains(t)) {
+                        if (!chosenAttack!.Traits.Contains(t)) {
                             chosenAttack.Traits.Add(t);
                         }
                     });
@@ -1587,7 +1634,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                     Id = QEffectId.AquaticCombat,
                                     DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                                     Illustration = IllustrationName.ElementWater,
-                                    StateCheck = (Action<QEffect>)(qfAquaticCombat => {
+                                    StateCheck = qfAquaticCombat => {
                                         qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Acid, 5).WithExpirationEphemeral());
                                         qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, 5).WithExpirationEphemeral());
                                         if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
@@ -1595,14 +1642,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                         qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                                             Id = QEffectId.CountsAllTerrainAsDifficultTerrain
                                         });
-                                    }),
-                                    PreventTakingAction = (Func<CombatAction, string>)(action => {
+                                    },
+                                    PreventTakingAction = action => {
                                         if (action.HasTrait(Trait.Impulse))
                                             return (string)null;
                                         if (action.HasTrait(Trait.Fire))
                                             return "You can't use fire actions underwater.";
                                         return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : (string)null;
-                                    })
+                                    }
                                 };
                             }
                             return newEffect;
@@ -1642,7 +1689,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         }
 
                         string damage = $"{self.Owner.Level - 1}d6";
-                        DamageKind kind = element == Trait.Fire ? DamageKind.Fire : self.Owner.UnarmedStrike.WeaponProperties.DamageKind;
+                        DamageKind kind = element == Trait.Fire ? DamageKind.Fire : self.Owner.UnarmedStrike.WeaponProperties!.DamageKind;
 
                         return (ActionPossibility)new CombatAction(self.Owner, illElementalBurst, "Elemental Burst", new Trait[] { Trait.Evocation, Trait.Primal },
                             "{b}Range{/b} 60 feet\n{b}Area{/b} 20 foot burst\n{b}Saving throw{/b} basic Reflex\n{b}Frequency{/b} Once per encounter\n\n" +
@@ -1844,7 +1891,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         .WithSoundEffect(SfxName.Mental)
                         .WithActionCost(3)
                         .WithSavingThrow(new SavingThrow(Defense.Will, summoner.ClassOrSpellDC()))
-                        .WithGoodnessAgainstEnemy((Func<Target, Creature, Creature, float>)((t, a, d) => (float)d.HP))
+                        .WithGoodnessAgainstEnemy((t, a, d) => (float)d.HP)
                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                             if (result == CheckResult.Success)
                                 target.AddQEffect(QEffect.Stunned(1));
@@ -1858,17 +1905,17 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                             target.AddQEffect(new QEffect("Controlled", "You're controlled by " + caster?.ToString() + ".", ExpirationCondition.ExpiresAtEndOfYourTurn, caster, (Illustration)IllustrationName.Dominate) {
                                 Value = 0,
                                 StateCheck = qf => {
-                                    if (caster.Alive)
+                                    if (caster == null || caster.Alive)
                                         return;
-                                    qf.Owner.Occupies.Overhead("end of control", Color.Lime, caster?.ToString() + " was banished and so can no longer bewitch " + target?.ToString() + ".");
-                                    if (qf.Owner.OwningFaction != caster.OwningFaction)
+                                    qf.Owner.Overhead("end of control", Color.Lime, caster?.ToString() + " was banished and so can no longer bewitch " + target?.ToString() + ".");
+                                    if (qf.Owner.OwningFaction != caster!.OwningFaction)
                                         return;
                                     qf.Owner.OwningFaction = originalFaction;
                                     qf.ExpiresAt = ExpirationCondition.Immediately;
                                 },
                                 WhenExpires = self => {
-                                    self.Owner.Occupies.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the bewitchment.");
-                                    if (self.Owner.OwningFaction != caster.OwningFaction)
+                                    self.Owner.Overhead("end of control", Color.Lime, target?.ToString() + " shook off the bewitchment.");
+                                    if (caster == null || self.Owner.OwningFaction != caster.OwningFaction)
                                         return;
                                     self.Owner.OwningFaction = originalFaction;
                                     self.Owner.RemoveAllQEffects(qf => qf == slowed);
@@ -1895,7 +1942,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         && action.SavingThrow != null
                         && action.ChosenTargets.CheckResults.TryGetValue(qfPeaceVulnerability.Owner, out var checkResult)
                         && checkResult <= CheckResult.Failure) {
-                        qfPeaceVulnerability.Owner.Occupies.Overhead("Peace Vulnerability", Color.White, $"An emotional effect hurts {eidolon.Name} (peace vulnerability).");
+                        qfPeaceVulnerability.Owner.Overhead("Peace Vulnerability", Color.White, $"An emotional effect hurts {eidolon.Name} (peace vulnerability).");
                         int prevDmg = eidolon.Damage;
                         await CommonSpellEffects.DealDirectSplashDamage(action, DiceFormula.FromText(peaceDmg, "Peace Vulnerability"), qfPeaceVulnerability.Owner, DamageKind.Mental);
                         await CommonSpellEffects.DealDirectSplashDamage(action, DiceFormula.FromText((eidolon.Damage - prevDmg).ToString(), "Health Share (Peace Vulnerability)"), summoner, DamageKind.Mental);
@@ -1967,6 +2014,289 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             }
         }
 
+        private static void ArsonDemonEidolonLogic(Creature eidolon, Creature summoner) {
+            string weaknessDmg = Math.Max(1, eidolon.Level / 3) + "d6";
+
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, Math.Max(1, eidolon.Level / 2)));
+
+            var extAversion = Brimorak.ExtinguishingAversion(weaknessDmg);
+            extAversion.Description = $"If the your eidolon is targeted by an effect with the Water trait, or after entering or beginning its turn in water, it takes {weaknessDmg} mental damage.";
+            extAversion.StartOfYourPrimaryTurn = async (self, you) => {
+                if (!(self.Owner.HasEffect(QEffectId.AquaticCombat)
+                || self.Owner.Occupies.Kind == TileKind.ShallowWater
+                || self.Owner.Occupies.Kind == TileKind.Water
+                || self.Owner.Occupies.RainyTerrain)) return;
+                self.UsedThisTurn = true;
+                await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(you, "Extinguishing Aversion", Trait.Mental), DiceFormula.FromText(weaknessDmg, "Extinguishing aversion"), you, DamageKind.Mental);
+            };
+            extAversion.StateCheckWithVisibleChanges = async (self) => {
+                if (self.UsedThisTurn
+                || !(self.Owner.Occupies.Kind == TileKind.ShallowWater
+                || self.Owner.Occupies.Kind == TileKind.Water
+                || self.Owner.Occupies.RainyTerrain)) return;
+                self.UsedThisTurn = true;
+                await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(self.Owner, "Extinguishing Aversion", Trait.Mental), DiceFormula.FromText(weaknessDmg, "Extinguishing aversion"), self.Owner, DamageKind.Mental);
+            };
+            eidolon.AddQEffect(extAversion);
+
+            eidolon.AddQEffect(new QEffect("Flaming Weapons", "Your unarmed strikes deal 1 extra fire damage.") {
+                AddExtraStrikeDamage = (ca, target) => {
+                    if (ca.HasTrait(Trait.Unarmed) && ca.HasTrait(Trait.Strike))
+                        return (DiceFormula.FromText("1", "Flaming Weapons"), DamageKind.Fire);
+                    return null;
+                }
+            });
+
+            eidolon.AddQEffect(QEffect.SmokeVision());
+            eidolon.AddQEffect(QEffect.DamageImmunity(DamageKind.Fire));
+
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect() {
+                    ProvideMainAction = self => {
+                        if (self.Owner.HasEffect(QEffectId.UsedMonsterOncePerEncounterAbility)) return null;
+                        var dmg = $"{(eidolon.Level / 2) + 1}d10";
+                        var dc = summoner.ClassOrSpellDC();
+                        var combatAction = new CombatAction(eidolon, IllustrationName.BreathWeapon, "Breath Weapon", [Trait.Divine, Trait.Evocation, Trait.Magical, Trait.Fire, Trait.SpellLikeAbility],
+                            @$"{{b}}Frequency{{/b}} once per encounter
+{Target.TwentyFootLine().ToDescription()}
+
+You exhale boiling blood and deal {dmg} fire damage to each target in the area (basic DC {dc} Reflex save mitigates).", Target.TwentyFootLine()) {
+                            ShortDescription = $"You exhale boiling blood and deal {dmg} fire damage to each target in a 20-foot line (basic DC {dc} Reflex save mitigates)."
+                        }
+                        .WithActionCost(2)
+                        .WithActionId(ActionId.BreathWeapon)
+                        .WithProjectileCone(IllustrationName.BreathWeapon, 25, ProjectileKind.Cone)
+                        .WithSavingThrow(new SavingThrow(Defense.Reflex, dc))
+                        .WithGoodnessAgainstEnemy((tg, a, d) => a.Level * 3)
+                        .WithSoundEffect(SfxName.Fireball)
+                        .WithEffectOnEachTarget((async (spell, caster, defender, result) => { await CommonSpellEffects.DealBasicDamage(spell, caster, defender, result, dmg, DamageKind.Fire); }))
+                        .WithEffectOnChosenTargets(async (spell, caster, targets) => {
+                            caster.AddQEffect(new QEffect() { Id = QEffectId.UsedMonsterOncePerEncounterAbility });
+                            var greasedTiles = Level1Spells.GreaseTiles(targets.ChosenTiles, dc);
+                        });
+                        return new ActionPossibility(combatAction).WithPossibilityGroup(Constants.POSSIBILITY_GROUP_ANCESTRY_POWERS);
+                    }
+                });
+            }
+        }
+
+        private static void BloodDemonEidolonLogic(Creature eidolon, Creature summoner) {
+            string weaknessDmg = Math.Max(1, eidolon.Level / 3) * 2 + "d6";
+
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(new QEffect("Mercy vulnerability", $"When you damage a creature, until the end of your next turn, if the target of that attack is healed you suffer {weaknessDmg} mental damage {{i}}(no save){{/i}}. You can take this damage only once per round.") {
+                AfterYouDealDamage = async (babau, action, defender) => {
+                    if (!babau.HasEffect(QEffectId.AlreadyAfflictedByMercyVulnerability)) {
+                        defender.AddQEffect(new QEffect("Mercy Opportunity", $"If you're healed at least 1 HP before {babau}'s next turn, it takes {weaknessDmg} mental damage from its mercy vulnerability.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, babau, eidolon.Illustration) {
+                            Id = QEffectId.BabauMercyOpportunity,
+                            StateCheck = sc => {
+                                if (!babau.Alive) {
+                                    sc.ExpiresAt = ExpirationCondition.Immediately;
+                                }
+                            },
+                            AfterYouAreHealed = async (effect, combatAction, amount) => {
+                                if (eidolon.Destroyed || !babau.Alive)
+                                    return;
+
+                                // Use up
+                                foreach (var creature in effect.Owner.Battle.AllCreatures) {
+                                    creature.RemoveAllQEffects(qf => qf.Id == QEffectId.BabauMercyOpportunity && qf.Source == effect.Source);
+                                }
+
+                                // Apply damage
+                                effect.Owner.Overhead("Mercy Vulnerability", Color.White, effect.Owner + " was shown mercy which hurts " + babau + "!");
+                                await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(babau, "Mercy Vulnerability", [Trait.Mental]), DiceFormula.FromText(weaknessDmg, "Mercy Vulnerability"), babau, DamageKind.Mental);
+                                foreach (var creature in babau.Battle.AllCreatures) {
+                                    creature.RemoveAllQEffects(qf => qf.Id == QEffectId.BabauMercyOpportunity && qf.Source == babau);
+                                }
+                                babau.AddQEffect(new QEffect() {
+                                    Id = QEffectId.AlreadyAfflictedByMercyVulnerability
+                                }.WithExpirationAtStartOfSourcesTurn(babau, 1));
+                            }
+                        });
+                    }
+                }
+            });
+
+            var acidDmg = Math.Max(1, eidolon.Level / 3) + "d6";
+
+            eidolon.AddQEffect(new QEffect("Reactive slime {icon:Reaction}", $"When a creature hits you with a melee Strike, as a reaction, you can excrete slime against that creature, dealing {acidDmg} acid damage (basic Reflex save mitigates).") {
+                AfterYouTakeIncomingDamageEventEvenZero = async (effect, damageEvent) => {
+                    var dc = GetSummoner(effect.Owner)?.ClassOrSpellDC() ?? 10;
+                    var action = damageEvent.CombatAction;
+                    if (action == null) return;
+                    if (damageEvent.IsSplashDamage) return;
+                    var defender = effect.Owner;
+                    var attacker = damageEvent.Source;
+                    if (action.HasTrait(Trait.Strike) && !action.HasTrait(Trait.ProxyAttack) && action.HasTrait(Trait.Melee) && await defender.AskToUseReaction($"You're hit and dealt damage by {attacker}. Use Reactive Slime to deal back {acidDmg} acid damage?")) {
+                        var reactiveSlime = CombatAction.CreateSimple(defender, "Reactive Slime", [Trait.Acid]);
+                        var result = await CommonSpellEffects.RollSavingThrowAsync(attacker, reactiveSlime, Defense.Reflex, dc);
+                        await CommonSpellEffects.DealBasicDamage(reactiveSlime, defender, attacker, result, acidDmg, DamageKind.Acid);
+                    }
+                }
+            });
+
+            eidolon.AddQEffect(QEffect.DamageResistance(DamageKind.Acid, Math.Max(1, eidolon.Level / 2)));
+
+            if (eidolon.Level >= 7) {
+                eidolon.AddQEffect(new QEffect("Grievous Strike {icon:TwoActions}", "Make a melee Strike. This counts as two attacks when calculating your multiple attack penalty. If this Strike hits, you deal an additional 1d6 damage per weapon damage die, and the creature struck is frightened 2.") {
+                    ProvideStrikeModifier = item => {
+                        if (!item.HasTrait(Trait.Melee) || item.WeaponProperties == null) return null;
+                        var strike = eidolon.CreateStrike(item).WithActionCost(2);
+                        strike.WithFullRename($"Grievous Strike (${item.Name})");
+                        strike.Illustration = new SideBySideIllustration(item.Illustration, IllustrationName.DemonMask);
+                        strike.Traits.Add(Trait.Basic);
+                        strike.StrikeModifiers.QEffectForStrike = new QEffect(ExpirationCondition.Ephemeral) {
+                            AddExtraStrikeDamage = (action, creature) =>
+                            {
+                                return (DiceFormula.FromText($"{item.WeaponProperties.DamageDieCount}d6", "Grievous Strike"), action.Item?.WeaponProperties?.DamageKind ?? DamageKind.Force);
+                            }
+                        };
+                        strike.StrikeModifiers.OnEachTarget = async (attacker, defender, checkResult) =>
+                        {
+                            if (checkResult >= CheckResult.Success) {
+                                defender.AddQEffect(QEffect.Frightened(2));
+                            }
+                            attacker.Actions.AttackedThisManyTimesThisTurn++;
+                        };
+                        return strike;
+                    }
+                });
+            }
+        }
+
+        private static void WormDemonEidolonLogic(Creature eidolon, Creature summoner) {
+            string weaknessDmg = Math.Max(1, eidolon.Level / 3) + "d6";
+            eidolon.Traits.Add(Trait.Small);
+
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Good, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(QEffect.DamageWeakness(Trait.ColdIron, Math.Max(1, eidolon.Level / 2)));
+            eidolon.AddQEffect(QEffect.DamageWeakness(DamageKind.Sonic, Math.Max(1, eidolon.Level / 2)));
+            var wastedOp = new QEffect("Recoil from Wasted Opportunities", $"Your eidolon takes {weaknessDmg} each time a living creature they can see loses the Dying condition.");
+            wastedOp.AddGrantingOfTechnical(cr => cr.IsLivingCreature && cr != eidolon, qfTech => {
+                qfTech.AfterYouAcquireEffect = async (_, qfNew) => {
+                    if (qfNew.Id == QEffectId.Dying) {
+                        qfTech.Owner.AddQEffect(new QEffect() {
+                            StateCheckWithVisibleChanges = async (qfSelf) => {
+                                if (!qfSelf.Owner.HasEffect(QEffectId.Dying))
+                                    await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(eidolon, "Recoil from Wasted Opportunities", Trait.Mental), DiceFormula.FromText(weaknessDmg, "Recoil from Wasted Opportunities"), eidolon, DamageKind.Mental);
+                            }
+                        });
+                    }
+                };
+            });
+            eidolon.AddQEffect(wastedOp);
+
+            var inhabit = new QEffect("Inhabit Body {icon:Reaction}", "Whenever an enemy creature within 15 feet of your eidolon and within its line of sight dies, it can spend its reaction to a burrow inside of its corpse and steal its body.") {
+                Tag = new List<(Creature, Tile)>() { },
+                StateCheckWithVisibleChanges = async qfSelf => {
+                    var bodies = qfSelf.Tag as List<(Creature, Tile)>;
+                    if (bodies == null) return;
+                    foreach (var entry in bodies.ToList()) {
+                        bodies.Remove(entry);
+                        if (await eidolon.AskToUseReaction(entry.Item1.Name + " has died. Would your like to inhabit its body?")) {
+                            Sfxs.Play(SfxName.BeastRoar);
+                            await eidolon.FictitiousSingleTileMove(entry.Item2);
+                            await eidolon.Battle.Cinematics.WaitATinyBit();
+                            await CommonAnimations.CreateConeAnimation(eidolon.Battle, entry.Item2.ToCenterVector(), entry.Item2.Neighbours.TilesPlusSelf.ToList(), 5, ProjectileKind.Cone, IllustrationName.BloodVendetta);
+                            eidolon.TranslateTo(entry.Item2);
+
+                            var formTraits = new List<BattleformTrait>();
+                            if (entry.Item1.HasEffect(QEffectId.Flying))
+                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.Flying()));
+                            if (entry.Item1.HasTrait(Trait.Aquatic))
+                                formTraits.Add(BattleformTrait.CreateAquatic());
+                            else if (entry.Item1.HasEffect(QEffectId.Swimming))
+                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.Swimming()));
+                            foreach (var res in entry.Item1.WeaknessAndResistance.Resistances) {
+                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.DamageResistance(res.DamageKind, res.Value)));
+                            }
+                            foreach (var immunity in entry.Item1.WeaknessAndResistance.Immunities) {
+                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.DamageImmunity(immunity)));
+                            }
+                            foreach (var trait in entry.Item1.Traits.Where(tr => TraitExtensions.TraitProperties[tr].Relevant)) {
+                                if (trait == Trait.Good || trait == Trait.Evil ||
+                                trait == Trait.Lawful || trait == Trait.Chaotic) continue;
+                                formTraits.Add(BattleformTrait.CreateAddTrait(trait));
+                            }
+
+                            var battleform = new BattleformDefinition(entry.Item1.Illustration,
+                                ac: lvl => entry.Item1.Defenses.GetBaseValue(Defense.AC),
+                                speed: lvl => entry.Item1.Speed,
+                                temporaryHP: lvl => (int)(entry.Item1.MaxHP * 0.1f),
+                                size: lvl => entry.Item1.Space.Size,
+                                minimumAttack: lvl => entry.Item1.Weapons.Count() == 0 ? 0 : entry.Item1.GetProficiency(entry.Item1.Weapons.MaxBy(wpn => entry.Item1.GetProficiency(wpn))!),
+                                minimumAthletics: lvl => entry.Item1.Skills.Get(Skill.Athletics),
+                                attacks: lvl => entry.Item1.Weapons.ToArray(),
+                                traits: lvl => formTraits.ToArray());
+
+                            battleform.Name = entry.Item1.BaseName + " Skinsleeve";
+                            var ca = CombatAction.CreateSimple(eidolon, "Inhabit Body", [Trait.Necromancy]);
+                            var lvl = eidolon.Level;
+                            var hasHands = entry.Item1.HasTrait(Trait.Humanoid) ? true : entry.Item1.HasTrait(Trait.Animal) || entry.Item1.HasTrait(Trait.Beast) || !entry.Item1.DoesNotSpeakCommon ? false : true;
+
+                            var form = await SizeChangeRules.EnterSpellBasedBattleform(ca,
+                                battleform.Portrait, battleform.AC!(lvl), battleform.Speed!(lvl), null, battleform.Size!(lvl), true, battleform.TemporaryHP?.Invoke(lvl) ?? 0, hasHands);
+                            if (form == null) return;
+                            form.BattleformMinimumStrikeModifier = battleform.MinimumAttack!(lvl);
+                            if (battleform.MinimumAthletics != null) {
+                                form.BattleformMinimumAthleticsModifier = battleform.MinimumAthletics(lvl);
+                            }
+
+                            if (battleform.MinimumAcrobatics != null) {
+                                form.BattleformMinimumAcrobaticsModifier = battleform.MinimumAcrobatics(lvl);
+                            }
+
+                            if (battleform.Attacks != null) {
+                                var battleformAttacks = battleform.Attacks(lvl);
+                                foreach (var attack in battleformAttacks) {
+                                    if (!attack.HasTrait(Trait.BattleformAttack)) attack.Traits.Add(Trait.BattleformAttack);
+                                }
+
+                                if (battleformAttacks.Length >= 1) {
+                                    form.StateCheck += sc => {
+                                        var newAttacks = battleform.Attacks(lvl);
+                                        sc.Owner.ReplacementUnarmedStrike = newAttacks[0];
+                                    };
+                                }
+
+                                if (battleformAttacks.Length >= 2) {
+                                    form.AdditionalUnarmedStrike = battleformAttacks[1];
+                                }
+
+
+                                foreach (var attack in battleformAttacks.Skip(2)) {
+                                    var qfTertiaryAttack = new QEffect() {
+                                        AdditionalUnarmedStrike = attack
+                                    };
+                                    eidolon.AddQEffect(qfTertiaryAttack);
+                                    form.WhenExpires += _ => qfTertiaryAttack.ExpiresAt = ExpirationCondition.Immediately;
+                                }
+                            }
+
+                            if (battleform.Traits != null) {
+                                foreach (var trait in battleform.Traits(lvl)) {
+                                    trait.Effect(form);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            inhabit.AddGrantingOfTechnical(cr => cr.IsLivingCreature && cr.EnemyOf(eidolon), qfTech => {
+                qfTech.WhenMonsterDies = _ => {
+                    if (qfTech.Owner.DistanceTo(eidolon) <= 3 && eidolon.HasLineOfEffectToIgnoreLesser(qfTech.Owner) < CoverKind.Blocked)
+                        (inhabit.Tag as List<(Creature, Tile)>)!.Add((qfTech.Owner, qfTech.Owner.Occupies));
+                };
+            });
+            eidolon.AddQEffect(inhabit);
+            
+            if (eidolon.Level >= 7) {
+                
+            }
+        }
 
         private static bool IsSlashingOrBludgeoning(CombatAction action) {
             Item obj1 = action.Item;
@@ -1998,21 +2328,3 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
     }
 }
-
-
-
-            
-            
-            //} else if (summoner.HasFeat(scBeastEidolon)) {
-            //    
-            //    }
-            //} else if (summoner.HasFeat(scDevoPhantomEidolon)) {
-            //    
-            //    }
-            //} else if (summoner.HasFeat(scAzataEidolon)) {
-            //    
-            //} else if (summoner.HasFeat(scDevilEidolon)) {
-            //    
-            //} else if (summoner.HasFeat(scAngerPhantom)) {
-            //    
-            //}

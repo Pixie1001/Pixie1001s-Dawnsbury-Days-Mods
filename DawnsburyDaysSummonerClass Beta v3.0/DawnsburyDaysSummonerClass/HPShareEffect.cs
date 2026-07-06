@@ -15,8 +15,8 @@ using Microsoft.Xna.Framework.Graphics;
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public class HPShareEffect : QEffect {
-        public List<HPShareLogEntry>? Logs { get; private set; }
-        private CombatAction? ca;
+        public List<HPShareLogEntry> Logs { get; private set; } = new List<HPShareLogEntry>();
+        private CombatAction ca = CombatAction.DefaultCombatAction;
         public CombatAction CA { get { return ca; } }
 
         public HPShareEffect(Creature owner) : base() {
@@ -52,7 +52,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         public void UpdateLogs(int damage, HPShareLogEntry triggeringLog) {
-            foreach (HPShareLogEntry log in Logs.Where(l => l != triggeringLog)) {
+            foreach (HPShareLogEntry log in Logs!.Where(l => l != triggeringLog)) {
                 log.HP -= damage;
             }
         }

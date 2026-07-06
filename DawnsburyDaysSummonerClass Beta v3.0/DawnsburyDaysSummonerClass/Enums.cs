@@ -103,6 +103,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName scDemonEidolonTempter = ModManager.RegisterFeatName("Tempter Demon");
         internal static FeatName scDemonEidolonWrecker = ModManager.RegisterFeatName("Wrecker Demon");
 
+        internal static FeatName scArsonDemonEidolon = ModManager.RegisterFeatName("Summoner_DemonSinArson", "Arson Demon");
+
         // Class Feat names
         internal static FeatName ftAbundantSpellcasting1 = ModManager.RegisterFeatName("AbundantSpellCastingSummoner1", "Abundant Spellcasting");
         internal static FeatName ftAbundantSpellcasting4 = ModManager.RegisterFeatName("AbundantSpellCastingSummoner4", "Abundant Spellcasting 2");
@@ -112,6 +114,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public static FeatName ftAirbornForm = ModManager.RegisterFeatName("Airborn Form");
         public static FeatName ftPDemonicStrikes = ModManager.RegisterFeatName("Demon_PrimaryUnarmedAttack", "Primary Unarmed Attack");
         public static FeatName ftSDemonicStrikes = ModManager.RegisterFeatName("Demon_SecondaryUnarmedAttack", "Secondary Unarmed Attack");
+        public static FeatName ftHulkingSize = ModManager.RegisterFeatName("Summoner_HulkingSize", "Hulking Size");
+        public static FeatName ftTravelersAura = ModManager.RegisterFeatName("Summoner_TravelersAura", "Traveler's Aura");
+        public static FeatName ftAngelicAegis = ModManager.RegisterFeatName("Summoner_AngelicAegis", "Angelic Aegis");
+        public static FeatName ftSkilledPartnerBattleMedicine = ModManager.RegisterFeatName($"SkilledPartner_BattleMedicine", "Battle Medicine");
+
+        // Subfeat Names
+        public static FeatName sftSilver = ModManager.RegisterFeatName("Summoner_MetallicWeaponySilver", "Silver");
+        public static FeatName sftColdIron = ModManager.RegisterFeatName("Summoner_MetallicWeaponyColdIron", "Cold Iron");
 
         // Primary Weapon Feat Names
         internal static FeatName ftPSword = ModManager.RegisterFeatName("P_Sword", "Sword");
@@ -189,6 +199,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static QEffectId qfSoulSiphon = ModManager.RegisterEnumMember<QEffectId>("Soul Siphon");
         internal static QEffectId qfElementalBurst = ModManager.RegisterEnumMember<QEffectId>("Elemental Burst");
         internal static QEffectId qfVisionsOfSin = ModManager.RegisterEnumMember<QEffectId>("Visions of Sin");
+        internal static QEffectId qfProtectiveBond = ModManager.RegisterEnumMember<QEffectId>("Summoner_ProtectiveBond");
+        internal static QEffectId qfSummonersCallToggle = ModManager.RegisterEnumMember<QEffectId>("Summoner_SummonersCallToggle");
 
         // Actions
         internal static ActionId acCelestialPassion = ModManager.RegisterEnumMember<ActionId>("CelestialPassion");
@@ -231,5 +243,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static ModdedIllustration illKineticistAura = new ModdedIllustration("SummonerAssets/KineticistAuraCircle.png");
         internal static ModdedIllustration illWhimsicalAura = new ModdedIllustration("SummonerAssets/WhimsicalAura.png");
         internal static ModdedIllustration illCancel = new ModdedIllustration("SummonerAssets/Cancel.png");
+        internal static ModdedIllustration illDrainBlood = new ModdedIllustration("SummonerAssets/DrainBlood.png");
     }
 }

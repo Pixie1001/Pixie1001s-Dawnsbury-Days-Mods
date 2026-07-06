@@ -1,17 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury;
-using Dawnsbury.Audio;
-using Dawnsbury.Core;
-using Dawnsbury.Auxiliary;
-using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
@@ -21,42 +10,11 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display.Text;
-using Dawnsbury.IO;
-using Dawnsbury.Modding;
-using Dawnsbury.Mods.Classes.Summoner;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
-using Dawnsbury.Modding;
-using Dawnsbury.Core.Mechanics;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -111,20 +69,26 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     sheet.GrantFeat(skill);
                 }
                 if (this.FeatName == Enums.scFeyEidolon)
-                    sheet.AddFeat(AllFeats.All.FirstOrDefault(ft => ft.FeatName == Enums.ftMagicalUnderstudy), null);
+                    sheet.AddFeat(AllFeats.All.FirstOrDefault(ft => ft.FeatName == Enums.ftMagicalUnderstudy)!, null);
                 SpellRepertoire repertoire = sheet.SpellRepertoires[Enums.tSummoner];
-                if (this.FeatName != Enums.scFeyEidolon) {
-                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerCantrips", "Cantrips", 1, Enums.tSummoner, spellList, 0, 5));
-                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells1", "Level 1 spells", 1, Enums.tSummoner, spellList, 1, 2));
-                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells2", "Level 1 spell", 2, Enums.tSummoner, spellList, 1, 1));
-                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells3", "Level 2 spell", 3, Enums.tSummoner, spellList, 2, 1));
-                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells4", "Level 2 spell", 4, Enums.tSummoner, spellList, 2, 1));
-                } else {
+                if (this.FeatName == Enums.scFeyEidolon) {
                     sheet.AddSelectionOption((SelectionOption)new SelectFeySpells("SummonerCantrips", "Cantrips", 1, Enums.tSummoner, 0, 5, true));
                     sheet.AddSelectionOption((SelectionOption)new SelectFeySpells("SummonerSpells1", "Level 1 spells", 1, Enums.tSummoner, 1, 2));
                     sheet.AddSelectionOption((SelectionOption)new SelectFeySpells("SummonerSpells2", "Level 1 spell", 2, Enums.tSummoner, 1, 1));
                     sheet.AddSelectionOption((SelectionOption)new SelectFeySpells("SummonerSpells3", "Level 2 spells", 3, Enums.tSummoner, 2, 1));
                     sheet.AddSelectionOption((SelectionOption)new SelectFeySpells("SummonerSpells4", "Level 2 spell", 4, Enums.tSummoner, 2, 1));
+                } else if (sheet.HasFeat(Enums.scArsonDemonEidolon)) {
+                    sheet.AddSelectionOption((SelectionOption)new SelectArsonSpells("SummonerCantrips", "Cantrips", 1, Enums.tSummoner, 0, 5, true));
+                    sheet.AddSelectionOption((SelectionOption)new SelectArsonSpells("SummonerSpells1", "Level 1 spells", 1, Enums.tSummoner, 1, 2));
+                    sheet.AddSelectionOption((SelectionOption)new SelectArsonSpells("SummonerSpells2", "Level 1 spell", 2, Enums.tSummoner, 1, 1));
+                    sheet.AddSelectionOption((SelectionOption)new SelectArsonSpells("SummonerSpells3", "Level 2 spell", 3, Enums.tSummoner, 2, 1));
+                    sheet.AddSelectionOption((SelectionOption)new SelectArsonSpells("SummonerSpells4", "Level 2 spell", 4, Enums.tSummoner, 2, 1));
+                } else {
+                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerCantrips", "Cantrips", 1, Enums.tSummoner, spellList, 0, 5));
+                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells1", "Level 1 spells", 1, Enums.tSummoner, spellList, 1, 2));
+                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells2", "Level 1 spell", 2, Enums.tSummoner, spellList, 1, 1));
+                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells3", "Level 2 spell", 3, Enums.tSummoner, spellList, 2, 1));
+                    sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption("SummonerSpells4", "Level 2 spell", 4, Enums.tSummoner, spellList, 2, 1));
                 }
 
                 repertoire.SpellSlots[1] = 1;
@@ -133,7 +97,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 sheet.AddAtLevel(4, (Action<CalculatedCharacterSheetValues>)(_ => ++repertoire.SpellSlots[2]));
 
                 if (this.FeatName == Enums.scFeyEidolon)
-                    sheet.AddAtLevel(7, sheet => sheet.AddFeat(AllFeats.All.FirstOrDefault(ft => ft.FeatName == Enums.ftMagicalAdept), null));
+                    sheet.AddAtLevel(7, sheet => sheet.AddFeat(AllFeats.All.FirstOrDefault(ft => ft.FeatName == Enums.ftMagicalAdept)!, null));
 
                 for (int index = 5; index <= 17; index += 2) {
                     int thisLevel = index;
@@ -151,12 +115,15 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         int maximumSpellLevel = num;
                         AddToSpellRepertoireOption repertoireOption1;
                         AddToSpellRepertoireOption repertoireOption2;
-                        if (this.FeatName != Enums.scFeyEidolon) {
-                            repertoireOption1 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel - 1, 3);
-                            repertoireOption2 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel, 2);
-                        } else {
+                        if (this.FeatName == Enums.scFeyEidolon) {
                             repertoireOption1 = new SelectFeySpells($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel - 1, 3);
                             repertoireOption2 = new SelectFeySpells($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel, 2);
+                        } else if (sheet.HasFeat(Enums.scArsonDemonEidolon)) {
+                            repertoireOption1 = new SelectArsonSpells($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel - 1, 3);
+                            repertoireOption2 = new SelectArsonSpells($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel, 2);
+                        } else {
+                            repertoireOption1 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel - 1, 3);
+                            repertoireOption2 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel, 2);
                         }
                         values.AddSelectionOption((SelectionOption)repertoireOption1);
                         values.AddSelectionOption((SelectionOption)repertoireOption2);
