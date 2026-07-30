@@ -12,6 +12,7 @@ using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using Microsoft.VisualBasic.FileIO;
@@ -125,17 +126,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         }
 
         public static void WeakenCreature(Creature enemy) {
-                QEffectId adj = GetAdjustmentRank(enemy);
-                if (adj == QEffectId.Elite) {
-                    RemoveDifficultyAdjustment(enemy);
-                } else if (adj == QEffectId.Unspecified) {
-                    enemy.ApplyWeakAdjustments(false);
-                } else if (adj == QEffectId.Weak) {
-                    RemoveDifficultyAdjustment(enemy);
-                    enemy.ApplyWeakAdjustments(false, true);
-                }
-            AdjustEvolvableEnemy(enemy, true);
+            QEffectId adj = GetAdjustmentRank(enemy);
+            if (adj == QEffectId.Elite) {
+                RemoveDifficultyAdjustment(enemy);
+            } else if (adj == QEffectId.Unspecified) {
+                enemy.ApplyWeakAdjustments(false);
+            } else if (adj == QEffectId.Weak) {
+                RemoveDifficultyAdjustment(enemy);
+                enemy.ApplyWeakAdjustments(false, true);
             }
+            AdjustEvolvableEnemy(enemy, true);
+        }
 
         public static void StrengthenCreature(Creature enemy) {
             QEffectId adj = GetAdjustmentRank(enemy);
@@ -146,28 +147,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             } else if (adj == QEffectId.Elite) {
                 RemoveDifficultyAdjustment(enemy);
                 enemy.ApplyEliteAdjustments(true);
-        }
+            }
             AdjustEvolvableEnemy(enemy, false);
         }
 
         private static void AdjustEvolvableEnemy(Creature creature, bool levelDrain) {
             QEffectId adj = GetAdjustmentRank(creature);
-                if (levelDrain && adj == QEffectId.Inferior) {
+            if (levelDrain && (adj == QEffectId.Weak || adj == QEffectId.Inferior)) {
                 if (creature.CreatureId == CreatureIds.DrowShadowcaster) {
                     Tile pos = creature.Occupies;
                     Faction faction = creature.OwningFaction;
                     creature.Battle.RemoveCreatureFromGame(creature);
-                    creature.Battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowArcanist](creature.Battle.Encounter), faction, pos);
+                    var newCreature = DrowArcanist.Create();
+                    creature.Battle.SpawnCreature(newCreature, faction, pos);
+                    if (adj == QEffectId.Weak) {
+                        newCreature.ApplyEliteAdjustments();
                     }
-                } else if (!levelDrain && adj == QEffectId.Supreme) {
+                }
+            } else if (!levelDrain && adj == QEffectId.Supreme) {
                 if (creature.CreatureId == CreatureIds.DrowArcanist) {
                     Tile pos = creature.Occupies;
                     Faction faction = creature.OwningFaction;
                     creature.Battle.RemoveCreatureFromGame(creature);
                     creature.Battle.SpawnCreature(CreatureList.Creatures[CreatureIds.DrowShadowcaster](creature.Battle.Encounter), faction, pos);
-                    }
                 }
             }
+        }
 
         //private static void AdjustEvolvableEnemies(TBattle battle, bool levelDrain) {
         //    List<Creature> creatures = battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList();

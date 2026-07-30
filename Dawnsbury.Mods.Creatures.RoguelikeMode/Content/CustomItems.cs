@@ -3316,14 +3316,15 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                         (Target)Target.Self()
                         .WithAdditionalRestriction(cr => self.UsedThisTurn ? "You already commanded your animal companion this turn." : null))
                         .WithActionCost(0)
-                        .WithEffectOnSelf((Func<Creature, Task>)(async caster => {
+                        .WithEffectOnSelf(async (spell, caster) => {
                             self.UsedThisTurn = true;
                             animalCompanion.AddQEffect(new QEffect(ExpirationCondition.ExpiresAtEndOfYourTurn) {
                                 Id = QEffectId.MoveOnYourOwn,
                                 PreventTakingAction = ca => !ca.HasTrait(Trait.Move) && !ca.HasTrait(Trait.Strike) && ca.ActionId != ActionId.EndTurn ? "You can only move or make a Strike." : null
                             });
+                            animalCompanion.Actions.UseUpActions(1, ActionDisplayStyle.UsedUp, spell);
                             await CommonSpellEffects.YourMinionActs(animalCompanion);
-                        })), PossibilitySize.Half))
+                        }), PossibilitySize.Half))
                     });
                 };
             });

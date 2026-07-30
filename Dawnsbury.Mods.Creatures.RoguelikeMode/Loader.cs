@@ -147,14 +147,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<DefendTheReliquary>("Event_ReliquaryDefence.tmx");
 
             // Elite Fights
-            RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx", "Elite_HallOfSmokeLv1");
-            RegisterEncounter<AntiPartyLv1>("Antiparty.tmx", "AntipartyLv1");
-            RegisterEncounter<AqueductsLv1>("Aqueducts.tmx", "AqueductsLv1");
-            RegisterEncounter<MaidenOfTheLostLv1>("Elite_WitchMaiden.tmx", "MaidenOfTheLostLv1");
-            RegisterEncounter<MotherOfThePoolLv1>("Elite_WitchMother.tmx", "MotherOfThePoolLv1");
-            RegisterEncounter<CroneOfTheWildsLv1>("Elite_WitchCrone.tmx", "CroneOfTheWildsLv1");
-            RegisterEncounter<GrandStaircaseL1>("GrandStaircase.tmx", "GrandStaircaseL1");
-            RegisterEncounter<LairOfTheDriderLv1>("Elite_LairOfTheDrider.tmx", "LairOfTheDriderLv1");
+            ModManager.RegisterEncounter<HallOfSmokeLv1>("Elite_HallOfSmokeLv2.tmx");
+            ModManager.RegisterEncounter<AntiPartyLv1>("Antiparty.tmx");
+            ModManager.RegisterEncounter<AqueductsLv1>("Aqueducts.tmx");
+            ModManager.RegisterEncounter<MaidenOfTheLostLv1>("Elite_WitchMaiden.tmx");
+            ModManager.RegisterEncounter<MotherOfThePoolLv1>("Elite_WitchMother.tmx");
+            ModManager.RegisterEncounter<CroneOfTheWildsLv1>("Elite_WitchCrone.tmx");
+            ModManager.RegisterEncounter<GrandStaircaseL1>("GrandStaircase.tmx");
+            ModManager.RegisterEncounter<LairOfTheDriderLv1>("Elite_LairOfTheDrider.tmx");
 
             // Low Lvl Boss fights
             ModManager.RegisterEncounter<Boss_DriderFight>("Boss_DriderFight.tmx");

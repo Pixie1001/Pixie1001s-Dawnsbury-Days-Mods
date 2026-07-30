@@ -347,7 +347,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                                     List<CombatAction> shurikenThrows = new List<CombatAction>();
                                     foreach ((Item?, Item) shuriken in uniqueShurikens) {
-                                        var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, -1, true).WithActionCost(0);
+                                        var strike = StrikeRules.CreateStrike(self, shuriken.Item2, RangeKind.Ranged, -1, true).WithActionCost(0).WithExtraTrait(Trait.FromFlurryOfBlows);
                                         (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             if (shuriken.Item1 != null)
@@ -368,7 +368,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                                 shuriken.WithModificationRune(rune.ItemName);
                                         }
 
-                                        var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0);
+                                        var strike = StrikeRules.CreateStrike(self, shuriken, RangeKind.Ranged, -1, true).WithActionCost(0).WithExtraTrait(Trait.FromFlurryOfBlows);
                                         (strike.Target as CreatureTarget)?.WithAdditionalConditionOnTargetCreature((a, d) => a.HasFreeHand ? Usability.Usable : Usability.NotUsable("no-free-hand"));
                                         strike.WithPrologueEffectOnChosenTargetsBeforeRolls(async (action, user, targets) => {
                                             user.AddHeldItem(shuriken);
@@ -384,7 +384,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             } else if (self.QEffects.Any(qf => qf.Id == QEffectIds.MonasticArcherStance)) {
                                 Item? bow = self.HeldItems.FirstOrDefault(wpn => (wpn.HasTrait(Trait.MonkWeapon) && wpn.HasTrait(Trait.Bow) && !wpn.HasTrait(Trait.Advanced)) || new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(wpn.MainTrait));
                                 if (bow != null) {
-                                    var combatAction = self.CreateStrike(bow);
+                                    var combatAction = self.CreateStrike(bow).WithExtraTrait(Trait.FromFlurryOfBlows);
                                     (combatAction.Target as CreatureTarget)?.CreatureTargetingRequirements.Add(new MaximumRangeCreatureTargetingRequirement(bow.WeaponProperties?.RangeIncrement / (monk.HasEffect(QEffectId.FarShot) ? 1 : 2) ?? 1));
                                     combatAction.WithActionCost(0);
                                     GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
@@ -392,14 +392,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                             }
 
                             foreach (var item in self.Weapons.Where(weapon => Monk.CountsAsUnarmed(self, weapon))) {
-                                var combatAction = self.CreateStrike(item);
+                                var combatAction = self.CreateStrike(item).WithExtraTrait(Trait.FromFlurryOfBlows);
                                 combatAction.WithActionCost(0);
                                 GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
                             }
 
                             if (self.HasFeat(MonasticWeaponry)) {
                                 foreach (var item in self.Weapons.Where(weapon => weapon.HasTrait(Trait.MonkWeapon) && weapon.HasTrait(Trait.Melee))) {
-                                    var combatAction = self.CreateStrike(item);
+                                    var combatAction = self.CreateStrike(item).WithExtraTrait(Trait.FromFlurryOfBlows);
                                     combatAction.WithActionCost(0);
                                     GameLoop.AddDirectUsageOnCreatureOptions(combatAction, possibilities, true);
                                 }
@@ -408,7 +408,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                             if (self.HasEffect(QEffectId.FlurryOfManeuvers)) {
                                 foreach (var maneuverAction in CombatManeuverPossibilities.GetAllShoveGrappleAndTripOptions(self)) {
-                                    GameLoop.AddDirectUsageOnCreatureOptions(maneuverAction.WithActionCost(0), possibilities, true);
+                                    GameLoop.AddDirectUsageOnCreatureOptions(maneuverAction.WithActionCost(0).WithExtraTrait(Trait.FromFlurryOfBlows), possibilities, true);
                                 }
                             }
 

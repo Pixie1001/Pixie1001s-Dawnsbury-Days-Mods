@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="76" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="126" columns="0">
   <grid orientation="orthogonal" width="1" height="1" />
   <tile id="0">
     <properties>
@@ -380,6 +380,260 @@
   <tile id="75">
     <properties>
       <property name="Id" value="Vraul" />
+    </properties>
+  </tile>
+  <tile id="76">
+    <properties>
+      <property name="Id" value="ElementalWyrmVat" />
+    </properties>
+    <image source="Creatures/ElementalVat.png" width="256" height="256" />
+  </tile>
+  <tile id="77">
+    <properties>
+      <property name="Id" value="ElementalRoomLever" />
+    </properties>
+    <image source="Creatures/LeverOff.png" width="256" height="256" />
+  </tile>
+  <tile id="78">
+    <properties>
+      <property name="Id" value="PressurePlate" />
+    </properties>
+    <image source="Tiles/PressurePlate.png" width="256" height="256" />
+  </tile>
+  <tile id="79">
+    <properties>
+      <property name="Id" value="S12E4Warhammer" />
+    </properties>
+    <image source="Creatures/RitualScroll.png" width="256" height="256" />
+  </tile>
+  <tile id="80">
+    <properties>
+      <property name="Id" value="Portcullis" />
+    </properties>
+  </tile>
+  <tile id="81">
+    <properties>
+      <property name="Id" value="Gylou" />
+    </properties>
+  </tile>
+  <tile id="82">
+    <properties>
+      <property name="Id" value="Osyluth" />
+    </properties>
+  </tile>
+  <tile id="83">
+    <properties>
+      <property name="Id" value="Ferrugon" />
+    </properties>
+  </tile>
+  <tile id="84">
+    <properties>
+      <property name="Id" value="Gelugon" />
+    </properties>
+  </tile>
+  <tile id="85">
+    <properties>
+      <property name="Id" value="Sarglagon" />
+    </properties>
+  </tile>
+  <tile id="86">
+    <properties>
+      <property name="Id" value="Nalfeshnee" />
+    </properties>
+  </tile>
+  <tile id="87">
+    <properties>
+      <property name="Id" value="AdultAcidDragon" />
+    </properties>
+  </tile>
+  <tile id="88">
+    <properties>
+      <property name="Id" value="NascentPitFiend" />
+    </properties>
+  </tile>
+  <tile id="89">
+    <properties>
+      <property name="Id" value="AbolethCultist" />
+    </properties>
+  </tile>
+  <tile id="90">
+    <properties>
+      <property name="Id" value="VeiledMaster" />
+    </properties>
+  </tile>
+  <tile id="91">
+    <properties>
+      <property name="Id" value="HellBulette" />
+    </properties>
+  </tile>
+  <tile id="92">
+    <properties>
+      <property name="Id" value="SoldierWretch" />
+    </properties>
+  </tile>
+  <tile id="93">
+    <properties>
+      <property name="Id" value="SoldierHero" />
+    </properties>
+  </tile>
+  <tile id="94">
+    <properties>
+      <property name="Id" value="Combusted" />
+    </properties>
+  </tile>
+  <tile id="95">
+    <properties>
+      <property name="Id" value="Glabrezu" />
+    </properties>
+  </tile>
+  <tile id="96">
+    <properties>
+      <property name="Id" value="Omox" />
+    </properties>
+  </tile>
+  <tile id="97">
+    <properties>
+      <property name="Id" value="Urglid" />
+    </properties>
+  </tile>
+  <tile id="98">
+    <properties>
+      <property name="Id" value="Unrisen" />
+    </properties>
+  </tile>
+  <tile id="99">
+    <properties>
+      <property name="Id" value="Charel" />
+    </properties>
+  </tile>
+  <tile id="100">
+    <properties>
+      <property name="Id" value="RavenerHusk" />
+    </properties>
+  </tile>
+  <tile id="101">
+    <properties>
+      <property name="Id" value="Astradaemon" />
+    </properties>
+  </tile>
+  <tile id="102">
+    <properties>
+      <property name="Id" value="Ramielle13" />
+    </properties>
+  </tile>
+  <tile id="103">
+    <properties>
+      <property name="Id" value="Cassiel13" />
+    </properties>
+  </tile>
+  <tile id="104">
+    <properties>
+      <property name="Id" value="Seraphiel13" />
+    </properties>
+  </tile>
+  <tile id="105">
+    <properties>
+      <property name="Id" value="Baraquielle13" />
+    </properties>
+  </tile>
+  <tile id="106">
+    <properties>
+      <property name="Id" value="CragLinnorm" />
+    </properties>
+  </tile>
+  <tile id="107">
+    <properties>
+      <property name="Id" value="BabauTroop" />
+    </properties>
+  </tile>
+  <tile id="108">
+    <properties>
+      <property name="Id" value="VrockTroop" />
+    </properties>
+  </tile>
+  <tile id="109">
+    <properties>
+      <property name="Id" value="TheDarkMother" />
+    </properties>
+  </tile>
+  <tile id="110">
+    <properties>
+      <property name="Id" value="DarkDaughter1" />
+    </properties>
+  </tile>
+  <tile id="111">
+    <properties>
+      <property name="Id" value="DarkDaughter2" />
+    </properties>
+  </tile>
+  <tile id="112">
+    <properties>
+      <property name="Id" value="DarkDaughter3" />
+    </properties>
+  </tile>
+  <tile id="113">
+    <properties>
+      <property name="Id" value="DarkDaughter4" />
+    </properties>
+  </tile>
+  <tile id="114">
+    <properties>
+      <property name="Id" value="DinosaurWizard" />
+    </properties>
+  </tile>
+  <tile id="115">
+    <properties>
+      <property name="Id" value="KingdomSoldier" />
+    </properties>
+  </tile>
+  <tile id="116">
+    <properties>
+      <property name="Id" value="CarnivorousCrystal" />
+    </properties>
+  </tile>
+  <tile id="117">
+    <properties>
+      <property name="Id" value="IfritShyookh" />
+    </properties>
+  </tile>
+  <tile id="118">
+    <properties>
+      <property name="Id" value="TwoHeadedJotuntroll" />
+    </properties>
+  </tile>
+  <tile id="119">
+    <properties>
+      <property name="Id" value="Banshee" />
+    </properties>
+  </tile>
+  <tile id="120">
+    <properties>
+      <property name="Id" value="BlackScorpion" />
+    </properties>
+  </tile>
+  <tile id="121">
+    <properties>
+      <property name="Id" value="Shemhazian" />
+    </properties>
+  </tile>
+  <tile id="122">
+    <properties>
+      <property name="Id" value="Vavakia" />
+    </properties>
+  </tile>
+  <tile id="123">
+    <properties>
+      <property name="Id" value="MirrorEntity" />
+    </properties>
+  </tile>
+  <tile id="124">
+    <properties>
+      <property name="Id" value="TheFirstStarborn" />
+    </properties>
+  </tile>
+  <tile id="125">
+    <properties>
+      <property name="Id" value="Kalavakus" />
     </properties>
   </tile>
 </tileset>
