@@ -1,35 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
-using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.Possibilities;
-using System.Text;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
@@ -101,7 +75,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             List<Item> general = itemList.Where(item => (item.HasTrait(Trait.Potion) || item.HasTrait(Trait.Elixir)) && levelRange(item.Level)).ToList();
             general = general.Concat(itemList.Where(item => item.HasTrait(Trait.Potion) && item.HasTrait(Trait.Healing) && levelRange(item.Level))).ToList();
 
-            if (character.Spellcasting != null) {
+            if (character.Spellcasting?.PrimarySpellcastingSource != null) {
                 SpellcastingKind kind = character.Spellcasting.PrimarySpellcastingSource.Kind;
                 Trait tradition = character.Spellcasting.PrimarySpellcastingSource.SpellcastingTradition;
 

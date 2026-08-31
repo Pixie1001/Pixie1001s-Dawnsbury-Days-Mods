@@ -199,11 +199,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         public static int GetGoldReward(int level, ModEnums.EncounterType type) {
             // ~15 gives average recommended gold
             float gold = 7 * level;
-            if (level >= 4) gold = 37;
-            else if (level >= 5) gold = 50;
-            else if (level >= 6) gold = 75;
-            else if (level >= 7) gold = 110;
-            else if (level >= 8) gold = 150;
+            if (level == 4) gold = 37;
+            else if (level == 5) gold = 50;
+            else if (level == 6) gold = 75;
+            else if (level == 7) gold = 110;
+            else if (level == 8) gold = 150;
             else if (level >= 9) gold = 215;
 
             if (type == ModEnums.EncounterType.ELITE) {
@@ -236,9 +236,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         }
 
         public static void PostFightLoot(TBattle battle, int level, bool setLoot) {
-             
-
-            CampaignState.Instance?.CommonGold += battle.Encounter.RewardGold;
+            // battle.Encounter.RewardGold = battle.Encounter.RewardGold;
             if (!setLoot)
                 CampaignState.Instance?.CommonLoot.AddRange(battle.Encounter.Rewards);
         }
@@ -339,13 +337,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
 
             foreach (var option in itemOptions) {
                 if (option.Key == choice.Caption) {
-                    battle.CampaignState.CommonLoot.Add(option.Value.Item1);
                     battle.Encounter.Rewards.Add(option.Value.Item1);
                     if (option.Value.Item1.ItemName == CustomItems.BloodBondAmulet) {
                         // battle.CampaignState.CommonLoot.Add(option.Value.Item1);
                         battle.Encounter.Rewards.Add(option.Value.Item1);
                     }
-                    battle.Encounter.RewardGold += option.Value.Item1.Price;
                 }
             }
         }

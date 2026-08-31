@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="16" tilewidth="256" tileheight="256" infinite="0" nextlayerid="6" nextobjectid="1">
+ <properties>
+  <property name="DifficultyDoesNotMatter" type="bool" value="true"/>
+  <property name="EncounterDescription">In ages past, ancient primordial monstrosities are said to have stalked the surface, more fierce and terrible than any monster recorded in living history. Now, the cult of Echidna - progenitor goddess of monsters - conducts strange rituals deep within the bowels of the world to bring them back.
+
+The party gathers a militia sourced from the nearby townships terrorised by the cult, armed with acid and fire, to put her followers and their monstrosities to the sword. Yet as the party approaches, all that remains of them is scattered broken remains, and the horrific multi-headed creature that slew them.
+</property>
+  <property name="EncounterGroup" value="Roguelike (Boss)"/>
+  <property name="EncounterLevel" type="int" value="4"/>
+  <property name="EncounterName" value="Vault of the Hydra"/>
+  <property name="IsIndoors" type="bool" value="true"/>
+ </properties>
+ <tileset firstgid="1" source="BasicTileset.tsx"/>
+ <tileset firstgid="141" source="CustomCreatures.tsx"/>
+ <imagelayer id="1" name="Background image">
+  <image source="Boss_Hydra.jpg" width="3840" height="4096"/>
+ </imagelayer>
+ <layer id="2" name="Background" width="15" height="16" opacity="0.2">
+  <data encoding="csv">
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,22,21,21,21,21,21,21,21,21,21,21,21,22,22,
+22,22,21,21,21,21,21,21,21,21,21,21,21,22,22,
+22,22,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,21,21,21,21,21,21,21,21,21,21,22,
+22,21,21,21,106,106,106,106,106,106,106,21,21,21,22,
+22,21,106,106,106,106,106,106,106,106,106,106,106,21,22,
+22,106,106,106,106,106,106,106,106,106,106,106,106,106,22,
+22,22,106,106,106,106,106,106,106,106,106,106,106,22,22,
+22,22,106,106,106,106,106,106,106,106,106,106,106,22,22,
+22,22,22,106,106,106,106,106,106,106,106,106,22,22,22,
+22,22,22,22,22,22,22,22,22,22,22,22,22,22,22
+</data>
+ </layer>
+ <layer id="3" name="Terrain" width="15" height="16">
+  <data encoding="csv">
+0,14,0,0,0,14,0,0,0,14,0,0,0,14,0,
+0,0,0,0,0,0,0,0,0,16,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,16,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,16,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,16,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,16,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="4" name="Creatures" width="15" height="16">
+  <data encoding="csv">
+0,0,0,0,0,0,37,36,39,0,0,0,0,0,0,
+0,0,0,0,0,0,0,38,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,2216,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,2210,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="5" name="Meta" width="15" height="16">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,118,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>

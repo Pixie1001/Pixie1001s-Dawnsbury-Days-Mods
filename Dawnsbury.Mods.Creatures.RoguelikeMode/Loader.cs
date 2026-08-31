@@ -162,6 +162,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode {
             ModManager.RegisterEncounter<Boss_Handmaiden>("Boss_Handmaiden.tmx");
             ModManager.RegisterEncounter<Boss_FrozenTemple>("FrozenTemple.tmx");
             ModManager.RegisterEncounter<Boss_CoralCourt>("Boss_CourtOfTheCoralQueen.tmx");
+            ModManager.RegisterEncounter<Boss_Hydra>("Boss_Hydra.tmx");
 
             // High Lvl Boss fights
             ModManager.RegisterEncounter<Boss_DrowPrincesses>("HL_Boss_DrowPrincesses.tmx");

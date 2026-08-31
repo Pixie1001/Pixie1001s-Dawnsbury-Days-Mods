@@ -132,7 +132,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                                 DoNotShowUpOverhead = self.Owner.HasTrait(Trait.Aquatic),
                                 Illustration = IllustrationName.ElementWater,
                                 Innate = false,
-                                StateCheck = (Action<QEffect>)(qfAquaticCombat => {
+                                StateCheck = qfAquaticCombat => {
                                     qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Acid, 5).WithExpirationEphemeral());
                                     qfAquaticCombat.Owner.AddQEffect(QEffect.DamageResistance(DamageKind.Fire, 5).WithExpirationEphemeral());
                                     if (qfAquaticCombat.Owner.HasTrait(Trait.Aquatic) || qfAquaticCombat.Owner.HasEffect(QEffectId.Swimming))
@@ -140,14 +140,14 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                                     qfAquaticCombat.Owner.AddQEffect(new QEffect(ExpirationCondition.Ephemeral) {
                                         Id = QEffectId.CountsAllTerrainAsDifficultTerrain
                                     });
-                                }),
-                                PreventTakingAction = (Func<CombatAction, string>)(action => {
+                                },
+                                PreventTakingAction = action => {
                                     if (action.HasTrait(Trait.Impulse))
-                                        return (string)null;
+                                        return null;
                                     if (action.HasTrait(Trait.Fire))
                                         return "You can't use fire actions underwater.";
-                                    return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : (string)null;
-                                })
+                                    return action.HasTrait(Trait.Ranged) && action.HasTrait(Trait.Attack) && IsSlashingOrBludgeoning(action) ? "You can't use slashing or bludgeoning ranged attacks underwater." : (string?)null;
+                                }
                             };
                         }
                         return newEffect;
@@ -258,7 +258,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     }
                     extraGold += self.Owner.Battle.Encounter.RewardGold;
                     if (self.Owner.Battle.CampaignState != null) {
-                        self.Owner.Battle.CampaignState.CommonGold += (int)(extraGold * multiplier);
+                        self.Owner.Battle.Encounter.RewardGold += (int)(extraGold * multiplier);
                     }
                 };
             }).WithPrerequisite(sheet => {
@@ -306,7 +306,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         .WithProjectileCone(IllustrationName.CalmEmotions, 30, ProjectileKind.Cone)
                         .WithEffectOnEachTarget(async (action, user, target, _) => {
                             // Make roll
-                            CheckResult result = CommonSpellEffects.RollCheck($"No Cause for Alarm ({target.Name})", new ActiveRollSpecification(Checks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(GetDCByLevel(target.Level) - 2)), user, target);
+                            CheckResult result = CommonSpellEffects.RollCheck($"No Cause for Alarm ({target.Name})", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Diplomacy), Checks.FlatDC(GetDCByLevel(target.Level) - 2)), user, target);
 
                             // Get effect
                             QEffect? frightened = target.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Frightened);
@@ -315,12 +315,12 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             if (frightened != null) {
                                 if (result == CheckResult.CriticalSuccess) {
                                     frightened.Value -= 2;
-                                    target.Occupies.Overhead("*frightened reduced by 2*", Color.White);
+                                    target.Overhead("*frightened reduced by 2*", Color.White);
                                 } else if (result == CheckResult.Success) {
                                     frightened.Value -= 1;
-                                    target.Occupies.Overhead("*frightened reduced by 1*", Color.White);
+                                    target.Overhead("*frightened reduced by 1*", Color.White);
                                 } else {
-                                    target.Occupies.Overhead("*attempt failed*", Color.Red);
+                                    target.Overhead("*attempt failed*", Color.Red);
                                 }
 
                                 if (frightened.Value == 0) {
@@ -380,8 +380,8 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 .WithPrerequisite(values => values.GetProficiency(Trait.Deception) >= Proficiency.Trained, "You must be trained in Deception.")
                 .WithPermanentQEffect("You can aid allies with placebo medicinal aid as an 'other maneuver'.", qf => qf.ProvideActionIntoPossibilitySection = (self, section) => {
                     if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers)
-                        return (Possibility)null;
-                    CharacterSheet persistentCharacterSheet = self.Owner.PersistentCharacterSheet;
+                        return (Possibility?)null;
+                    CharacterSheet? persistentCharacterSheet = self.Owner.PersistentCharacterSheet;
                     if (persistentCharacterSheet == null || persistentCharacterSheet.Calculated.GetProficiency(Trait.Medicine) < Proficiency.Expert) {
                         return (ActionPossibility)SnakeOil.CreateSnakeOilAction(self.Owner, Proficiency.Trained);
                     } else if (persistentCharacterSheet != null && persistentCharacterSheet.Calculated.GetProficiency(Trait.Medicine) == Proficiency.Expert) {
@@ -546,10 +546,12 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 "You've spent years performing arduous physical labor, perhaps as penance for your crimes or as part of the efforts to rebuild after the Night of the Shooting Stars. " +
                 "You may have embraced adventuring as an easier method to make your way in the world, or to use the fruits of your difficult lifestyle for a greater purpose.",
                 "You're trained in {b}Athletics{/b}. You gain the {b}Hefty Hauler{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
-            .WithOnSheet(sheet => {
+            .WithOnSheet(sheet =>
+            {
                 sheet.GrantFeat(FeatName.Athletics);
-                sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER]);
             });
+
+            HandleOptionalAssurance(output, Skill.Athletics, FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER]);
 
             output.FeatGroup = Trade;
             yield return output;
@@ -698,8 +700,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 "You're trained in {b}Nature{/b}. You gain the {b}Fount of Knowledge{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Intelligence), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Nature);
-                sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
             });
+
+            HandleOptionalAssurance(output, Skill.Nature, FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
+
             output.FeatGroup = Intellectual;
             yield return output;
 
@@ -865,7 +869,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                                 if (comboBoxInputOption.SelectedObject is { } item) {
                                     var potion = Items.CreateNew(item.ItemName);
 
-                                    potion.Name = creature.Name + "'s " + potion.Name;
+                                    potion.ProsaicName = creature.Name + "'s " + potion.Name;
                                     potion.Price = 0;
                                     creature.AddHeldItem(potion);
                                     creature.Overhead($"*crafted {potion.Name}*", Color.Green);
@@ -904,7 +908,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             .WithOnCreature(c => {
                 c.AddQEffect(new QEffect("Manhunter", "Gain a +1 status bonus to checks to demoralise humanoid opponents.") {
                     BonusToSkillChecks = (skill, action, target) => {
-                        if (action != null && action.ActionId == ActionId.Demoralize && new Trait[] { Trait.Humanoid, Trait.Elf, Trait.Dwarf, Trait.Goblin, Trait.Human, Trait.Kobold, Trait.Orc, Trait.Leshy, Trait.Goblin, Trait.Gnoll, Trait.Gnome }.ContainsOneOf(target.Traits)) {
+                        if (target != null && action != null && action.ActionId == ActionId.Demoralize && new Trait[] { Trait.Humanoid, Trait.Elf, Trait.Dwarf, Trait.Goblin, Trait.Human, Trait.Kobold, Trait.Orc, Trait.Leshy, Trait.Goblin, Trait.Gnoll, Trait.Gnome }.ContainsOneOf(target.Traits)) {
                             return new Bonus(1, BonusType.Status, "Manhunter");
                         }
                         return null;
@@ -1009,9 +1013,12 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 "you can translate into a wondrous symphony some day.",
                 "You're trained in {b}Diplomacy{/b}. You gain the {b}Counter Tune{/b} ability.\n\n{b}Counter Tune {icon:Reaction}.{/b} Your musical talent is such that once per day, you can attempt to counteract an auditory action being" +
                 " attempted by an enemy, by blotting it out with a soothing tune of your own. Make a diplomacy or performance check vs. their class or spell save DC. The counteract level of this effect is equal to half your level, rounded up.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Dexterity, Ability.Charisma), new FreeAbilityBoost() })
-            .WithOnSheet(sheet => {
+            .WithOnSheet(sheet =>
+            {
                 sheet.GrantFeat(FeatName.Diplomacy);
-            })
+            });
+
+            var counterTune = new Feat(ModManager.RegisterFeatName("BoB_Counter Tune", "Counter Tune"), "", "", [tBoB], null)
             .WithOnCreature(c => {
                 QEffect effect = new QEffect("Counter Tune {icon:Reaction}", "Once per day, when an enemy creature attempts to use an action with the auditory trait, you can attempt to counteract it with a diplomacy or performace check.") {
                 };
@@ -1034,12 +1041,12 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             return false;
                         }
 
-                        if (action.HasTrait(Trait.Auditory) && self.Owner.DistanceTo(self.Source) <= 6) {
+                        if (action.HasTrait(Trait.Auditory) && self.Source != null && self.Owner.DistanceTo(self.Source) <= 6) {
                             // Determine params
                             string desc = "When an enemy within 30ft of you uses an ability with the Auditory trait, you may attempt to counteract it using a diplomacy or performance check.";
                             SpellcastingSource? spellcastingSource = action.SpellcastingSource;
                             int enemyDC = spellcastingSource != null ? spellcastingSource.GetSpellSaveDC() : self.Owner.ClassOrSpellDC();
-                            ActiveRollSpecification activeRollSpecification = new ActiveRollSpecification(Checks.SkillCheck(new Skill[] { Skill.Diplomacy, Skill.Performance }), (CalculatedNumber.CalculatedNumberProducer)((action, attacker, defender) => new CalculatedNumber(enemyDC, "Action DC", new List<Bonus?>())));
+                            ActiveRollSpecification activeRollSpecification = new ActiveRollSpecification(TaggedChecks.SkillCheck(new Skill[] { Skill.Diplomacy, Skill.Performance }), (CalculatedNumber.CalculatedNumberProducer)((action, attacker, defender) => new CalculatedNumber(enemyDC, "Action DC", new List<Bonus?>())));
                             CheckBreakdown breakdown = CombatActionExecution.BreakdownAttack(new CombatAction(self.Source, (Illustration)IllustrationName.ArcaneCascade, "Counter Tune", new Trait[] { Trait.Abjuration, Trait.Attack }, desc, (Target)Target.Self())
                             .WithActiveRollSpecification(activeRollSpecification), self.Owner);
 
@@ -1068,8 +1075,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                                     num3 = breakdown.CritHits;
                                     break;
                                 default:
-                                    throw new ArgumentOutOfRangeException();
-                                    return false;
+                                    throw new ArgumentOutOfRangeException("Counter Tune: Invalid check result");
                             }
                             int successfulEvents = num3;
                             int num4 = successfulEvents * 5;
@@ -1079,12 +1085,12 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             CheckResult? nullable = minimumNeededResult;
                             int valueOrDefault = (int)nullable.GetValueOrDefault();
                             if (checkResult >= valueOrDefault & nullable.HasValue) {
-                                self.Owner.Occupies.Overhead("counteracted!", Color.Red, self.Source?.ToString() + " {Green}counteracted{/Green} this (" + breakdownResult.D20Roll.ToString() + " >= " + (21 - successfulEvents).ToString() + ").", "Counter Tune", breakdown.DescribeWithFinalRollTotal(breakdownResult));
+                                self.Owner.Overhead("counteracted!", Color.Red, self.Source?.ToString() + " {Green}counteracted{/Green} this (" + breakdownResult.D20Roll.ToString() + " >= " + (21 - successfulEvents).ToString() + ").", "Counter Tune", breakdown.DescribeWithFinalRollTotal(breakdownResult));
                                 Sfxs.Play(SfxName.Abjuration);
                                 strBuilder.Append("This action was counteracted. Any prerequisite resources were still expended, but it had no effect.");
                                 return true;
                             }
-                            self.Source.Occupies.Overhead("Counter Tune failed", Color.White, self.Source?.ToString() + " {Red}failed{/Red} to counteract this (" + breakdownResult.D20Roll.ToString() + " vs. " + (21 - successfulEvents).ToString() + ").", "Counter Tune", breakdown.DescribeWithFinalRollTotal(breakdownResult));
+                            self.Source?.Overhead("Counter Tune failed", Color.White, self.Source?.ToString() + " {Red}failed{/Red} to counteract this (" + breakdownResult.D20Roll.ToString() + " vs. " + (21 - successfulEvents).ToString() + ").", "Counter Tune", breakdown.DescribeWithFinalRollTotal(breakdownResult));
                             Sfxs.Play(SfxName.Miss);
                             return false;
                         }
@@ -1092,6 +1098,20 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     };
                 });
             });
+
+
+
+            if (ModManager.TryParse("VirtuosicPerformer", out FeatName vp))
+            {
+                output.RulesText = "You're trained in {b}Diplomacy{/b}. You either gain the {b}Counter Tune{/b} ability or gain the {b}Virtuosic Performer{/b} feat.\n\n{b}Counter Tune {icon:Reaction}.{/b} Your musical talent is such that once per day, you can attempt to counteract an auditory action being attempted by an enemy, by blotting it out with a soothing tune of your own. Make a diplomacy or performance check vs. their class or spell save DC. The counteract level of this effect is equal to half your level, rounded up.";
+                output.Subfeats = [counterTune,
+                AllFeats.GetFeatByFeatName(vp)];
+            }
+            else
+            {
+                output.OnSheet += sheet => sheet.GrantFeat(counterTune.FeatName);
+            }
+
             output.FeatGroup = Intellectual;
             yield return output;
 
@@ -1111,8 +1131,10 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 "You're trained in {b}Arcana{/b}. You gain the {b}Fount of Knowledge{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Wisdom), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Arcana);
-                sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
             });
+
+            HandleOptionalAssurance(output, Skill.Arcana, FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
+
             output.FeatGroup = Intellectual;
             yield return output;
 
@@ -1164,7 +1186,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         .WithEffectOnSelf(creature => {
                             Item potion = CreateMoonshine(c.Level);
                             creature.AddHeldItem(potion);
-                            creature.Occupies.Overhead($"*produced {potion.Name}*", Color.Green);
+                            creature.Overhead($"*produced {potion.Name}*", Color.Green);
                             self.Owner.PersistentUsedUpResources.UsedUpActions.Add("Moonshine");
                             self.Tag = potion;
                         });
@@ -1191,7 +1213,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             output = new BackgroundSelectionFeat(ftBlacksmith,
                 "Before becoming an adventurer, you worked metal into humble farming tools, great sculptures of steel or weapons of war to supply the kingdom's troops. " +
                 "Perhaps you now adventure to put your hammer arm to more direct use, to seek out inspiration from ancient ruins and heroic deeds, or to search for valuable deposits of ore to construct your magnus opus.",
-                "You're trained in {b}Crafting{/b}. You gain 'Blackmsith's Maintenance' item, which you may apply to one of your weapons to cause it to deal an additional point of damage on the first successful strike each encounter.",
+                "You're trained in {b}Crafting{/b}. You gain the 'Blackmsith's Maintenance' item, which you may apply to one of your weapons to cause it to deal an additional point of damage on the first successful strike each encounter.",
                 new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Intelligence), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Crafting);
@@ -1209,7 +1231,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             .WithOnCreature(creature => {
                 creature.AddQEffect(new QEffect("Treasure Hunter", "You gain a +2 bonus to rolls made to spot and disarm traps.") {
                     BonusToAttackRolls = (self, action, target) => {
-                        if (action != null && ((action.ActionId == ActionId.Seek && target.Illustration == IllustrationName.DisarmTrap) || action.Name == "Disable trap")) {
+                        if (action != null && ((action.ActionId == ActionId.Seek && target?.Illustration == IllustrationName.DisarmTrap) || action.Name == "Disable trap")) {
                             return new Bonus(2, BonusType.Untyped, "Treasure Hunter");
                         }
                         return null;
@@ -1225,13 +1247,6 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Charisma, Ability.Strength), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Athletics);
-
-                //sheet.AtEndOfRecalculation += sheet => {
-                //    if (sheet.HasFeat(FeatName.ShieldBlock))
-                //        sheet.GrantFeat(FeatNames.feats[FeatNames.FeatId.NO_CAUSE_FOR_ALARM]);
-                //    else
-                //        sheet.GrantFeat(FeatName.ShieldBlock);
-                //};
             });
 
             output.Subfeats = [AllFeats.GetFeatByFeatName(FeatName.ShieldBlock),
@@ -1387,7 +1402,6 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Nature);
             })
             .WithOnCreature(creature => {
-                // TODO: Add feybound
                 creature.AddQEffect(new QEffect("Fey's Fortune", "Once per day, you may call upon your fey bargain as a {icon:FreeAction} to gain a +1 status bonus to all skill checks until the end of your turn.") {
                     StartOfCombat = async self => {
                         if (self.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Fey's Fortune")) {
@@ -1441,6 +1455,21 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             output.Traits.Add(tRare);
             yield return output;
 
+            // Add 'Skill Feats, Skill Items and Backgrounds' only backgrounds
+            if (ModManager.TryParse("Assurance", out FeatName assuranceMain) && ModManager.TryParse("Assurance - " + Skill.Athletics.ToStringOrTechnical(), out FeatName assuranceSub))
+            {
+                output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Farmhand"),
+                "With a strong back and an understanding of seasonal cycles, you tilled the land and tended crops. Your farm could have been razed by invaders, you could have lost the family tying you to the land, or you might have simply tired of the drudgery, but at some point you became an adventurer.",
+                "You're trained in {b}Athletics{/b}. You gain the {b}Assurance (Athletics){/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Wisdom), new FreeAbilityBoost() })
+                .WithOnSheet(sheet =>
+                {
+                    sheet.GrantFeat(FeatName.Athletics);
+                    sheet.GrantFeat(assuranceMain, assuranceSub);
+                });
+                output.FeatGroup = Trade;
+                yield return output;
+            }
+
             // TODO (Common)
             //  - Artist - Inspire on kill
             //  - 
@@ -1448,9 +1477,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             // TODO (Rare)
             //  - Unicorn Touched - Heal? Bestial Clarity?
             //  - Cultist - Invoke random miracle
-            //  - Chosen One - Use to 
-            //  - Feybound/Genie-blessed - activate to gain advantage on a skill check once per day
-            //  - Revanant - Negative healing (possibly just make you undead)
+            //  - Chosen One - Use to ?
             //  - 
 
         }
@@ -1467,7 +1494,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                             return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.BreathWeapon, "Exhale Dragon Whisky", new Trait[] { Trait.Fire, Trait.Alchemical },
                                 "{b}Range{/b} 15-foot cone\n{b}Saving Throw{/b} Reflex\n\nYou exhale a gout of flame. Deal " + dw_dice + "d6 fire damage to each creature in the area.", Target.Cone(3))
                             .WithProjectileCone(IllustrationName.BreathWeapon, 15, ProjectileKind.Cone)
-                            .WithSavingThrow(new SavingThrow(Defense.Reflex, u => u.ClassOrSpellDC()))
+                            .WithSavingThrow(new SavingThrow(Defense.Reflex, u => u?.ClassOrSpellDC() ?? 10))
                                 .WithEffectOnEachTarget(async (action, self, target, checkResult) => {
                                     await CommonSpellEffects.DealBasicDamage(action, self, target, checkResult, $"{dw_dice}d6", DamageKind.Fire);
                                 })
@@ -1525,12 +1552,34 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             return new Item[] { dragonwhisky, rotgut, berserkersBrew }[R.Next(0, 3)];
         }
 
+        internal static void HandleOptionalAssurance(Feat bg, Skill skill, FeatName defaultFeat) {
+            if (ModManager.TryParse("Assurance", out FeatName assuranceMain) && ModManager.TryParse("Assurance - " + skill.ToStringOrTechnical(), out FeatName assuranceSub))
+            {
+                var assuranceShell = new TrueFeat(ModManager.RegisterFeatName($"BoB_{bg.FeatName}_Assurance", $"Assurance ({skill.HumanizeTitleCase2()})"), 1, "", "", [])
+                    .WithOnSheet(sheet => {
+                        sheet.GrantFeat(assuranceMain, assuranceSub);
+                    });
+                ModManager.AddFeat(assuranceShell);
+                bg.RulesText = $"You're trained in {{b}}{skill.HumanizeTitleCase2()}{{/b}}. You gain the {{b}}{defaultFeat.HumanizeTitleCase2()}{{/b}} or {{b}}Assurance ({skill.HumanizeTitleCase2()}){{/b}} feat.";
+                bg.OnSheet += sheet => {
+                    var assuranceFeat2 = AllFeats.GetFeatByFeatNameOptional(assuranceSub);
+                    assuranceShell.FlavorText = assuranceFeat2?.FlavorText;
+                    assuranceShell.RulesText = assuranceFeat2?.RulesTextCreator?.Invoke(sheet.Sheet) ?? "";
+                    sheet.AddSelectionOption(new SingleFeatSelectionOption("BoB_AssuranceDetected_Labourer", "Background feat", 1, ft => ft.FeatName == FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER] || ft == assuranceShell));
+                };
+            }
+            else
+            {
+                bg.OnSheet += sheet => sheet.GrantFeat(defaultFeat);
+            }
+        }
+
         internal static int GetDCByLevel(int level) {
             return 14 + level + (level / 3);
         }
 
         static bool IsSlashingOrBludgeoning(CombatAction action) {
-            Item obj1 = action.Item;
+            Item? obj1 = action.Item;
             DamageKind? damageKind1;
             int num1;
             if (obj1 == null) {
@@ -1541,7 +1590,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 num1 = damageKind1.GetValueOrDefault() == damageKind2 & damageKind1.HasValue ? 1 : 0;
             }
             if (num1 == 0) {
-                Item obj2 = action.Item;
+                Item? obj2 = action.Item;
                 int num2;
                 if (obj2 == null) {
                     num2 = 0;
@@ -1553,7 +1602,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 if (num2 == 0)
                     return false;
             }
-            Item obj3 = action.Item;
+            Item? obj3 = action.Item;
             return (obj3 != null ? (obj3.HasTrait(Trait.VersatileP) ? 1 : 0) : 0) == 0;
         }
     }

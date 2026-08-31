@@ -104,7 +104,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
 
         public static ItemName Torch { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Torch", itemName => {
-            var torch = new Item(itemName, Illustrations.Torch, "torch", 0, 0, Trait.Simple, Trait.Fire, ModTraits.Improvised, ModTraits.Roguelike)
+            var torch = new Item(itemName, Illustrations.Torch, "torch", 0, 0, Trait.Simple, Trait.Fire, Trait.Agile, Trait.Finesse, ModTraits.Improvised, ModTraits.Roguelike)
             .WithMainTrait(ModTraits.Torch)
             .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning).WithAdditionalDamage("1", DamageKind.Fire));
 

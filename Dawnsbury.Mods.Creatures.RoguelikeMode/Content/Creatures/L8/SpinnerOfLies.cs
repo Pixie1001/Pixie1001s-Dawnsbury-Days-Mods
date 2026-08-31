@@ -72,7 +72,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         }
 
         private static void ApplyClass(Creature duplicate, bool guaranteeMelee=false) {
-            var test = duplicate.Spellcasting?.PrimarySpellcastingSource.GetSpellSaveDC();
+            var test = duplicate.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC();
 
             duplicate.RemoveAllQEffects(qf => qf.Key == "SpinnerOfLiesLoadout");
 
@@ -107,7 +107,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             "If they're already frightened, they instead suffer 1d12 mental damage per level of frightened. On a critical failure, they gain frightened 3 or suffer double damage instead.", Target.EnemiesOnlyEmanation(3))
                         .WithActionCost(2)
                         .WithGoodnessAgainstEnemy((_, a, d) => a.HasEffect(QEffectId.Frightened) ? a.GetQEffectValue(QEffectId.Frightened) * 5.5f : a.AI.Fear(d) / 2)
-                        .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.Spellcasting?.PrimarySpellcastingSource.GetSpellSaveDC() ?? 0))
+                        .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC() ?? 0))
                         .WithSoundEffect(SfxName.Fear)
                         .WithProjectileCone(IllustrationName.Fear, 15, ProjectileKind.Cone)
                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {

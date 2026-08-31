@@ -257,6 +257,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             bossFights[0].Add(new TypedEncounterCampaignStop<Boss_Handmaiden>());
             bossFights[0].Add(new TypedEncounterCampaignStop<Boss_FrozenTemple>());
             bossFights[0].Add(new TypedEncounterCampaignStop<Boss_CoralCourt>());
+            bossFights[0].Add(new TypedEncounterCampaignStop<Boss_Hydra>());
 
             // High Lvl Boss Fights
             bossFights[1].Add(new TypedEncounterCampaignStop<Boss_DragonWitch>());

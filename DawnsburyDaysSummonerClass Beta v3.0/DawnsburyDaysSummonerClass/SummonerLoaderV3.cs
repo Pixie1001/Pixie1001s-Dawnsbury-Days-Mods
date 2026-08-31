@@ -142,6 +142,9 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             ModManager.RegisterBooleanSettingsOption("Summoner_AutoUseActTogether", "Summoner: Use Act Together On Turn Start",
                 "When this is enabled, Summoners will immediately use Act Together when their turn starts.", false);
+
+            ModManager.RegisterBooleanSettingsOption("Summoner_PsychicSpellProgression", "Summoner: Use Psychic Spell Progression",
+                "When this is enabled, Summoners gain 2 spell slots every level like a Psychic, instead of using wave casting.", false);
         }
 
         private static void AddFeats(IEnumerable<Feat> feats) {
@@ -230,13 +233,10 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
 
 {{b}}4. Spontaneous Spellcasting:{{/b}} You can cast spells. You can cast 1 spell per day and you can choose the spells from among the spells you know. You learn 2 spells of your choice, but they must come from the spellcasting tradition of your eidolon. You also learn 5 cantrips — weak spells — that automatically heighten as you level up. You can cast any number of cantrips per day. You can gain additional spell slots and spells known from leveling up and from feats. Your spellcasting ability is Charisma.",
                 Subclasses.subclasses)
+                // TODO: Alter class features if alternate spell progression is toggled on
             .WithEffectiveClassFeatures(features => {
                 features
-                    .AddFeature(2, S.ExtraSpontaneousSpellSlot(1))
-                    .AddFeature(3, S.InitialLevel2SpontaneousSpellSlots("one spell slot"))
                     .AddFeature(3, "You and your eidolon become expert in Perception")
-                    .AddFeature(3, "Unlimited signature spells", "You can freely heighten or unheighten all of your spells freely, even if you don't know them at other spell levels.")
-                    .AddFeature(4, S.ExtraSpontaneousSpellSlot(2))
                     .AddFeature(7, "Your eidolon becomes expert in unarmed attacks")
                     .AddFeature(7, "Eidolon weapon specialization", "Your eidolon deals 2 additional damage with unarmed attacks in which they are an expert; this damage increases to 3 if they're a master.")
                     .AddFeature(7, "Eidolon symbiosis")
@@ -255,9 +255,16 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
                     .AddFeature(19, "Your eidolon becomes master in unarmoured defence")
                     .AddFeature(19, "Instant manifestation", "You can use Manifest Eidolon as a {icon:Action}, instead of a {icon:ThreeActions} activity.");
 
-                for (int i = 5; i <= 20; i += 2) {
-                    features
-                        .AddFeature(i, $"level {(i + 1) / 2} spells (two spell slots, but you lose all level {((i + 1) / 2) - 2} spell slots), replace all spells known");
+                if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_PsychicSpellProgression")) {
+                    features.AddSpontaneousSpellcasting("one spell slot and one spell known");
+                } else {
+                    features.AddFeature(2, S.ExtraSpontaneousSpellSlot(1));
+                    features.AddFeature(3, "Unlimited signature spells", "You can freely heighten or unheighten all of your spells freely, even if you don't know them at other spell levels.");
+                    features.AddFeature(3, S.InitialLevel2SpontaneousSpellSlots("one spell slot"));
+                    features.AddFeature(4, S.ExtraSpontaneousSpellSlot(2));
+                    for (int i = 5; i <= 20; i += 2) {
+                        features.AddFeature(i, $"level {(i + 1) / 2} spells (two spell slots, but you lose all level {((i + 1) / 2) - 2} spell slots), replace all spells known");
+                    }
                 }
             })
             .WithOnSheet(sheet => {
@@ -269,6 +276,10 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
                     (v, sName) => {
                         v.Tags["EidolonNickname"] = sName;
                     }).WithIsOptional());
+
+                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPrimaryWeaponStats", "Eidolon Primary Weapon Stats", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tPrimaryAttackStats))));
+                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPrimaryWeapon", "Eidolon Primary Natural Weapon", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tPrimaryAttackType))));
+                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonSecondaryWeapon", "Eidolon Secondary Natural Weapon", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tSecondaryAttackType))));
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPortrait", "Eidolon Portrait", 1, ft => ft.HasTrait(tPortraitCategory)));
                 sheet.AddSelectionOption(new SingleFeatSelectionOption("EvolutionFeat", "Evolution Feat", 1, ft => ft.HasTrait(tEvolution) && ft.HasTrait(tSummoner)));
                 sheet.AddAtLevel(3, _ => _.SetProficiency(Trait.Perception, Proficiency.Expert));
@@ -314,22 +325,22 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
 
             // Energy heart
             foreach (DamageKind energy in energyDamageTypes.Concat(alignmentDamageTypes)) {
-                Feat temp = new Feat(ModManager.RegisterFeatName("EnergyHeart" + energy.HumanizeTitleCase2(), "Energy Heart: " + energy.HumanizeTitleCase2()), "Your eidolon's corporeal form is infused with a particular element.", $"Your eidolon's chosen natural weapon deals {energy.HumanizeTitleCase2()} damage, and it gains {energy.HumanizeTitleCase2()} resistance equal to half your level (minimum 1)", new List<Trait>() { DamageToTrait(energy), tEnergyHeartDamage }, null);
+                Feat temp = new Feat(ModManager.RegisterFeatName("EnergyHeart" + energy.HumanizeTitleCase2(), "Energy Heart: " + energy.HumanizeTitleCase2()), "Your eidolon's corporeal form is infused with a particular element.", $"Your eidolon's chosen natural weapon deals {energy.HumanizeTitleCase2()} damage, and it gains {energy.HumanizeTitleCase2()} resistance equal to half your level (minimum 1)", new List<Trait>() { DamageToTrait(energy), tEnergyHeartDamage }, null).WithTag(DamageToTrait(energy));
                 if (alignmentDamageTypes.Contains(energy)) {
-                    temp.WithPrerequisite((sheet => {
+                    temp.WithPrerequisite(sheet => {
                         if (sheet.AllFeats.FirstOrDefault(ft => divineTypes.Contains(ft.FeatName.HumanizeTitleCase2())) == null)
                             return false;
                         if (sheet.AllFeats.FirstOrDefault(ft => ft.HasTrait(DamageToTrait(energy)) && ft.HasTrait(tAlignment)) == null)
                             return false;
                         return true;
-                    }), $"Your eidolon must be of {DamageToTrait(energy).HumanizeTitleCase2()} alignment, and celestial origin.");
+                    }, $"Your eidolon must be of {DamageToTrait(energy).HumanizeTitleCase2()} alignment, and celestial origin.");
                 }
                 yield return temp;
             }
 
             List<Feat> ewSubFeats = new List<Feat>();
             foreach (DamageKind energy in energyDamageTypes.Concat(alignmentDamageTypes)) {
-                Feat temp = new Feat(ModManager.RegisterFeatName("EidolonsWrath" + energy.HumanizeTitleCase2(), "Eidolon's Wrath: " + energy.HumanizeTitleCase2()), "", $"The Eidolon's Wrath focus spell deals {energy.HumanizeTitleCase2()} damage", new List<Trait> { DamageToTrait(energy), tEidolonsWrathType }, null);
+                Feat temp = new Feat(ModManager.RegisterFeatName("EidolonsWrath" + energy.HumanizeTitleCase2(), "Eidolon's Wrath: " + energy.HumanizeTitleCase2()), "", $"The Eidolon's Wrath focus spell deals {energy.HumanizeTitleCase2()} damage", new List<Trait> { DamageToTrait(energy), tEidolonsWrathType }, null).WithTag(DamageToTrait(energy));
                 if (alignmentDamageTypes.Contains(energy)) {
                     temp.WithPrerequisite(sheet => {
                         if (sheet.AllFeats.FirstOrDefault(ft => divineTypes.Contains(ft.FeatName.HumanizeTitleCase2())) == null)
@@ -525,7 +536,7 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
                 new Trait[] { tSummoner }, e => {
                     Feat dmgTypeFeat = GetSummoner(e)!.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEidolonsWrathType));
                     if (dmgTypeFeat != null) {
-                        e.AddQEffect(new QEffect() { Id = qfEidolonsWrath, Tag = TraitToDamage(dmgTypeFeat.Traits[0]) });
+                        e.AddQEffect(new QEffect() { Id = qfEidolonsWrath, Tag = TraitToDamage((Trait?)dmgTypeFeat.Tag) });
                         e.Spellcasting?.PrimarySpellcastingSource?.FocusSpells.Add(AllSpells.CreateSpellInCombat(spells[SummonerSpellId.EidolonsWrath], e, e.Level / 2 + 1, tSummoner));
                     }
                 }, ewSubFeats)
@@ -819,7 +830,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                                             damage = $"{(qf.Owner.Level + 1) / 2}d4";
                                             Feat energyHeart = qf.Owner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage));
                                             if (energyHeart != null) {
-                                                type = TraitToDamage(energyHeart.Traits[0]);
+                                                type = TraitToDamage((Trait?)energyHeart.Tag);
                                             } else if (element != null) {
                                                 type = TraitToDamage((Trait)element);
                                             }
@@ -922,7 +933,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 "Choose an energy damage type other than force. One of your eidolon's unarmed attacks changes its damage type to the chosen type, and it gains resistance to that type equal to half your level (minimum 1).",
                 new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect {
                 StartOfCombat = (async (qf) => {
-                    DamageKind kind = TraitToDamage(GetSummoner(qf.Owner)!.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Traits[0]);
+                    DamageKind kind = TraitToDamage((Trait?)GetSummoner(qf.Owner)!.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Tag);
                     qf.Owner.WeaknessAndResistance.AddResistance(kind, Math.Max(1, qf.Owner.Level / 2));
                 })
             }), new List<Feat> {
@@ -1435,7 +1446,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             return summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond)?.Source;
         }
 
-        public static DamageKind TraitToDamage(Trait trait) {
+        public static DamageKind TraitToDamage(Trait? trait) {
             switch (trait) {
                 case Trait.Acid:
                     return DamageKind.Acid;
@@ -2044,7 +2055,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             DamageKind primaryDamageType;
             if (summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)) != null &&
                 summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon))?.Name == "Primary Unarmed Attack") {
-                primaryDamageType = TraitToDamage(summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Traits[0]);
+                primaryDamageType = TraitToDamage((Trait?)summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Tag);
                 pStats.Add(DamageToTrait(primaryDamageType));
             }  else if (new FeatName[] { ftPMace, ftPWing, ftPKick, ftPFist, ftPTendril, ftPMermaidTail, ftPSerpentTail, ftPHoof }.Contains(pAttack!.FeatName)) {
                 primaryDamageType = DamageKind.Bludgeoning;
@@ -2057,7 +2068,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             DamageKind secondaryDamageType;
             if (summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)) != null &&
                 summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon))?.Name == "Secondary Unarmed Attack") {
-                secondaryDamageType = TraitToDamage(summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Traits[0]);
+                secondaryDamageType = TraitToDamage((Trait?)summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Tag);
                 sStats.Add(DamageToTrait(secondaryDamageType));
             } else if (new FeatName[] { ftSWing, ftSKick, ftSFist, ftSTendril, ftSMermaidTail, ftSSerpentTail, ftSHoof }.Contains(sAttack!.FeatName)) {
                 secondaryDamageType = DamageKind.Bludgeoning;

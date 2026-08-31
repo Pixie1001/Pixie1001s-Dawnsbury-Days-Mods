@@ -8,6 +8,7 @@ using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Modding;
+using System.ComponentModel.DataAnnotations;
 
 namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -16,7 +17,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
         public static RuneKind Service = ModManager.RegisterEnumMember<RuneKind>("BoB_Service");
 
         public static ItemName iBlacksmithsMaintenance = ModManager.RegisterNewItemIntoTheShop("iBlacksmithsMaintenance", itemName => {
-            return new Item(itemName, BoBAssets.imgs[BoBAssets.ImageId.BLACKSMITH_MAINTENANCE], "Blacksmith's Maintenance", 0, 0, Trait.Unsellable, Trait.DoNotAddToShop)
+            return new Item(itemName, BoBAssets.imgs[BoBAssets.ImageId.BLACKSMITH_MAINTENANCE], "Blacksmith's Maintenance", 0, 0, Trait.Unsellable, Trait.DoNotAddToShop, Trait.CannotBeHeldInHands)
             .WithRuneProperties(new RuneProperties("{i}{Gray}well-maintained{/Gray}{/i}", Service,
             "A true smith always keeps their weapons lethally well maintained between battles.",
             "The first hit made with this weapon each encounter deals 1 additional damage of the weapon's primary damage type.\n\n" +
@@ -39,7 +40,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
 
             ModManager.RegisterActionOnEachCharacterSheet(sheet => {
                 Action<CalculatedCharacterSheetValues> endCalc = sheet => {
-                    var inventories = new Dictionary<int, Inventory>(sheet.Sheet.InventoriesByLevel);
+                    var inventories = new Dictionary<int, Inventory>(sheet.Sheet.InventoriesByLevel).Where(inv => inv.Value.IsEmpty == false).ToDictionary();
                     inventories.TryAdd(0, sheet.Sheet.CampaignInventory);
 
                     foreach (var (inventoryLevel, inventory) in inventories) {
@@ -47,7 +48,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
 
                         List<Item> items = [.. allItems.Where(item => item != null && item.ItemName == iBlacksmithsMaintenance),
                                     .. allItems.Where(item => item != null && item.Runes.Any(rune => rune.ItemName == iBlacksmithsMaintenance))
-                                               .Select(item => item?.Runes.Where(rune => rune.ItemName == iBlacksmithsMaintenance).FirstOrDefault())];
+                                               .Select(item => item?.Runes.Where(rune => rune.ItemName == iBlacksmithsMaintenance).FirstOrDefault()!)];
 
                         var owner = sheet.Name;
                         var test = inventory.CanBackpackFit(null, 1);

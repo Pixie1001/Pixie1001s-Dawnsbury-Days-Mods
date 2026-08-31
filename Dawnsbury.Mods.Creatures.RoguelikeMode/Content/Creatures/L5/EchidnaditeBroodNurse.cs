@@ -1,13 +1,8 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Animations;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
@@ -19,23 +14,8 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Display;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using System.Threading;
-using System;
-using static System.Collections.Specialized.BitVector32;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
-using Dawnsbury.Campaign.Path;
-using Microsoft.Xna.Framework;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.Intelligence;
-using System.Collections.Generic;
-using Dawnsbury.Core.Mechanics.Rules;
-using System.Reflection.Metadata;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

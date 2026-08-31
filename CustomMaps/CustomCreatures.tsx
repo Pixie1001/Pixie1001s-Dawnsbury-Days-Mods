@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="512" tileheight="512" tilecount="83" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="768" tileheight="768" tilecount="83" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -461,7 +461,7 @@
   <properties>
    <property name="Id" value="Hydra"/>
   </properties>
-  <image source="CustomCreatures/Hydra.png" width="256" height="256"/>
+  <image source="CustomCreatures/Hydra.png" width="768" height="768"/>
  </tile>
  <tile id="2070">
   <properties>

@@ -91,21 +91,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             })
             .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.") {
                 Id = QEffectId.AttackOfOpportunity,
-                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction) {
-                    if (attackOfOpportunityQEffect.Tag == provokingAction) return;
+                WhenProvokedReactions = delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction) {
+                    if (attackOfOpportunityQEffect.Tag == provokingAction) return null;
+                    if (!(provokingAction.HasTrait(Trait.Manipulate) || provokingAction.HasTrait(Trait.Move) || (provokingAction.HasTrait(Trait.Ranged) && provokingAction.HasTrait(Trait.Attack)))) return null;
 
                     var user = attackOfOpportunityQEffect.Owner;
                     var target = provokingAction.Owner;
 
-                    var checkResult = await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1);
+                    var reactions = YoungChimera.OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", provokingAction);
 
-                    if (checkResult != null) {
+                    if (reactions != null) {
                         attackOfOpportunityQEffect.Tag = provokingAction;
                     }
 
-                    if (checkResult == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate)) {
-                        provokingAction.Disrupted = true;
-                    }
+                    return reactions;
                 }
             })
             .Builder
@@ -220,46 +219,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             .Done();
             
             return creature;
-        }
-
-        public static async Task<CheckResult?> OfferAndMakeReactiveStrike(Creature attacker, Creature target, string question, string overhead, int numberOfStrikes)
-        {
-            var itemListEffect = attacker.QEffects.FirstOrDefault((effect) => effect.Name == "Multiple Reactions");
-
-            if (itemListEffect != null && itemListEffect.Tag is List<Item> itemList && itemList.Count > 0)
-            {
-                var item = itemList[0];
-
-                CombatAction strike = attacker.CreateStrike(item, 0).WithActionCost(0);
-                strike.Traits.Add(Trait.AttackOfOpportunity);
-                CreatureTarget creatureTarget = (CreatureTarget)strike.Target;
-                CheckResult? bestCheckResult = null;
-                if ((bool)strike.CanBeginToUse(attacker) && creatureTarget.IsLegalTarget(attacker, target).CanBeUsed && (itemList.Count > 1 || await attacker.Battle.AskToUseReaction(attacker, question)))
-                {
-                    itemList.RemoveAt(0);
-                    int map = attacker.Actions.AttackedThisManyTimesThisTurn;
-                    attacker.Overhead(overhead, Color.White);
-
-                    for (int i = 0; i < numberOfStrikes; i++)
-                    {
-                        CheckResult checkResult = await attacker.MakeStrike(strike, target);
-                        if (!bestCheckResult.HasValue)
-                        {
-                            bestCheckResult = checkResult;
-                        }
-                        else if (checkResult > bestCheckResult)
-                        {
-                            bestCheckResult = checkResult;
-                        }
-                    }
-
-                    attacker.Actions.AttackedThisManyTimesThisTurn = map;
-                }
-
-                return bestCheckResult;
-            }
-
-            return null;
         }
 
         private struct DragonType

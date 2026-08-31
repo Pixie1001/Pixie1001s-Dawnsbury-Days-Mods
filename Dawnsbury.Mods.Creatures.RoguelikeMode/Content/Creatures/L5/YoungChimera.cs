@@ -1,20 +1,22 @@
-﻿using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Mechanics.Core;
-using Microsoft.Xna.Framework;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Targeting;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Audio;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines.Options.Reactive;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.ThirdParty.SteamApi;
+using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -99,21 +101,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             })
             .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.") {
                 Id = QEffectId.AttackOfOpportunity,
-                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction) {
-                    if (attackOfOpportunityQEffect.Tag == provokingAction) return;
+                WhenProvokedReactions = (attackOfOpportunityQEffect, provokingAction) => {
+                    if (attackOfOpportunityQEffect.Tag == provokingAction) return null;
+                    if (!(provokingAction.HasTrait(Trait.Manipulate) || provokingAction.HasTrait(Trait.Move) || (provokingAction.HasTrait(Trait.Ranged) && provokingAction.HasTrait(Trait.Attack)))) return null;
 
                     var user = attackOfOpportunityQEffect.Owner;
                     var target = provokingAction.Owner;
 
-                    var checkResult = await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1);
+                    var reactions = OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", provokingAction);
 
-                    if (checkResult != null) {
+                    if (reactions != null) {
                         attackOfOpportunityQEffect.Tag = provokingAction;
                     }
 
-                    if (checkResult == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate)) {
-                        provokingAction.Disrupted = true;
-                    }
+                    return reactions;
                 }
             })
             .Builder
@@ -230,9 +231,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             return creature;
         }
 
-        public static async Task<CheckResult?> OfferAndMakeReactiveStrike(Creature attacker, Creature target, string question, string overhead, int numberOfStrikes)
+        public static ReactionOptions? OfferAndMakeReactiveStrike(Creature attacker, Creature target, string question, string overhead, CombatAction provokingAction)
         {
             var itemListEffect = attacker.QEffects.FirstOrDefault((effect) => effect.Name == "Multiple Reactions");
+
+            if (!attacker.Actions.CanTakeReaction() || attacker.QEffects.FirstOrDefault(qf => qf.Key == "Action Tracker")?.Tag == provokingAction) return null;
 
             if (itemListEffect != null && itemListEffect.Tag is List<Item> itemList && itemList.Count > 0)
             {
@@ -240,31 +243,32 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 
                 CombatAction strike = attacker.CreateStrike(item, 0).WithActionCost(0);
                 strike.Traits.Add(Trait.AttackOfOpportunity);
-                CreatureTarget creatureTarget = (CreatureTarget)strike.Target;
-                CheckResult? bestCheckResult = null;
-                if ((bool)strike.CanBeginToUse(attacker) && creatureTarget.IsLegalTarget(attacker, target).CanBeUsed && (itemList.Count > 1 || await attacker.Battle.AskToUseReaction(attacker, question)))
-                {
-                    itemList.RemoveAt(0);
-                    int map = attacker.Actions.AttackedThisManyTimesThisTurn;
-                    attacker.Overhead(overhead, Color.White);
+                strike.WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                    if (result == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate))
+                        provokingAction.Disrupted = true;
+                });
 
-                    for (int i = 0; i < numberOfStrikes; i++)
-                    {
-                        CheckResult checkResult = await attacker.MakeStrike(strike, target);
-                        if (!bestCheckResult.HasValue)
-                        {
-                            bestCheckResult = checkResult;
-                        }
-                        else if (checkResult > bestCheckResult)
-                        {
-                            bestCheckResult = checkResult;
-                        }
+                return new ReactionOptions([ReactionOption.CreateFromCombatActionCustom(strike, null, async () => {
+                    var map = attacker.Actions.AttackedThisManyTimesThisTurn;
+                    attacker.Overhead(overhead, Color.White);
+                    if (attacker.OwningFaction.IsPlayer) {
+                        Steam.CollectAchievement("FIGHTER");
                     }
 
-                    attacker.Actions.AttackedThisManyTimesThisTurn = map;
-                }
+                    itemList.RemoveAt(0);
 
-                return bestCheckResult;
+                    attacker.RemoveAllQEffects(qf => qf.Key == "Action Tracker");
+
+                    attacker.AddQEffect(new QEffect() {
+                        Tag = provokingAction,
+                        Key = "Action Tracker"
+                    });
+
+                    await attacker.MakeStrike(strike, target);
+                    attacker.Actions.AttackedThisManyTimesThisTurn = map;
+
+                    if (itemList.Count == 0) attacker.Actions.UseUpReaction();
+                })]);
             }
 
             return null;

@@ -116,7 +116,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             battle.Cinematics.EnterCutscene();
             await battle.Cinematics.LineAsync(baraquielle, "Ready yourselves adventurers. Just as I suspected, my senses detect a great many creatures of an evil alignment heading towards the reliquary as we speak.");
             if (battle.Encounter.CharacterLevel <= 4)
-                await battle.Cinematics.LineAsync(baraquielle, "They are of paltry power before the full mgiht of heaven, but alas, I cannot wield my full power lest the Starborn send forth a legion of greater demons.");
+                await battle.Cinematics.LineAsync(baraquielle, "They are of paltry power before the full might of heaven, but alas, I cannot wield my full power lest the Starborn send forth a legion of greater demons.");
             await battle.Cinematics.LineAsync(baraquielle, "I will aid you in this fight as best I can, but you must be prepared to lay down your lives to protect the reliquary.");
             await battle.Cinematics.LineAsync(baraquielle, "Without it, the terms between the mortal realms and the other side shall be rendered null and void, and the Demon Queen of Spiders shall have free reign to renegotiate the terms as she pleases.");
             await battle.Cinematics.LineAsync(baraquielle, "That {i}cannot{/i} be allowed to happen.");
@@ -124,10 +124,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
             await TelegraphWave(battle);
         }
-
-        // TODO: Make waves telegraphed
-        // * If wave number-1, create a spawn marker and shift camera to centre on it. Then play dialogue, before shifting back.
-        // * If wave is a spawn round, don't play dialogue (or play an alternate msg) but otherwise proceed with default behaviour.
 
         public async Task TelegraphWave(TBattle battle) {
             Tile tile = UtilityFunctions.ChooseAtRandom(new Tile[] { battle.Map.GetTile(11, 0)!, battle.Map.GetTile(22, 9)!, battle.Map.GetTile(11, 18)!, battle.Map.GetTile(0, 9)! })!;
@@ -145,7 +141,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             if (battle.RoundNumber == 0)
                 await battle.Cinematics.LineAsync(baraquielle, "Now prepare yourselves! I sense they will attack from this direction first.", null, true);
             else
-                await battle.Cinematics.LineAsync(baraquielle, "I sense a strong evil presense approaching from yonder direction!", null, true);
+                await battle.Cinematics.LineAsync(baraquielle, "I sense a strong evil presence approaching from yonder direction!", null, true);
             battle.Cinematics.ExitCutscene();
         }
 

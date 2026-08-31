@@ -135,6 +135,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             foreach (Item rune in runes) {
                 foreach (Item attack in unarmedAttacks) {
                     if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, attack) == null) {
+                        attack.StateCheckWhenWielded = null;
                         attack.Runes.Add(rune);
                         rune.RuneProperties!.ApplyRuneOntoItem(rune, attack);
                     }

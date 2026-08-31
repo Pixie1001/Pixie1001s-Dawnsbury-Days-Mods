@@ -1,23 +1,25 @@
-﻿using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Mechanics.Core;
-using Microsoft.Xna.Framework;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Mechanics.Targeting;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
-using Dawnsbury.Audio;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Display.Text;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines.Options.Reactive;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.ReactiveAttacks;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.Targets;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.ThirdParty.SteamApi;
+using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -26,7 +28,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             var creature = new Creature(Illustrations.Hydra,
                 "Hydra",
-                [Trait.Beast, Trait.NonSummonable, ModTraits.MeleeMutator],
+                [Trait.Beast, Trait.Huge, Trait.NonSummonable, ModTraits.MeleeMutator],
                 level: 6, perception: 17, speed: 6,
                 new Defenses(23, 15, 12, 10),
                 hp: 15,
@@ -117,6 +119,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                             self.Owner.Overhead("cauterised!", Color.DarkRed, $"The hydra's head is cauterised as its destroyed, preventing a new stump from forming.");
                             Sfxs.Play(SfxName.AcidSplash);
                             self.StateCheck!(self);
+                            ResetHP(self.Owner);
                             return;
                         }
                         self.Owner.Overhead("head destroyed!", Color.LightSkyBlue, $"One of the hydra's heads has been reduced to a stump.");
@@ -128,9 +131,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                         if (self.Owner.GetQEffectValue(QEffectIds.HydraHeads) == 0 && self.Owner.FindQEffect(QEffectIds.HydraHeads) != null) {
                             self.Owner.RemoveAllQEffects(qf => qf.Id == QEffectIds.HydraHeads);
-                            self.Owner.AddQEffect(QEffect.Unconscious());
+                            var unconscious = QEffect.Unconscious();
+                            unconscious.StateCheck = qf => { qf.Owner.AddQEffect(QEffect.TraitImmunity(Trait.Visual).WithExpirationEphemeral()); };
+                            self.Owner.AddQEffect(unconscious);
                         } else {
-                            self.Owner.Heal("15", null);
+                            ResetHP(self.Owner);
                         }
                     }
                     self.Tag = false;
@@ -140,8 +145,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             "\nWhile the hydra has no heads, it is paralyzed, but still continues to attempt to regenerate itself, until all of its stumps are cauterised.") {
                 Id = QEffectId.RegenerationPreventsDeath,
                 StartOfYourPrimaryTurn = async (self, you) => {
-                    // TODO: Add overheads and sfx here to make it clear heads regrew
-
                     var stumpQf = you.FindQEffect(QEffectIds.HydraStumps);
                     if (stumpQf == null || stumpQf.Value == 0) return;
 
@@ -162,7 +165,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         if (headsQf == null) {
                             headsQf = HydraHeads(crit ? 4 : 2);
                             you.AddQEffect(headsQf);
-                            self.Owner.Heal("15", null);
+                            ResetHP(self.Owner);
                         } else {
                             headsQf.Value += crit ? 4 : 2;
                         }
@@ -170,7 +173,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 },
                 EndOfAnyTurn = self => {
                     if (self.Owner.GetQEffectValue(QEffectIds.HydraHeads) > 0)
-                        self.Owner.Heal("15", null);
+                        ResetHP(self.Owner);
                 }
             })
             .AddQEffect(new QEffect("Multiple Opportunities", "A hydra gains an extra reaction per round for each of its heads beyond the first. Whenever one of the hydra’s heads is severed, the hydra loses 1 of its extra reactions per round.") {
@@ -184,16 +187,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .AddQEffect(new("Attack of Opportunity{icon:Reaction}", "When a creature leaves a square within your reach, makes a ranged attack or uses a move or manipulate action, you can Strike it for free. On a critical hit, you also disrupt the manipulate action.") {
                 Id = QEffectId.AttackOfOpportunity,
-                WhenProvoked = async delegate (QEffect attackOfOpportunityQEffect, CombatAction provokingAction) {
+                WhenProvokedReactions = (attackOfOpportunityQEffect, provokingAction) => {
+                    if (!(provokingAction.HasTrait(Trait.Manipulate) || provokingAction.HasTrait(Trait.Move) || (provokingAction.HasTrait(Trait.Ranged) && provokingAction.HasTrait(Trait.Attack)))) return null;
                     var user = attackOfOpportunityQEffect.Owner;
                     var target = provokingAction.Owner;
-                    if ((await OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", 1, provokingAction)).GetValueOrDefault() == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate)) {
-                        provokingAction.Disrupted = true;
-                    }
+                    return OfferAndMakeReactiveStrike(user, target, "{b}" + target.Name + "{/b} uses {b}" + provokingAction.Name + "{/b} which provokes.\nUse your reaction to make an attack of opportunity?", "*attack of opportunity*", provokingAction);
                 }
             })
             .Builder
-            // TODO: Add special actions
             .AddMainAction(creature => {
                 if (creature.UnarmedStrike == null) return null;
 
@@ -225,7 +226,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     "On a successful attack, the hydra deals damage from its fangs Strike to the target, plus an additional 1d6 damage for every head it has beyond the first. Even on a failed attack, " +
                     "the hydra deals the damage from one fangs Strike to the target creature, though it still misses completely on a critical failure. This counts toward the hydra’s multiple " +
                     "attack penalty as a number of attacks equal to the number of heads the hydra has.",
-                    Target.Reach(creature.UnarmedStrike))
+                    Target.Reach(creature.UnarmedStrike).WithAdditionalConditionOnTargetCreature((a, d) => (a.CreateStrike(a.UnarmedStrike)?.Target as CreatureTarget)?.CanBeginToUse(a) ?? Usability.NotUsable("cannot attack")))
                 .WithActionCost(2)
                 .WithGoodnessAgainstEnemy((_, a, d) => a.GetQEffectValue(QEffectIds.HydraHeads) * 3.5f + (creature.CreateStrike(creature.UnarmedStrike)?.TrueDamageFormula?.ExpectedValue ?? 14))
                 .WithEffectOnEachTarget(async (action, attacker, defender, result) => {
@@ -241,17 +242,23 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     await attacker.MakeStrike(strike, defender);
                 });
             })
-            .AddNaturalWeapon("fangs", IllustrationName.Jaws, 16, [Trait.Reach], "2d6+7", DamageKind.Piercing)
+            .AddNaturalWeapon("fangs", IllustrationName.Jaws, 16, [], "2d6+7", DamageKind.Piercing, wp => wp.OverrideReach = 2)
             .Done();
 
             return creature;
         }
 
-        public static async Task<CheckResult?> OfferAndMakeReactiveStrike(Creature attacker, Creature target, string question, string overhead, int numberOfStrikes, CombatAction provokingAction) {
+        private static void ResetHP(Creature hydra, string amount="15") {
+#pragma warning disable CS0618 // Type or member is obsolete
+            hydra.Heal(amount, null);
+#pragma warning restore CS0618 // Type or member is obsolete
+        }
+
+        public static ReactionOptions? OfferAndMakeReactiveStrike(Creature attacker, Creature target, string question, string overhead, CombatAction provokingAction) {
 
             int numReactions = (int?)attacker.QEffects.FirstOrDefault((effect) => effect.Name == "Multiple Opportunities")?.Tag ?? 0;
 
-            if (attacker.QEffects.FirstOrDefault(qf => qf.Key == "Action Tracker")?.Tag == provokingAction) {
+            if (!attacker.Actions.CanTakeReaction() || attacker.QEffects.FirstOrDefault(qf => qf.Key == "Action Tracker")?.Tag == provokingAction) {
                 return null;
             }
 
@@ -260,13 +267,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
                 CombatAction strike = attacker.CreateStrike(item, 0).WithActionCost(0);
                 strike.Traits.Add(Trait.AttackOfOpportunity);
-                CreatureTarget creatureTarget = (CreatureTarget)strike.Target;
-                CheckResult? bestCheckResult = null;
-                if ((bool)strike.CanBeginToUse(attacker) && creatureTarget.IsLegalTarget(attacker, target).CanBeUsed && (numReactions > 1 || await attacker.Battle.AskToUseReaction(attacker, question))) {
+                strike.WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                    if (result == CheckResult.CriticalSuccess && provokingAction.HasTrait(Trait.Manipulate))
+                        provokingAction.Disrupted = true;
+                });
+
+                return new ReactionOptions([ReactionOption.CreateFromCombatActionCustom(strike, null, async () => {
+                    var map = attacker.Actions.AttackedThisManyTimesThisTurn;
+                    attacker.Overhead(overhead, Color.White);
+                    if (attacker.OwningFaction.IsPlayer) {
+                        Steam.CollectAchievement("FIGHTER");
+                    }
+
                     if (attacker.QEffects.FirstOrDefault(qf => qf.Name == "Multiple Opportunities") != null)
                         attacker.QEffects.FirstOrDefault(qf => qf.Name == "Multiple Opportunities")!.Tag = numReactions - 1;
-                    int map = attacker.Actions.AttackedThisManyTimesThisTurn;
-                    attacker.Overhead(overhead, Color.White);
 
                     attacker.RemoveAllQEffects(qf => qf.Key == "Action Tracker");
 
@@ -275,26 +289,18 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         Key = "Action Tracker"
                     });
 
-                    for (int i = 0; i < numberOfStrikes; i++) {
-                        CheckResult checkResult = await attacker.MakeStrike(strike, target);
-                        if (!bestCheckResult.HasValue) {
-                            bestCheckResult = checkResult;
-                        } else if (checkResult > bestCheckResult) {
-                            bestCheckResult = checkResult;
-                        }
-                    }
-
+                    await attacker.MakeStrike(strike, target);
                     attacker.Actions.AttackedThisManyTimesThisTurn = map;
-                }
 
-                return bestCheckResult;
+                    if (numReactions == 1) attacker.Actions.UseUpReaction();
+                })]);
             }
 
             return null;
         }
 
         private static QEffect HydraStumps() {
-            return new QEffect("Stumps", "...", ExpirationCondition.Never, null, IllustrationName.BloodVendetta) {
+            return new QEffect("Stumps", "Causterise these stumps using fire or acid damage before they regrow into two new heads. The hydra cannot die until all of its heads have been severed.", ExpirationCondition.Never, null, IllustrationName.BloodVendetta) {
                 Value = 1,
                 Id = QEffectIds.HydraStumps,
                 Key = "RL_Hydra Stumps"
@@ -302,7 +308,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         }
 
         private static QEffect HydraHeads(int value) {
-            return new QEffect("Heads", "...", ExpirationCondition.Never, null, IllustrationName.Jaws) {
+            return new QEffect("Heads",
+                @"For each remaining head, the hydra may make an additional reaction each round, and it's Storm of Jaws and Focused Assault attacks become more powerful.",
+                ExpirationCondition.Never, null, IllustrationName.Jaws) {
                 Value = value,
                 Id = QEffectIds.HydraHeads,
                 Key = "RL_Hydra Heads"

@@ -1,14 +1,15 @@
-﻿using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core;
+﻿using Dawnsbury.Auxiliary;
 using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
-using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
+using Dawnsbury.Campaign.LongTerm;
+using Dawnsbury.Core;
+using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Campaign.LongTerm;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Auxiliary;
+using Dawnsbury.Display;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
 {
@@ -115,11 +116,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
             }
 
             var spellcaster = character.Spellcasting != null
-                && (character.Spellcasting.PrimarySpellcastingSource.Kind == SpellcastingKind.Spontaneous
-                || character.Spellcasting.PrimarySpellcastingSource.Kind == SpellcastingKind.Prepared);
+                && (character.Spellcasting.PrimarySpellcastingSource?.Kind == SpellcastingKind.Spontaneous
+                || character.Spellcasting.PrimarySpellcastingSource?.Kind == SpellcastingKind.Prepared);
             var martial = character.Proficiencies.Get(Trait.Martial) >= Proficiency.Trained;
 
-            //TODO: Figure out how to make shard strike work
             var effects = new List<LTEs.ColosseumFeat>()
             {
                 LTEs.ColosseumFeat.BurningJet,
@@ -155,7 +155,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
                 }
             }
 
-            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[effects[R.Next(effects.Count)]].Item2)!);
+            var feat = effects[R.Next(effects.Count)];
+
+            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("ChampionOfTheColosseumMagical", feat.HumanizeTitleCase2())!);
+            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[feat].Item2)!);
         }
     }
 }

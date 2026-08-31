@@ -220,17 +220,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                     }
                 };
 
-                // TODO: Make a proper formula for this
+                var highLevel = false;
                 int numRats = Math.Max(2, Math.Min(creature.Level, 5));
                 int ratLevel = Math.Max(-2, Math.Min(creature.Level - 3, 1));
+                if (creature.Level > 4) {
+                    numRats = Math.Max(2, Math.Min(creature.Level - 4, 5));
+                    ratLevel = Math.Max(2, Math.Min(creature.Level - 3, 5));
+                    highLevel = true;
+                }
 
                 for (int i = 0; i < numRats; i++) {
-                    var rat = CreatureList.Creatures[CreatureIds.RavenousRat](creature.Battle.Encounter);
+                    var rat = highLevel ? RavenousRat.CreateAbyssalRat() : RavenousRat.Create();
                     rat.AddQEffect(new QEffect("Rat Swarm Familiar", $"Killing {creature.Name} will cause this creature to flee the encounter.", ExpirationCondition.Never, creature, IllustrationName.GiantRat256));
                     rat.MainName = "Rat Familiar";
-                    if (ratLevel == -2) rat.ApplyWeakAdjustments(false);
-                    else if (ratLevel == 0) rat.ApplyEliteAdjustments();
-                    else if (ratLevel == 1) rat.ApplyEliteAdjustments(true);
+                    if (!highLevel) {
+                        if (ratLevel == -2) rat.ApplyWeakAdjustments(false);
+                        else if (ratLevel == 0) rat.ApplyEliteAdjustments();
+                        else if (ratLevel == 1) rat.ApplyEliteAdjustments(true);
+                    } else {
+                        if (ratLevel == 1) rat.ApplyWeakAdjustments(true);
+                        else if (ratLevel == 2) rat.ApplyWeakAdjustments(false);
+                        else if (ratLevel == 4) rat.ApplyEliteAdjustments();
+                        else if (ratLevel == 5) rat.ApplyEliteAdjustments(true);
+                    }
                     rat.MainName = creature.Name + "'s " + rat.MainName;
                     creature.Battle.SpawnCreature(rat, creature.OwningFaction, creature.Occupies);
                 }
@@ -278,37 +290,37 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 creature.AddQEffect(effect);
                 switch (creature.CreatureId) {
                     case var v when v.Equals(CreatureIds.DrowArcanist):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.AcidArrow], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.AcidArrow], 2);
                         break;
                     case var v when v.Equals(CreatureIds.DrowShadowcaster):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.Fear], 3);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.Fear], 3);
                         break;
                     case var v when v.Equals(CreatureIds.DrowNecromancer):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.AnimateDead], 3);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.AnimateDead], 3);
                         break;
                     case var v when v.Equals(CreatureIds.DrowPriestess):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.SuddenBlight], 3);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.SuddenBlight], 3);
                         break;
                     case var v when v.Equals(CreatureIds.MerfolkBrineBlade):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.BrinyBolt], 2);
                         break;
                     case var v when v.Equals(CreatureIds.DevotedCultist):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BrinyBolt], 1);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.BrinyBolt], 1);
                         break;
                     case var v when v.Equals(CreatureIds.DrowInquisitrix):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.BoneSpray], 2);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.BoneSpray], 2);
                         break;
                     case var v when v.Equals(CreatureIds.EchidnaditeBroodNurse):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellLoader.SummonMonster], 5);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellLoader.SummonMonster], 5);
                         break;
                     case var v when v.Equals(CreatureIds.EchidnaditePriestess):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.Confusion], 4);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.Confusion], 4);
                         break;
                     case var v when v.Equals(CreatureIds.NightmareWeaver):
-                        creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.PhantasmalKiller], 4);
+                        creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.PhantasmalKiller], 4);
                         break;
                     //case var v when v.Equals(CreatureIds.DrowA):
-                    //    creature.Spellcasting?.PrimarySpellcastingSource.WithSpells([SpellId.WyvernSting], 5);
+                    //    creature.Spellcasting?.PrimarySpellcastingSource?.WithSpells([SpellId.WyvernSting], 5);
                     //    break;
                 }
             }));

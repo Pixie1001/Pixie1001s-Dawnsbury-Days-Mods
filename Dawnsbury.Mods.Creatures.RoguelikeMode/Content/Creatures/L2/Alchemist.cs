@@ -48,8 +48,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                         {
                             return AIConstants.NEVER;
                         }
-
-                        // TODO: Replace this with .NextAI
                         return 9.3f + R.NextAi(0, 10) * 0.1f;
                     })
                     .WithSoundEffect(Audio.SfxName.DrinkPotion)

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using Dawnsbury.Core.CharacterBuilder;
+﻿using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
@@ -12,9 +9,14 @@ using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
-using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
+using Dawnsbury.Display;
+using Dawnsbury.IO;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
+using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
+using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -51,7 +53,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         }
 
         private void Init(Trait spellList, List<FeatName> skills, Func<Feat, bool> alignmentOptions, List<Trait> eidolonTraits) {
-            this.OnSheet = (Action<CalculatedCharacterSheetValues>)(sheet => {
+            this.OnSheet = sheet => {
                 this.eidolonTraits = eidolonTraits;
                 Feat[] alignments = AllFeats.All.Where(alignmentOptions).ToArray();
                 if (alignments.Count() == 1) {
@@ -59,9 +61,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 } else {
                     sheet.AddSelectionOption((SelectionOption)new SingleFeatSelectionOption("EidolonAlignment", "Eidolon Alignment", 1, alignmentOptions));
                 }
-                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPrimaryWeaponStats", "Eidolon Primary Weapon Stats", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tPrimaryAttackStats))));
-                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonPrimaryWeapon", "Eidolon Primary Natural Weapon", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tPrimaryAttackType))));
-                sheet.AddSelectionOption(new SingleFeatSelectionOption("EidolonSecondaryWeapon", "Eidolon Secondary Natural Weapon", 1, (Func<Feat, bool>)(ft => ft.HasTrait(Enums.tSecondaryAttackType))));
                 sheet.SpellTraditionsKnown.Add(spellList);
                 sheet.SpellRepertoires.Add(Enums.tSummoner, new SpellRepertoire(Ability.Charisma, spellList));
                 sheet.SetProficiency(Trait.Spell, Proficiency.Trained);
@@ -92,47 +91,66 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 }
 
                 repertoire.SpellSlots[1] = 1;
-                sheet.AddAtLevel(2, (Action<CalculatedCharacterSheetValues>)(_ => ++repertoire.SpellSlots[1]));
-                sheet.AddAtLevel(3, (Action<CalculatedCharacterSheetValues>)(_ => ++repertoire.SpellSlots[2]));
-                sheet.AddAtLevel(4, (Action<CalculatedCharacterSheetValues>)(_ => ++repertoire.SpellSlots[2]));
+                sheet.AddAtLevel(2, _ => ++repertoire.SpellSlots[1]);
+                sheet.AddAtLevel(3, _ => ++repertoire.SpellSlots[2]);
+                sheet.AddAtLevel(4, _ => ++repertoire.SpellSlots[2]);
 
                 if (this.FeatName == Enums.scFeyEidolon)
                     sheet.AddAtLevel(7, sheet => sheet.AddFeat(AllFeats.All.FirstOrDefault(ft => ft.FeatName == Enums.ftMagicalAdept)!, null));
 
-                for (int index = 5; index <= 17; index += 2) {
-                    int thisLevel = index;
-                    sheet.AddAtLevel(thisLevel, (Action<CalculatedCharacterSheetValues>)(values => {
-                        int num = (thisLevel + 1) / 2;
-                        int removedLevel = num - 2;
-                        values.SpellRepertoires[Enums.tSummoner].SpellSlots[removedLevel]--;
-                        values.SpellRepertoires[Enums.tSummoner].SpellSlots[removedLevel]--;
-                        values.SpellRepertoires[Enums.tSummoner].SpellSlots[num]++;
-                        values.SpellRepertoires[Enums.tSummoner].SpellSlots[num]++;
-
-                        repertoire.SpellsKnown.RemoveAll(spell => spell.HasTrait(Trait.Focus) == false && spell.HasTrait(Trait.Cantrip) == false);
-
-                        int tradition = (int)spellList;
-                        int maximumSpellLevel = num;
-                        AddToSpellRepertoireOption repertoireOption1;
-                        AddToSpellRepertoireOption repertoireOption2;
+                if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_PsychicSpellProgression")) {
+                    for (int thisLevel = 5; thisLevel <= 18; thisLevel += 1) {
+                        int spellLevel = (thisLevel + 1) / 2;
+                        sheet.AddAtLevel(thisLevel, _ => repertoire.SpellSlots[spellLevel] += 1);
                         if (this.FeatName == Enums.scFeyEidolon) {
-                            repertoireOption1 = new SelectFeySpells($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel - 1, 3);
-                            repertoireOption2 = new SelectFeySpells($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel, 2);
+                            sheet.AddSelectionOption((SelectionOption)new SelectFeySpells($"Fey_{spellList.HumanizeTitleCase2()}_SummonerSpells{thisLevel}", $"Level {spellLevel} spell", thisLevel, Enums.tSummoner, spellLevel, 1));
                         } else if (sheet.HasFeat(Enums.scArsonDemonEidolon)) {
-                            repertoireOption1 = new SelectArsonSpells($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel - 1, 3);
-                            repertoireOption2 = new SelectArsonSpells($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel, 2);
+                            sheet.AddSelectionOption((SelectionOption)new SelectArsonSpells($"Arson_{spellList.HumanizeTitleCase2()}_SummonerSpells{thisLevel}", $"Level {spellLevel} spell", thisLevel, Enums.tSummoner, spellLevel, 1));
                         } else {
-                            repertoireOption1 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel - 1, 3);
-                            repertoireOption2 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel, 2);
+                            sheet.AddSelectionOption((SelectionOption)new AddToSpellRepertoireOption($"{spellList.HumanizeTitleCase2()}_SummonerSpells{thisLevel}", $"Level {spellLevel} spell", thisLevel, Enums.tSummoner, spellList, spellLevel, 1));
                         }
-                        values.AddSelectionOption((SelectionOption)repertoireOption1);
-                        values.AddSelectionOption((SelectionOption)repertoireOption2);
+                    }
+                } else {
+                    for (int index = 5; index <= 17; index += 2) {
+                        var thisLevel = index;
+                        sheet.AddAtLevel(thisLevel, values => {
+                            int num = (thisLevel + 1) / 2;
+                            int removedLevel = num - 2;
+                            values.SpellRepertoires[Enums.tSummoner].SpellSlots[removedLevel]--;
+                            values.SpellRepertoires[Enums.tSummoner].SpellSlots[removedLevel]--;
+                            values.SpellRepertoires[Enums.tSummoner].SpellSlots[num]++;
+                            values.SpellRepertoires[Enums.tSummoner].SpellSlots[num]++;
 
-                    }));
+                            repertoire.SpellsKnown.RemoveAll(spell => spell.HasTrait(Trait.Focus) == false && spell.HasTrait(Trait.Cantrip) == false);
+
+                            int tradition = (int)spellList;
+                            int maximumSpellLevel = num;
+                            AddToSpellRepertoireOption repertoireOption1;
+                            AddToSpellRepertoireOption repertoireOption2;
+                            if (this.FeatName == Enums.scFeyEidolon) {
+                                repertoireOption1 = new SelectFeySpells($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel - 1, 3);
+                                repertoireOption2 = new SelectFeySpells($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel, 2);
+                            } else if (sheet.HasFeat(Enums.scArsonDemonEidolon)) {
+                                repertoireOption1 = new SelectArsonSpells($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel - 1, 3);
+                                repertoireOption2 = new SelectArsonSpells($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, maximumSpellLevel, 2);
+                            } else {
+                                repertoireOption1 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-1", $"Level {num - 1} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel - 1, 3);
+                                repertoireOption2 = new AddToSpellRepertoireOption($"SummonerSpells{sheet.CurrentLevel}-2", $"Level {num} spell replacements", thisLevel, Enums.tSummoner, spellList, maximumSpellLevel, 2);
+                            }
+                            values.AddSelectionOption((SelectionOption)repertoireOption1);
+                            values.AddSelectionOption((SelectionOption)repertoireOption2);
+                        });
+                    }
                 }
+
+                // Signature spells
+                if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_PsychicSpellProgression")) {
+                    CommonCharacterFeatures.AddSignatureSpellsFeature(sheet, tSummoner, "Summoner");
+                }
+
                 repertoire.SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(SummonerClassLoader.spells[SummonerSpellId.EidolonBoost], Enums.tSummoner, sheet.MaximumSpellLevel));
-            });
-            this.OnCreature = ((sheet, creature) => {
+            };
+            this.OnCreature = (sheet, creature) => {
                 // Signature-afy spells
                 SpellRepertoire repertoire = sheet.SpellRepertoires[Enums.tSummoner];
                 List<Spell> spells = repertoire.SpellsKnown.Where(spell => spell.HasTrait(Trait.Cantrip) == false).ToList();
@@ -141,10 +159,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                     return;
                 }
 
-                for (int i = 0; i < spells.Count(); i++) {
-                    for (int spellLvl = spells[i].MinimumSpellLevel; spellLvl < 10; spellLvl++) {
-                        if (spells.FirstOrDefault(s => s.SpellId == spells[i].SpellId && s.SpellLevel == spellLvl) == null) {
-                            repertoire.SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(spells[i].SpellId, Enums.tSummoner, spellLvl));
+                if (!PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_PsychicSpellProgression")) {
+                    for (int i = 0; i < spells.Count(); i++) {
+                        for (int spellLvl = spells[i].MinimumSpellLevel; spellLvl < 10; spellLvl++) {
+                            if (spells.FirstOrDefault(s => s.SpellId == spells[i].SpellId && s.SpellLevel == spellLvl) == null) {
+                                repertoire.SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(spells[i].SpellId, Enums.tSummoner, spellLvl));
+                            }
                         }
                     }
                 }
@@ -161,7 +181,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                         repertoire.SpellsKnown.Add(spell);
                     }
                 }
-            });
+            };
         }
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="126" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="133" columns="0">
   <grid orientation="orthogonal" width="1" height="1" />
   <tile id="0">
     <properties>
@@ -621,11 +621,6 @@
       <property name="Id" value="Vavakia" />
     </properties>
   </tile>
-  <tile id="123">
-    <properties>
-      <property name="Id" value="MirrorEntity" />
-    </properties>
-  </tile>
   <tile id="124">
     <properties>
       <property name="Id" value="TheFirstStarborn" />
@@ -635,5 +630,46 @@
     <properties>
       <property name="Id" value="Kalavakus" />
     </properties>
+  </tile>
+  <tile id="126">
+    <properties>
+      <property name="Id" value="Balisse" />
+    </properties>
+  </tile>
+  <tile id="127">
+    <properties>
+      <property name="Id" value="MovanicDeva" />
+    </properties>
+  </tile>
+  <tile id="128">
+    <properties>
+      <property name="Id" value="Lillend" />
+    </properties>
+  </tile>
+  <tile id="129">
+    <properties>
+      <property name="Id" value="ActualAdultAcidDragon" />
+    </properties>
+  </tile>
+  <tile id="130">
+    <properties>
+      <property name="Id" value="DeadlyMantis" />
+    </properties>
+  </tile>
+  <tile id="131">
+    <properties>
+      <property name="Id" value="Roc" />
+    </properties>
+  </tile>
+  <tile id="132">
+    <properties>
+      <property name="Id" value="DragonTurtle" />
+    </properties>
+  </tile>
+  <tile id="133">
+    <properties>
+      <property name="Id" value="Breakable" />
+    </properties>
+    <image source="Creatures/BreakableMarker.png" width="256" height="256" />
   </tile>
 </tileset>

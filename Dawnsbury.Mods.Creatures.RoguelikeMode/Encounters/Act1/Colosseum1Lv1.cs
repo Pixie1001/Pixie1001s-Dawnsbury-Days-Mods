@@ -10,6 +10,7 @@ using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Display;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
 {
@@ -174,7 +175,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
                 }
             }
 
-            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[effects[R.Next(effects.Count)]].Item2)!);
+            var feat = effects[R.Next(effects.Count)];
+
+            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect("ChampionOfTheColosseumMartial", feat.HumanizeTitleCase2())!);
+            character.LongTermEffects.Add(WellKnownLongTermEffects.CreateLongTermEffect(LTEs.ColosseumFeatNames[feat].Item2)!);
         }
     }
 }

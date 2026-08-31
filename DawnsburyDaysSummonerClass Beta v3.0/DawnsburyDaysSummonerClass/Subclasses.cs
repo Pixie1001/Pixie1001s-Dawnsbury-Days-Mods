@@ -1,6 +1,7 @@
 ﻿using Dawnsbury.Audio;
-using Dawnsbury.Core;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.AuraAnimations;
 using Dawnsbury.Core.Animations.Movement;
@@ -35,6 +36,7 @@ using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Modding;
 using Microsoft.Xna.Framework;
+using System.Runtime.Intrinsics.Arm;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerClassLoader;
 
@@ -480,46 +482,46 @@ These benefits extend only while the ally is currently adjacent to your eidolon.
 
             yield return new EidolonBond(Enums.scArsonDemonEidolon, "Your bound eidolon is a demon of arson, born from the souls of arsonists that continue the work they once pursued in life.",
                 @"{b}Demonic Weakness (Extinguishing Aversion).{/b} If the your eidolon is targeted by an effect with the Water trait, or after entering or beginning its turn in water, it takes 1d6 mental damage for every 3 levels it has (minimum 1d6).
-            In addition, they gain weakness to Cold Iron and Good damage equal to half their level.
+In addition, they gain weakness to Cold Iron and Good damage equal to half their level.
 
-            {b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
-            • {b}Flaming Weapon.{/b} Your Eidolon's strikes deal an extra 1 fire damage.
-            • {b}Smoke Vision.{/b} Your eidolon can see through smoke and fog normally. {i}(They ignore the 20% concealment miss chance.){/i}
-            • {b}Fire Immunity.{/b} Your eidolon is immune to fire damage.
-            • {b}Arson Magic.{/b} When you add spells to your repertoire, you can choose from the divine list as well as from fire spells that appear on the arcane spell list, in exchange for being unable to take abjuration spells. As usual for when you add spells of a different tradition to your spell list, you're still a divine spellcaster so all of your spells are divine spells.
+{b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
+• {b}Flaming Weapon.{/b} Your Eidolon's strikes deal an extra 1 fire damage.
+• {b}Smoke Vision.{/b} Your eidolon can see through smoke and fog normally. {i}(They ignore the 20% concealment miss chance.){/i}
+• {b}Fire Immunity.{/b} Your eidolon is immune to fire damage.
+• {b}Arson Magic.{/b} When you add spells to your repertoire, you can choose from the divine list as well as from fire spells that appear on the arcane spell list, in exchange for being unable to take abjuration spells. As usual for when you add spells of a different tradition to your spell list, you're still a divine spellcaster so all of your spells are divine spells.
 
-            {i}At level 7{/i}
-            {b}Symbiosis Eidolon Ability (Breath Weapon) {icon:TwoActions} [divine, evocation, fire].{/b} Once per encounter, your eidolon may spit their boiling blood in a 20-foot line that deals 4d10 fire damage (basic Reflex save mitigates). The ground within this area becomes slippery as though it were affected by a {i}grease{/i} spell.
+{i}At level 7{/i}
+{b}Symbiosis Eidolon Ability (Breath Weapon) {icon:TwoActions} [divine, evocation, fire].{/b} Once per encounter, your eidolon may spit their boiling blood in a 20-foot line that deals 4d10 fire damage (basic Reflex save mitigates). The ground within this area becomes slippery as though it were affected by a {i}grease{/i} spell.
 
-            At 9th level and every 2 levels thereafter, the damage increases by 1d10.",
+At 9th level and every 2 levels thereafter, the damage increases by 1d10.",
                 Trait.Divine, [FeatName.Religion, FeatName.Stealth], ft => ft.FeatName == ftAChaoticEvil,
                 [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(ArsonDemonEidolonLogic);
 
             yield return new EidolonBond(ModManager.RegisterFeatName("Summoner_DemonSinBlood", "Blood Demon"), "Your bound eidolon is a demon of blood, forged from the souls of murderers and sadists to serve as assassins for the Starborn.",
                 @"{b}Demonic Weakness (Recoil from Wasted Opportunities).{/b} Whenever a dying creature within sight of your eidolon has its dying condition removed, it takes 1d6 mental damage for every 3 levels it has (minimum 1d6).
-            In addition, they gain weakness to Cold Iron and Good damage equal to half their level.
+In addition, they gain weakness to Cold Iron and Good damage equal to half their level.
 
-            {b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
-            • Your eidolon gains acid resistance equal to half its level.
-            • {b}Reactive Slime {icon:Reaction}.{/b} When a creature hits your eidolon with a melee Strike, as a reaction, it can excrete slime against that creature, dealing 1d6 acid damage (basic Spell Save DC Reflex save mitigates).
+{b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
+• Your eidolon gains acid resistance equal to half its level.
+• {b}Reactive Slime {icon:Reaction}.{/b} When a creature hits your eidolon with a melee Strike, as a reaction, it can excrete slime against that creature, dealing 1d6 acid damage (basic Spell Save DC Reflex save mitigates).
 
-            At 3rd level and every 2 levels thereafter, the damage increases by 1d6.
+At 3rd level and every 2 levels thereafter, the damage increases by 1d6.
 
-            {i}At level 7{/i}
-            {b}Symbiosis Eidolon Ability (Grievous Strike) {icon:TwoActions}.{/b} Your eidolon makes a melee Strike. This counts as two attacks when calculating their multiple attack penalty. If this Strike hits, they deal an additional 1d6 damage of the same damage type per weapon die, and the creature struck is frightened 2.",
+{i}At level 7{/i}
+{b}Symbiosis Eidolon Ability (Grievous Strike) {icon:TwoActions}.{/b} Your eidolon makes a melee Strike. This counts as two attacks when calculating their multiple attack penalty. If this Strike hits, they deal an additional 1d6 damage of the same damage type per weapon die, and the creature struck is frightened 2.",
                 Trait.Divine, [FeatName.Religion, FeatName.Stealth], ft => ft.FeatName == ftAChaoticEvil,
                 [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(BloodDemonEidolonLogic);
 
             yield return new EidolonBond(ModManager.RegisterFeatName("Summoner_DemonSinWorm", "Desecration Demon"), "Your bound eidolon is a demon of desecration, reduced to a loathsome body snatching worm abyss-bent on consuming and making mockery of the dead.",
                 @"{b}Demonic Weakness (Mercy Vulnerability).{/b} When a creature heals from damage that your eidolon dealt on their last turn it takes takes 2d6 mental damage for every 3 levels it has (minimum 2d6). Your eidolon can take this mental damage only once per round.
-            In addition, they gain weakness to Cold Iron, Sonic and Good damage equal to half their level.
+In addition, they gain weakness to Cold Iron, Sonic and Good damage equal to half their level.
 
-            {b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
-            • {b}Inhabit Body {icon:Reaction}.{/b} Whenever an enemy creature within 15 feet of your eidolon and within its line of sight dies, it can spend its reaction to a burrow inside of it's corpse and steal it's body.
-            • {b}Abandon Body {icon:TwoActions}.{/b} While inhabiting a body, your eidolon can use this ability to flee it's hosting, heal itself for a number of hit points equal to twice its level and assuming it's natural form.
+{b}Initial Eidolon Ability.{/b} Your eidolon gains the following benefits:
+• {b}Inhabit Body {icon:Reaction}.{/b} Whenever an enemy creature within 15 feet of your eidolon and within its line of sight dies, it can spend its reaction to a burrow inside of it's corpse and steal it's body, causing it to gain Temporary HP eqa lto 10% of it's host's Maximum Hit Points and assume a battleform that possesses it's hosts size, non-alignment traits, attacks, AC, athletics, speeds and certain innate traits.
+• {b}Abandon Body {icon:TwoActions}.{/b} While inhabiting a body, your eidolon can use this ability to flee it's host, healing itself for a number of hit points equal to twice its level and assuming it's natural form.
 
-            {i}At level 7{/i}
-            {b}Symbiosis Eidolon Ability (Unsettling Movement) [emotion, fear, mental, visual].{/b} Whenever your eidolon Abandons a Body or Inhabits a Body, all enemy creatures within 30 feet who can see it must succeed at a Will save against your spell save DC or become frightened 1. On a critical failure, the creature is frightened 1 and sickened 1. Regardless of the result, creatures are immune to your eidolons unsettling movement for the rest of the encounter.",
+{i}At level 7{/i}
+{b}Symbiosis Eidolon Ability (Unsettling Movement) [emotion, fear, mental, visual].{/b} Whenever your eidolon Abandons a Body or Inhabits a Body, all enemy creatures within 30 feet who can see it must succeed at a Will save against your spell save DC or become frightened 1. On a critical failure, the creature is frightened 1 and sickened 1. Regardless of the result, creatures are immune to your eidolons unsettling movement for the rest of the encounter.",
                 Trait.Divine, [FeatName.Religion, FeatName.Stealth], ft => ft.FeatName == ftAChaoticEvil,
                 [Trait.Demon, Trait.Fiend, Enums.tSinType, Trait.Homebrew], [Trait.Demon, Trait.Fiend, Trait.Starborn], null).WithClassFeatures(WormDemonEidolonLogic);
 
@@ -546,36 +548,36 @@ These benefits extend only while the ally is currently adjacent to your eidolon.
             // Chromatic
             yield return new EidolonBond(ModManager.RegisterFeatName("BlackDragon", "Black Dragon"), "Your eidolon is a vile black dragon.", "Your eidolon's breath weapon deals acid damage vs. Reflex.\n\nBlack dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
-                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures(DragonEidolonLogic).WithTag(Trait.Acid);
             yield return new EidolonBond(ModManager.RegisterFeatName("BlueDragon", "Blue Dragon"), "Your eidolon is a sophisticated blue dragon.", "Your eidolon's breath weapon deals electricity damage vs. Reflex.\n\nBlue dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
-                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Electricity);
             yield return new EidolonBond(ModManager.RegisterFeatName("GreenDragon", "Green Dragon"), "Your eidolon is a cunning green dragon.", "Your eidolon's breath weapon deals poison damage vs. Fortitude.\n\nGreen dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
-                new List<Trait>() { Trait.Poison, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Poison, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Poison);
             yield return new EidolonBond(ModManager.RegisterFeatName("RedDragon", "Red Dragon"), "Your eidolon is a tyranical red dragon.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nRed dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
-                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Fire);
             yield return new EidolonBond(ModManager.RegisterFeatName("WhiteDragon", "White Dragon"), "Your eidolon is a feral white dragon.", "Your eidolon's breath weapon deals cold damage vs. Reflex.\n\nWhite dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Evil)),
-                new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Cold);
 
             // Metallic
             yield return new EidolonBond(ModManager.RegisterFeatName("CopperDragon", "Copper Dragon"), "Your eidolon is a wily copper dragon.", "Your eidolon's breath weapon deals acid damage vs. Reflex.\n\nCopper dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.FeatName == Enums.ftAChaoticGood),
-                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Acid, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Acid);
             yield return new EidolonBond(ModManager.RegisterFeatName("BronzeDragon", "Bronze Dragon"), "Your eidolon is a scholarly bronze dragon.", "Your eidolon's breath weapon deals electricity damage vs. Reflex.\n\nBronze dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Good)),
-                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Electricity, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Electricity);
             yield return new EidolonBond(ModManager.RegisterFeatName("BrassDragon", "Brass Dragon"), "Your eidolon is a whimsical brass dragon.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nBrass dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Good)),
-                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Fire);
             yield return new EidolonBond(ModManager.RegisterFeatName("GoldDragon", "Gold Dragon"), "Your eidolon is an honourable gold dragon.", "Your eidolon's breath weapon deals fire damage vs. Reflex.\n\nGold dragons are associated with the {b}Divine{/b} spellcasting tradition.",
                 Trait.Divine, new List<FeatName>() { FeatName.Arcana, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.FeatName == Enums.ftALawfulGood),
-                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Fire, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Fire);
             yield return new EidolonBond(ModManager.RegisterFeatName("SilverDragon", "Silver Dragon"), "Your eidolon is a silver white dragon.", "Your eidolon's breath weapon deals cold damage vs. Reflex.\n\nSilver dragons are associated with the {b}Arcane{/b} spellcasting tradition.",
                 Trait.Arcane, new List<FeatName>() { FeatName.Religion, FeatName.Intimidation }, new Func<Feat, bool>(ft => ft.HasTrait(Enums.tAlignment) && ft.HasTrait(Trait.Good)),
-                new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner));
+                new List<Trait>() { Trait.Cold, Enums.tDragonType }, new List<Trait> { Trait.Dragon }, new List<Feat>() { dragonConeBreath, dragonLineBreath }).WithClassFeatures((eidolon, summoner) => DragonEidolonLogic(eidolon, summoner)).WithTag(Trait.Cold);
         }
 
         private static void AngelEidolonLogic(Creature eidolon, Creature summoner) {
@@ -665,7 +667,7 @@ These benefits extend only while the ally is currently adjacent to your eidolon.
             SpellRepertoire repertoire = summoner.PersistentCharacterSheet?.Calculated.SpellRepertoires[tSummoner];
             int saveDC = summoner.GetOrCreateSpellcastingSource(SpellcastingKind.Spontaneous, tSummoner, Ability.Charisma, repertoire!.SpellList).GetSpellSaveDC();
 
-            Trait damageTrait = summoner.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tDragonType))!.Traits[0];
+            Trait? damageTrait = (Trait?)summoner.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tDragonType))!.Tag;
             FeatName targetFeat = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tBreathWeaponArea))!.FeatName;
             Target target;
             if (targetFeat == ftBreathWeaponLine) {
@@ -685,8 +687,8 @@ These benefits extend only while the ally is currently adjacent to your eidolon.
             }
 
             Trait[] traits = new Trait[] { };
-            if (damageTrait != Trait.VersatileP) {
-                traits = [damageTrait];
+            if (damageTrait != null) {
+                traits = [(Trait)damageTrait];
             }
 
             eidolon.AddQEffect(new QEffect() {
@@ -713,7 +715,7 @@ These benefits extend only while the ally is currently adjacent to your eidolon.
                     .WithEffectOnChosenTargets(async (self, defenders) => {
                         int num = R.Next(1, 5);
 
-                        self.AddQEffect(new QEffect("Recharging Fire Breath", "This creature can't use Fire Breath until the value counts down to zero.", ExpirationCondition.CountsDownAtEndOfYourTurn, self, (Illustration)IllustrationName.Recharging) {
+                        self.AddQEffect(new QEffect("Recharging Breath Weapon", "This creature can't use it's Breath Breath until the value counts down to zero.", ExpirationCondition.CountsDownAtEndOfYourTurn, self, (Illustration)IllustrationName.Recharging) {
                             Id = QEffectId.Recharging,
                             CountsAsADebuff = true,
                             PreventTakingAction = ca => !(ca.Name == "Breath Weapon") ? null : "This ability is recharging.",
@@ -2130,7 +2132,8 @@ You exhale boiling blood and deal {dmg} fire damage to each target in the area (
                     if (damageEvent.IsSplashDamage) return;
                     var defender = effect.Owner;
                     var attacker = damageEvent.Source;
-                    if (action.HasTrait(Trait.Strike) && !action.HasTrait(Trait.ProxyAttack) && action.HasTrait(Trait.Melee) && await defender.AskToUseReaction($"You're hit and dealt damage by {attacker}. Use Reactive Slime to deal back {acidDmg} acid damage?")) {
+                    if (action.HasTrait(Trait.Strike) && !action.HasTrait(Trait.ProxyAttack) && action.HasTrait(Trait.Melee) && await defender.AskToUseReaction($"You were hit by {attacker}. Use Reactive Slime to deal back {acidDmg} acid damage back to your attacker?")) {
+                        Sfxs.Play(SfxName.AcidSplash);
                         var reactiveSlime = CombatAction.CreateSimple(defender, "Reactive Slime", [Trait.Acid]);
                         var result = await CommonSpellEffects.RollSavingThrowAsync(attacker, reactiveSlime, Defense.Reflex, dc);
                         await CommonSpellEffects.DealBasicDamage(reactiveSlime, defender, attacker, result, acidDmg, DamageKind.Acid);
@@ -2145,13 +2148,13 @@ You exhale boiling blood and deal {dmg} fire damage to each target in the area (
                     ProvideStrikeModifier = item => {
                         if (!item.HasTrait(Trait.Melee) || item.WeaponProperties == null) return null;
                         var strike = eidolon.CreateStrike(item).WithActionCost(2);
-                        strike.WithFullRename($"Grievous Strike (${item.Name})");
+                        strike.WithFullRename($"Grievous Strike ({item.Name})");
                         strike.Illustration = new SideBySideIllustration(item.Illustration, IllustrationName.DemonMask);
                         strike.Traits.Add(Trait.Basic);
                         strike.StrikeModifiers.QEffectForStrike = new QEffect(ExpirationCondition.Ephemeral) {
                             AddExtraStrikeDamage = (action, creature) =>
                             {
-                                return (DiceFormula.FromText($"{item.WeaponProperties.DamageDieCount}d6", "Grievous Strike"), action.Item?.WeaponProperties?.DamageKind ?? DamageKind.Force);
+                                return (DiceFormula.FromText($"{item.WeaponProperties.DamageDieCount}d6", "Grievous Strike"), action.Item?.WeaponProperties?.DamageKind ?? DamageKind.Untyped);
                             }
                         };
                         strike.StrikeModifiers.OnEachTarget = async (attacker, defender, checkResult) =>
@@ -2205,30 +2208,34 @@ You exhale boiling blood and deal {dmg} fire damage to each target in the area (
 
                             var formTraits = new List<BattleformTrait>();
                             if (entry.Item1.HasEffect(QEffectId.Flying))
-                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.Flying()));
+                                formTraits.Add(new BattleformTrait(null, qf => qf.StateCheck += _ => qf.Owner.AddQEffect(QEffect.Flying().WithExpirationEphemeral())));
                             if (entry.Item1.HasTrait(Trait.Aquatic))
                                 formTraits.Add(BattleformTrait.CreateAquatic());
                             else if (entry.Item1.HasEffect(QEffectId.Swimming))
-                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.Swimming()));
-                            foreach (var res in entry.Item1.WeaknessAndResistance.Resistances) {
-                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.DamageResistance(res.DamageKind, res.Value)));
-                            }
-                            foreach (var immunity in entry.Item1.WeaknessAndResistance.Immunities) {
-                                formTraits.Add(new BattleformTrait(null, qf => qf = QEffect.DamageImmunity(immunity)));
-                            }
+                                formTraits.Add(new BattleformTrait(null, qf => qf.StateCheck += _ => qf.Owner.AddQEffect(QEffect.Swimming().WithExpirationEphemeral())));
+                            else if (entry.Item1.FindQEffect(QEffectId.SpellResistance) is QEffect sr)
+                                formTraits.Add(new BattleformTrait(null, qf => qf.StateCheck += _ => qf.Owner.AddQEffect(QEffect.SpellResistance(sr.Value).WithExpirationEphemeral())));
+                            //foreach (var res in entry.Item1.WeaknessAndResistance.Resistances) {
+                            //    formTraits.Add(new BattleformTrait(null, qf => qf.StateCheck += _ => qf.Owner.AddQEffect(QEffect.DamageResistance(res.DamageKind, res.Value).WithExpirationEphemeral())));
+                            //}
+                            //foreach (var immunity in entry.Item1.WeaknessAndResistance.Immunities) {
+                            //    formTraits.Add(new BattleformTrait(null, qf => qf.StateCheck += _ => qf.Owner.AddQEffect(QEffect.DamageImmunity(immunity).WithExpirationEphemeral())));
+                            //}
                             foreach (var trait in entry.Item1.Traits.Where(tr => TraitExtensions.TraitProperties[tr].Relevant)) {
                                 if (trait == Trait.Good || trait == Trait.Evil ||
                                 trait == Trait.Lawful || trait == Trait.Chaotic) continue;
                                 formTraits.Add(BattleformTrait.CreateAddTrait(trait));
                             }
 
+                            var strengthMod = entry.Item1.Abilities.Strength;
+
                             var battleform = new BattleformDefinition(entry.Item1.Illustration,
                                 ac: lvl => entry.Item1.Defenses.GetBaseValue(Defense.AC),
                                 speed: lvl => entry.Item1.Speed,
                                 temporaryHP: lvl => (int)(entry.Item1.MaxHP * 0.1f),
                                 size: lvl => entry.Item1.Space.Size,
-                                minimumAttack: lvl => entry.Item1.Weapons.Count() == 0 ? 0 : entry.Item1.GetProficiency(entry.Item1.Weapons.MaxBy(wpn => entry.Item1.GetProficiency(wpn))!),
-                                minimumAthletics: lvl => entry.Item1.Skills.Get(Skill.Athletics),
+                                minimumAttack: lvl => entry.Item1.Weapons.Count() == 0 ? 0 : entry.Item1.GetProficiency(entry.Item1.Weapons.MaxBy(wpn => entry.Item1.GetProficiency(wpn))!) + strengthMod,
+                                minimumAthletics: lvl => entry.Item1.Skills.Get(Skill.Athletics) + strengthMod,
                                 attacks: lvl => entry.Item1.Weapons.ToArray(),
                                 traits: lvl => formTraits.ToArray());
 
@@ -2239,7 +2246,26 @@ You exhale boiling blood and deal {dmg} fire damage to each target in the area (
 
                             var form = await SizeChangeRules.EnterSpellBasedBattleform(ca,
                                 battleform.Portrait, battleform.AC!(lvl), battleform.Speed!(lvl), null, battleform.Size!(lvl), true, battleform.TemporaryHP?.Invoke(lvl) ?? 0, hasHands);
+                            await UnsettlingMovement(ca);
                             if (form == null) return;
+                            form.StateCheck += (qfSelf) => {
+                                qfSelf.Owner.AddQEffect(new QEffect() { PreventTakingAction = ca => ca.HasTrait(Trait.Strike) && !ca.HasTrait(Trait.BattleformAttack) ? "Cannot use while in a Battleform." : null }.WithExpirationEphemeral());
+                                qfSelf.Owner.AddQEffect(new QEffect() {
+                                    ProvideMainAction = qfAction => new ActionPossibility(new CombatAction(qfAction.Owner, IllustrationName.GluttonsJaw, "Abandon Body", [Trait.Healing, Trait.Concentrate],
+                                    @$"{{b}}Requirements{{/b}} you are inhabiting a body.
+
+Your eidolon consumes it's host, leaving it's Battleform and healing itself for {qfAction.Owner.Level * 2} Hit Points.", Target.Self())
+                                    .WithShortDescription($"Abandon your skinsleeve battleform, and heal for {eidolon.Level * 2} Hit Points.")
+                                    .WithActionCost(2)
+                                    .WithSoundEffect(SfxName.GluttonBite)
+                                    .WithEffectOnSelf(async (spell, caster) => {
+                                        await caster.HealAsync(DiceFormula.FromText($"{caster.Level * 2}"), spell);
+                                        form.ExpiresAt = ExpirationCondition.Immediately;
+                                        await UnsettlingMovement(spell);
+                                    })
+                                    )
+                                }.WithExpirationEphemeral());
+                            };
                             form.BattleformMinimumStrikeModifier = battleform.MinimumAttack!(lvl);
                             if (battleform.MinimumAthletics != null) {
                                 form.BattleformMinimumAthleticsModifier = battleform.MinimumAthletics(lvl);
@@ -2294,7 +2320,20 @@ You exhale boiling blood and deal {dmg} fire damage to each target in the area (
             eidolon.AddQEffect(inhabit);
             
             if (eidolon.Level >= 7) {
-                
+                eidolon.AddQEffect(new QEffect("Unsettling Movement", "Whenever you Abandon a Body or Inhabit a Body, all enemy creatures within 30 feet who can see you must succeed at a Will save against your spell save DC or become frightened 1. On a critical failure, the creature is frightened 1 and sickened 1. Regardless of the result, creatures are immune to unsettling movement for the rest of the encounter."));
+            }
+
+            async Task UnsettlingMovement(CombatAction action) {
+                if (eidolon.Level < 7) return;
+
+                foreach (var enemy in eidolon.Battle.AllCreatures.Where(cr => !cr.HasEffect(qfImmuneToUnsettlingMovement) && cr.EnemyOf(eidolon) && cr.DistanceTo(eidolon) <= 6 && cr.HasLineOfEffectToIgnoreLesser(eidolon) != CoverKind.Blocked)) {
+                    var result = await CommonSpellEffects.RollSavingThrowAsync(enemy, action, Defense.Will, summoner.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC() ?? 10);
+                    enemy.AddQEffect(new QEffect() { Id = qfImmuneToUnsettlingMovement });
+                    if (result <= CheckResult.Failure)
+                        enemy.AddQEffect(QEffect.Frightened(1));
+                    if (result == CheckResult.CriticalFailure)
+                        enemy.AddQEffect(QEffect.Sickened(1, summoner.Spellcasting?.PrimarySpellcastingSource?.GetSpellSaveDC() ?? 10));
+                }
             }
         }
 

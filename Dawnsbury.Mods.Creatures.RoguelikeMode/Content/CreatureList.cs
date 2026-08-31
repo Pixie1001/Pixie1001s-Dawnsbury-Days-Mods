@@ -165,8 +165,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return Hydra.Create();
                 case var v when v.Equals(CreatureIds.Baraquielle):
                     return Baraquielle.Create(encounter);
-                case var v when v.Equals(CreatureIds.AzataMediator):
+                case var v when v.Equals(CreatureIds.Lyra):
                     return Lyra.Create(encounter);
+                case var v when v.Equals(CreatureIds.AzataMediator):
+                    return Lyra.Create(encounter, true);
                 case var v when v.Equals(CreatureIds.DrowChampion):
                     return DrowChampion.Create();
                 case var v when v.Equals(CreatureIds.DrowShadowdancer):
@@ -232,7 +234,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
         internal static void LoadCreatures() {
             // Scaleable Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Baraquielle);
-            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AzataMediator);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Lyra);
 
             // Level -1 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.RavenousRat);
@@ -322,6 +324,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.NightmareWeaver);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditePriestess);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Hydra);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AzataMediator);
 
             // Level 7 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Medusa);

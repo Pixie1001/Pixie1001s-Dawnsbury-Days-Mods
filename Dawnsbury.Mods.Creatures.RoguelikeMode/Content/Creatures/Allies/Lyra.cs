@@ -26,9 +26,9 @@ using Microsoft.Xna.Framework;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class Lyra {
-        public static Creature Create(Encounter? encounter) {
+        public static Creature Create(Encounter? encounter, bool summon=false) {
             var encounterLevel = UtilityFunctions.GetEncounterLevel(encounter);
-            bool highLevel = encounterLevel > 4;
+            bool highLevel = encounterLevel > 4 || summon;
             var hp = !highLevel ? 25 : 95;
             var defenses = !highLevel ? new Defenses(19, 11, 8, 8) : new Defenses(25, 16, 14, 14);
             var level = !highLevel ? 2 : 6;
@@ -48,12 +48,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             var spellAtk = !highLevel ? 3 : 18;
             var perception = !highLevel ? 11 : 17;
 
-            // TODO: Setup so this can be summoned without creating issues with level scaling
-            var angel = new Creature(Illustrations.Lyra, "Azata Mediator", [Trait.Chaotic, Trait.Good, ModTraits.Azata, Trait.Celestial, Trait.Female, Trait.NonSummonable], level, perception, 9, defenses, hp, abilities, skills)
+            var angel = new Creature(Illustrations.Lyra, summon ? "Azata Mediator" : "Lyra", [Trait.Chaotic, Trait.Good, ModTraits.Azata, Trait.Celestial, Trait.Female, Trait.NonSummonable], level, perception, 9, defenses, hp, abilities, skills)
                 .WithSpawnAsGaiaFriends()
                 .WithBasicCharacteristics()
                 .WithProficiency(Trait.Melee, Proficiency.Expert)
-                .WithCreatureId(CreatureIds.AzataMediator)
+                .WithCreatureId(summon ? CreatureIds.AzataMediator : CreatureIds.Lyra)
                 .AddHeldItem(weapon)
                 .WithUnarmedStrike(tail)
                 .AddQEffect(QEffect.Flying())
@@ -66,9 +65,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
                         return (ActionPossibility)new CombatAction(self.Owner, IllustrationName.InspireCourage, "Inspire Friends", [Trait.Cantrip, Trait.Flourish, Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental, Trait.Composition, Trait.SpellWithDuration, Trait.NoHeightening],
-                        $"Lyra inspires all of her new friends within a 60ft aura, granting them a +2 bonus to attack rolls, damage rolls and saves against fear effects.",
+                        $"{(self.Owner.IsNamedMonster ? self.Owner.MainName : "The " + self.Owner.MainName)} inspires all of her new friends within a 60ft aura, granting them a +2 bonus to attack rolls, damage rolls and saves against fear effects.",
                         Target.Self()) {
-                            ShortDescription = $"Lyra inspires all of her new friends within a 60ft aura, granting them a +2 bonus to attack rolls, damage rolls and saves against fear effects."
+                            ShortDescription = $"{(self.Owner.IsNamedMonster ? self.Owner.MainName : "The " + self.Owner.MainName)} inspires all of her new friends within a 60ft aura, granting them a +2 bonus to attack rolls, damage rolls and saves against fear effects."
                         }
                         .WithSoundEffect(SfxName.Harp)
                         .WithActionCost(1)
@@ -120,6 +119,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 angel.ApplyWeakAdjustments(false);
             else if (encounterLevel == 3 || encounterLevel == 7)
                 angel.ApplyEliteAdjustments(false);
+
+            if (summon) {
+                angel.Traits.Remove(Trait.NonSummonable);
+            }
 
             return angel;
         }

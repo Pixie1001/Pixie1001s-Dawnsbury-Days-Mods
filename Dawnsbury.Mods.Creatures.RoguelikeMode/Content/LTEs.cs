@@ -259,8 +259,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!")!),
                     YouAreDealtLethalDamage = async (self, attacker, dmg, defender) => {
                         string[] defendLines = [
-                            "Noooo...! I- I mean, b-be more careful next time or whatever. Y-you're embarrasing heaven!",
-                            "Just to be here, I- I'm only here because of my lawful good alignment...!",
+                            "Noooo...! I- I mean, b-be more careful next time or whatever. Y-you're embarrassing heaven!",
+                            "Just to be clear, I- I'm only here because of my lawful good alignment...!",
                             "B-baka!",
                             "Stay away from them! O-only I'm allowed to smite them!",
                             "Just to be clear, I-I'm only doing this so I don't have to see you around in Heaven or whatever...!"
@@ -357,10 +357,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             });
 
             LongTermEffects.EasyRegister("Heavenly Favour", LongTermEffectDuration.Forever, (_, _) => {
-                return new QEffect("Heavenly Favour", "The gods bless your cause, imparting a +1 bonus to your attack, save DCs, spell DC and AC.") {
+                return new QEffect("Heavenly Favour", "The gods bless your cause, imparting a +1 bonus to your attack, save DCs, spell DC and AC.", ExpirationCondition.Never, null, IllustrationName.AngelicWings) {
                     HideFromPortrait = true,
-                    Illustration = IllustrationName.AngelicWings,
                     ExpiresAt = ExpirationCondition.Never,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Heavenly Favour")!),
                     BonusToAttackRolls = (self, action, target) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
                     BonusToDefenses = (self, action, def) => new Bonus(1, BonusType.Untyped, "Heavenly Favour (Easy Mode)"),
@@ -372,6 +372,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Unicorn Companion", "You've acquired the aid of a unicorn. They will fight besides you until dying or the party returns to town.") {
                     HideFromPortrait = true,
                     Illustration = Illustrations.Unicorn,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn Companion")!),
                     StartOfCombat = async self => {
@@ -394,6 +395,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Angelic Companion", "Baraquielle has offered her hammer to aid you on your quest. They will fight besides you until dying or the party returns to town.") {
                     HideFromPortrait = true,
                     Illustration = Illustrations.Baraquielle,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Angelic Companion")!),
                     StartOfCombat = async self => {
@@ -415,6 +417,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Azata Companion", "You've acquired the aid of the Azata Lyra. They will fight besides you until dying or the party returns to town.") {
                     HideFromPortrait = true,
                     Illustration = Illustrations.Lyra,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Companion")!),
                     StartOfCombat = async self => {
@@ -437,6 +440,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Azata Headpats", "Though this boon has no mechanical effects, Lyra desires that it remain on your sheet anyway as a no less valuable participation prize.") {
                     HideFromPortrait = true,
                     Illustration = Illustrations.AzataHeadpats,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Azata Headpats")!),
                 };
             });
@@ -445,6 +449,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Power of the Rat Fiend", "You've claimed the power of the rat fiend for yourself. At the start of each encounter, spawn a friendly Rat to aid you.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.GiantRat256,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
                     ExpiresAt = ExpirationCondition.Never,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Power of the Rat Fiend")!),
                     StartOfCombat = async self => {
@@ -457,6 +462,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Curse of the Rat Fiend", "Each enemy you defeat has a 25% chance of spawning a Giant Rat from its corpse.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.BestowCurse,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     AfterYouDealDamage = async (owner, action, defender) => {
                         if (defender.HP <= 0 && defender.OwningFaction.EnemyFactionOf(owner.OwningFaction) && defender.BaseName != "Giant Rat") {
                             if (R.NextD20() <= 15) {
@@ -481,6 +487,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     HideFromPortrait = true,
                     Illustration = Illustrations.DrowRenegade,
                     ExpiresAt = ExpirationCondition.Never,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Drow Renegade Companion")!),
                     StartOfCombat = async self => {
                         Creature companion = CreatureList.Creatures[CreatureIds.DrowRenegade](self.Owner.Battle.Encounter);
@@ -499,6 +506,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Injured", $"You've sustained an injury that won't quite fully heal until you've had a full night's rest reducing your max HP by {val}0%.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Wounded,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     Value = val,
                     StateCheck = self => {
                         self.Owner.DrainedMaxHPDecrease += (int)(0.1f * self.Value * self.Owner.MaxHP);
@@ -512,6 +520,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Rejected", $"The worst they could say was in fact way worse than 'no'. You suffer a -{val} status penalty to all Charisma-based rolls and DCs after your ego crushing rejection.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.BitingWords,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     Value = val,
                     BonusToAbilityBasedChecksRollsAndDCs = (self, ability) => ability == Ability.Charisma ? new Bonus(-val, BonusType.Status, "Rejected") : null,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Rejected", null, val)!)
@@ -522,6 +531,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Unicorn's Curse", $"You've been cursed by a unicorn for attempting to poach it, reducing your max HP by 5 and your saves by 1 until you take a long rest.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.BestowCurse,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     StateCheck = self => {
                         self.Owner.DrainedMaxHPDecrease += 5;
                         self.Owner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
@@ -535,6 +545,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Unicorn's Blessing", $"You've been blessed by a unicorn using the last of its dying strength, increasing your max HP by 5 and your saves by +1 until you take a long rest.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Bless,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     StartOfCombat = async self => self.Owner.MaxHP += 5,
                     BonusToDefenses = (self, action, def) => def != Defense.AC ? new Bonus(1, BonusType.Untyped, "Unicorn's Blessing") : null,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Unicorn's Blessing", null, null)!)
@@ -545,6 +556,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Guilt", $"Your failures weigh heavy on your conscience. You gain a -{val} status penalty to Will saves.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Fear,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     Value = val,
                     BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(-val, BonusType.Status, "Guilt") : null,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Guilt", null, val)!)
@@ -555,6 +567,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Hope", $"You're spurred onwards by the changes your good deeds have wrought. You gain a +{val} status penalty to Will saves and attack rolls.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Heroism,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     Value = val,
                     BonusToDefenses = (self, action, defence) => defence == Defense.Will ? new Bonus(val, BonusType.Status, "Hope") : null,
                     BonusToAttackRolls = (self, action, target) => new Bonus(val, BonusType.Status, "Hope"),
@@ -566,6 +579,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Information Sharing", "The information about hazards, enemy movements and strongholds shared by the Drow Renegades grants you a +1 bonus to inititive.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.DeviseAStratagem,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     BonusToInitiative = self => new Bonus(1, BonusType.Untyped, "Information Sharing"),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Information Sharing")!)
                 };
@@ -575,6 +589,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Compromised Route", "The party's route was leaked by a spy. You suffer a -1 penalty to inititive.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Sneak64,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Compromised Route"),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Compromised Route")!)
                 };
@@ -584,6 +599,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Waylaid", "The party was delayed, forcing them to forge ahead without due caution. You suffer a -1 penalty to inititive.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Sneak64,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilDowntime,
                     BonusToInitiative = self => new Bonus(-1, BonusType.Untyped, "Waylaid"),
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Waylaid")!)
                 };
@@ -593,6 +609,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Mushroom Symbiote", "Your mushroom symbiote renders you immune to poison.") {
                     HideFromPortrait = true,
                     Illustration = Illustrations.ChokingMushroom,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     ImmuneToTrait = Trait.Poison,
                     StateCheck = self => {
                         self.Owner.WeaknessAndResistance.AddImmunity(DamageKind.Poison);
@@ -605,6 +622,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Lingering Curse", "This creature is afflicted by a lingering curse, imposing Clumsy, Enfeebled and Stupidied 1 upon them.") {
                     Innate = false,
                     Illustration = IllustrationName.BestowCurse,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     StateCheck = self => {
                         self.Owner.AddQEffect(QEffect.Clumsy(1).WithExpirationEphemeral());
                         self.Owner.AddQEffect(QEffect.Enfeebled(1).WithExpirationEphemeral());
@@ -619,6 +637,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     Innate = false,
                     Value = value,
                     Illustration = new SameSizeDualIllustration(Illustrations.StatusBackdrop, Illustrations.ChokingMushroom),
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     BonusToAllChecksAndDCs = (qf) => new Bonus(-qf.Value, BonusType.Status, "sickened"),
                     PreventTakingAction = (ca) => ca.ActionId != ActionId.Drink ? null : "You're sickened.",
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness")!),
@@ -632,8 +651,25 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 return new QEffect("Well Spirit's Blessing", $"You've been blessed by the spirit of a magic well, increasing and your will saves by +1 until you take a long rest.") {
                     HideFromPortrait = true,
                     Illustration = IllustrationName.Bless,
+                    LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     BonusToDefenses = (self, action, def) => def == Defense.Will ? new Bonus(1, BonusType.Untyped, "Well Spirit's Blessing") : null,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Well Spirit's Blessing", null, null)!)
+                };
+            });
+
+            LongTermEffects.EasyRegister("ChampionOfTheColosseumMartial", LongTermEffectDuration.Forever, (featName, _) => {
+                return new QEffect("Champion of the Colosseum", $"You earned the {featName} feat through your prowess in the colosseum.", IllustrationName.GenericCombatManeuver) {
+                    HideFromPortrait = true,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("ChampionOfTheColosseumMartial", featName, null)!)
+                };
+            });
+
+            LongTermEffects.EasyRegister("ChampionOfTheColosseumMagical", LongTermEffectDuration.Forever, (featName, _) => {
+                return new QEffect("Champion of the Colosseum", $"You earned the {featName} feat through your prowess in the colosseum.", IllustrationName.CastASpell) {
+                    HideFromPortrait = true,
+                    LongTermEffectDuration = LongTermEffectDuration.Forever,
+                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("ChampionOfTheColosseumMagical", featName, null)!)
                 };
             });
 
@@ -1161,7 +1197,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
             LongTermEffects.EasyRegister(ColosseumFeatNames[ColosseumFeat.WintersClutch].Item2, LongTermEffectDuration.Forever, (_, _) => {
                 return new QEffect() {
-                    ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Wnter's Clutch", FeatName.WintersClutch, IllustrationName.WintersClutch, new Trait[2]
+                    ProvideMainAction = (QEffect qfSelf) => new ActionPossibility(CreateBasicImpulse(qfSelf.Owner, "Winter's Clutch", FeatName.WintersClutch, IllustrationName.WintersClutch, new Trait[2]
                     {
                         Trait.Water,
                         Trait.Cold

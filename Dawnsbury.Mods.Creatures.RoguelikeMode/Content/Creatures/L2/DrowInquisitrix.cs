@@ -53,7 +53,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 .AddQEffect(QEffect.SneakAttack("1d4"))
                 .AddQEffect(new QEffect() {
                     ProvideMainAction = self => {
-                        if (self.Owner.Spellcasting?.PrimarySpellcastingSource.Spells.FirstOrDefault(spell => spell.SpellId == SpellId.Harm) == null) {
+                        if (self.Owner.Spellcasting?.PrimarySpellcastingSource?.Spells.FirstOrDefault(spell => spell.SpellId == SpellId.Harm) == null) {
                             return null;
                         }
 
@@ -64,7 +64,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                                 //if (result >= CheckResult.Success) {
                                 //    await CommonSpellEffects.DealDirectDamage(a.Spellcasting.PrimarySpellcastingSource.Spells.First(spell => spell.SpellId == SpellId.Harm), DiceFormula.FromText("1d8"), d, result, DamageKind.Negative);
                                 //}
-                                a.Spellcasting?.PrimarySpellcastingSource.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Harm);
+                                a.Spellcasting?.PrimarySpellcastingSource?.Spells.RemoveFirst(spell => spell.SpellId == SpellId.Harm);
                             }
                         };
 
@@ -132,7 +132,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                         " mental damage?", "Submit", "Defy")) {
                             action.Owner.AddQEffect(QEffect.Prone());
                         } else {
-                            // TODO: Make a dummy action for this damage
                             CombatAction dummyAction = new CombatAction(self.Owner, self.Owner.Illustration, "Iron Command", new Trait[] { Trait.Divine, Trait.Emotion, Trait.Enchantment, Trait.Mental },
                             "You deal " + icDmg + " mental damage to a creature that attacked you, and refuses to kneel.", Target.Uncastable());
                             await CommonSpellEffects.DealDirectDamage(dummyAction, DiceFormula.FromText(icDmg, "Iron Command"), action.Owner, CheckResult.Success, DamageKind.Mental);

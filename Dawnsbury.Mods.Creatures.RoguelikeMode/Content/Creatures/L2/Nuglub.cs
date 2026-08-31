@@ -7,14 +7,17 @@ using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Coroutines.Options.Reactive;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using System.Data;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
 {
@@ -29,18 +32,19 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                     .AddQEffect(new QEffect("Kneecapper {icon:Reaction}", "When an adjacent creature uses a move action, you can make an Acrobatics check against the creature's Reflex DC. On a success, disrupt the action and the target falls and lands prone.")
                     {
                         Id = QEffectId.AttackOfOpportunity,
-                        WhenProvoked = async (qfWhenProvoked, action) =>
+                        WhenProvokedReactions = (qfWhenProvoked, action) =>
                         {
+                            if (!action.HasTrait(Trait.Move)) return null;
                             Creature self = qfWhenProvoked.Owner;
-                            if (action.HasTrait(Trait.Move) && await self.AskToUseReaction("Make an Acrobatics check to try to make the creature fall prone?"))
-                            {
-                                if (CommonSpellEffects.RollCheck("Kneecapper", new ActiveRollSpecification(TaggedChecks.SkillCheck([Skill.Acrobatics]), Checks.DefenseDC(Defense.Reflex)), self, action.Owner) >= CheckResult.Success)
-                                {
+                            var ca = new CombatAction(self, IllustrationName.Mace, "Kneecapper", [Trait.AttackOfOpportunity], qfWhenProvoked.Description ?? "", Target.ReachWithAnyWeapon());
+                            return new ReactionOptions([ReactionOption.CreateFromCombatActionCustom(ca, null, async () => {
+                                if (CommonSpellEffects.RollCheck("Kneecapper", new ActiveRollSpecification(TaggedChecks.SkillCheck([Skill.Acrobatics]), Checks.DefenseDC(Defense.Reflex)), self, action.Owner) >= CheckResult.Success) {
                                     Sfxs.Play(SfxName.DropProne);
                                     action.Owner.AddQEffect(QEffect.Prone());
                                     action.Disrupted = true;
+                                    self.Actions.UseUpReaction();
                                 }
-                            }
+                            })]);
                         },
                     })
                     .AddQEffect(new QEffect("Improved Sneak Attack", "Strikes deal an additional 1d6 precision damage to flat-footed targets, or 1d10 if the target is prone.")
