@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.Coroutines;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Tiles;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
@@ -18,14 +20,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     internal static class AiFuncs {
 
         // AI functions to implement
-        // - Run bonus on postion 
         // - Cowardly
 
         /// <summary>
         /// The MONSTER considers all OPTIONS, and determines which creatures in the encounter fit the conditions of FILTER(postion, self, is a step?, other creature).
         /// They then gain a goodness bonus equal their MODIFIER if filter returns true for a given postion. If FLAT is false, they gain this bonus for each creature that meets the conditions set by filter.
         /// </summary>
-        internal static void PositionalGoodness(Creature monster, List<Option> options, Func<Tile, Creature, bool, Creature, bool> filter, float modifier, bool flat = true) {
+        internal static void PositionalGoodness(Creature monster, List<Option> options, Func<Tile, Creature, bool, Creature, bool> filter, float modifier, bool flat = true, string[]? ignoredActions = null) {
 
             float localMod = 0;
 
@@ -41,7 +42,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 }
             }
 
-            foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere && o.AiUsefulness.MainActionUsefulness != 0)) {
+            foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere && o.AiUsefulness.MainActionUsefulness != 0 && (!(o is CombatActionOption ca && ignoredActions.Contains(ca.CombatAction.Name))))) {
                 int hits = monster.Battle.AllCreatures.Where(cr => filter(monster.Occupies, monster, false, cr)).Count();
                 if (hits > 0) {
                     localMod = flat ? modifier : modifier * hits;
@@ -96,8 +97,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             }
         }
 
+        internal static void VampireDivineRevulsion(Creature monster, List<Option> options) {
+            if (monster.HasEffect(QEffectIds.OvercameDivineRevulsion)) return;
 
-
-
+            PositionalGoodness(monster, options, (tile, self, step, other) => tile.TileQEffects.Any(tqf => tqf.Zone?.ControllerQEffect.Id == QEffectIds.WardingOffVampire), -100, true, ["Overcome Divine Revulsion"]);
+        }
     }
 }

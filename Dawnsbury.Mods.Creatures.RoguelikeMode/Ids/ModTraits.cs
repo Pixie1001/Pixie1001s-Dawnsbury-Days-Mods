@@ -31,6 +31,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
             WhiteForeground = true
         });
         internal static Trait Azata { get; } = ModManager.RegisterTrait("RL_Azata", new TraitProperties("Azata", false));
+        internal static Trait Vampire { get; } = ModManager.RegisterTrait("RL_Vampire", new TraitProperties("Vampire", false));
         internal static Trait Reload0 { get; } = ModManager.RegisterTrait("RL_Reload0", new TraitProperties("Reload 0", true, "While you have a free hand, you can draw and throw this weapon as a single action.", true));
         internal static Trait Parry { get; } = ModManager.RegisterTrait("RL_Parry", new TraitProperties("Parry", true, "This weapon can be used defensively to block attacks."));
         internal static Trait Twin { get; } = ModManager.RegisterTrait("RL_Twin", new TraitProperties("Twin", true, "When you attack with a twin weapon, you add a circumstance bonus to the damage roll equal to the weapon’s number of damage dice if you have previously attacked with a different weapon of the same type this turn."));

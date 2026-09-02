@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury.Audio;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
+using Dawnsbury.Core.Animations.AuraAnimations;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
@@ -19,19 +11,32 @@ using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Damage;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
-using Microsoft.Xna.Framework;
+using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Microsoft.Xna.Framework;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
 
@@ -56,6 +61,118 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                     return null;
                 }
             };
+        }
+
+        public static Creature MakeVampire(Creature vampire, int resistance, int fastHealing) {
+            var vampireDC = 20;
+
+            vampire.Traits.Add(ModTraits.Vampire);
+            vampire.AddQEffect(QEffect.FastHealing(fastHealing));
+            vampire.AddQEffect(QEffect.DamageResistancePhysicalExceptSilver(resistance));
+            vampire.AddQEffect(QEffect.MonsterGrab());
+            // Drink Blood
+            vampire.AddQEffect(new QEffect() {
+                ProvideContextualAction = qfSelf => {
+                    CombatAction combatAction = new CombatAction(qfSelf.Owner, IllustrationName.VampiricExsanguination, "Drink Blood", [Trait.Basic, Trait.Divine, Trait.Necromancy], @"Make an Athletics check against the Fortitude save DC of a creature you have grabbed. On a success, the target is drained 1 and you regain HP equal to 10% of your maximum HP, gaining any excess HP as temporary HP.
+
+Drinking Blood from a creature that's already drained doesn't restore any HP, but increases the victim's drain value by 1. After reaching drained 5, the target is instead killed.", Target.Touch().WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (!d.QEffects.Any((QEffect qf) => qf.Id == QEffectId.Grappled && qf.Source == qfSelf.Owner)) && !d.HasEffect(QEffectId.Paralyzed) ? Usability.NotUsableOnThisCreature("not grappled") : Usability.Usable))
+                        .WithActionCost(1)
+                        .WithSoundEffect(SfxName.Fear)
+                        .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.DefenseDC(Defense.Fortitude)))
+                        .WithGoodnessAgainstEnemy((t, a, d) => (d.HasEffect(QEffectId.Drained) ? 0 : a.MaxHP * 0.1f) + a.AI.ApplyAdditionalDrained(d, 1))
+                        .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                            if (target.HasEffect(QEffectId.Paralyzed) || result >= CheckResult.Success) {
+                                if (!target.HasEffect(QEffectId.Drained)) {
+                                    var stolenHP = (int)(caster.MaxHP * 0.1f);
+                                    var heal = Math.Min(stolenHP, caster.Damage);
+                                    var temp = stolenHP - heal;
+                                    await caster.HealAsync($"{heal}", spell);
+                                    if (temp > 0) {
+                                        caster.GainTemporaryHP(temp);
+                                    }
+                                }
+                                CommonSpellEffects.CumulativeDrain(target, 1, 5);
+
+                                if (target.GetQEffectValue(QEffectId.Drained) >= 5)
+                                    target.Die();
+                            }
+                        });
+                    return new ActionPossibility(combatAction).WithPossibilityGroup("Vampire");
+                }
+            });
+            // Divine Revulsion
+            var dr = new QEffect("Divine Revulsion", "...") {
+                ProvideContextualAction = qfSelf => {
+                    if (qfSelf.Owner.HasEffect(QEffectIds.OvercameDivineRevulsion) || !qfSelf.Owner.Battle.AllCreatures.Any(cr => cr.HasEffect(QEffectIds.WardingOffVampire)) || qfSelf.UsedThisTurn) return null;
+                    return new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.BrandishHolySymbol, "Overcome Divine Revulsion", [Trait.Concentrate, Trait.Basic],
+                        @$"{{b}}Frequency{{/b}} once per round
+
+You attempt to overcome your vampiric aversion to holy symbols by attempting a DC {vampireDC} Will save." + S.FourDegreesOfSuccessReverse(null, null, "You are unaffected by your divine revulsion for 1d6 rounds.", "You are unaffected by your divine revulsion until the end of the encounter."),
+                        Target.Self())
+                    .WithActionCost(1)
+                    .WithSoundEffect(SfxName.BeastRoar)
+                    .WithGoodness((_, a, d) => a.Space.AnyTile(t => t.TileQEffects.Any(qf => qf.Zone?.ControllerQEffect.Id == QEffectIds.WardingOffVampire)) ? 15f : 2f)
+                    .WithEffectOnSelf(async (spell, caster) => {
+                        qfSelf.UsedThisTurn = true;
+                        var result = await CommonSpellEffects.RollSavingThrowAsync(caster, spell, new SavingThrow(Defense.Will, vampireDC));
+                        if (result >= CheckResult.Success) {
+                            var immunity = new QEffect("Overcame Divine Revulsion", "You are able to freely enter within 10 feet of enemies brandishing their holy symbols.", IllustrationName.BrandishHolySymbol) {
+                                Id = QEffectIds.OvercameDivineRevulsion,
+                            }.WithExpirationAtStartOfSourcesTurn(caster, R.Next(1, 7));
+                            if (result == CheckResult.CriticalSuccess)
+                                immunity.WithExpirationNever();
+                            caster.AddQEffect(immunity);
+                        }
+                    })).WithPossibilityGroup("Vampire");
+                }
+            };
+            dr.AddGrantingOfTechnical(cr => cr.OwningFaction.IsPlayer && !cr.HasTrait(Trait.Evil) && cr.PersistentCharacterSheet != null && cr.PersistentCharacterSheet.Calculated.GetProficiency(Trait.Religion) > Proficiency.Untrained, qfTech => {
+                qfTech.ProvideContextualAction = qfSelf => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.BrandishHolySymbol, "Present holy symbol", [Trait.Visual, Trait.Basic],
+                    @$"{{b}}Requirements{{/b}} You must have a hand free.
+
+You brandish your holy symbol, preventing vampires from willingly moving within 10 feet of you, and forcing any vampire that starts its turn within this area to attempt to flee, unless they succesfully overcome their revulsion as an {{icon:Action}} action by succeeding on a DC {vampireDC} Will save, which will allow them to overcome their revulsion for 1d6 rounds (or for the rest of the encounter on a critical success).",
+                    Target.SelfExcludingEmanation(2).WithAdditionalRequirementOnCaster(caster => caster.HasFreeHand ? Usability.Usable : Usability.CommonReasons.NoFreeHand))
+                    .WithEffectOnChosenTargets(async (spell, caster, targets) => {
+                        var brandish = new QEffect("Presenting holy symbol", $"Vampires cannot willingly enter within 10-feet of you, and will attempt to flee on their turn if they start their turn within this range, unless they succesfully overcome their revulsion as an {{icon:Action}} action by succeeding on a DC {vampireDC} Will save.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, caster, IllustrationName.BrandishHolySymbol) {
+                            SpawnsAura = qf => new MagicCircleAuraAnimation(IllustrationName.SolarCircle, Color.GhostWhite, 2f),
+                            Id = QEffectIds.WardingOffVampire,
+                            //WhenExpires = qfSelf => {
+                            //    qfSelf.ExpiresAt = ExpirationCondition.Immediately;
+                            //    foreach (var tile in qfSelf.Zone?.AffectedTiles ?? []) {
+                            //        tile.TileQEffects.ForEach(qf => qf.StateCheck?.Invoke(qf));
+                            //    }
+                            //}
+                        };
+                        caster.AddQEffect(brandish);
+                        var z = Zone.Spawn(brandish, ZoneAttachment.Aura(2));
+                        brandish.Tag = new Dictionary<Tile, TileKind>();
+                        z.TileEffectCreator = tile => {
+                            return new TileQEffect() {
+                                StateCheck = tqf => {
+                                    (brandish.Tag as Dictionary<Tile, TileKind>)?.TryAdd(tqf.Owner, tqf.Owner.Kind);
+                                    var activeCreature = tqf.Owner.Battle.ActiveCreature;
+                                    if (z.ControllerQEffect.ExpiresAt != ExpirationCondition.Immediately && activeCreature != null && !z.CreaturesInZone.Contains(activeCreature) && activeCreature.HasTrait(ModTraits.Vampire) && !tqf.Owner.CurrentlyBlocksLineOfEffect && !tqf.Owner.AlwaysBlocksMovementOfSingleTile(activeCreature)) {
+                                        tqf.Owner.Kind = TileKind.Portcullis;
+                                    } else if (brandish.Tag != null && brandish.Tag is Dictionary<Tile, TileKind>) {
+                                        if ((brandish.Tag as Dictionary<Tile, TileKind>)!.ContainsKey(tqf.Owner)) {
+                                            tqf.Owner.Kind = (brandish.Tag as Dictionary<Tile, TileKind>)![tqf.Owner];
+                                        }
+                                    }
+                                }
+                            };
+                        };
+                    }));
+            });
+            vampire.AddQEffect(dr);
+
+            vampire.WithAIModification(ai => {
+                ai.OverrideDecision = (self, options) => {
+                    AiFuncs.VampireDivineRevulsion(self.Self, options);
+                    return null;
+                };
+            });
+
+            return vampire;
         }
 
         //public static QEffect LightBlindness() {

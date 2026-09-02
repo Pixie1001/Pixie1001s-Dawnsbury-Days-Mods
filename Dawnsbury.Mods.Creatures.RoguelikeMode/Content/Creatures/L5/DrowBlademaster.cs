@@ -96,7 +96,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                 ;
             })
             .AddMainAction(you => {
-                return new CombatAction(you, new SideBySideIllustration(IllustrationName.Swords, Illustrations.Parry), "Twin Parry", [Trait.Basic], "The Drow Blademaster gains a +1 circumstance bonus to AC for 1 round.", Target.Self((user, ai) => ai.GainBonusToAC(1))
+                return new CombatAction(you, new SideBySideIllustration(IllustrationName.Swords, Illustrations.Parry), "Twin Parry", [Trait.Basic], "The Drow Blademaster gains a +1 circumstance bonus to AC for 1 round.", Target.Self((user, ai) => user.HasEffect(QEffectIds.Parry) ? int.MinValue : 2f)
                     .WithAdditionalRestriction(user => user.HeldItems.Where(item => item.WeaponProperties != null).Count() >= 2 ? null : "you must be dual wielding melee weapons"))
                 .WithActionCost(1)
                 .WithSoundEffect(SfxName.RaiseShield)
