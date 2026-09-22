@@ -1,11 +1,14 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.AuraAnimations;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Coroutines.Options.Reactive;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Intelligence;
@@ -21,12 +24,15 @@ using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Mechanics.Zoning;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Phases.Editor.Files;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections;
@@ -63,24 +69,29 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
-        public static Creature MakeVampire(Creature vampire, int resistance, int fastHealing) {
-            var vampireDC = 20;
+        public static Creature MakeVampire(Creature vampire, int resistance=5, int fastHealing=5, Func<AI, List<Option>, Option?>? aiOverride=null) {
+            var vampireDC = 23;
 
             vampire.Traits.Add(ModTraits.Vampire);
             vampire.AddQEffect(QEffect.FastHealing(fastHealing));
             vampire.AddQEffect(QEffect.DamageResistancePhysicalExceptSilver(resistance));
             vampire.AddQEffect(QEffect.MonsterGrab());
+            vampire.RemoveAllQEffects(qf => qf.Name == QEffect.DamageImmunity(DamageKind.Bleed).Name);
             // Drink Blood
             vampire.AddQEffect(new QEffect() {
                 ProvideContextualAction = qfSelf => {
-                    CombatAction combatAction = new CombatAction(qfSelf.Owner, IllustrationName.VampiricExsanguination, "Drink Blood", [Trait.Basic, Trait.Divine, Trait.Necromancy], @"Make an Athletics check against the Fortitude save DC of a creature you have grabbed. On a success, the target is drained 1 and you regain HP equal to 10% of your maximum HP, gaining any excess HP as temporary HP.
+                    if (qfSelf.UsedThisTurn) {
+                        return null;
+                    }
+                    CombatAction combatAction = new CombatAction(qfSelf.Owner, IllustrationName.VampiricExsanguination, "Drink Blood", [Trait.Basic, Trait.Divine, Trait.Necromancy], UtilityFunctions.CombatActionStats(frequency: "once per round") + @"Make an Athletics check against the Fortitude save DC of a creature you have grabbed. On a success, the target is drained 1 and you regain HP equal to 10% of your maximum HP, gaining any excess HP as temporary HP.
 
 Drinking Blood from a creature that's already drained doesn't restore any HP, but increases the victim's drain value by 1. After reaching drained 5, the target is instead killed.", Target.Touch().WithAdditionalConditionOnTargetCreature((Creature a, Creature d) => (!d.QEffects.Any((QEffect qf) => qf.Id == QEffectId.Grappled && qf.Source == qfSelf.Owner)) && !d.HasEffect(QEffectId.Paralyzed) ? Usability.NotUsableOnThisCreature("not grappled") : Usability.Usable))
                         .WithActionCost(1)
-                        .WithSoundEffect(SfxName.Fear)
+                        .WithSoundEffect(SfxName.ZombieAttack2)
                         .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill.Athletics), Checks.DefenseDC(Defense.Fortitude)))
                         .WithGoodnessAgainstEnemy((t, a, d) => (d.HasEffect(QEffectId.Drained) ? 0 : a.MaxHP * 0.1f) + a.AI.ApplyAdditionalDrained(d, 1))
                         .WithEffectOnEachTarget(async (spell, caster, target, result) => {
+                            qfSelf.UsedThisTurn = true;
                             if (target.HasEffect(QEffectId.Paralyzed) || result >= CheckResult.Success) {
                                 if (!target.HasEffect(QEffectId.Drained)) {
                                     var stolenHP = (int)(caster.MaxHP * 0.1f);
@@ -101,7 +112,7 @@ Drinking Blood from a creature that's already drained doesn't restore any HP, bu
                 }
             });
             // Divine Revulsion
-            var dr = new QEffect("Divine Revulsion", "...") {
+            var dr = new QEffect("Divine Revulsion", $"Vampires are repelled by the symbols of the divine. Non-evil creatures trained in religion may Present a Holy Symbol {{icon:Action}} of their faith, in order to prevent a vampire from moving within 10 feet of them and forcing any vampire that starts its turn within this area to attempt to flee, unless they succesfully overcome their revulsion as an {{icon:Action}} action by succeeding on a DC {vampireDC} Will save, which will allow them to overcome their revulsion for 1d6 rounds (or for the rest of the encounter on a critical success).") {
                 ProvideContextualAction = qfSelf => {
                     if (qfSelf.Owner.HasEffect(QEffectIds.OvercameDivineRevulsion) || !qfSelf.Owner.Battle.AllCreatures.Any(cr => cr.HasEffect(QEffectIds.WardingOffVampire)) || qfSelf.UsedThisTurn) return null;
                     return new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.BrandishHolySymbol, "Overcome Divine Revulsion", [Trait.Concentrate, Trait.Basic],
@@ -127,7 +138,10 @@ You attempt to overcome your vampiric aversion to holy symbols by attempting a D
                 }
             };
             dr.AddGrantingOfTechnical(cr => cr.OwningFaction.IsPlayer && !cr.HasTrait(Trait.Evil) && cr.PersistentCharacterSheet != null && cr.PersistentCharacterSheet.Calculated.GetProficiency(Trait.Religion) > Proficiency.Untrained, qfTech => {
-                qfTech.ProvideContextualAction = qfSelf => new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.BrandishHolySymbol, "Present holy symbol", [Trait.Visual, Trait.Basic],
+                qfTech.Key = "RL_Vampire_Technical";
+                qfTech.ProvideContextualAction = qfSelf => {
+                    if (qfSelf.Owner.HasEffect(QEffectIds.WardingOffVampire)) return null;
+                    return new ActionPossibility(new CombatAction(qfSelf.Owner, IllustrationName.BrandishHolySymbol, "Present Holy Symbol", [Trait.Visual, Trait.Basic],
                     @$"{{b}}Requirements{{/b}} You must have a hand free.
 
 You brandish your holy symbol, preventing vampires from willingly moving within 10 feet of you, and forcing any vampire that starts its turn within this area to attempt to flee, unless they succesfully overcome their revulsion as an {{icon:Action}} action by succeeding on a DC {vampireDC} Will save, which will allow them to overcome their revulsion for 1d6 rounds (or for the rest of the encounter on a critical success).",
@@ -135,40 +149,31 @@ You brandish your holy symbol, preventing vampires from willingly moving within 
                     .WithEffectOnChosenTargets(async (spell, caster, targets) => {
                         var brandish = new QEffect("Presenting holy symbol", $"Vampires cannot willingly enter within 10-feet of you, and will attempt to flee on their turn if they start their turn within this range, unless they succesfully overcome their revulsion as an {{icon:Action}} action by succeeding on a DC {vampireDC} Will save.", ExpirationCondition.ExpiresAtStartOfSourcesTurn, caster, IllustrationName.BrandishHolySymbol) {
                             SpawnsAura = qf => new MagicCircleAuraAnimation(IllustrationName.SolarCircle, Color.GhostWhite, 2f),
-                            Id = QEffectIds.WardingOffVampire,
-                            //WhenExpires = qfSelf => {
-                            //    qfSelf.ExpiresAt = ExpirationCondition.Immediately;
-                            //    foreach (var tile in qfSelf.Zone?.AffectedTiles ?? []) {
-                            //        tile.TileQEffects.ForEach(qf => qf.StateCheck?.Invoke(qf));
-                            //    }
-                            //}
+                            Id = QEffectIds.WardingOffVampire
                         };
                         caster.AddQEffect(brandish);
                         var z = Zone.Spawn(brandish, ZoneAttachment.Aura(2));
-                        brandish.Tag = new Dictionary<Tile, TileKind>();
                         z.TileEffectCreator = tile => {
                             return new TileQEffect() {
                                 StateCheck = tqf => {
-                                    (brandish.Tag as Dictionary<Tile, TileKind>)?.TryAdd(tqf.Owner, tqf.Owner.Kind);
                                     var activeCreature = tqf.Owner.Battle.ActiveCreature;
-                                    if (z.ControllerQEffect.ExpiresAt != ExpirationCondition.Immediately && activeCreature != null && !z.CreaturesInZone.Contains(activeCreature) && activeCreature.HasTrait(ModTraits.Vampire) && !tqf.Owner.CurrentlyBlocksLineOfEffect && !tqf.Owner.AlwaysBlocksMovementOfSingleTile(activeCreature)) {
-                                        tqf.Owner.Kind = TileKind.Portcullis;
-                                    } else if (brandish.Tag != null && brandish.Tag is Dictionary<Tile, TileKind>) {
-                                        if ((brandish.Tag as Dictionary<Tile, TileKind>)!.ContainsKey(tqf.Owner)) {
-                                            tqf.Owner.Kind = (brandish.Tag as Dictionary<Tile, TileKind>)![tqf.Owner];
-                                        }
+                                    if (activeCreature != null && !z.CreaturesInZone.Contains(activeCreature) && activeCreature.HasTrait(ModTraits.Vampire) && !tqf.Owner.CurrentlyBlocksLineOfEffect && !tqf.Owner.AlwaysBlocksMovementOfSingleTile(activeCreature)) {
+                                        tqf.TransformsTileIntoHazardousTerrain = true;
+                                    } else {
+                                        tqf.TransformsTileIntoHazardousTerrain = false;
                                     }
                                 }
                             };
                         };
                     }));
+                };
             });
             vampire.AddQEffect(dr);
 
             vampire.WithAIModification(ai => {
                 ai.OverrideDecision = (self, options) => {
                     AiFuncs.VampireDivineRevulsion(self.Self, options);
-                    return null;
+                    return aiOverride?.Invoke(self, options);
                 };
             });
 
@@ -943,6 +948,68 @@ You brandish your holy symbol, preventing vampires from willingly moving within 
             };
         }
 
+        public static QEffect WingThrash(string weaponName, string name="Wing Thrash") {
+            return new QEffect($"{name} {{icon:Reaction}}", "After being damaged by an adjacent enemy, you can makes one or two wing Strikes; one against the triggering creature and one against another adjacent creature.") {
+                AfterYouTakeDamageReaction = (self, damage) => {
+                    var weapon = self.Owner.MeleeWeapons.FirstOrDefault(wpn => wpn.Name == weaponName);
+                    if (!(damage.Source?.IsAdjacentTo(self.Owner) ?? false) || !(damage.Source?.EnemyOf(self.Owner) ?? false) || weapon == null) return null;
+
+                    return new ReactionOptions([ReactionOption.CreateCustom(name, self.Description!, IllustrationName.Wing, self.Owner, async () => {
+                        int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
+                        self.Owner.Overhead($"*{name}*", Color.Gray, self.Owner + $" uses {{b}}{name}{{/b}}.");
+                        await self.Owner.MakeStrike(damage.Source, weapon, 0);
+                        var adjacentEnemies = new List<Creature>();
+                        var n = self.Owner.Space.GetNeighbours();
+                        foreach (var tile in n) {
+                            if (tile.PrimaryOccupant != null && tile.PrimaryOccupant != damage.Source && tile.PrimaryOccupant.EnemyOf(self.Owner))
+                                adjacentEnemies.Add(tile.PrimaryOccupant);
+                        }
+                        if (adjacentEnemies.Count() > 0) {
+                            await self.Owner.MakeStrike(UtilityFunctions.ChooseAtRandom(adjacentEnemies)!, weapon, 0);
+                        }
+                        self.Owner.Actions.AttackedThisManyTimesThisTurn = map;
+                    })]);
+                }
+            };
+        }
+
+        public static QEffect Counterattack(string weaponName=null, string name = "Counterattack") {
+            return new QEffect($"{name} {{icon:Reaction}}", $"After being attacked by an adjacent enemy, you may make a {(weaponName != null ? "{weaponName} " : "")}Strike against your attacker.") {
+                YouAreTargeted = async (self, action) => {
+                    var weapon = weaponName != null ? self.Owner.MeleeWeapons.FirstOrDefault(wpn => wpn.Name == weaponName) : null;
+                    if ((weaponName != null && weapon == null) || self.Owner.PrimaryWeapon == null) return;
+                    if (action.Owner?.Occupies == null || !action.HasTrait(Trait.Attack) || action.Owner.DistanceTo(self.Owner) > 1) {
+                        return;
+                    }
+                    int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
+                    await self.Owner.MakeStrike(action.Owner, weapon ?? self.Owner.PrimaryWeapon, 0);
+                    self.Owner.Actions.AttackedThisManyTimesThisTurn = map;
+                }
+            };
+        }
+
+        //            .AddQEffect(new QEffect("Thrashing Tentacles {icon:Reaction}", "{b}Trigger{/b} An enemy within 5 feet attacks you. {b}Effect{/b} You may make a tentacle strike against the attacker.") {
+        //YouAreTargeted = async (self, action) => {
+        //    if (!action.HasTrait(Trait.Attack) || action.Owner.DistanceTo(self.Owner) > 1) {
+        //        return;
+        //    }
+
+        //    CombatAction strike = self.Owner.CreateStrike(self.Owner.UnarmedStrike, 0).WithActionCost(0);
+        //    strike.ActionCost = 0;
+        //    strike.ChosenTargets = ChosenTargets.CreateSingleTarget(action.Owner);
+
+        //    int map = self.Owner.Actions.AttackedThisManyTimesThisTurn;
+
+        //    if ((bool)strike.CanBeginToUse(self.Owner) && (strike.Target as CreatureTarget)!.IsLegalTarget(self.Owner, action.Owner).CanBeUsed && await self.Owner.AskToUseReaction($"{action.Owner.Name} is attempting to attack you in melee. Would you like to retaliate with thrashing tentacles?")) {
+        //        if (strike.CanBeginToUse(action.Owner)) {
+        //            await strike.AllExecute();
+        //            self.Owner.Actions.AttackedThisManyTimesThisTurn = map;
+        //        }
+
+        //    }
+        //}
+        //    })
+
         /// <summary>
         /// Creature with this qeffect should be counted as two creatures for the purpose of encounter balancing. You can use it to create a boss monster with appropriate stats, without also giving them a frustrating amount of AC.
         /// </summary>
@@ -1115,6 +1182,36 @@ You brandish your holy symbol, preventing vampires from willingly moving within 
                 return false;
 
             return otherCreature.FriendOf(user) && !otherCreature.HasTrait(Trait.Celestial) && (otherCreature.HasTrait(Trait.Beast) || otherCreature.HasTrait(Trait.Animal) || otherCreature.HasTrait(ModTraits.Monstrous));
+        }
+
+        public static Creature? GetSummonCandidate(Creature summoner, Func<Creature, bool> filter, int min, int max) {
+
+            var list = MonsterStatBlocks.MonsterExemplars.Where(pet => filter(pet) && CommonEncounterFuncs.Between(pet.Level, min, max) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable) && !pet.HasTrait(Trait.MustSurvive) && !pet.IsNamedMonster && !(pet.Space.SizeCategory >= 2 && summoner.Battle.Map.BansLargeCreatures)).ToArray();
+
+            int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
+            seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;
+
+            Random rand = new Random(seed);
+
+            if (list.Count() <= 0) {
+                return null;
+            }
+
+            return MonsterStatBlocks.MonsterFactories[list[rand.Next(0, list.Count())].Name](summoner.Battle.Encounter, summoner.Occupies);
+        }
+
+        public static Creature? GetSummonCandidateOfLevel(Creature summoner, Func<Creature, bool> filter, int targetLevel) {
+            var pet = GetSummonCandidate(summoner, filter, targetLevel - 2, targetLevel + 2);
+            if (pet == null) return null;
+            if (pet.Level == targetLevel + 2)
+                pet.ApplyWeakAdjustments(false, true);
+            if (pet.Level == targetLevel + 1)
+                pet.ApplyWeakAdjustments(false);
+            if (pet.Level == targetLevel - 1)
+                pet.ApplyEliteAdjustments(false);
+            if (pet.Level == targetLevel - 2)
+                pet.ApplyEliteAdjustments(true);
+            return pet;
         }
 
         private static bool IsSlashingOrBludgeoning(CombatAction action) {

@@ -2,6 +2,7 @@
 using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using System;
@@ -42,7 +43,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
                 }
             }
 
-            foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere && o.AiUsefulness.MainActionUsefulness != 0 && (!(o is CombatActionOption ca && ignoredActions.Contains(ca.CombatAction.Name))))) {
+            foreach (Option option in options.Where(o => o.OptionKind != OptionKind.MoveHere && o.AiUsefulness.MainActionUsefulness > 0 && (!(o is CombatActionOption ca && ignoredActions.Contains(ca.CombatAction.Name))))) {
                 int hits = monster.Battle.AllCreatures.Where(cr => filter(monster.Occupies, monster, false, cr)).Count();
                 if (hits > 0) {
                     localMod = flat ? modifier : modifier * hits;
@@ -97,10 +98,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             }
         }
 
+        /// <summary>
+        /// The MONSTER considers all OPTIONS, and determines which creatures in the encounter fit the conditions of FILTER(postion, self, is a step?, other creature).
+        /// They then gain a goodness bonus equal their MODIFIER if filter returns true for a given postion. If FLAT is false, they gain this bonus for each creature that meets the conditions set by filter.
+        /// </summary>
+        internal static void PriorityTarget(Creature monster, List<Option> options, Func<Creature, Creature, bool> filter, float modifier, bool mult=false, string[]? ignoredActions = null) {
+            foreach (Option option in options.Where(o => o.OptionKind == OptionKind.TargetCreature && o.AiUsefulness.MainActionUsefulness > 0 && !(o is CombatActionOption ca && ignoredActions.Contains(ca.CombatAction.Name)))) {
+                var option2 = option as CreatureOption;
+                if (option2 == null) continue;
+                if (filter(monster, option2.Creature)) {
+                    if (mult)
+                        option.AiUsefulness.MainActionUsefulness *= modifier;
+                    else
+                        option.AiUsefulness.MainActionUsefulness += modifier;
+                }
+            }
+        }
+
         internal static void VampireDivineRevulsion(Creature monster, List<Option> options) {
             if (monster.HasEffect(QEffectIds.OvercameDivineRevulsion)) return;
 
-            PositionalGoodness(monster, options, (tile, self, step, other) => tile.TileQEffects.Any(tqf => tqf.Zone?.ControllerQEffect.Id == QEffectIds.WardingOffVampire), -100, true, ["Overcome Divine Revulsion"]);
+            PositionalGoodness(monster, options, (tile, self, step, other) => tile.TileQEffects.Any(tqf => tqf.Zone?.ControllerQEffect.Id == QEffectIds.WardingOffVampire), -(AIConstants.EXTREMELY_PREFERRED + 100), true, ["Overcome Divine Revulsion"]);
+
+            if (monster.Space.AnyTile(t => t.TileQEffects.Any(qf => qf.Zone?.ControllerQEffect.Id == QEffectIds.WardingOffVampire))) return;
+
+            foreach (Option option in options.Where(o => o.OptionKind == OptionKind.MoveHere && o.AiUsefulness.MainActionUsefulness > -5)) {
+                TileOption? option2 = option as TileOption;
+                if (option2 != null) {
+                    if (Pathfinding.GetPath(monster, option2.Tile, monster.Battle, new PathfindingDescription() {
+                        Squares = monster.Speed,
+                        Style =
+                        {
+                            PermitsStep = false,
+                            
+                        }
+                    })?.Any(t => t.TileQEffects.Any(qf => qf.Zone?.ControllerQEffect.Id == QEffectIds.WardingOffVampire)) ?? false) {
+                        option2.AiUsefulness.MainActionUsefulness -= 100;
+                    }
+                }
+            }
         }
     }
 }

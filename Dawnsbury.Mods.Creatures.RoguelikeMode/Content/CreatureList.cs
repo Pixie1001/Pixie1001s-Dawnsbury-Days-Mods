@@ -175,6 +175,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return DrowShadowDancer.Create();
                 case var v when v.Equals(CreatureIds.DrowSorceress):
                     return DrowSorceress.Create();
+                case var v when v.Equals(CreatureIds.VampireKnight):
+                    return VampireKnight.Create();
+                case var v when v.Equals(CreatureIds.VampireBloodStalker):
+                    return VampireBloodStalker.Create();
+                case var v when v.Equals(CreatureIds.VampireThrall):
+                    return VampireThrall.Create();
+                case var v when v.Equals(CreatureIds.VampireEnthraller):
+                    return VampireEnthraller.Create();
                 default:
                     throw new NotSupportedException($"The creature id '{id.HumanizeLowerCase2()}' is not supported");
             }
@@ -293,6 +301,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 4 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.OwlBear);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.VampireThrall);
 
             // Level 5 Creatures - Echidnadite
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditeWombCultist);
@@ -316,6 +325,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.PetrifiedGuardian);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowHuntress);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowBlademaster);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.VampireBloodStalker);
 
             // Level 6 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AbyssalHandmaiden);
@@ -325,6 +335,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.EchidnaditePriestess);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Hydra);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.AzataMediator);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.VampireKnight);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.VampireEnthraller);
 
             // Level 7 Creatures
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Medusa);

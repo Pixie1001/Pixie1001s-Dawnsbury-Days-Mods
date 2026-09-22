@@ -1,16 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="5" nextobjectid="1">
- <properties>
-  <property name="EncounterDescription" value="A debug map made for testing mods against different kinds of creatures."/>
-  <property name="EncounterGroup" value="Roguelike"/>
-  <property name="EncounterLevel" type="int" value="1"/>
-  <property name="EncounterName" value="Test Map"/>
- </properties>
- <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="131" source="CustomCreatures.tsx"/>
- <tileset firstgid="2201" source="DlcTileset.tsx"/>
- <layer id="1" name="Bottom (ground) layer: tiles, walls..." width="15" height="15">
-  <data encoding="csv">
+<?xml version="1.0" encoding="utf-8"?>
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="256" tileheight="256" infinite="0" nextlayerid="4" nextobjectid="1">
+  <properties>
+    <property name="EncounterDescription" value="A debug map made for testing mods against different kinds of creatures." />
+    <property name="EncounterGroup" value="Roguelike" />
+    <property name="EncounterLevel" type="int" value="5" />
+    <property name="EncounterName" value="Test Map" />
+  </properties>
+  <tileset firstgid="1" source="BasicTileset.tsx" />
+  <tileset firstgid="141" source="CustomCreatures.tsx" />
+  <layer id="1" name="Background" width="15" height="15" opacity="0.2">
+    <data encoding="csv">
 22,22,22,22,22,22,22,21,22,22,22,22,22,22,22,
 22,22,22,22,21,21,21,21,21,21,21,22,22,22,22,
 22,22,22,21,21,21,21,21,21,21,21,21,22,22,22,
@@ -27,47 +26,28 @@
 22,22,22,22,21,21,21,21,21,21,21,22,22,22,22,
 22,22,22,22,22,22,22,21,22,22,22,22,22,22,22
 </data>
- </layer>
- <layer id="2" name="Top layer: stones, trees, creatures..." width="15" height="15">
-  <data encoding="csv">
+  </layer>
+  <layer id="2" name="Creatures" width="15" height="15">
+    <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,36,37,0,38,39,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,26,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,26,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,2200,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,152,0,0,0,0,0,0,0
-</data>
- </layer>
- <layer id="3" name="Topmost layer: Metadata" width="15" height="15">
-  <data encoding="csv">
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,26,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
- </layer>
- <layer id="4" name="Mutators" width="15" height="15">
-  <data encoding="csv">
+  </layer>
+  <layer id="3" name="Special effects" width="15" height="15">
+    <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -82,7 +62,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,162,0,0,0,0,0,0,0
 </data>
- </layer>
+  </layer>
 </map>

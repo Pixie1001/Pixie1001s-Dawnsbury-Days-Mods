@@ -89,6 +89,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         internal static CreatureId DrowChampion { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DrowChampion");
         internal static CreatureId DrowShadowdancer { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DrowShadowdancer");
         internal static CreatureId DrowSorceress { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_DrowSorcerer");
+        internal static CreatureId VampireKnight { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_VampireKnight");
+        internal static CreatureId VampireBloodStalker { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_VampireBloodStalker");
+        internal static CreatureId VampireEnthraller { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_VampireEnthraller");
+        internal static CreatureId VampireDuelist { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_VampireDuelist");
+        internal static CreatureId VampireSpawn { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_VampireSpawn");
+        internal static CreatureId VampireThrall { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_VampireThrall");
+        internal static CreatureId GiantVampireBat { get; } = ModManager.RegisterEnumMember<CreatureId>("RL_GiantVampireBat");
 
 
     }

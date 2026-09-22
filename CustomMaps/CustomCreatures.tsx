@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="768" tileheight="768" tilecount="83" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="768" tileheight="768" tilecount="87" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -498,5 +498,29 @@
    <property name="Id" value="Brazier"/>
   </properties>
   <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/Brazier.png" width="256" height="256"/>
+ </tile>
+ <tile id="2076">
+  <properties>
+   <property name="Id" value="Vampire Knight"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="2077">
+  <properties>
+   <property name="Id" value="Vampire Blood Stalker"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="2078">
+  <properties>
+   <property name="Id" value="Vampire Enthraller"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="2079">
+  <properties>
+   <property name="Id" value="Vampire Thrall"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Creatures/UnknownCreature.png" width="256" height="256"/>
  </tile>
 </tileset>

@@ -28,6 +28,7 @@ using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using Dawnsbury.Core.StatBlocks.Monsters.L_1;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

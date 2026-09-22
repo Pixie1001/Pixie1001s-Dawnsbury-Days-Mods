@@ -6,8 +6,6 @@ using Dawnsbury.Core.Animations.Movement;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
-using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Mechanics;
@@ -30,10 +28,6 @@ using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Core.Mechanics.Rules;
-using System.Threading.Tasks.Dataflow;
-using Dawnsbury.Core.StatBlocks;
-using Microsoft.Xna.Framework.Input;
-using Dawnsbury.Core.Animations.AnimationTypes;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
     public class EchidnaditeHighPriestess {

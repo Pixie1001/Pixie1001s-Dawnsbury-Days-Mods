@@ -202,18 +202,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         }
 
         public static Creature? GetEchidnaditeSummon(Creature summoner, int min, int max) {
-            var list = MonsterStatBlocks.MonsterExemplars.Where(pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && CommonEncounterFuncs.Between(pet.Level, min, max) && !pet.HasTrait(Trait.Celestial) && !pet.HasTrait(Trait.NonSummonable) && !pet.HasTrait(Trait.MustSurvive) && !pet.IsNamedMonster && !(pet.Space.SizeCategory >= 2 && summoner.Battle.Map.BansLargeCreatures)).ToArray();
-
-            int seed = CampaignState.Instance != null && CampaignState.Instance.Tags.TryGetValue("seed", out string result) ? Int32.TryParse(result, out int r2) ? r2 : R.Next(1000) : R.Next(1000);
-            seed += CampaignState.Instance?.CurrentStopIndex != null ? CampaignState.Instance.CurrentStopIndex : 0;
-
-            Random rand = new Random(seed);
-
-            if (list.Count() <= 0) {
-                return null;
-            }
-
-            return MonsterStatBlocks.MonsterFactories[list[rand.Next(0, list.Count())].Name](summoner.Battle.Encounter, summoner.Occupies);
+            return CommonQEffects.GetSummonCandidate(summoner, pet => (pet.HasTrait(Trait.Animal) || pet.HasTrait(Trait.Beast)) && pet.HasTrait(Trait.Celestial), min, max);
         }
     }
 }

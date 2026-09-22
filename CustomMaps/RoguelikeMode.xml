@@ -5,7 +5,7 @@
     <id>RoguelikeMode</id>
     <name>Roguelike Mode</name>
     <description>
-        A roguelike mode where you challenge a party against a variety of randomly selected encounters from levels 1-4 to see how far you can go.
+        A roguelike mode where you challenge a party against a variety of randomly selected encounters from levels 1-8 to see how far you can go.
 		
 		The final encounter of each day is an especially difficult elite fight. After beating them, you'll recieve your choice of two special high level items.
 		

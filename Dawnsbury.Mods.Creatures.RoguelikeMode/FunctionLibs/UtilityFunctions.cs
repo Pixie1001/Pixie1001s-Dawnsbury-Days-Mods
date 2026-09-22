@@ -1,37 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Dawnsbury.Audio;
+using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.Path;
+using Dawnsbury.Campaign.Path.CampaignStops;
+using Dawnsbury.Core;
+using Dawnsbury.Core.Animations.Movement;
+using Dawnsbury.Core.CharacterBuilder.Library;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Coroutines.Requests;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Creatures.Parts;
+using Dawnsbury.Core.Intelligence;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Roller;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display.Text;
+using Dawnsbury.IO;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Phases.Menus.CampaignViews;
+using Microsoft.Xna.Framework;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury.Audio;
-using Dawnsbury.Auxiliary;
-using Dawnsbury.Core;
-using Dawnsbury.Display.Illustrations;
-using Microsoft.Xna.Framework;
 using System.Text;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines.Options;
-using Dawnsbury.Core.Coroutines.Requests;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.Roller;
-using Dawnsbury.Campaign.Path;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.IO;
-using Dawnsbury.Display.Text;
-using Dawnsbury.Phases.Menus.CampaignViews;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Core.CharacterBuilder.Library;
-using Dawnsbury.Campaign.Path.CampaignStops;
+using System.Threading;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -115,6 +116,45 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             "{b}Restarts:{/b} " + state.Tags["restarts"] + "\n" +
             "{b}Corruption Level:{/b} " + state.Tags["corruption level"] +
             "\n\n" + Loader.Credits;
+        }
+
+        internal static string CombatActionStats(string? requirements=null,
+            string? frequency=null,
+            string? save = null,
+            string? range = null,
+            string? area = null,
+            string ? targets=null, bool pluralTargets=false) {
+
+            var output = "";
+
+            if (requirements != null) {
+                output += "{b}Requirements{/b} " + requirements.ToLower() + "\n";
+            }
+
+            if (frequency != null) {
+                output += "{b}Frequency{/b} " + frequency.ToLower() + "\n";
+            }
+
+            if (save != null) {
+                output += "{b}save{/b} " + save + "\n";
+            }
+
+            if (range != null) {
+                output += "{b}Range{/b} " + range.ToLower() + "\n";
+            }
+
+            if (area != null) {
+                output += "{b}Area{/b} " + area.ToLower() + "\n";
+            }
+
+            if (targets != null) {
+                output += $"{{b}}Target{(pluralTargets ? "s" : "")}{{/b}} " + targets.ToLower() + "\n";
+            }
+
+            if (output != "")
+                output += "\n";
+
+            return output;
         }
 
         internal static string GetShopBanter() {
