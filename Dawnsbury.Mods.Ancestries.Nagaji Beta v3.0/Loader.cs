@@ -26,6 +26,7 @@ using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Modding;
 using Microsoft.Xna.Framework;
+using Dawnsbury.Core.StatBlocks.Monsters.L15;
 
 namespace Dawnsbury.Mods.Ancestries.Nagaji {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -44,12 +45,14 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         // Feats
         internal static FeatName ftHoodedNagaji = ModManager.RegisterFeatName("Hooded Nagaji");
         internal static FeatName ftSacredNagaji = ModManager.RegisterFeatName("Sacred Nagaji");
+        internal static FeatName ftColdMinded = ModManager.RegisterFeatName("nagaji_PitOfSnakes", "Pit of Snakes");
         internal static FeatName ftVenomSpit = ModManager.RegisterFeatName("Venom Spit");
         internal static FeatName ftHypnoticLure = ModManager.RegisterFeatName("Hypnotic Lure");
         internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
         internal static FeatName ftNagajiVenomLore = ModManager.RegisterFeatName("Nagaji Venom Lore");
         internal static FeatName ftVenomousSecrets = ModManager.RegisterFeatName("Venomous Secrets");
         internal static FeatName ftNagajiSpellMysteries = ModManager.RegisterFeatName("Nagaji Spell Mysteries");
+        internal static FeatName ftPitOfSnakes = ModManager.RegisterFeatName("nagaji_PitOfSnakes", "Pit of Snakes");
 
         // Illustrations
         internal static ModdedIllustration illBlightBomb = new ModdedIllustration("NagajiAssets/BlightBomb.png");
@@ -84,6 +87,14 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         }
 
         private static IEnumerable<Feat> CreateFeats() {
+            MirrorEntity.RegisterAncestryTemplate(tNagaji, creature => {
+                creature.AddQEffect(AncestryDefenseBonus(Defense.Reflex));
+                creature.MaxHP += 5;
+                creature.WithFeat(ftColdMinded);
+                creature.WithFeat(ftHypnoticLure);
+                creature.WithFeat(ftPitOfSnakes);
+            });
+
             // Main ancestry
             yield return new AncestrySelectionFeat(ModManager.RegisterFeatName("Nagaji", "Nagaji"), flavourText, new List<Trait> { tNagaji, Trait.Humanoid }, 10, 5, new List<AbilityBoost>() { new FreeAbilityBoost(), new FreeAbilityBoost() }, LoadHeritages().ToList())
             .WithOnCreature((sheet, creature) => {
@@ -221,6 +232,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
                                 !gaze ? Target.Ranged(6) : Target.Cone(6)) {
                                 ShortDescription = "30 foot range; Will save; On a failure save, command target creature to move towards you on its next turn as per the {i}command{/i} spell."
                             }
+                            .WithGoodnessAgainstEnemy((t, a, d) => a.IsWeaponUser || d.HasTrait(Trait.Monk) ? d.Level * 2 : int.MinValue)
                             .WithSoundEffect(SfxName.SnakeHiss)
                             .WithActionCost(2)
                             .WithSavingThrow(new SavingThrow(Defense.Will, self.Owner.ClassOrSpellDC()))
@@ -505,7 +517,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             });
 
             // Level 13
-            yield return new TrueFeat(ModManager.RegisterFeatName("nagaji_PitOfSnakes", "Pit of Snakes"), 13, "Mundane serpents obey your summons.",
+            yield return new TrueFeat(ftPitOfSnakes, 13, "Mundane serpents obey your summons.",
                 @"{b}Frequency{/b} once per day
 
 You create a 20-foot-radius writhing mass of snakes within 120 feet of you that lasts for the rest of the encounter. Each creature in the area when its created must attempt a Fortitude save against the higher of your class DC or spell DC. Any creature that fails is grabbed by a snake and takes 3d6 bludgeoning damage. 
@@ -533,6 +545,7 @@ The snakes' Escape DC is equal to the higher of your class DC or spell DC. You c
                         Target.Burst(24, 4))
                         .WithActionCost(3)
                         .WithSoundEffect(SfxName.SnakeHiss)
+                        .WithGoodnessAgainstEnemy((t, a, d) => 15)
                         .WithEffectOnChosenTargets(async (spell, caster, targets) => {
                             caster.PersistentUsedUpResources.UsedUpActions.Add("Nagaji_PitOfSnakes");
 

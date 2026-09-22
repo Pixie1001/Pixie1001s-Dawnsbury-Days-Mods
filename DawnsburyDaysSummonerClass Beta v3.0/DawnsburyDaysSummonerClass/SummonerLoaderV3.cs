@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury;
+﻿using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.AnimationTypes;
 using Dawnsbury.Core.Animations.Movement;
@@ -35,6 +26,7 @@ using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
@@ -43,17 +35,20 @@ using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
 using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Core.StatBlocks.Description;
+using Dawnsbury.Core.StatBlocks.Monsters.L15;
+using Dawnsbury.Core.StatBlocks.Monsters.L5;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using Dawnsbury.ThirdParty.SteamApi;
 using Microsoft.Xna.Framework;
 using System;
-using System.Runtime.Serialization;
+using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 
@@ -145,6 +140,96 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             ModManager.RegisterBooleanSettingsOption("Summoner_PsychicSpellProgression", "Summoner: Use Psychic Spell Progression",
                 "When this is enabled, Summoners gain 2 spell slots every level like a Psychic, instead of using wave casting.", false);
+
+            MirrorEntity.RegisterClassTemplate(tSummoner, MirrorEntity.MirrorEntityBaseStatblock.SpellcasterDivineSpontaneous, summoner => {
+                var handwraps = Items.CreateNew(ItemName.HandwrapsOfMightyBlows)
+                        .WithModificationRune(ItemName.WeaponPotencyRunestone2)
+                        .WithModificationRune(ItemName.GreaterStrikingRunestone)
+                        .WithModificationRune(ItemName.NightmareRunestone)
+                        .WithModificationRune(ItemName.UnholyRunestone)
+                    ;
+                handwraps.IsWorn = true;
+                handwraps.Traits.Add(Trait.EncounterEphemeral);
+                summoner.CarriedItems.Add(handwraps);
+
+                Creature eidolon = new Creature(IllustrationName.Urglid, "Eidolon", [tEidolon, Trait.Fiend, Trait.Demon, Trait.Starborn, Trait.Chaotic, Trait.Evil, Trait.Large], summoner.Level, perception: summoner.Perception - 2, speed: 7, new Defenses(37, 27, 26, 24), summoner.MaxHP, new Abilities(6, 6, 6, 4, 4, 4), summoner.Skills)
+                        .WithProficiency(Trait.Unarmed, Proficiency.Master)
+                        .WithUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Claw, "1d8", DamageKind.Slashing, [Trait.VersatileB, Trait.VersatileP, Trait.Evil, Trait.Trip]).WithAdditionalWeaponProperties(wp => {
+                            wp.AdditionalDamage.Add(("1", DamageKind.Evil));
+                            wp.WithOnTarget(async (ca, a, d, result) => {
+                                if (result == CheckResult.CriticalSuccess) d.AddQEffect(QEffect.PersistentDamage("1d6+2", DamageKind.Bleed));
+                            });
+                        }))
+                        .WithAdditionalUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Slam, "1d6", DamageKind.Bludgeoning, [Trait.Agile, Trait.Finesse, Trait.Evil]).WithAdditionalWeaponProperties(wp => wp.AdditionalDamage.Add(("1", DamageKind.Evil))))
+                        .AddQEffect(new QEffect("Bloodletting Claws", "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 + item bonus persistent bleed damage."))
+                        .AddQEffect(new QEffect("Tandem Movement", "When this creature Strides or Steps, their master may do the same as a {icon:FreeAction}free action.") {
+                            AfterYouTakeAction = async (qfSelf, action) => {
+                                if (qfSelf.Owner.HasEffect(qfActTogetherToggle)) return;
+
+                                if (action.HasTrait(Trait.Move)) {
+                                    summoner.AddQEffect(new QEffect() { Id = qfActTogetherToggle });
+                                    await summoner.StrideOrStepAsync("Tandem Movement", true, allowPass: true);
+                                    summoner.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
+                                }
+                            }
+                        })
+                        .AddQEffect(QEffect.AttackOfOpportunity().WithName("Eidolon's Opportunity"));
+
+                summoner.AddQEffect(new QEffect("Eidolon", "This character can summon and command an Eidolon.") {
+                    StartOfCombatAfterInitiativeOrderIsSetUp = async qfSelf => {
+                        // Link eidolon to summoner
+                        eidolon.AddQEffect(new HPShareEffect(eidolon) {
+                            Id = qfSummonerBond,
+                            Source = summoner
+                        });
+                        summoner.AddQEffect(new HPShareEffect(summoner) {
+                            Id = qfSummonerBond,
+                            Source = eidolon
+                        });
+
+                        eidolon.InitiativeControlledBy = summoner;
+
+                        eidolon.MainName = summoner.Name + "'s " + eidolon.MainName;
+
+                        InvestedWeaponLogic.MagicItemLogic(summoner, eidolon);
+
+                        summoner.Battle.SpawnCreature(eidolon, summoner.OwningFaction, summoner.Occupies);
+
+                        // Balance HP
+                        HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
+                        if (eidolon.HP < summoner.HP) {
+                            FlatHeal(eidolon, DiceFormula.FromText($"{summoner.HP - eidolon.HP}"), shareHP!.CA);
+                        } else if (eidolon.HP > summoner.HP) {
+                            await CommonSpellEffects.DealDirectSplashDamage(shareHP!.CA, DiceFormula.FromText($"{eidolon.HP - summoner.HP}"), eidolon, DamageKind.Untyped);
+                        }
+
+                        // Handle evolution feat effects
+                        for (int i = 0; i < eidolon.QEffects.Count; i++) {
+                            if (eidolon.QEffects[i].StartOfCombat != null)
+                                await eidolon.QEffects[i].StartOfCombat.InvokeIfNotNull(eidolon.QEffects[i]);
+                        }
+                    },
+                    AfterYouTakeAction = async (qfSelf, action) => {
+                        if (qfSelf.Owner.HasEffect(qfActTogether) || !eidolon.Alive || !eidolon.Actions.CanTakeActions() || eidolon.HasEffect(QEffectId.Confused)) return;
+
+                        if (action.HasTrait(Trait.Move)) {
+                            eidolon.AddQEffect(new QEffect() { Id = qfActTogether });
+                            await eidolon.StrideOrStepAsync("Tandem Movement", true, allowPass: true);
+                            eidolon.RemoveAllQEffects(qf => qf.Id == qfActTogether);
+                        } else {
+                            eidolon.AddQEffect(new QEffect() { Id = qfActTogether });
+                            await PartnerActs(summoner, eidolon, true, null);
+                            eidolon.RemoveAllQEffects(qf => qf.Id == qfActTogether);
+                        }
+                    }
+                });
+
+                summoner.AddQEffect(new QEffect("Tandem Movement", "When this creature Strides or Steps, their master may do the same as a {icon:FreeAction}free action."));
+
+                // Act together
+
+                // Demon eidolon
+            });
         }
 
         private static void AddFeats(IEnumerable<Feat> feats) {
@@ -948,8 +1033,8 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Bloodletting Claws"), 4,
                 "Your eidolon inflicts bleeding wounds on a telling blow.",
                 "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 persistent bleed damage. " +
-                "Your eidolon gains an item bonus to this bleed damage equal to the unarmed attack's item bonus to attack rolls.", new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect {
-                AfterYouDealDamageOfKind = (async (self, action, damageType, target) => {
+                "Your eidolon gains an item bonus to this bleed damage equal to the unarmed attack's item bonus to attack rolls.", new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect("Bloodletting Claws", "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 + item bonus persistent bleed damage.") {
+                AfterYouDealDamageOfKind = async (self, action, damageType, target) => {
                     if (!action.HasTrait(Trait.Strike) || !action.HasTrait(Trait.Unarmed)) {
                         return;
                     }
@@ -959,7 +1044,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     if ((damageType == DamageKind.Slashing || damageType == DamageKind.Piercing) && action.CheckResult == CheckResult.CriticalSuccess) {
                         target.AddQEffect(QEffect.PersistentDamage("1d6" + (bonus > 0 ? $"+{bonus}" : ""), DamageKind.Bleed));
                     }
-                })
+                }
             }), null);
 
             yield return new TrueFeat(ModManager.RegisterFeatName("Skilled Partner"), 4,
@@ -1603,7 +1688,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonDexASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
                 }
             })
-            .WithOnCreature((Action<CalculatedCharacterSheetValues, Creature>)((sheet, summoner) => summoner
+            .WithOnCreature((sheet, summoner) => summoner
             .AddQEffect(new ActionShareEffect() {
                 Id = qfSharedActions,
             })
@@ -1838,7 +1923,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     shareHP.LogAction(qfPreHazardDamage.Owner, damageStuff.Power, attacker, SummonerClassEnums.InterceptKind.DAMAGE);
                     return null;
                 },
-                AfterYouTakeDamageOfKind = (async (qfPostHazardDamage, action, kind) => {
+                AfterYouTakeDamageOfKind = async (qfPostHazardDamage, action, kind) => {
                     Creature eidolon = GetEidolon(qfPostHazardDamage.Owner);
                     if (eidolon == null || eidolon.Destroyed) {
                         return;
@@ -1852,7 +1937,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     Creature summoner = qfPostHazardDamage.Owner;
 
                     await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.DAMAGE, action?.Name);
-                }),
+                },
                 AfterYouAreHealed = async (self, action, amount) => {
                     Creature eidolon = GetEidolon(self.Owner);
 
@@ -1999,7 +2084,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     return null;
                 }),
             })
-            ));
+            );
         }
 
         private static Creature CreateEidolon(FeatName featName, int[] abilityScores, int ac, int dexCap, Creature summoner) {
@@ -2363,20 +2448,6 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                             summoner.Actions.UseUpReaction();
                         }
 
-                        // Handle AoO
-
-                        //HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                        //if (shareHP == null) throw new ArgumentException("shareHP cannot be null", "CreatureEidolonBase: StateCheckWithVisibleChanges");
-                        //if (shareHP.Logs!.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
-                        //    await HandleHealthShare(summoner, qf.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                        //}
-
-                        //HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                        //if (summonerShareHP == null) throw new ArgumentException("summonerShareHP cannot be null", "CreatureEidolonBase: StateCheckWithVisibleChanges");
-                        //if (summonerShareHP.Logs!.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
-                        //    await HandleHealthShare(qf.Owner, summoner, SummonerClassEnums.InterceptKind.TARGET);
-                        //}
-
                         // Handle tempHP
                         if (qf.Owner.TemporaryHP < summoner.TemporaryHP) {
                             qf.Owner.GainTemporaryHP(summoner.TemporaryHP);
@@ -2652,79 +2723,6 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             if (drainVal > 0) {
                 partner.AddQEffect(new QEffect() { Id = QEffectId.Drained }.WithExpirationEphemeral());
             }
-
-            //string mrName = isSummoner ? "Eidolon Mummy Rot" : "Master's Mummy Rot";
-            //string mrName2 = isSummoner ? "Master's Mummy Rot" : "Eidolon Mummy Rot";
-
-            //QEffect? drained = self.QEffects.FirstOrDefault(qf => qf.Key == "Drained");
-            //if (drained != null) {
-
-            //    partner.AddQEffect(new QEffect() {
-            //        Id = QEffectId.Drained,
-            //        Key = "DrainedMirror",
-            //        StateCheck = (qfDrainMirror) => {
-            //            if (qfDrainMirror.Source?.QEffects.FirstOrDefault(qf => qf.Key == "Drained") == null || qfDrainMirror.Source.Destroyed || !qfDrainMirror.Source.Alive) {
-            //                qfDrainMirror.ExpiresAt = ExpirationCondition.Immediately;
-            //                return;
-            //            }
-                        
-            //            QEffect? partnerDrained = qfDrainMirror.Owner.QEffects.FirstOrDefault(qf => qf.Key == "Drained");
-            //            if (partnerDrained != null) {
-            //                if (partnerDrained.Value >= qfDrainMirror.Value) {
-            //                    return;
-            //                }
-            //                qfDrainMirror.Owner.DrainedMaxHPDecrease += (qfDrainMirror.Value - partnerDrained.Value) * Math.Max(1, self.Level);
-            //                return;
-            //            }
-            //            qfDrainMirror.Owner.DrainedMaxHPDecrease += qfDrainMirror.Value * Math.Max(1, self.Level);
-            //        },
-            //        Value = drained.Value,
-            //        Source = self
-            //    });
-            //} else if (self.QEffects.Any(qf => qf.Key == "DrainedMirror") && !partner.QEffects.Any(qf => qf.Key == "Drained")) {
-            //    partner.RemoveAllQEffects(effect => effect.Key == "DrainedMirror");
-            //}
-
-            //QEffect mummyrot = self.FindQEffect(QEffectId.MummyRot);
-            //if (mummyrot != null) {
-            //    partner.AddQEffect(new QEffect(mrName, "") {
-            //        Innate = false,
-            //        Id = QEffectId.Drained,
-            //        Key = "MummyRotMirrorKey",
-            //        StateCheck = (qfMirror) => {
-            //            if (qfMirror.Source?.FindQEffect(QEffectId.MummyRot) == null || qfMirror.Source.Destroyed || !qfMirror.Source.Alive) {
-            //                qfMirror.ExpiresAt = ExpirationCondition.Immediately;
-            //                return;
-            //            }
-
-            //            string strVal = new string(mummyrot.Description.Where(char.IsDigit).ToArray());
-            //            strVal = strVal.Remove(strVal.Length - 1);
-            //            int mirrorVal = Int32.TryParse(strVal, out int val) ? val : 0;
-
-            //            QEffect? partnerMummyRot = qfMirror.Owner.FindQEffect(QEffectId.MummyRot);
-            //            if (partnerMummyRot != null) {
-
-            //                string strVal2 = new string(partnerMummyRot.Description.Where(char.IsDigit).ToArray());
-            //                strVal2 = strVal2.Remove(strVal.Length - 1);
-            //                int mainVal = Int32.TryParse(strVal2, out int val2) ? val2 : 0;
-
-            //                if (mirrorVal >= mainVal) {
-            //                    return;
-            //                }
-
-            //                qfMirror.Owner.DrainedMaxHPDecrease += mirrorVal - mainVal;
-            //                return;
-            //            }
-
-            //            qfMirror.Owner.DrainedMaxHPDecrease += mirrorVal;
-            //        },
-            //        Value = mummyrot.Value,
-            //        LongTermEffectDuration = LongTermEffectDuration.None,
-            //        Source = self
-            //    });
-            //} else if (self.QEffects.Any(qf => qf.Name == mrName) && !partner.QEffects.Any(qf => qf.Id == QEffectId.MummyRot && qf.LongTermEffectDuration != LongTermEffectDuration.None)) {
-            //    partner.RemoveAllQEffects(qf => qf.Name == mrName);
-            //}
         }
 
         private static void HealthShareSafetyCheck(Creature self, Creature partner) {
