@@ -674,7 +674,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Fire Warden"),
                 "Whether you fought against fires in the wilderness or in crowded city streets, you've had your fair share of dealing with uncontrolled flames. Battling thick smoke and toxic fumes, " +
                 "you've broken down obstacles to save trapped people from a fiery grave, and you've studied the nature and source of fire itself to try and better learn how to fight it.",
-                "You're trained in {b}Diplomacy{/b}.\n\nYou gain a +1 bonus to saving throws against effects with the fire trait.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
+                "You're trained in {b}Athletics{/b}.\n\nYou gain a +1 bonus to saving throws against effects with the fire trait.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Athletics);
                 // From Lizardfolk mod (maybe just add it as a base feat, but remove if lizardfolk is detected?)
@@ -1565,7 +1565,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     var assuranceFeat2 = AllFeats.GetFeatByFeatNameOptional(assuranceSub);
                     assuranceShell.FlavorText = assuranceFeat2?.FlavorText;
                     assuranceShell.RulesText = assuranceFeat2?.RulesTextCreator?.Invoke(sheet.Sheet) ?? "";
-                    sheet.AddSelectionOption(new SingleFeatSelectionOption("BoB_AssuranceDetected_Labourer", "Background feat", 1, ft => ft.FeatName == FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER] || ft == assuranceShell));
+                    sheet.AddSelectionOption(new SingleFeatSelectionOption($"BoB_AssuranceDetected_{bg.BaseName}", "Background feat", 1, ft => ft.FeatName == defaultFeat || ft == assuranceShell));
                 };
             }
             else

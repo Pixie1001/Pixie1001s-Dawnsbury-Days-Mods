@@ -147,11 +147,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
             spellList.Add(SummonerSpellId.EidolonBoost, ModManager.RegisterNewSpell("EidolonBoost", 0, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illEidolonBoost, "Eidolon Boost", new[] { Enums.tSummoner, Trait.Cantrip, Trait.Evocation, Trait.Uncommon },
-                        "{b}Duration{/b} 1 round\n\nYou focus deeply on the link between you and your eidolon and boost the power of its attacks.",
-                        "Your eidolon gains a +2 status bonus to damage rolls with its strikes.\n\n{b}Special.{/b} If your eidolon's Strikes deal more than one weapon damage die, the status bonus increases to 2 per weapon damage die, to a maximum of +8 with four weapon damage dice.",
-                        Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
+                        "You focus deeply on the link between you and your eidolon and boost the power of its attacks.",
+                        "Your eidolon gains a +2 status bonus to damage rolls with its strikes for 1 round.\n\n{b}Special.{/b} If your eidolon's Strikes deal more than one weapon damage die, the status bonus increases to 2 per weapon damage die, to a maximum of +8 with four weapon damage dice.",
+                        Target.RangedFriend(20)
+                        .WithAdditionalConditionOnTargetCreature(new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
+                    .WithGoodness((t, a, d) => a.Actions.AttackedThisManyTimesThisTurn == 0 && a.Actions.ActionsLeft > 1 ? a.Level < 4 ? 3f : a.Level < 12 ? 6f : 9f : int.MinValue)
                     .WithSoundEffect(SfxName.Abjuration)
-                    .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
+                    .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                         target.RemoveAllQEffects(qf => qf.Name == "Reinforce Eidolon");
                         QEffect buff = new QEffect("Eidolon Boost", "+2 status bonus to damage per damage die to strikes.") {
                             Key = "Eidolon Boost",
@@ -198,16 +200,16 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 creature.AddQEffect(buffCopy);
                             }
                         }
-                    })).WithActionCost(1);
+                    }).WithActionCost(1);
             }));
 
             spellList.Add(SummonerSpellId.ReinforceEidolon, ModManager.RegisterNewSpell("ReinforceEidolon", 0, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {
                 return Spells.CreateModern(Enums.illReinforceEidolon, "Reinforce Eidolon", new[] { Enums.tSummoner, Trait.Cantrip, Trait.Abjuration, Trait.Uncommon },
-                        "{b}Duration{/b} 1 round\n\nYou focus deeply on the link between you and your eidolon and reinforce your eidolon's defenses.",
-                        "Your eidolon gains a +1 status bonus to AC and saving throws, plus resistance to all damage equal to half the spell's level.\n\n{b}Special.{/b} Your eidolon can benefit from either boost eidolon or reinforce eidolon, but not both; if you cast one of these spells during the other's duration, the newer spell replaces the older one.",
-                        Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
+                        "You focus deeply on the link between you and your eidolon and reinforce your eidolon's defenses.",
+                        "Your eidolon gains a +1 status bonus to AC and saving throws, plus resistance to all damage equal to half the spell's level, for 1 round.\n\n{b}Special.{/b} Your eidolon can benefit from either boost eidolon or reinforce eidolon, but not both; if you cast one of these spells during the other's duration, the newer spell replaces the older one.",
+                        Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature(new EidolonCreatureTargetingRequirement(Enums.qfSummonerBond)), spellLevel, null)
                     .WithSoundEffect(SfxName.Abjuration)
-                    .WithEffectOnEachTarget((Delegates.EffectOnEachTarget)(async (spell, caster, target, result) => {
+                    .WithEffectOnEachTarget(async (spell, caster, target, result) => {
                         target.RemoveAllQEffects(qfActTogether => qfActTogether.Name == "Eidolon Boost");
                         QEffect buff = new QEffect("Reinforce Eidolon", "+1 status bonus to AC and all saves." + (spellLevel > 1 ? " Plus resist " + spellLevel / 2 + " to all damage." : "")) {
                             Key = "Reinforce Eidolon",
@@ -246,7 +248,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                                 creature.AddQEffect(buffCopy);
                             }
                         }
-                    })).WithActionCost(1);
+                    }).WithActionCost(1);
             }));
 
             spellList.Add(SummonerSpellId.LifelinkSurge, ModManager.RegisterNewSpell("LifelinkSurgeSpell", 2, (spellId, spellcaster, spellLevel, inCombat, spellInformation) => {

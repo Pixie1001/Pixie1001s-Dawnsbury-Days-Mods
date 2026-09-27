@@ -38,6 +38,11 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static Trait tParry = ModManager.RegisterTrait("EidolonParryTrait", new TraitProperties("Parry", true, "While wielding this weapon, if your proficiency with it is trained or better, you can spend a single action to position your weapon defensively, gaining a +1 circumstance bonus to AC until the start of your next turn."));
         internal static Trait tEidolonSpellLvl1 = ModManager.RegisterTrait("EidolonSpellLevel1", new TraitProperties("", false));
         internal static Trait tEidolonSpellLvl2 = ModManager.RegisterTrait("EidolonSpellLevel2", new TraitProperties("", false));
+        internal static Trait tEidolonSpellLvl3 = ModManager.RegisterTrait("EidolonSpellLevel3", new TraitProperties("", false));
+        internal static Trait tEidolonSpellLvl4 = ModManager.RegisterTrait("EidolonSpellLevel4", new TraitProperties("", false));
+        internal static Trait tEidolonSpellLvl5 = ModManager.RegisterTrait("EidolonSpellLevel5", new TraitProperties("", false));
+        internal static Trait tEidolonSpellLvl6 = ModManager.RegisterTrait("EidolonSpellLevel6", new TraitProperties("", false));
+        internal static Trait tEidolonSpellLvl7 = ModManager.RegisterTrait("EidolonSpellLevel7", new TraitProperties("", false));
         internal static Trait tEidolonSpellFeat = ModManager.RegisterTrait("EidolonSpellFeat", new TraitProperties("", false));
         internal static Trait tEidolonsWrathType = ModManager.RegisterTrait("EidolonsWrathDamageType", new TraitProperties("", false));
         internal static Trait tSummonerSubclass = ModManager.RegisterTrait("SummonerEidolonBond", new TraitProperties("Eidolon", false));
@@ -45,6 +50,14 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static Trait tEidolonArray = ModManager.RegisterTrait("eidolonabilityscorearray", new TraitProperties("Eidolon Ability Score Array", false));
         internal static Trait tSkilledPartnerFeat = ModManager.RegisterTrait("SkilledPartnerFeat", new TraitProperties("Skill", false));
         internal static Trait tSinType = ModManager.RegisterTrait("EidolonSinType", new TraitProperties("Sin", false));
+
+        // ASITraits
+        internal static Trait tEidolonASIStr = ModManager.RegisterTrait("Summoner_tEidolonASIStr", new TraitProperties("", false));
+        internal static Trait tEidolonASIDex = ModManager.RegisterTrait("Summoner_tEidolonASIDex", new TraitProperties("", false));
+        internal static Trait tEidolonASICon = ModManager.RegisterTrait("Summoner_tEidolonASICon", new TraitProperties("", false));
+        internal static Trait tEidolonASIInt = ModManager.RegisterTrait("Summoner_tEidolonASIInt", new TraitProperties("", false));
+        internal static Trait tEidolonASIWis = ModManager.RegisterTrait("Summoner_tEidolonASIWis", new TraitProperties("", false));
+        internal static Trait tEidolonASICha = ModManager.RegisterTrait("Summoner_tEidolonASICha", new TraitProperties("", false));
 
         // Feat names
         internal static FeatName classSummoner = ModManager.RegisterFeatName("SummonerClass", "Summoner");
@@ -105,7 +118,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         internal static FeatName scArsonDemonEidolon = ModManager.RegisterFeatName("Summoner_DemonSinArson", "Arson Demon");
 
-        // Class Feat names
+        // Class Feat Names
         internal static FeatName ftAbundantSpellcasting1 = ModManager.RegisterFeatName("AbundantSpellCastingSummoner1", "Abundant Spellcasting");
         internal static FeatName ftAbundantSpellcasting4 = ModManager.RegisterFeatName("AbundantSpellCastingSummoner4", "Abundant Spellcasting 2");
         public static FeatName ftBoostSummons = ModManager.RegisterFeatName("SummonerClassFeatBoostSummons", "Boost Summons");
@@ -118,6 +131,12 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public static FeatName ftTravelersAura = ModManager.RegisterFeatName("Summoner_TravelersAura", "Traveler's Aura");
         public static FeatName ftAngelicAegis = ModManager.RegisterFeatName("Summoner_AngelicAegis", "Angelic Aegis");
         public static FeatName ftSkilledPartnerBattleMedicine = ModManager.RegisterFeatName($"SkilledPartner_BattleMedicine", "Battle Medicine");
+        public static FeatName ftEverVigilantSenses = ModManager.RegisterFeatName("Summoner_Ever-Vigilant Senses", "Ever-Vigilant Senses");
+        public static FeatName ftTandemStrike = ModManager.RegisterFeatName("Tandem Strike {icon:FreeAction}", "Tandem Strike");
+
+        // Archetype Feat Names
+        public static FeatName ftInitialEidolonAbility = ModManager.RegisterFeatName("summoner_InitialEidolonAbility", "Initial Eidolon Ability");
+        public static FeatName ftExpertCombatEidolon = ModManager.RegisterFeatName("Summoner_ExpertCombatEidolon", "Expert Combat Eidolon");
 
         // Subfeat Names
         public static FeatName sftSilver = ModManager.RegisterFeatName("Summoner_MetallicWeaponySilver", "Silver");
@@ -161,12 +180,6 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static FeatName ftSHoof = ModManager.RegisterFeatName("S_Hoof", "Hoof");
 
         // Ability BoostOptions
-        internal static FeatName ftStrengthBoost = ModManager.RegisterFeatName("EidolonStrengthBoost", "Strength Boost");
-        internal static FeatName ftDexterityBoost = ModManager.RegisterFeatName("EidolonDexterityBoost", "Dexterity Boost");
-        internal static FeatName ftConstitutionBoost = ModManager.RegisterFeatName("EidolonConstitutionBoost", "Constitution Boost");
-        internal static FeatName ftIntelligenceBoost = ModManager.RegisterFeatName("EidolonIntelligenceBoost", "Intelligence Boost");
-        internal static FeatName ftWisdomBoost = ModManager.RegisterFeatName("EidolonWisdomBoost", "Wisdom Boost");
-        internal static FeatName ftCharismaBoost = ModManager.RegisterFeatName("EidolonCharismaBoost", "Charisma Boost");
         internal static FeatName ftKeyEidolonAbilityStr = ModManager.RegisterFeatName("ftKeyEidolonAbilityStr", "Key Ability: Strength");
         internal static FeatName ftKeyEidolonAbilityDex = ModManager.RegisterFeatName("ftKeyEidolonAbilityDex", "Key Ability: Dexterity");
 
@@ -183,15 +196,13 @@ namespace Dawnsbury.Mods.Classes.Summoner {
 
         // QEffectIDs
         internal static QEffectId qfSharedActions = ModManager.RegisterEnumMember<QEffectId>("Summoner_Shared Actions");
-        internal static QEffectId qfSummonerBond = ModManager.RegisterEnumMember<QEffectId>("Summoner_Shared HP");
+        internal static QEffectId qfSummonerBond { get; private set; } = ModManager.RegisterEnumMember<QEffectId>("Summoner_Shared HP");
         internal static QEffectId qfActTogetherToggle = ModManager.RegisterEnumMember<QEffectId>("Act Together Toggle");
         internal static QEffectId qfActTogether = ModManager.RegisterEnumMember<QEffectId>("Act Together");
         internal static QEffectId qfExtendBoostExtender = ModManager.RegisterEnumMember<QEffectId>("Extend Boost Extended");
         internal static QEffectId qfReactiveStrikeCheck = ModManager.RegisterEnumMember<QEffectId>("Reactive Strike Check");
         internal static QEffectId qfParrying = ModManager.RegisterEnumMember<QEffectId>("Eidolon Parry");
         internal static QEffectId qfInvestedWeapon = ModManager.RegisterEnumMember<QEffectId>("Invested Weapon");
-        //internal static QEffectId qfDrainedMirror = ModManager.RegisterEnumMember<QEffectId>("Drained (Mirror)");
-        //internal static QEffectId qfMummyRotMirror = ModManager.RegisterEnumMember<QEffectId>("Mummy Rot (Mirror)");
         internal static QEffectId qfEidolonsWrath = ModManager.RegisterEnumMember<QEffectId>("Eidolon's Wrath QF");
         internal static QEffectId qfOstentatiousArrival = ModManager.RegisterEnumMember<QEffectId>("Ostentatious Arrival Toggled");
         internal static QEffectId qfWhimsicalAura = ModManager.RegisterEnumMember<QEffectId>("Whimsical Aura");
@@ -202,6 +213,8 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static QEffectId qfProtectiveBond = ModManager.RegisterEnumMember<QEffectId>("Summoner_ProtectiveBond");
         internal static QEffectId qfSummonersCallToggle = ModManager.RegisterEnumMember<QEffectId>("Summoner_SummonersCallToggle");
         internal static QEffectId qfImmuneToUnsettlingMovement = ModManager.RegisterEnumMember<QEffectId>("Summoner_ImmuneToUnsettlingMovement");
+        internal static QEffectId qfTandemTurn = ModManager.RegisterEnumMember<QEffectId>("Summoner_TandemTurn");
+        internal static QEffectId qfActTogetherUsedUp = ModManager.RegisterEnumMember<QEffectId>("Summoner_qfActTogetherUsedUp");
 
         // Actions
         internal static ActionId acCelestialPassion = ModManager.RegisterEnumMember<ActionId>("CelestialPassion");

@@ -45,7 +45,8 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         // Feats
         internal static FeatName ftHoodedNagaji = ModManager.RegisterFeatName("Hooded Nagaji");
         internal static FeatName ftSacredNagaji = ModManager.RegisterFeatName("Sacred Nagaji");
-        internal static FeatName ftColdMinded = ModManager.RegisterFeatName("nagaji_PitOfSnakes", "Pit of Snakes");
+        internal static FeatName ftColdMinded = ModManager.RegisterFeatName("Water Nagaji");
+        internal static FeatName ftWaterNagaji = ModManager.RegisterFeatName("Cold Minded");
         internal static FeatName ftVenomSpit = ModManager.RegisterFeatName("Venom Spit");
         internal static FeatName ftHypnoticLure = ModManager.RegisterFeatName("Hypnotic Lure");
         internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
@@ -88,9 +89,10 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
 
         private static IEnumerable<Feat> CreateFeats() {
             MirrorEntity.RegisterAncestryTemplate(tNagaji, creature => {
-                creature.AddQEffect(AncestryDefenseBonus(Defense.Reflex));
+                creature.AddQEffect(MirrorEntity.AncestryDefenseBonus(Defense.Reflex));
                 creature.MaxHP += 5;
                 creature.WithFeat(ftColdMinded);
+                creature.WithFeat(ftWaterNagaji);
                 creature.WithFeat(ftHypnoticLure);
                 creature.WithFeat(ftPitOfSnakes);
             });
@@ -105,10 +107,10 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
             });
 
             // Ancestry feats
-            yield return new TrueFeat(ModManager.RegisterFeatName("Cold Minded"), 1, "The subtle strands of beguiling magic leave little impression on your mind.",
+            yield return new TrueFeat(ftColdMinded, 1, "The subtle strands of beguiling magic leave little impression on your mind.",
                 "You gain a +1 circumstance bonus to saving throws against emotion effects, and whenever you roll a success on a saving throw against an emotion effect, you get a critical success instead.", new Trait[] { tNagaji }, null)
             .WithOnCreature((sheet, creature) => {
-                creature.AddQEffect(new QEffect("Cold Mind", "+1 circumstance bonus and successes upgraded to critical success, against emotion effects.") {
+                creature.AddQEffect(new QEffect("Cold Minded", "+1 circumstance bonus and successes upgraded to critical success, against emotion effects.") {
                     BonusToDefenses = (self, action, defence) => {
                         if (action == null) {
                             return null;
@@ -150,7 +152,7 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
 
             yield return nagajiSpellFamiliarity;
 
-            yield return new TrueFeat(ModManager.RegisterFeatName("Water Nagaji"), 1, "Much like a water naga, you've formed a connection to a sacred or pristine body of water, either as a home or a place to protect.",
+            yield return new TrueFeat(ftWaterNagaji, 1, "Much like a water naga, you've formed a connection to a sacred or pristine body of water, either as a home or a place to protect.",
                 "You gain a swim speed.", new Trait[] { tNagaji }, null)
             .WithOnCreature(creature => {
                 creature.AddQEffect(QEffect.Swimming());
@@ -531,7 +533,7 @@ The snakes' Escape DC is equal to the higher of your class DC or spell DC. You c
                     qfFeat.ProvideMainAction = qfSelf => {
                         if (qfSelf.Owner.PersistentUsedUpResources.UsedUpActions.Contains("Nagaji_PitOfSnakes")) return null;
 
-                        return new ActionPossibility(new CombatAction(qfSelf.Owner, illPitOfSnakes, "Pit of Snakes", [tNagaji, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Occult],
+                        return new ActionPossibility(new CombatAction(qfSelf.Owner, illPitOfSnakes, "Pit of Snakes", [tNagaji, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Occult, Trait.Basic],
                         @"{b}Frequency{/b} once per day
 {b}Saving Throw{/b} Fortitude
 {b}Range{/b} 120 feet
@@ -545,7 +547,7 @@ The snakes' Escape DC is equal to the higher of your class DC or spell DC. You c
                         Target.Burst(24, 4))
                         .WithActionCost(3)
                         .WithSoundEffect(SfxName.SnakeHiss)
-                        .WithGoodnessAgainstEnemy((t, a, d) => 15)
+                        .WithGoodnessAgainstEnemy((t, a, d) => 20)
                         .WithEffectOnChosenTargets(async (spell, caster, targets) => {
                             caster.PersistentUsedUpResources.UsedUpActions.Add("Nagaji_PitOfSnakes");
 

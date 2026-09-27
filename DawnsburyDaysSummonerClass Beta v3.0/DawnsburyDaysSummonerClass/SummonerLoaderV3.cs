@@ -12,12 +12,10 @@ using Dawnsbury.Core.CharacterBuilder.Feats.Features;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
-using Dawnsbury.Core.Coroutines;
 using Dawnsbury.Core.Coroutines.Options;
 using Dawnsbury.Core.Coroutines.Requests;
 using Dawnsbury.Core.Creatures;
@@ -26,17 +24,12 @@ using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
 using Dawnsbury.Core.Roller;
-using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Core.StatBlocks.Description;
-using Dawnsbury.Core.StatBlocks.Monsters.L15;
-using Dawnsbury.Core.StatBlocks.Monsters.L5;
 using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
@@ -44,78 +37,12 @@ using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
 using Microsoft.Xna.Framework;
-using System;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using static Dawnsbury.Mods.Classes.Summoner.Enums;
 using static Dawnsbury.Mods.Classes.Summoner.SummonerSpells;
 
 namespace Dawnsbury.Mods.Classes.Summoner {
-
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class EidolonCreatureTargetingRequirement : CreatureTargetingRequirement {
-        public QEffectId qfEidolon { get; }
-
-        public EidolonCreatureTargetingRequirement(QEffectId qf) {
-            this.qfEidolon = qf;
-        }
-
-        public override Usability Satisfied(Creature source, Creature target) {
-            return target.QEffects.FirstOrDefault(qf => qf.Id == this.qfEidolon && qf.Source == source) != null ? Usability.Usable : Usability.NotUsableOnThisCreature("This ability can only be used on your eidolon.");
-        }
-    }
-
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class SelectFeySpells : AddToSpellRepertoireOption {
-
-        private bool allowCantrips;
-
-        public SelectFeySpells(string key, string name, int level, Trait classRepertoire, int maxSpellLevel, int maximumNumberOfSpells, bool allowCantrips = false) : base(key, name, level, classRepertoire, Trait.Primal, maxSpellLevel, maximumNumberOfSpells) {
-            this.allowCantrips = allowCantrips;
-        }
-
-        // What spells are shown as optional
-        public override bool Eligible(CalculatedCharacterSheetValues values, Spell spell) {
-            Trait[] allowedTraits = new Trait[] { Trait.Illusion, Trait.Enchantment, Trait.Mental };
-            List<Trait> traits = spell.Traits.ToList().Where(t => allowedTraits.Contains(t)).ToList();
-
-            if ((!spell.HasTrait(Trait.Primal) && !(traits.Count > 0 && spell.HasTrait(Trait.Arcane))) || spell.HasTrait(Trait.SpellCannotBeChosenInCharacterBuilder) || (spell.HasTrait(Trait.Cantrip) && !allowCantrips))
-                return false;
-            if (allowCantrips && spell.HasTrait(Trait.Cantrip)) {
-                return true;
-            } else if (allowCantrips && !spell.HasTrait(Trait.Cantrip)) {
-                return false;
-            }
-            return this.MaximumSpellLevel >= 1 && spell.MinimumSpellLevel <= this.MaximumSpellLevel && !spell.HasTrait(Trait.Cantrip);
-        }
-    }
-
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public class SelectArsonSpells : AddToSpellRepertoireOption {
-
-        private bool allowCantrips;
-
-        public SelectArsonSpells(string key, string name, int level, Trait classRepertoire, int maxSpellLevel, int maximumNumberOfSpells, bool allowCantrips = false) : base(key, name, level, classRepertoire, Trait.Divine, maxSpellLevel, maximumNumberOfSpells) {
-            this.allowCantrips = allowCantrips;
-        }
-
-        // What spells are shown as optional
-        public override bool Eligible(CalculatedCharacterSheetValues values, Spell spell) {
-            Trait[] allowedTraits = [Trait.Fire];
-            List<Trait> traits = spell.Traits.ToList().Where(t => allowedTraits.Contains(t)).ToList();
-
-            if ((!spell.HasTrait(Trait.Divine) && !(traits.Count > 0 && spell.HasTrait(Trait.Arcane))) || spell.HasTrait(Trait.Abjuration) || spell.HasTrait(Trait.SpellCannotBeChosenInCharacterBuilder) || (spell.HasTrait(Trait.Cantrip) && !allowCantrips))
-                return false;
-            if (allowCantrips && spell.HasTrait(Trait.Cantrip)) {
-                return true;
-            } else if (allowCantrips && !spell.HasTrait(Trait.Cantrip)) {
-                return false;
-            }
-            return this.MaximumSpellLevel >= 1 && spell.MinimumSpellLevel <= this.MaximumSpellLevel && !spell.HasTrait(Trait.Cantrip);
-        }
-    }
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class SummonerClassLoader {
@@ -134,6 +61,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public static void LoadMod() {
             AddFeats(Subclasses.LoadSubclasses());
             AddFeats(CreateFeats());
+            AddFeats(SummonerArchetype.CreateFeats());
 
             ModManager.RegisterBooleanSettingsOption("Summoner_AutoUseActTogether", "Summoner: Use Act Together On Turn Start",
                 "When this is enabled, Summoners will immediately use Act Together when their turn starts.", false);
@@ -141,95 +69,10 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             ModManager.RegisterBooleanSettingsOption("Summoner_PsychicSpellProgression", "Summoner: Use Psychic Spell Progression",
                 "When this is enabled, Summoners gain 2 spell slots every level like a Psychic, instead of using wave casting.", false);
 
-            MirrorEntity.RegisterClassTemplate(tSummoner, MirrorEntity.MirrorEntityBaseStatblock.SpellcasterDivineSpontaneous, summoner => {
-                var handwraps = Items.CreateNew(ItemName.HandwrapsOfMightyBlows)
-                        .WithModificationRune(ItemName.WeaponPotencyRunestone2)
-                        .WithModificationRune(ItemName.GreaterStrikingRunestone)
-                        .WithModificationRune(ItemName.NightmareRunestone)
-                        .WithModificationRune(ItemName.UnholyRunestone)
-                    ;
-                handwraps.IsWorn = true;
-                handwraps.Traits.Add(Trait.EncounterEphemeral);
-                summoner.CarriedItems.Add(handwraps);
+            ModManager.RegisterBooleanSettingsOption("Summoner_ImprovedArchetype", "Summoner: Improved Multiclass Archetype",
+                "When this is enabled, the Summoner Archetype allows characters to use Act Together once per encounter, doesn't reduce +4 abilities to +3, grants the Initial Eidolon Ability feat as part of the dedicatino feat, and allows Tandem Attack to be taken.", false);
 
-                Creature eidolon = new Creature(IllustrationName.Urglid, "Eidolon", [tEidolon, Trait.Fiend, Trait.Demon, Trait.Starborn, Trait.Chaotic, Trait.Evil, Trait.Large], summoner.Level, perception: summoner.Perception - 2, speed: 7, new Defenses(37, 27, 26, 24), summoner.MaxHP, new Abilities(6, 6, 6, 4, 4, 4), summoner.Skills)
-                        .WithProficiency(Trait.Unarmed, Proficiency.Master)
-                        .WithUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Claw, "1d8", DamageKind.Slashing, [Trait.VersatileB, Trait.VersatileP, Trait.Evil, Trait.Trip]).WithAdditionalWeaponProperties(wp => {
-                            wp.AdditionalDamage.Add(("1", DamageKind.Evil));
-                            wp.WithOnTarget(async (ca, a, d, result) => {
-                                if (result == CheckResult.CriticalSuccess) d.AddQEffect(QEffect.PersistentDamage("1d6+2", DamageKind.Bleed));
-                            });
-                        }))
-                        .WithAdditionalUnarmedStrike(NaturalWeapons.Create(NaturalWeaponKind.Slam, "1d6", DamageKind.Bludgeoning, [Trait.Agile, Trait.Finesse, Trait.Evil]).WithAdditionalWeaponProperties(wp => wp.AdditionalDamage.Add(("1", DamageKind.Evil))))
-                        .AddQEffect(new QEffect("Bloodletting Claws", "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 + item bonus persistent bleed damage."))
-                        .AddQEffect(new QEffect("Tandem Movement", "When this creature Strides or Steps, their master may do the same as a {icon:FreeAction}free action.") {
-                            AfterYouTakeAction = async (qfSelf, action) => {
-                                if (qfSelf.Owner.HasEffect(qfActTogetherToggle)) return;
-
-                                if (action.HasTrait(Trait.Move)) {
-                                    summoner.AddQEffect(new QEffect() { Id = qfActTogetherToggle });
-                                    await summoner.StrideOrStepAsync("Tandem Movement", true, allowPass: true);
-                                    summoner.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
-                                }
-                            }
-                        })
-                        .AddQEffect(QEffect.AttackOfOpportunity().WithName("Eidolon's Opportunity"));
-
-                summoner.AddQEffect(new QEffect("Eidolon", "This character can summon and command an Eidolon.") {
-                    StartOfCombatAfterInitiativeOrderIsSetUp = async qfSelf => {
-                        // Link eidolon to summoner
-                        eidolon.AddQEffect(new HPShareEffect(eidolon) {
-                            Id = qfSummonerBond,
-                            Source = summoner
-                        });
-                        summoner.AddQEffect(new HPShareEffect(summoner) {
-                            Id = qfSummonerBond,
-                            Source = eidolon
-                        });
-
-                        eidolon.InitiativeControlledBy = summoner;
-
-                        eidolon.MainName = summoner.Name + "'s " + eidolon.MainName;
-
-                        InvestedWeaponLogic.MagicItemLogic(summoner, eidolon);
-
-                        summoner.Battle.SpawnCreature(eidolon, summoner.OwningFaction, summoner.Occupies);
-
-                        // Balance HP
-                        HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                        if (eidolon.HP < summoner.HP) {
-                            FlatHeal(eidolon, DiceFormula.FromText($"{summoner.HP - eidolon.HP}"), shareHP!.CA);
-                        } else if (eidolon.HP > summoner.HP) {
-                            await CommonSpellEffects.DealDirectSplashDamage(shareHP!.CA, DiceFormula.FromText($"{eidolon.HP - summoner.HP}"), eidolon, DamageKind.Untyped);
-                        }
-
-                        // Handle evolution feat effects
-                        for (int i = 0; i < eidolon.QEffects.Count; i++) {
-                            if (eidolon.QEffects[i].StartOfCombat != null)
-                                await eidolon.QEffects[i].StartOfCombat.InvokeIfNotNull(eidolon.QEffects[i]);
-                        }
-                    },
-                    AfterYouTakeAction = async (qfSelf, action) => {
-                        if (qfSelf.Owner.HasEffect(qfActTogether) || !eidolon.Alive || !eidolon.Actions.CanTakeActions() || eidolon.HasEffect(QEffectId.Confused)) return;
-
-                        if (action.HasTrait(Trait.Move)) {
-                            eidolon.AddQEffect(new QEffect() { Id = qfActTogether });
-                            await eidolon.StrideOrStepAsync("Tandem Movement", true, allowPass: true);
-                            eidolon.RemoveAllQEffects(qf => qf.Id == qfActTogether);
-                        } else {
-                            eidolon.AddQEffect(new QEffect() { Id = qfActTogether });
-                            await PartnerActs(summoner, eidolon, true, null);
-                            eidolon.RemoveAllQEffects(qf => qf.Id == qfActTogether);
-                        }
-                    }
-                });
-
-                summoner.AddQEffect(new QEffect("Tandem Movement", "When this creature Strides or Steps, their master may do the same as a {icon:FreeAction}free action."));
-
-                // Act together
-
-                // Demon eidolon
-            });
+            SummonerMirrorEntity.RegisterMirrorEntity();
         }
 
         private static void AddFeats(IEnumerable<Feat> feats) {
@@ -318,7 +161,6 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
 
 {{b}}4. Spontaneous Spellcasting:{{/b}} You can cast spells. You can cast 1 spell per day and you can choose the spells from among the spells you know. You learn 2 spells of your choice, but they must come from the spellcasting tradition of your eidolon. You also learn 5 cantrips — weak spells — that automatically heighten as you level up. You can cast any number of cantrips per day. You can gain additional spell slots and spells known from leveling up and from feats. Your spellcasting ability is Charisma.",
                 Subclasses.subclasses)
-                // TODO: Alter class features if alternate spell progression is toggled on
             .WithEffectiveClassFeatures(features => {
                 features
                     .AddFeature(3, "You and your eidolon become expert in Perception")
@@ -388,21 +230,21 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
                 }
             });
 
-            // Init eidolon ability boosts
-            yield return new Feat(ftStrengthBoost, "Your eidolon grows stronger.",
-                "Your eidolon increases its strength modifier by +1.\n\nIf your eidolon already has strength modifier of +4, this has no effect.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Strength);
-            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? == Ability.Strength, "You cannot raise an ability score above +4.");
-            yield return new Feat(ftDexterityBoost, "Your eidolon grows fasters.",
-                "Your eidolon increases its dexterity modifier by +1.\n\nIf your eidolon already has dexterity modifier of +4, this has no effect.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Dexterity);
-            //.WithPrerequisite(sheet => sheet.AllFeats.First(ft => ft.HasTrait(tEidolonArray)).Tag as Ability? == Ability.Dexterity, "You cannot raise an ability score above +4.");
-            yield return new Feat(ftConstitutionBoost, "Your eidolon becomes sturdier.",
-                "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Constitution); ;
-            yield return new Feat(ftIntelligenceBoost, "Your eidolon grows more cunning.",
-                "Your eidolon increases its intelligence modifier by +1.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Intelligence); ;
-            yield return new Feat(ftWisdomBoost, "Your eidolon's insticts grow sharper.",
-                "Your eidolon increases its wisdom modifier by +1.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Wisdom); ;
-            yield return new Feat(ftCharismaBoost, "Your eidolon's presence grows.",
-                "Your eidolon increases its charisma modifier by +1.", new List<Trait>() { tEidolonASI }, null).WithTag(Ability.Charisma); ;
+            for (int i = 1; i <= 4; i++) {
+                var level = i * 5;
+                yield return new Feat(ModManager.RegisterFeatName("EidolonStrengthBoost" + (level), "Strength Boost"), "Your eidolon grows stronger.",
+                    "Your eidolon increases its strength modifier by +1.\n\nIf your eidolon already has strength modifier of +4, it will only increase for every 2nd boost you take.", [tEidolonASI, tEidolonASIStr], null).WithTag(level);
+                yield return new Feat(ModManager.RegisterFeatName("EidolonDexterityBoost" + (level), "Dexterity Boost"), "Your eidolon grows fasters.",
+                    "Your eidolon increases its dexterity modifier by +1.\n\nIf your eidolon already has dexterity modifier of +4, it will only increase for every 2nd boost you take.", [tEidolonASI, tEidolonASIDex], null).WithTag(level);
+                yield return new Feat(ModManager.RegisterFeatName("EidolonConstitutionBoost" + (level), "Constitution Boost"), "Your eidolon becomes sturdier.",
+                    "Your eidolon increases its constitution modifier by +1.\n\nThis does not affect its max HP.", [tEidolonASI, tEidolonASICon], null).WithTag(level);
+                yield return new Feat(ModManager.RegisterFeatName("EidolonIntelligenceBoost" + (level), "Intelligence Boost"), "Your eidolon grows more cunning.",
+                    "Your eidolon increases its intelligence modifier by +1.", [tEidolonASI, tEidolonASIInt], null).WithTag(level);
+                yield return new Feat(ModManager.RegisterFeatName("EidolonWisdomBoost" + (level), "Wisdom Boost"), "Your eidolon's insticts grow sharper.",
+                    "Your eidolon increases its wisdom modifier by +1.", [tEidolonASI, tEidolonASIWis], null).WithTag(level);
+                yield return new Feat(ModManager.RegisterFeatName("EidolonCharismaBoost" + (level), "Charisma Boost"), "Your eidolon's presence grows.",
+                    "Your eidolon increases its charisma modifier by +1.", [tEidolonASI, tEidolonASICha], null).WithTag(level);
+            }
 
             // Generate energy optinon feats
             DamageKind[] energyDamageTypes = new DamageKind[] { DamageKind.Acid, DamageKind.Cold, DamageKind.Electricity, DamageKind.Fire, DamageKind.Sonic, DamageKind.Positive, DamageKind.Negative };
@@ -468,13 +310,13 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
             });
 
             yield return new EvolutionFeat(ftAirbornForm, 1, "Your eidolon can take to the skies, either via great wings, a blimp like appendage or levitation.",
-                "Your eidolon can fly. It gains a fly Speed equal to its Speed.", new Trait[] { Trait.Homebrew, tSummoner }, e => e.AddQEffect(new QEffect("Airborn Form", "Your eidolon ignores difficult terrain and and can fly over lava and water.") { Id = QEffectId.Flying }));
+                "Your eidolon can fly. It gains a fly Speed equal to its Speed.", new Trait[] { Trait.Homebrew, tSummoner }, (e, src) => e.AddQEffect(new QEffect("Airborn Form", "Your eidolon ignores difficult terrain and and can fly over lava and water.") { Id = QEffectId.Flying }));
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_AmphibiousForm", "Amphibious Form"), 2, "Your eidolon adapts to life on land and underwater.",
-                "Your eidolon gains the aquotic trait, granting it a swim speed and allowing it to avoid the normal –2 penalty for making bludgeoning and slashing unarmed Strikes underwater.", [tSummoner], e => e.Traits.Add(Trait.Aquatic));
+                "Your eidolon gains the aquotic trait, granting it a swim speed and allowing it to avoid the normal –2 penalty for making bludgeoning and slashing unarmed Strikes underwater.", [tSummoner], (e, src) => e.Traits.Add(Trait.Aquatic));
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Advanced Weaponry"), 1, "Your eidolon's attack evolves.", "Choose one of your eidolon's starting melee unarmed attacks. " +
-                "It gains one of the following traits, chosen when you gain the feat: disarm, grapple, shove, trip, or versatile piercing or slashing.", new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect {
+                "It gains one of the following traits, chosen when you gain the feat: disarm, grapple, shove, trip, or versatile piercing or slashing.", new Trait[] { tSummoner }, (e, src) => e.AddQEffect(new QEffect {
                     StartOfCombat = (async (qf) => {
                         string atkType = GetSummoner(qf.Owner)!.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault((Func<Feat, bool>)(ft => ft.HasTrait(tAdvancedWeaponryAtkType)))?.Name;
                         Item naturalWeapon;
@@ -527,7 +369,7 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
             });
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_MetallicWeaponry", "Metallic Weaponry"), 1, "Your eidolon's attacks gains the properties of rare magical alloys.",
-                "Choose cold iron or silver. Your eidolon's starting melee unarmed attacks count as being made from the chosen material.", [tSummoner, Trait.Homebrew], e => e.AddQEffect(new QEffect {
+                "Choose cold iron or silver. Your eidolon's starting melee unarmed attacks count as being made from the chosen material.", [tSummoner, Trait.Homebrew], (e, src) => e.AddQEffect(new QEffect {
                     StartOfCombat = async (qf) => {
                         var pWeapon = qf.Owner.UnarmedStrike;
                         var sWeapon = qf.Owner.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && (qf.AdditionalUnarmedStrike.WeaponProperties?.Melee ?? false))?.AdditionalUnarmedStrike;
@@ -561,14 +403,14 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
             .WithRulesBlockForSpell(spells[SummonerSpellId.ExtendBoost], tSummoner)
             .WithIllustration(Enums.illExtendBoost);
 
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("Alacritous Action"), 2, "Your eidolon moves more quickly.", "Your eidolon gains a +10-foot status bonus to its Speed.", new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect {
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Alacritous Action"), 2, "Your eidolon moves more quickly.", "Your eidolon gains a +10-foot status bonus to its Speed.", new Trait[] { tSummoner }, (e, src) => e.AddQEffect(new QEffect {
                 BonusToAllSpeeds = (qf => {
                     return new Bonus(2, BonusType.Status, "Alacritous Action");
                 })
             }), null);
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Tandem Movement {icon:FreeAction}"), 4, "You and your eidolon move together.", "You and your eidolon gain the Tandem Movement action. After toggling on this action, your next action must be to stride. " +
-                "Then, your bonded partner gains an immediate turn where they can do the same.", new Trait[] { tSummoner, tTandem }, e => e.AddQEffect(new QEffect {
+                "Then, your bonded partner gains an immediate turn where they can do the same.", new Trait[] { tSummoner, tTandem }, (e, src) => e.AddQEffect(new QEffect {
                     ProvideActionIntoPossibilitySection = (qf, section) => {
                         if (section.Name == "Tandem Actions") {
                             return GenerateTandemMovementAction(qf.Owner, GetSummoner(qf.Owner)!, GetSummoner(qf.Owner)!);
@@ -591,8 +433,8 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
             })
             .WithIllustration(illTandemMovement);
 
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("Tandem Strike {icon:FreeAction}", "Tandem Strike"), 6, "You and your eidolon strike together.",
-                @"You make a melee strike against the target. Your eidolon may then make a follow up strike against the same target. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after both attacks have been made.", new Trait[] { tSummoner, tTandem }, e => e.AddQEffect(new QEffect {
+            yield return new EvolutionFeat(ftTandemStrike, 6, "You and your eidolon strike together.",
+                @"You make a melee strike against the target. Your eidolon may then make a follow up strike against the same target. Both attacks count toward your multiple attack penalty, but the penalty doesn't increase until after both attacks have been made.", new Trait[] { tSummoner, tTandem }, (e, src) => e.AddQEffect(new QEffect {
                     ProvideActionIntoPossibilitySection = (qf, section) => {
                         if (section.Name == "Tandem Actions") {
                             return GenerateTandemStrikeAction(qf.Owner, GetEidolon(qf.Owner)!, GetSummoner(qf.Owner)!);
@@ -618,8 +460,8 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Eidolon's Wrath {icon:TwoActions}"), 6, "Your eidolon gains the ability to expel its planar essence in a surge of destructive energy.",
                 "Your eidolon releases a powerful energy attack that deals 5d6 damage of the type you chose when you took the Eidolon's Wrath feat, with a basic Reflex save.",
-                new Trait[] { tSummoner }, e => {
-                    Feat dmgTypeFeat = GetSummoner(e)!.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEidolonsWrathType));
+                new Trait[] { tSummoner }, (e, src) => {
+                    Feat dmgTypeFeat = GetSummoner(e)?.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEidolonsWrathType));
                     if (dmgTypeFeat != null) {
                         e.AddQEffect(new QEffect() { Id = qfEidolonsWrath, Tag = TraitToDamage((Trait?)dmgTypeFeat.Tag) });
                         e.Spellcasting?.PrimarySpellcastingSource?.FocusSpells.Add(AllSpells.CreateSpellInCombat(spells[SummonerSpellId.EidolonsWrath], e, e.Level / 2 + 1, tSummoner));
@@ -634,7 +476,7 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
             .WithIllustration(IllustrationName.DivineWrath);
 
             yield return new EvolutionFeat(Enums.ftTravelersAura, 6, "Your eidolon emanates a powerful aura — resembling that of an astral deva — that protects it from being caught unawares by lesser foes.",
-                "Your eidolon cannot be flat-footed to hidden or flanking creatures of its level or lower.", [tSummoner, Trait.Rebalanced], e => {
+                "Your eidolon cannot be flat-footed to hidden or flanking creatures of its level or lower.", [tSummoner, Trait.Rebalanced], (e, src) => {
                     var denyAdvantage = QEffect.DenyAdvantage();
                     denyAdvantage.Name = "Traveler's Aura";
                     e.AddQEffect(denyAdvantage);
@@ -642,15 +484,27 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
             .WithPrerequisite(sheet => sheet.HasFeat(Enums.scAngelicEidolon), "You must have an angelic eidolon.");
 
             // Generate spell selection feats
-            List<Spell> allSpells = AllSpells.All.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 2) && !sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon) && new Trait[] { Trait.Arcane, Trait.Occult, Trait.Primal, Trait.Divine }.ContainsOneOf(sp.Traits)).ToList();
+            List<Spell> allSpells = AllSpells.All.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 7) && !sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon) && new Trait[] { Trait.Arcane, Trait.Occult, Trait.Primal, Trait.Divine }.ContainsOneOf(sp.Traits)).ToList();
 
             List<SpellId> moddedSpells = (List<SpellId>)typeof(ModManager).GetProperty("NewSpells", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?.GetValue(null);
             List<Spell> moddedSpells2 = new List<Spell>();
 
+            // Declare feat groups
+            FeatGroup[] featGroups = [
+                new FeatGroup("{icon:Rank1}", 0),
+                new FeatGroup("{icon:Rank2}", 1),
+                new FeatGroup("{icon:Rank3}", 2),
+                new FeatGroup("{icon:Rank4}", 3),
+                new FeatGroup("{icon:Rank5}", 4),
+                new FeatGroup("{icon:Rank6}", 5),
+                new FeatGroup("{icon:Rank7}", 6)
+            ];
+
+            // Create spell feats
             foreach (SpellId spell in moddedSpells!) {
                 moddedSpells2.Add(AllSpells.CreateModernSpellTemplate(spell, tSummoner));
             }
-            moddedSpells2 = moddedSpells2.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 2) && (!sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon) && new Trait[] { Trait.Arcane, Trait.Occult, Trait.Primal, Trait.Divine }.ContainsOneOf(sp.Traits))).ToList();
+            moddedSpells2 = moddedSpells2.Where(sp => (sp.HasTrait(Trait.Cantrip) || sp.SpellLevel <= 7) && (!sp.HasTrait(Trait.Focus) && !sp.HasTrait(Trait.Uncommon) && new Trait[] { Trait.Arcane, Trait.Occult, Trait.Primal, Trait.Divine }.ContainsOneOf(sp.Traits))).ToList();
             allSpells = allSpells.Concat(moddedSpells2).ToList();
 
             foreach (Spell spell in allSpells) {
@@ -661,42 +515,37 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
                 }
 
                 if (spell.HasTrait(Trait.Cantrip)) {
-                    yield return new EvolutionFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-Cantrip)", spell.Name), spell.MinimumSpellLevel, "", AllSpells.CreateModernSpell(spell.SpellId, null, 1, false, spell.CombatActionSpell.SpellInformation!).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), e => {
+                    yield return new EvolutionSubFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-Cantrip)", spell.Name), "", AllSpells.CreateModernSpell(spell.SpellId, null, 1, false, spell.CombatActionSpell.SpellInformation!).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), (e, src) => {
                         e.Spellcasting?.PrimarySpellcastingSource?.WithSpells([spell.SpellId], (e.Level + 1) / 2);
                     }, null)
+                    .WithRulesBlockForSpell(spell.SpellId, tEidolon)
                     .WithIllustration(spell.Illustration);
                 }
 
-                if (AllFeats.All.FirstOrDefault(ft => ft.FeatName.ToStringOrTechnical() == $"EidolonSpellGainFeat({spell.Name}-1)") != null) {
-                    continue;
-                }
+                var spellLevel = 0;
+                Trait[] levelTraits = [tEidolonSpellLvl1, tEidolonSpellLvl2, tEidolonSpellLvl3, tEidolonSpellLvl4, tEidolonSpellLvl5, tEidolonSpellLvl6, tEidolonSpellLvl7];
+                foreach (var levelTrait in levelTraits) {
+                    spellLevel += 1;
+                    if (AllFeats.All.FirstOrDefault(ft => ft.FeatName.ToStringOrTechnical() == $"EidolonSpellGainFeat({spell.Name}-{spellLevel})") != null) {
+                        continue;
+                    }
 
-                if (spell.MinimumSpellLevel <= 1 && !spell.HasTrait(Trait.Cantrip)) {
-                    traits.Add(tEidolonSpellLvl1);
-                    yield return new EvolutionFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-1)", spell.Name), spell.MinimumSpellLevel, "", AllSpells.CreateModernSpell(spell.SpellId, null, 1, false, spell.CombatActionSpell.SpellInformation!).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), e => {
-                        e.Spellcasting?.PrimarySpellcastingSource?.WithSpells([ spell.SpellId ]);
-                    }, null)
-                    .WithIllustration(spell.Illustration);
+                    if (spell.MinimumSpellLevel >= 1 && spell.MinimumSpellLevel <= spellLevel && !spell.HasTrait(Trait.Cantrip)) {
+                        traits.Add(levelTrait);
+                        yield return new EvolutionSubFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-{spellLevel})", spell.Name), "", AllSpells.CreateModernSpell(spell.SpellId, null, spellLevel, false, spell.CombatActionSpell.SpellInformation!).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), (e, src) => {
+                            if (((src.ShowRulesBlockForSpellAtLevel ?? 1) >= 6 && e.Level >= 18) || e.Level >= Math.Max(8, (src.ShowRulesBlockForSpellAtLevel ?? 1) * 2 + 4) && e.Level < (src.ShowRulesBlockForSpellAtLevel ?? 1) * 2 + 8)
+                                e.Spellcasting?.PrimarySpellcastingSource?.WithSpells([spell.SpellId], (src.ShowRulesBlockForSpellAtLevel ?? 1));
+                        }, null) { FeatGroup = featGroups[spell.MinimumSpellLevel - 1] }
+                        .WithRulesBlockForSpell(spell.SpellId, tEidolon, spellLevel)
+                        .WithIllustration(spell.Illustration);
+                    }
+                    traits.Remove(levelTrait);
                 }
-                traits.Remove(tEidolonSpellLvl1);
-
-                if (AllFeats.All.FirstOrDefault(ft => ft.FeatName.ToStringOrTechnical() == $"EidolonSpellGainFeat({spell.Name}-2)") != null) {
-                    continue;
-                }
-
-                if (spell.MinimumSpellLevel <= 2 && !spell.HasTrait(Trait.Cantrip)) {
-                    traits.Add(tEidolonSpellLvl2);
-                    yield return new EvolutionFeat(ModManager.RegisterFeatName($"EidolonSpellGainFeat({spell.Name}-2)", spell.Name), spell.MinimumSpellLevel, "", AllSpells.CreateModernSpell(spell.SpellId, null, 1, false, spell.CombatActionSpell.SpellInformation!).CombatActionSpell.Description, spell.Traits.ToList().Concat(traits).ToArray(), e => {
-                        e.Spellcasting?.PrimarySpellcastingSource?.WithSpells(null, new SpellId[] { spell.SpellId });
-                    }, null)
-                    .WithIllustration(spell.Illustration);
-                }
-                traits.Remove(tEidolonSpellLvl2);
             }
 
             yield return new EvolutionFeat(ftMagicalUnderstudy, 2, "Your eidolon evolves to cast spells.",
                 "Your eidolon gains the Cast a Spell activity and learns two cantrips of its tradition, which it can cast as innate spells.\n\nYour eidolon's spell DC and attack moddifier for these spells is equal to yours.",
-                new Trait[] { tSummoner })
+                [tSummoner])
             .WithOnSheet(sheet => {
                 if (!sheet.SpellRepertoires.ContainsKey(tSummoner))
                     return;
@@ -704,38 +553,50 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
                 if (sheet.HasFeat(scFeyEidolon)) {
                     sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("EidolonCantrip", "Eidolon Cantrips", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(Trait.Cantrip) &&
                     (ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList) || (ft.HasTrait(Trait.Arcane) && (ft.HasTrait(Trait.Enchantment) || ft.HasTrait(Trait.Illusion) || ft.HasTrait(Trait.Mental)))), 2));
+                } else if (sheet.HasFeat(scArsonDemonEidolon)) {
+                    sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("EidolonCantrip", "Eidolon Cantrips", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(Trait.Cantrip) &&
+                    (ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList) || (ft.HasTrait(Trait.Arcane) && ft.HasTrait(Trait.Fire))) && !ft.HasTrait(Trait.Abjuration), 2));
                 } else {
                     sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("EidolonCantrip", "Eidolon Cantrips", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(Trait.Cantrip) && ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList), 2));
                 }
-            });
+            })
+            .WithPrerequisite(sheet => !sheet.HasFeat(scFeyEidolon) || sheet.HasFeat(ftInitialEidolonAbility), "This feat is granted for free by taking Initial Eidolon Ability");
 
             yield return new EvolutionFeat(ftMagicalAdept, 8, "Your eidolon gains more magic.",
                 "Choose one 2nd-level spell and one 1st-level spell of your eidolon's tradition. Your eidolon can cast them each once per day as innate spells.",
-                new Trait[] { tSummoner })
+                [tSummoner])
             .WithOnSheet(sheet => {
                 if (!sheet.SpellRepertoires.ContainsKey(tSummoner))
                     return;
 
-                if (sheet.HasFeat(scFeyEidolon)) {
-                    sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("Eidolon2ndLevelSpell", "Level 2 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) &&
-                    ft.HasTrait(tEidolonSpellLvl2) && (ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList) || (ft.HasTrait(Trait.Arcane) && (ft.HasTrait(Trait.Enchantment) || ft.HasTrait(Trait.Illusion) || ft.HasTrait(Trait.Mental)))), 1));
-                    sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("Eidolon1stLevelSpell", "Level 1 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) &&
-                    ft.HasTrait(tEidolonSpellLvl1) && (ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList) || (ft.HasTrait(Trait.Arcane) && (ft.HasTrait(Trait.Enchantment) || ft.HasTrait(Trait.Illusion) || ft.HasTrait(Trait.Mental)))), 1));
-                } else {
-                    sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("Eidolon2ndLevelSpell", "Level 2 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl2) && ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList), 1));
-                    sheet.AddSelectionOptionRightNow(new MultipleFeatSelectionOption("Eidolon1stLevelSpell", "Level 1 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl1) && ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList), 1));
-                }
+                Func<Feat, bool> filter =
+                    sheet.HasFeat(scFeyEidolon) ? ft => ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList) || (ft.HasTrait(Trait.Arcane) && (ft.HasTrait(Trait.Illusion) || ft.HasTrait(Trait.Enchantment) || ft.HasTrait(Trait.Mental)))
+                    : sheet.HasFeat(scArsonDemonEidolon) ? ft => ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList)
+                    : ft => (ft.HasTrait(sheet.SpellRepertoires[tSummoner].SpellList) || (ft.HasTrait(Trait.Arcane) && ft.HasTrait(Trait.Fire))) && !ft.HasTrait(Trait.Abjuration);
+
+                sheet.AddAtLevel(Math.Max(sheet.CurrentLevel, 18), _ => sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon7thLevelSpell", "Level 7 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl7) && filter(ft)) { GeneralFeatGroupName = "Spells" }));
+                sheet.AddAtLevel(Math.Max(sheet.CurrentLevel, 16), _ => sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon6thLevelSpell", "Level 6 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl6) && filter(ft)) { GeneralFeatGroupName = "Spells" }));
+                if (sheet.CurrentLevel <= 17)
+                    sheet.AddAtLevel(Math.Max(sheet.CurrentLevel, 14), _ => sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon5thLevelSpell", "Level 5 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl5) && filter(ft)) { GeneralFeatGroupName = "Spells" }));
+                if (sheet.CurrentLevel <= 15)
+                    sheet.AddAtLevel(Math.Max(sheet.CurrentLevel, 12), _ => sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon4thLevelSpell", "Level 4 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl4) && filter(ft)) { GeneralFeatGroupName = "Spells" }));
+                if (sheet.CurrentLevel <= 13)
+                    sheet.AddAtLevel(Math.Max(sheet.CurrentLevel, 10), _ => sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon3rdLevelSpell", "Level 3 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl3) && filter(ft)) { GeneralFeatGroupName = "Spells" }));
+                if (sheet.CurrentLevel <= 11)
+                    sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon2ndLevelSpell", "Level 2 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl2) && filter(ft)) { GeneralFeatGroupName = "Spells" });
+                if (sheet.CurrentLevel <= 9)
+                    sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("Eidolon1stLevelSpell", "Level 1 Eidolon Spell", -1, ft => ft.HasTrait(tEidolonSpellFeat) && ft.HasTrait(tEidolonSpellLvl1) && filter(ft)) { GeneralFeatGroupName = "Spells" });
             })
             .WithPrerequisite(sheet => sheet.HasFeat(ftMagicalUnderstudy), "Must have the Magical Understudy feat");
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Eidolon's Opportunity {icon:Reaction}"), 6,
                 "Your eidolon makes a melee Strike against the triggering creature.", "If the attack is a critical hit and the trigger was a manipulate action, " +
                 "your eidolon disrupts that action. This Strike doesn't count toward your multiple attack penalty, and your multiple attack penalty doesn't apply to this Strike.",
-                new Trait[] { tSummoner }, e => e.AddQEffect(QEffect.AttackOfOpportunity("Eidolon's Opportunity", "Can make attacks of opportunity, and disrupt actions on a critical hit.", null, false)), null);
+                new Trait[] { tSummoner }, (e, src) => e.AddQEffect(QEffect.AttackOfOpportunity("Eidolon's Opportunity", "Can make attacks of opportunity, and disrupt actions on a critical hit.", null, false)), null);
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Constricting Hold {icon:Action}"), 8,
                 "Your eidolon develops a long serpentine appendage, or a powerful choking grip, perfect for constricting the life out of its victims.", "{b}Target{/b} 1 creature that is grappled or restrained by your eidolon\n\nYour eidolon constricts the creature, dealing bludgeoning damage equal to your eidolon's level plus its Strength modifier, with a basic Fortitude save against your spell DC.",
-                new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect("Constricting Hold", "Your eidolon can crush grabbed opponents.") {
+                new Trait[] { tSummoner }, (e, src) => e.AddQEffect(new QEffect("Constricting Hold", "Your eidolon can crush grabbed opponents.") {
                     ProvideContextualAction = qf => {
                         List<Creature> grappledCreatures = qf.Owner.Battle.AllCreatures.Where(c => c.OwningFaction != e.OwningFaction && c.HasEffect(QEffectId.Grappled) && c.FindQEffect(QEffectId.Grappled)?.Source == e).ToList();
                         if (grappledCreatures.Count > 0) {
@@ -763,7 +624,7 @@ Your eidolon benefits from the skill bonuses on any invested magical items you'r
 Your eidolon deals 2d8 piercing damage (basic Fortitude save against your spell save DC mitigates) and gains an amount of temporary HP equal to the damage dealt. If this amount was greater than 0, the target also becomes drained 1.
 
 This damage increases to 3d8 at 11th level, and 4d8 at 17th level.",
-                [tSummoner, Trait.Homebrew], e => e.AddQEffect(new QEffect("Blood Drain", "Your eidolon drain the blood of grabbed opponents.") {
+                [tSummoner, Trait.Homebrew], (e, src) => e.AddQEffect(new QEffect("Blood Drain", "Your eidolon drain the blood of grabbed opponents.") {
                     ProvideContextualAction = qfSelf => {
                         List<Creature> grappledCreatures = qfSelf.Owner.Battle.AllCreatures.Where(c => c.OwningFaction != e.OwningFaction && c.HasEffect(QEffectId.Grappled) && c.FindQEffect(QEffectId.Grappled)?.Source == e).ToList();
                         var dmg = e.Level < 11 ? "2d8" : e.Level < 17 ? "3d8" : "4d8"; 
@@ -1016,7 +877,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Energy Heart"), 1, "Your eidolon's heart beats with energy.",
                 "Choose an energy damage type other than force. One of your eidolon's unarmed attacks changes its damage type to the chosen type, and it gains resistance to that type equal to half your level (minimum 1).",
-                new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect {
+                new Trait[] { tSummoner }, (e, src) => e.AddQEffect(new QEffect {
                 StartOfCombat = (async (qf) => {
                     DamageKind kind = TraitToDamage((Trait?)GetSummoner(qf.Owner)!.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Tag);
                     qf.Owner.WeaknessAndResistance.AddResistance(kind, Math.Max(1, qf.Owner.Level / 2));
@@ -1033,7 +894,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Bloodletting Claws"), 4,
                 "Your eidolon inflicts bleeding wounds on a telling blow.",
                 "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 persistent bleed damage. " +
-                "Your eidolon gains an item bonus to this bleed damage equal to the unarmed attack's item bonus to attack rolls.", new Trait[] { tSummoner }, e => e.AddQEffect(new QEffect("Bloodletting Claws", "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 + item bonus persistent bleed damage.") {
+                "Your eidolon gains an item bonus to this bleed damage equal to the unarmed attack's item bonus to attack rolls.", new Trait[] { tSummoner }, (e, src) => e.AddQEffect(new QEffect("Bloodletting Claws", "If your eidolon critically hits with a melee unarmed Strike that deals slashing or piercing damage, its target takes 1d6 + item bonus persistent bleed damage.") {
                 AfterYouDealDamageOfKind = async (self, action, damageType, target) => {
                     if (!action.HasTrait(Trait.Strike) || !action.HasTrait(Trait.Unarmed)) {
                         return;
@@ -1065,7 +926,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 "\n\nRegardless of your result, the target is then temporarily immune to your Battle Medicine for the rest of the day.\n\n" +
                 "If you're expert in Medicine, you can choose to make the check against DC 20. If you do, you heal 2d8+10 HP on a success instead (4d8+10 HP on a critical success).",
                 [Trait.Healing, Trait.Manipulate, tSkilledPartnerFeat],
-                cr => cr.AddQEffect(new QEffect("Battle Medicine", "You can heal allies as an 'other maneuver'") {
+                (cr, src) => cr.AddQEffect(new QEffect("Battle Medicine", "You can heal allies as an 'other maneuver'") {
                     ProvideActionIntoPossibilitySection = (qfBattleMedicine, section) => {
                         if (section.PossibilitySectionId != PossibilitySectionId.OtherManeuvers) return null;
                         var prof = GetSummoner(qfBattleMedicine.Owner)!.PersistentCharacterSheet?.Calculated.GetProficiency(Trait.Medicine);
@@ -1105,7 +966,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             .WithActionCost(1)
             .WithPrerequisite(values => values.GetProficiency(Trait.Medicine) >= Proficiency.Trained, "You must be trained in Medicine.");
 
-            yield return new EvolutionFeat(ModManager.RegisterFeatName($"SkilledPartner_ParagonBattleMedicine", "Paragon Battle Medicine"), 7, "You learn advanced techniques with Battle Medicine, allowing you to treat certain ailments alongside injuries.", "Whenever you successfully use Battle Medicine, you also reduce the value of the target's sickened, enfeebled, and clumsy conditions by 1. {i}(This has no effect if you are under an effect continually applying the condition.){/i}\n\nIf you are legendary in Medicine, you also reduce the value of the target's frightened and stunned conditions by 1.", [tSkilledPartnerFeat], e => {
+            yield return new EvolutionFeat(ModManager.RegisterFeatName($"SkilledPartner_ParagonBattleMedicine", "Paragon Battle Medicine"), 7, "You learn advanced techniques with Battle Medicine, allowing you to treat certain ailments alongside injuries.", "Whenever you successfully use Battle Medicine, you also reduce the value of the target's sickened, enfeebled, and clumsy conditions by 1. {i}(This has no effect if you are under an effect continually applying the condition.){/i}\n\nIf you are legendary in Medicine, you also reduce the value of the target's frightened and stunned conditions by 1.", [tSkilledPartnerFeat], (e, src) => {
                 bool legendary = e.Proficiencies.Get(Trait.Medicine) >= Proficiency.Legendary;
                 e.AddQEffect(new QEffect() {
                     Name = "Paragon Battle Medicine",
@@ -1149,7 +1010,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             yield return new EvolutionFeat((TrueFeat)AllFeats.All.First(ft => ft.FeatName == FeatName.DisturbingKnowledge));
             yield return new EvolutionFeat((TrueFeat)AllFeats.All.First(ft => ft.FeatName == FeatName.Evangelize));
             yield return new EvolutionFeat((TrueFeat)AllFeats.All.First(ft => ft.FeatName == FeatName.SacredDefense));
-            yield return new EvolutionFeat((TrueFeat)AllFeats.All.First(ft => ft.FeatName == FeatName.TitanWrestler)).WithEffectOnEidolon(e => {
+            yield return new EvolutionFeat((TrueFeat)AllFeats.All.First(ft => ft.FeatName == FeatName.TitanWrestler)).WithEffectOnEidolon((e, src) => {
                 if (e.Proficiencies.Get(Trait.Athletics) >= Proficiency.Legendary) {
                     e.AddQEffect(new QEffect("Titan Wrestler (legendary)", "You can make combat maneuvers against creatures up to three sizes larger than you.") {
                         Id = QEffectId.TitanWrestlerLegendary
@@ -1167,60 +1028,60 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 "Your eidolon gains a ranged unarmed attack with a range increment of 30 feet that deals 1d4 damage and has the magical and propulsive traits." +
                 " When you select this feat, choose a damage type: acid, bludgeoning, cold, electricity, fire, negative, piercing, positive, or slashing." +
                 " If your eidolon is a celestial, fiend, or monitor with an alignment other than true neutral, you can choose a damage type in its alignment.", new Trait[] { tSummoner }, null, new List<Feat> {
-                new EvolutionFeat(ModManager.RegisterFeatName("Acid_RangedCombatant", "Acid"), 1, "", "Your eidolon's ranged attack deals acid damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Acid_RangedCombatant", "Acid"), 1, "", "Your eidolon's ranged attack deals acid damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.AcidArrow, "Acid Spit", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Acid) {
                         Sfx = SfxName.AcidSplash,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.AcidArrow)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Bludgeoning_RangedCombatant", "Bludgeoning"), 1, "", "Your eidolon's ranged attack deals bludgeoning damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Bludgeoning_RangedCombatant", "Bludgeoning"), 1, "", "Your eidolon's ranged attack deals bludgeoning damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.TelekineticProjectile, "Telekinesis", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Bludgeoning) {
                         Sfx = SfxName.PhaseBolt,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.TelekineticProjectile)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Cold_RangedCombatant", "Cold"), 1, "", "Your eidolon's ranged attack deals cold damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Cold_RangedCombatant", "Cold"), 1, "", "Your eidolon's ranged attack deals cold damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.RayOfFrost, "Chill", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Cold) {
                         Sfx = SfxName.RayOfFrost,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.RayOfFrost)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Electricity_RangedCombatant", "Electricity"), 1, "", "Your eidolon's ranged attack deals electricity damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Electricity_RangedCombatant", "Electricity"), 1, "", "Your eidolon's ranged attack deals electricity damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.ElectricArc, "Zap", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Electricity) {
                         Sfx = SfxName.ElectricArc,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.ElectricArc)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Fire_RangedCombatant", "Fire"), 1, "", "Your eidolon's ranged attack deals fire damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Fire_RangedCombatant", "Fire"), 1, "", "Your eidolon's ranged attack deals fire damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.ProduceFlame, "Scorch", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Fire) {
                         Sfx = SfxName.FireRay,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.ProduceFlame)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Negative_RangedCombatant", "Negative"), 1, "", "Your eidolon's ranged attack deals negative damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Negative_RangedCombatant", "Negative"), 1, "", "Your eidolon's ranged attack deals negative damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.ChillTouch, "Wilt", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Negative) {
                         Sfx = SfxName.ChillTouch,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.ChillTouch)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Piercing_RangedCombatant", "Piercing"), 1, "", "Your eidolon's ranged attack deals piercing damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Piercing_RangedCombatant", "Piercing"), 1, "", "Your eidolon's ranged attack deals piercing damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.MagneticPinions, "Shoot", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Piercing) {
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.ArrowProjectile)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Positive_RangedCombatant", "Positive"), 1, "", "Your eidolon's ranged attack deals positive damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Positive_RangedCombatant", "Positive"), 1, "", "Your eidolon's ranged attack deals positive damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.DisruptUndead, "Smite", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Positive) {
                         Sfx = SfxName.DivineLance,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.DisruptUndead)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Slashing_RangedCombatant", "Slashing"), 1, "", "Your eidolon's ranged attack deals slashing damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Slashing_RangedCombatant", "Slashing"), 1, "", "Your eidolon's ranged attack deals slashing damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.AerialBoomerang256, "Razor Wind", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing) {
                         Sfx = SfxName.AeroBlade,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.AerialBoomerang256)
                     }.WithRangeIncrement(6)
                 )}), null),
-                new EvolutionFeat(ModManager.RegisterFeatName("Good_RangedCombatant", "Good"), 1, "", "Your eidolon's ranged attack deals good damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Good_RangedCombatant", "Good"), 1, "", "Your eidolon's ranged attack deals good damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.DivineLance, "Rebuke", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Good) {
                         Sfx = SfxName.DivineLance,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.DivineLance)
@@ -1232,7 +1093,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                        return false;
                     return true;
                 }), "Your eidolon must be of good alignment, and celestial origin."),
-                new EvolutionFeat(ModManager.RegisterFeatName("Evil_RangedCombatant", "Evil"), 1, "", "Your eidolon's ranged attack deals evil damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Evil_RangedCombatant", "Evil"), 1, "", "Your eidolon's ranged attack deals evil damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.DivineLance, "Rebuke", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Evil) {
                         Sfx = SfxName.DivineLance,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.DivineLance)
@@ -1244,7 +1105,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                        return false;
                     return true;
                 }), "Your eidolon must be of evil alignment, and celestial origin."),
-                new EvolutionFeat(ModManager.RegisterFeatName("Chaotic_RangedCombatant", "Chaotic"), 1, "", "Your eidolon's ranged attack deals chaos damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Chaotic_RangedCombatant", "Chaotic"), 1, "", "Your eidolon's ranged attack deals chaos damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.DivineLance, "Rebuke", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Chaotic) {
                         Sfx = SfxName.DivineLance,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.DivineLance)
@@ -1256,7 +1117,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                        return false;
                     return true;
                 }), "Your eidolon must be of chaotic alignment, and celestial origin."),
-                new EvolutionFeat(ModManager.RegisterFeatName("Lawful_RangedCombatant", "Lawful"), 1, "", "Your eidolon's ranged attack deals law damage.", new Trait[] {}, e => e.AddQEffect(new QEffect {
+                new EvolutionFeat(ModManager.RegisterFeatName("Lawful_RangedCombatant", "Lawful"), 1, "", "Your eidolon's ranged attack deals law damage.", new Trait[] {}, (e, src) => e.AddQEffect(new QEffect {
                     AdditionalUnarmedStrike = new Item(IllustrationName.DivineLance, "Rebuke", new Trait[] { Trait.Unarmed, Trait.Ranged, Trait.Magical, Trait.Propulsive }).WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Lawful) {
                         Sfx = SfxName.DivineLance,
                         VfxStyle = new VfxStyle(1, ProjectileKind.Arrow, IllustrationName.DivineLance)
@@ -1374,13 +1235,13 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             yield return new Feat(ftAChaoticEvil, "Your eidolon's alignment is chaotic evil.", "  ", new List<Trait> { tAlignment, Trait.Chaotic, Trait.Evil }, null);
 
             // DLC3 Feats
-            yield return new EvolutionFeat(ftHulkingSize, 8, "Your eidolon grows substantially.", "Your eidolon becomes Large, instead of its previous size, and its reach increases to 10 feet. This doesn't change any of its other statistics.", [Enums.tSummoner], cr => IncreaseSize(cr));
+            yield return new EvolutionFeat(ftHulkingSize, 8, "Your eidolon grows substantially.", "Your eidolon becomes Large, instead of its previous size, and its reach increases to 10 feet. This doesn't change any of its other statistics.", [Enums.tSummoner], (cr, src) => IncreaseSize(cr));
 
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_ToweringSize", "Towering Size"), 12, "Your eidolon grows substantially.", "Your eidolon becomes Large, instead of its previous size, and its reach increases to 10 feet. This doesn't change any of its other statistics.", [Enums.tSummoner], cr => IncreaseSize(cr))
+            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_ToweringSize", "Towering Size"), 12, "Your eidolon grows substantially.", "Your eidolon becomes Large, instead of its previous size, and its reach increases to 10 feet. This doesn't change any of its other statistics.", [Enums.tSummoner], (cr, src) => IncreaseSize(cr))
             .WithPrerequisite(ftHulkingSize, "Hulking Size");
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_MercilessRend", "Merciless Rend"), 10, "Your eidolon rends its foes.", "{b}Requirement{/b} Your eidolon hits the target with two consecutive Strikes with its secondary weapon in the same round.\n\nIt automatically deal that Strike's damage again to the enemy.", [Enums.tSummoner, Enums.tEidolon],
-                cr => {
+                (cr, src) => {
                     var wpn = cr.QEffects.FirstOrDefault(qf => qf.AdditionalUnarmedStrike != null && qf.AdditionalUnarmedStrike.HasTrait(Trait.Melee) )?.AdditionalUnarmedStrike;
                     if (wpn == null) return;
                     var rend = QEffect.Rend(wpn);
@@ -1396,13 +1257,13 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 .WithActionCost(Constants.ACTION_COST_REACTION);
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_PushingAttack", "Pushing Attack"), 10, "Your eidolon has an attack that pushes away enemies.", "When your eidolon hits with any Strike using an attack with the shove trait, it can spend an action to push the target 5 feet {i}(no check){/i}.", [Enums.tSummoner],
-                cr => cr.AddQEffect(QEffect.MonsterShove()));
+                (cr, src) => cr.AddQEffect(QEffect.MonsterShove()));
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_WeightyImpact", "Weighty Impact"), 10, "Your eidolon knocks enemies down.", "When your eidolon hits with a natural weapon Strike using an attack with the trip trait, it can spend an action to knock the target prone {i}(no check){/i}.", [Enums.tSummoner],
-                cr => cr.AddQEffect(QEffect.MonsterKnockdown()));
+                (cr, src) => cr.AddQEffect(QEffect.MonsterKnockdown()));
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_GraspingLimbs", "Grasping Limbs"), 12, "Your eidolon grabs enemies.", "When your eidolon hits with a natural weapon Strike using an attack with the grapple trait, it can spend an action to grapple without a grapple check, and it can retain grapples without making a grapple check.", [Enums.tSummoner],
-                cr => cr.AddQEffect(QEffect.MonsterGrab()));
+                (cr, src) => cr.AddQEffect(QEffect.MonsterGrab()));
 
             yield return new TrueFeat(ModManager.RegisterFeatName("Summoner_SummonersCall", "Summoner's Call"), 12, "In a moment of danger, you call your eidolon to your side.", "As {action:Reaction}a reaction after you or your eidolon take damage, you may teleport them to an open space adjacent to you.", [Enums.tSummoner, Trait.Teleportation, Trait.Concentrate, Trait.Conjuration])
                 .WithActionCost(Constants.ACTION_COST_REACTION)
@@ -1504,14 +1365,14 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
 
             // Level 14
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_ResilientShell", "Resilient Shell"), 14, "Your eidolon is resilient against attacks.", "Your eidolon gains resistance to physical damage equal to its Constitution modifier.", [Enums.tSummoner],
-                cr => cr.AddQEffect(QEffect.DamageResistancePhysical(cr.Abilities.Constitution)));
+                (cr, src) => cr.AddQEffect(QEffect.DamageResistancePhysical(cr.Abilities.Constitution)));
 
             yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_SpellRepellingForm", "Spell-Repelling Form"), 14, "Your eidolon evolves to protect itself from the danger posed by spells.", "Your eidolon gains a +1 status bonus to all saving throws against magic.", [Enums.tSummoner],
-                cr => cr.AddQEffect(new QEffect("Spell-Repelling Form", "You gain a +1 status bonus to all saving throws against magic.") { BonusToDefenses = (self, ca, def) => def.IsSavingThrow() && (ca?.HasTrait(Trait.Spell) ?? false) ? new Bonus(1, BonusType.Status, "Spell-repelling form") : null }));
+                (cr, src) => cr.AddQEffect(new QEffect("Spell-Repelling Form", "You gain a +1 status bonus to all saving throws against magic.") { BonusToDefenses = (self, ca, def) => def.IsSavingThrow() && (ca?.HasTrait(Trait.Spell) ?? false) ? new Bonus(1, BonusType.Status, "Spell-repelling form") : null }));
 
             // Level 16
-            yield return new EvolutionFeat(ModManager.RegisterFeatName("Summoner_Ever-Vigilant Senses", "Ever-Vigilant Senses"), 16, "Your eidolon has enhanced senses.", "Your eidolon gains a +2 circumstance bonus to perception, cannot be flanked except by creatures that are higher level than it and can see invisible creatures as though they weren't invisible.", [Enums.tSummoner],
-                cr => {
+            yield return new EvolutionFeat(ftEverVigilantSenses, 16, "Your eidolon has enhanced senses.", "Your eidolon gains a +2 circumstance bonus to perception, cannot be flanked except by creatures that are higher level than it and can see invisible creatures as though they weren't invisible.", [Enums.tSummoner],
+                (cr, src) => {
                     cr.AddQEffect(new QEffect("Ever-Vigilant Senses", "You cannot be flanked except by creatures that are higher level than you and see invisible creatures as though they weren't invisible.") {
                         BonusToPerception = (self) => new Bonus(2, BonusType.Circumstance, "Ever-Vigilant Senses"),
                         Id = QEffectId.DenyAdvantage
@@ -1520,7 +1381,6 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                         Id = QEffectId.TrueSeeing
                     });
                 });
-
         }
 
         public static Creature? GetSummoner(Creature eidolon) {
@@ -1599,14 +1459,14 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
         }
 
         public class EvolutionFeat : TrueFeat {
-            public Action<Creature>? EffectOnEidolon { get; private set; }
-            public EvolutionFeat(FeatName featName, int level, string flavourText, string rulesText, Trait[] traits, Action<Creature>? effect=null, List<Feat>? subfeats=null) : base(featName, level, flavourText, rulesText, new Trait[] { tEvolution }.Concat(traits).ToArray(), subfeats) {
+            public Action<Creature, Feat>? EffectOnEidolon { get; private set; }
+            public EvolutionFeat(FeatName featName, int level, string flavourText, string rulesText, Trait[] traits, Action<Creature, Feat>? effect=null, List<Feat>? subfeats=null) : base(featName, level, flavourText, rulesText, new Trait[] { tEvolution }.Concat(traits).ToArray(), subfeats) {
                 EffectOnEidolon = effect;
             }
 
             public EvolutionFeat(TrueFeat feat) : base(ModManager.RegisterFeatName($"SkilledPartner_{feat.ToTechnicalName()}", feat.Name), feat.Level, feat.FlavorText, feat.RulesText, new Trait[] { tSkilledPartnerFeat, tEvolution }.Concat(feat.Traits.Where(t => t != Trait.Skill && t != Trait.General)).ToArray(), feat.Subfeats) {
                 if (feat.OnCreature != null) {
-                    EffectOnEidolon = cr => feat.OnCreature(GetSummoner(cr)!.PersistentCharacterSheet?.Calculated!, cr);
+                    EffectOnEidolon = (cr, src) => feat.OnCreature(GetSummoner(cr)!.PersistentCharacterSheet?.Calculated!, cr);
                 }
 
                 if (feat.Prerequisites != null) {
@@ -1614,21 +1474,21 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 }
             }
 
-            public EvolutionFeat WithEffectOnEidolon(Action<Creature> effectOnEidolon) {
+            public EvolutionFeat WithEffectOnEidolon(Action<Creature, Feat> effectOnEidolon) {
                 this.EffectOnEidolon = effectOnEidolon;
                 return this;
             }
         }
 
         public class EvolutionSubFeat : Feat {
-            public Action<Creature>? EffectOnEidolon { get; private set; }
-            public EvolutionSubFeat(FeatName featName, string flavourText, string rulesText, Trait[] traits, Action<Creature>? effect = null, List<Feat>? subfeats = null) : base(featName, flavourText, rulesText, new Trait[] { tEvolution }.Concat(traits).ToList(), subfeats) {
+            public Action<Creature, Feat>? EffectOnEidolon { get; private set; }
+            public EvolutionSubFeat(FeatName featName, string flavourText, string rulesText, Trait[] traits, Action<Creature, Feat>? effect = null, List<Feat>? subfeats = null) : base(featName, flavourText, rulesText, new Trait[] { tEvolution }.Concat(traits).ToList(), subfeats) {
                 EffectOnEidolon = effect;
             }
 
             public EvolutionSubFeat(Feat feat) : base(ModManager.RegisterFeatName($"SkilledPartner_{feat.ToTechnicalName()}", feat.Name), feat.FlavorText, feat.RulesText, new Trait[] { tEvolution }.Concat(feat.Traits.Where(t => t != Trait.Skill && t != Trait.General)).ToList(), feat.Subfeats) {
                 if (feat.OnCreature != null) {
-                    EffectOnEidolon = cr => feat.OnCreature(GetSummoner(cr)!.PersistentCharacterSheet?.Calculated!, cr);
+                    EffectOnEidolon = (cr, src) => feat.OnCreature(GetSummoner(cr)!.PersistentCharacterSheet?.Calculated!, cr);
                 }
 
                 if (feat.Prerequisites != null) {
@@ -1636,7 +1496,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 }
             }
 
-            public EvolutionSubFeat WithEffectOnEidolon(Action<Creature> effectOnEidolon) {
+            public EvolutionSubFeat WithEffectOnEidolon(Action<Creature, Feat> effectOnEidolon) {
                 this.EffectOnEidolon = effectOnEidolon;
                 return this;
             }
@@ -1680,49 +1540,24 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
 
 
         internal static Feat CreateEidolonFeat(FeatName featName, string flavorText, string? abilityText, string? actionText, int[] abilityScores, int ac, int dexCap) {
-            return new Feat(featName, flavorText, "Your eidolon has the following characteristics at level 1:\n\n" + PrintEidolonStatBlock(featName, abilityText, actionText, abilityScores, ac, dexCap), new List<Trait>() { tEidolonArray }, (List<Feat>)null)
+            return new Feat(featName, flavorText, "Your eidolon has the following characteristics at level 1:\n\n" + PrintEidolonStatBlock(featName, abilityText, actionText, abilityScores, ac, dexCap), [tEidolonArray], null)
             .WithOnSheet(sheet => {
-                if (abilityScores[0] == 4) {
-                    sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
-                } else {
-                    sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonDexASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && !(abilityScores[0] == 4 && ft.Tag as Ability? == Ability.Strength) && !(abilityScores[1] == 4 && ft.Tag as Ability? == Ability.Dexterity), 4)));
-                }
+                sheet.AddAtLevel(5, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-5", "Eidolon Ability Boosts", 5, ft => ft.HasTrait(tEidolonASI) && ft.Tag is int && (int)ft.Tag == 5, 4)));
+                sheet.AddAtLevel(10, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-10", "Eidolon Ability Boosts", 10, ft => ft.HasTrait(tEidolonASI) && ft.Tag is int && (int)ft.Tag == 10, 4)));
+                sheet.AddAtLevel(15, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-15", "Eidolon Ability Boosts", 15, ft => ft.HasTrait(tEidolonASI) && ft.Tag is int && (int)ft.Tag == 15, 4)));
+                sheet.AddAtLevel(20, _ => _.AddSelectionOption(new MultipleFeatSelectionOption("EidolonStrASI-20", "Eidolon Ability Boosts", 20, ft => ft.HasTrait(tEidolonASI) && ft.Tag is int && (int)ft.Tag == 20, 4)));
             })
-            .WithOnCreature((sheet, summoner) => summoner
-            .AddQEffect(new ActionShareEffect() {
-                Id = qfSharedActions,
-            })
-            // TODO: Bookmark: Summoner act together
-            .AddQEffect(new QEffect() {
-                ProvideMainAction = (effect) => {
-                    var eidolon = GetEidolon(effect.Owner);
-                    if (eidolon == null || eidolon.Destroyed) return null;
-
-                    if (summoner.PersistentCharacterSheet!.Calculated.AllFeats.Where(ft => ft.HasTrait(tTandem)).ToList().Count > 0) {
-                        SubmenuPossibility tandemActions = new SubmenuPossibility(illActTogether, "Tandem Actions");
-                        tandemActions.Subsections.Add(new PossibilitySection("Tandem Actions"));
-                        tandemActions.Subsections[0].PossibilitySectionId = psTandemActions;
-                        return tandemActions;
-                    }
-
-                    return GenerateActTogetherAction(effect.Owner, GetEidolon(effect.Owner)!, summoner);
-
-                },
-                ProvideActionIntoPossibilitySection = (effect, section) => {
-                    if (summoner.PersistentCharacterSheet!.Calculated.AllFeats.Where(ft => ft.HasTrait(tTandem)).ToList().Count == 0) {
-                        return null;
-                    } else if (section.PossibilitySectionId == psTandemActions) {
-                        return GenerateActTogetherAction(effect.Owner, GetEidolon(effect.Owner)!, summoner);
-                    }
-                    return null;
-                },
-            })
-            .AddQEffect(new QEffect("Eidolon", "This character can summon and command an Eidolon.") {
-                StartOfCombat = (Func<QEffect, Task>)(async qfSummonerTechnical => {
-                    Creature eidolon = CreateEidolon(featName, abilityScores, ac, dexCap, summoner);
+            .WithOnCreature((sheet, summoner) => summoner.AddQEffect(new QEffect("Eidolon", "You can summon and command an Eidolon.") {
+                StartOfCombat = async qfSummonerTechnical => {
+                    var archetype = !summoner.HasFeat(classSummoner);
+                    Creature eidolon = CreateEidolon(featName, abilityScores, ac, dexCap, summoner, archetype);
                     eidolon.MainName = sheet.Tags.TryGetValue("EidolonNickname", out var givenName) ? (string)givenName! : qfSummonerTechnical.Owner.Name + "'s " + eidolon.MainName;
 
                     InvestedWeaponLogic.MagicItemLogic(summoner, eidolon);
+                    ClassLogic.GenerateActionShareQEffect(summoner, eidolon, archetype: archetype);
+                    ClassLogic.GenerateHPShareQEffect(summoner, eidolon);
+                    sheet.SpellRepertoires.TryGetValue(tSummoner, out var repertoire);
+                    ClassLogic.GenerateSummonerActions(summoner, eidolon, repertoire?.SpellList ?? Trait.Arcane);
 
                     summoner.Battle.SpawnCreature(eidolon, summoner.OwningFaction, summoner.Occupies);
 
@@ -1739,373 +1574,22 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                         if (eidolon.QEffects[i].StartOfCombat != null)
                             await eidolon.QEffects[i].StartOfCombat.InvokeIfNotNull(eidolon.QEffects[i]);
                     }
-                }),
-                StartOfYourPrimaryTurn = async (qfStartOfTurn, summoner) => {
-                    Creature eidolon = GetEidolon(summoner);
-
-                    if (eidolon!.Destroyed || eidolon.HP <= 0) {
-                        return;
-                    }
-                    eidolon.TurnInformation.ThisTurnIsPrimary = true;
-
-                    // Share eidolon quickened with summoner
-                    if (eidolon.Actions.QuickenedForActions != null) {
-                        foreach (var rule in (List<Func<CombatAction, bool>>)eidolon.Actions.QuickenedForActions.GetType().GetField("delegates", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)?.GetValue(eidolon.Actions.QuickenedForActions)!) {
-                            if (summoner.Actions.QuickenedForActions == null) {
-                                summoner.Actions.QuickenedForActions = new DisjunctionDelegate<CombatAction>(rule);
-                            } else {
-                                summoner.Actions.QuickenedForActions.Add(rule);
-                            }
-                        }
-                        summoner.Actions.UsedQuickenedAction = eidolon.Actions.UsedQuickenedAction;
-                        summoner.Actions.AnimateActionUsedTo(3, eidolon.Actions.FourthActionStyle);
-                        //summoner.Actions.GetType().GetMethod("AnimateActionUsedTo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public).Invoke(summoner.Actions, new object[] { 3, eidolon.Actions.FourthActionStyle });
-                    }
-
-                    bool quickened = summoner.Actions.QuickenedForActions != null && !summoner.Actions.UsedQuickenedAction;
-
-                    // delegates
-
-                    await eidolon.Battle.GameLoop.StateCheck();
-
-                    // Handle slowed
-                    QEffect? eSlowed = eidolon.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Slowed);
-                    QEffect? sSlowed = summoner.QEffects.FirstOrDefault(qf => qf.Id == QEffectId.Slowed);
-
-                    if (eSlowed != null && (sSlowed == null || sSlowed.Value < eSlowed.Value)) {
-                        summoner.Actions.ActionsLeft -= eSlowed.Value;
-                        for (int i = 0; i < eSlowed.Value - (quickened ? 1 : 0); i++) {
-                            summoner.Actions.AnimateActionUsedTo(i, ActionDisplayStyle.Slowed);
-                        }
-                        if (quickened) {
-                            summoner.Actions.UsedQuickenedAction = true;
-                            summoner.Actions.AnimateActionUsedTo(3, ActionDisplayStyle.Slowed);
-                        }
-                    } else if (quickened && sSlowed != null && (eSlowed == null || eSlowed.Value < sSlowed.Value)) {
-                        summoner.Actions.ActionsLeft += 1;
-                        summoner.Actions.AnimateActionUsedTo(sSlowed.Value-1, ActionDisplayStyle.Available);
-                        summoner.Actions.UsedQuickenedAction = true;
-                        summoner.Actions.AnimateActionUsedTo(3, ActionDisplayStyle.Slowed);
-                    }
-
-                    if (PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_AutoUseActTogether")) {
-                        var ca = (GenerateActTogetherAction(summoner, eidolon, summoner) as ActionPossibility)?.CombatAction;
-                        if (ca != null && summoner.Actions.CanTakeActions() && !summoner.HasEffect(QEffectId.Confused) && !summoner.HasEffect(QEffectId.DurationStunned)) {
-                            ca.ChosenTargets.ChosenCreature = summoner;
-                            await ca.AllExecute();
-                        }
-                    }
                 },
-                StateCheckWithVisibleChanges = (async qf => {
-                    Creature eidolon = GetEidolon(qf.Owner);
-                    if (eidolon == null) {
-                        return;
-                    }
-
-                    if (eidolon.Battle.InitiativeOrder.Any(cr => cr == eidolon)) {
-                        eidolon.Battle.InitiativeOrder.Remove(eidolon);
-                    }
-
-                    // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
-                    if (eidolon.Destroyed == true) {
-                        return;
-                    }
-
-                    // Reaction
-                    if (qf.Owner.Actions.IsReactionUsedUp == true) {
-                        eidolon.Actions.UseUpReaction();
-                    }
-
-                    if (eidolon.HasEffect(QEffectId.DurationStunned)) {
-                        qf.Owner.AddQEffect(QEffect.Stunned().WithExpirationEphemeral());
-                    }
-
-                    // Handle AoO
-                    //HPShareEffect shareHP = (HPShareEffect)qf.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                    //if (shareHP?.Logs != null && shareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
-                    //    await HandleHealthShare(eidolon, qf.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                    //}
-
-                    //HPShareEffect eidolonShareHP = (HPShareEffect)eidolon.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                    //if (eidolonShareHP?.Logs != null && eidolonShareHP.Logs.Any(log => !log.Processed && log.Type == SummonerClassEnums.InterceptKind.TARGET)) {
-                    //    await HandleHealthShare(qf.Owner, eidolon, SummonerClassEnums.InterceptKind.TARGET);
-                    //}
-
-                    // Handle tempHP
-                    if (qf.Owner.TemporaryHP < eidolon.TemporaryHP) {
-                        qf.Owner.GainTemporaryHP(eidolon.TemporaryHP);
-                    } else if (qf.Owner.TemporaryHP > eidolon.TemporaryHP) {
-                        eidolon.GainTemporaryHP(qf.Owner.TemporaryHP);
-                    }
-                }),
-                EndOfYourTurnBeneficialEffect = async (qfEndOfTurn, summoner) => {
-                    Creature eidolon = GetEidolon(summoner);
-                    eidolon?.Actions.ForgetAllTurnCounters();
-                    summoner.Battle.ActiveCreature = summoner;
-                },
-                ProvideMainAction = qfSummoner => {
-                    Creature? eidolon = GetEidolon(qfSummoner.Owner);
-                    if (eidolon == null || eidolon.OwningFaction != qfSummoner.Owner.OwningFaction || !eidolon.Actions.CanTakeActions() || qfSummoner.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
-                        return (Possibility)null;
-
-                    Possibility output = (Possibility)(ActionPossibility)new CombatAction(qfSummoner.Owner, eidolon.Illustration, "Command your Eidolon", new Trait[] { Trait.Basic, tSummoner }, "Swap to Eidolon.", (Target)Target.Self()) {
-                        ShortDescription = "Take control of your Eidolon, using your shared action pool."
-                    }
-                    .WithEffectOnSelf((Func<Creature, Task>)(async self => {
-                        if (GetEidolon(summoner)?.FindQEffect(QEffectId.Confused) != null && (await summoner.Battle.SendRequest(new ConfirmationRequest(summoner, "Your eidolon is confused and will use all of your shared actions without input. Are you sure you want to swap to them?", GetEidolon(summoner)!.Illustration, "Yes", "No, skip their action"))).ChosenOption is CancelOption) {
-                            return;
-                        }
-
-                        await PartnerActs(summoner, eidolon);
-                    }))
-                    .WithActionCost(0);
-
-                    //output.WithPossibilityGroup("Summoner");
-                    return output;
-                },
-                YouAreTargeted = async (qfHealOrHarm, action) => {
-                    if (action.Name == "Command your Eidolon") {
-                        return;
-                    }
-
-                    if (GetEidolon(qfHealOrHarm.Owner) == null || GetEidolon(qfHealOrHarm.Owner)!.Destroyed) {
-                        return;
-                    }
-
-                    HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault<QEffect>(qf => qf.Id == qfSummonerBond && qf.Source == GetEidolon(qfHealOrHarm.Owner));
-                    HPShareEffect eidolonShareHP = (HPShareEffect)GetEidolon(qfHealOrHarm.Owner)!.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond && qf.Source == qfHealOrHarm.Owner);
-
-                    if (shareHP == null || eidolonShareHP == null) return;
-
-                    if (action == shareHP!.CA || action == eidolonShareHP.CA || (action.Target is not AreaTarget
-                            && !(action.Target is DependsOnActionsSpentTarget ap && ap.TargetFromActionCount(action.SpentActions) is AreaTarget)
-                            && !(action.Target is DependsOnSpellVariantTarget sv && sv.CreateTargetFromVariant(action.ChosenVariant!) is AreaTarget))) {
-                        return;
-                    }
-
-                    shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
-
-                },
-                AfterYouAreTargeted = async (qfShareHP, action) => {
-                    if (action.Name == "Command your Eidolon") {
-                        return;
-                    }
-
-                    if (GetEidolon(qfShareHP.Owner) == null || GetEidolon(qfShareHP.Owner)!.Destroyed) {
-                        return;
-                    }
-
-                    Creature summoner = qfShareHP.Owner;
-                    Creature eidolon = GetEidolon(summoner);
-
-                    await HandleHealthShare(summoner, eidolon!, SummonerClassEnums.InterceptKind.TARGET, action.Name);
-                },
-                EndOfAnyTurn = self => {
-                    HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                    if (shareHP != null) {
-                        shareHP.Reset();
-                    }
-                    // Handle healing
-                    if (GetEidolon(self.Owner) != null && GetEidolon(self.Owner)!.Destroyed == false)
-                        HealthShareSafetyCheck(self.Owner, GetEidolon(self.Owner)!);
-                },
-                YouAreDealtDamage = async (qfPreHazardDamage, attacker, damageStuff, defender) => {
-                    if (GetEidolon(qfPreHazardDamage.Owner) == null || GetEidolon(qfPreHazardDamage.Owner)!.Destroyed) {
-                        return null;
-                    }
-                    HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-
-                    // Check if caught by target check
-                    if (shareHP!.CheckForTargetLog(damageStuff.Power!, attacker)) {
-                        return null;
-                    }
-
-                    shareHP.LogAction(qfPreHazardDamage.Owner, damageStuff.Power, attacker, SummonerClassEnums.InterceptKind.DAMAGE);
-                    return null;
-                },
-                AfterYouTakeDamageOfKind = async (qfPostHazardDamage, action, kind) => {
-                    Creature eidolon = GetEidolon(qfPostHazardDamage.Owner);
-                    if (eidolon == null || eidolon.Destroyed) {
-                        return;
-                    }
-
-                    //// Check if effect is coming from self or a tandem action
-                    //if (action != null && (action.Name == "SummonerClass: Share HP" || action.HasTrait(tTandem))) {
-                    //    return;
-                    //}
-
-                    Creature summoner = qfPostHazardDamage.Owner;
-
-                    await HandleHealthShare(summoner, eidolon, SummonerClassEnums.InterceptKind.DAMAGE, action?.Name);
-                },
-                AfterYouAreHealed = async (self, action, amount) => {
-                    Creature eidolon = GetEidolon(self.Owner);
-
-                    if (eidolon == null || eidolon.Destroyed) {
-                        return;
-                    }
-
-                    // Check if effect is coming from self
-                    if (action == null || action.Name == "SummonerClass: Share HP") {
-                        return;
-                    }
-
-                    Creature summoner = self.Owner;
-
-                    HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-
-                    // Check if caught by target check
-                    if (shareHP!.CheckForTargetLog(action, action?.Owner)) {
-                        return;
-                    }
-                    FlatHeal(eidolon, DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action?.Name})"), shareHP.CA);
-                },
-                AfterYouTakeAction = async (qf, action) => {
-                    Creature summoner = qf.Owner;
-                    Creature eidolon = GetEidolon(summoner);
-
-                    if (eidolon == null) {
-                        return;
-                    }
-
-                    // Focus points
-                    if (action.HasTrait(Trait.Focus)) {
-                        eidolon.Spellcasting?.FocusPoints = summoner.Spellcasting?.FocusPoints ?? 0;
-                    }
-
-                    // MAP
-                    if (action.Traits.Contains(Trait.Attack)) {
-                        eidolon.Actions.AttackedThisManyTimesThisTurn = summoner.Actions.AttackedThisManyTimesThisTurn;
-                    }
-                },
-                AfterYouAcquireEffect = async (self, nQf) => {
-                    Creature eidolon = GetEidolon(self.Owner);
-                    if (eidolon == null)
-                        return;
-                    if (nQf.Id == QEffectId.Stunned) {
-                        eidolon.AddQEffect(nQf);
-                    }
-
-                    if (nQf.Id == QEffectId.Unconscious) {
-                        self.Owner.Battle.RemoveCreatureFromGame(eidolon);
-                    }
-
-                    if (nQf.Id == QEffectId.Drained || nQf.Id == QEffectId.MummyRot) {
-                        HandleDrainedSharing(self.Owner, eidolon, true, true);
-                    }
-                }
             })
-            .AddQEffect(new QEffect() {
-                StateCheckLayer = 1,
-                StateCheck = self => {
-                    Creature? eidolon = GetEidolon(self.Owner);
-                    if (eidolon == null) return;
-                    HandleDrainedSharing(self.Owner, eidolon, true);
-                }
-            })
-            .AddQEffect(InvestedWeaponLogic.SummonerInvestedWeaponQEffect())
-            .AddQEffect(new QEffect() {
-                ProvideActionIntoPossibilitySection = (self, section) => {
-                    Creature? eidolon = GetEidolon(self.Owner);
-                    if (eidolon == null || section.PossibilitySectionId != psSummonerExtra) {
-                        return null;
-                    }
-                    Trait spellList = sheet.SpellRepertoires[tSummoner].SpellList;
-
-                    if (!eidolon.Destroyed) {
-                        Possibility output = (Possibility)(ActionPossibility)new CombatAction(self.Owner, illDismiss, "Dismiss Eidolon", new Trait[] {
-                            tSummoner, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Teleportation, Trait.Basic, spellList
-                        },
-                            "Dismiss your eidolon, protecting it and yourself from harm.", Target.RangedFriend(20).WithAdditionalConditionOnTargetCreature((CreatureTargetingRequirement)new EidolonCreatureTargetingRequirement(qfSummonerBond)))
-                        .WithEffectOnChosenTargets((Func<Creature, ChosenTargets, Task>)(async (self, targets) => {
-                            self.Battle.RemoveCreatureFromGame(eidolon);
-                        }))
-                        .WithActionCost(3);
-
-                        output.WithPossibilityGroup("Summoner");
-                        return output;
-                    }
-                    return null;
-                },
-                ProvideMainAction = (qfManifestEidolon => {
-                    Creature? eidolon = GetEidolon(qfManifestEidolon.Owner);
-                    QEffect actTogether = new QEffect("Recently Manifested", "Immediately take a single 1 cost action.") {
-                        Illustration = IllustrationName.Haste,
-                        Id = qfActTogether,
-                    };
-                    if (eidolon == null) {
-                        return null;
-                    }
-
-                    Trait spellList = sheet.SpellRepertoires[tSummoner].SpellList;
-
-                    if (eidolon.Destroyed) {
-                        Possibility output = (ActionPossibility)new CombatAction(qfManifestEidolon.Owner, eidolon.Illustration, "Manifest Eidolon", [tSummoner, Trait.Concentrate, Trait.Conjuration, Trait.Manipulate, Trait.Teleportation, spellList],
-                            "Your eidolon appears in an open space adjacent to you, and can then take a single action.", Target.RangedEmptyTileForSummoning(1)) {
-                            ShortDescription = "Your eidolon reappears in an open space adjacent to you, and can then take a single action."
-                        }
-                        .WithEffectOnChosenTargets(async (self, targets) => {
-                            HPShareEffect shareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                            if (shareHP == null) return;
-
-                            eidolon.Battle.InitiativeOrder.Remove(eidolon);
-                            eidolon.Battle.Corpses.Remove(eidolon);
-                            eidolon.Occupies = targets.ChosenTile!;
-                            eidolon.RemoveAllQEffects(qf => qf.Illustration != null);
-                            eidolon.AddQEffect(actTogether);
-                            eidolon.Battle.SpawnCreature(eidolon, self.OwningFaction, targets.ChosenTile!);
-                            eidolon.Actions.AnimateActionUsedTo(0, ActionDisplayStyle.UsedUp);
-                            eidolon.Actions.AnimateActionUsedTo(1, ActionDisplayStyle.UsedUp);
-                            eidolon.Actions.AnimateActionUsedTo(2, ActionDisplayStyle.UsedUp);
-                            eidolon.Actions.AnimateActionUsedTo(3, ActionDisplayStyle.Invisible);
-                            eidolon.Destroyed = false;
-                            eidolon.DeathScheduledForNextStateCheck = false;
-                            eidolon.Actions.ActionsLeft = 0;
-                            eidolon.Actions.UsedQuickenedAction = true;
-                            eidolon.AnimationData.ChangeSize(eidolon);
-                            // Balance HP
-                            if (eidolon.Damage > summoner.Damage) {
-                                FlatHeal(eidolon, DiceFormula.FromText($"{eidolon.Damage - summoner.Damage}"), shareHP!.CA);
-                            } else if (eidolon.Damage < summoner.Damage) {
-                                await CommonSpellEffects.DealDirectSplashDamage(shareHP!.CA, DiceFormula.FromText($"{summoner.Damage - eidolon.Damage}"), eidolon, DamageKind.Untyped);
-                            }
-                            HandleDrainedSharing(summoner, eidolon, true);
-                            HandleDrainedSharing(eidolon, summoner, false);
-                            await eidolon.Battle.GameLoop.StateCheck();
-                            eidolon.Destroyed = false;
-                            await PartnerActs(summoner, eidolon, true, null);
-                            eidolon.RemoveAllQEffects(effect => effect == actTogether);
-                        })
-                        .WithActionCost(qfManifestEidolon.Owner.Level < 19 ? 3 : 1);
-
-                        output.WithPossibilityGroup("Summoner");
-                        return output;
-                    }
-                    return null;
-                }),
-            })
-            );
+            .AddQEffect(InvestedWeaponLogic.SummonerInvestedWeaponQEffect()));
         }
 
-        private static Creature CreateEidolon(FeatName featName, int[] abilityScores, int ac, int dexCap, Creature summoner) {
-            Creature eidolon = CreateEidolonBase("Eidolon", summoner, abilityScores, ac, dexCap);
-
-            // Link to summoner
-            eidolon.AddQEffect(new HPShareEffect(eidolon) {
-                Id = qfSummonerBond,
-                Source = summoner
-            });
-            summoner.AddQEffect(new HPShareEffect(summoner) {
-                Id = qfSummonerBond,
-                Source = eidolon
-            });
+        private static Creature CreateEidolon(FeatName featName, int[] abilityScores, int ac, int dexCap, Creature summoner, bool archetype=false) {
+            Creature eidolon = CreateEidolonBase("Eidolon", summoner, abilityScores, ac, dexCap, archetype);
 
             eidolon.InitiativeControlledBy = summoner;
 
             // Add spellcasting
-            SpellcastingSource spellSource = eidolon.AddSpellcastingSource(SpellcastingKind.Innate, tSummoner, Ability.Charisma, summoner.PersistentCharacterSheet!.Calculated.SpellRepertoires[tSummoner].SpellList);
-            eidolon.Spellcasting?.FocusPointsMaximum = summoner.Spellcasting?.FocusPointsMaximum ?? 0;
-            eidolon.Spellcasting?.FocusPoints = summoner.Spellcasting?.FocusPointsMaximum ?? 0;
+            if (summoner.PersistentCharacterSheet?.Calculated.SpellRepertoires.TryGetValue(tSummoner, out var summonerSpellcasting) ?? false) {
+                SpellcastingSource spellSource = eidolon.AddSpellcastingSource(SpellcastingKind.Innate, tSummoner, Ability.Charisma, summonerSpellcasting.SpellList);
+                eidolon.Spellcasting?.FocusPointsMaximum = summoner.Spellcasting?.FocusPointsMaximum ?? 0;
+                eidolon.Spellcasting?.FocusPoints = summoner.Spellcasting?.FocusPointsMaximum ?? 0;
+            }
 
             // Add skill profs
             List<KeyValuePair<Trait, Proficiency>> skillProfs = summoner.Proficiencies.AllProficiencies.ToList()
@@ -2115,18 +1599,23 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 eidolon.WithProficiency(skill.Key, skill.Value);
             }
 
+            // Init HP share and ID tracking
+            ClassLogic.GenerateHPShareQEffect(summoner, eidolon, true);
+
             // Add class features
-            if (eidolon.Level >= 11) {
-                CommonCharacterFeatures.AddEvasion(eidolon, "Twin Juggernauts", Defense.Fortitude);
-            }
-            if (eidolon.Level >= 15) {
-                CommonCharacterFeatures.AddEvasion(eidolon, "Shared Resolve", Defense.Will);
+            if (!archetype) {
+                if (eidolon.Level >= 11) {
+                    CommonCharacterFeatures.AddEvasion(eidolon, "Twin Juggernauts", Defense.Fortitude);
+                }
+                if (eidolon.Level >= 15) {
+                    CommonCharacterFeatures.AddEvasion(eidolon, "Shared Resolve", Defense.Will);
+                }
             }
 
             // Generate natural weapon attacks
-            Feat pAttack = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPrimaryAttackType));
-            Feat sAttack = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tSecondaryAttackType));
-            Feat pStatsFeat = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPrimaryAttackStats));
+            Feat pAttack = summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPrimaryAttackType));
+            Feat sAttack = summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tSecondaryAttackType));
+            Feat pStatsFeat = summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPrimaryAttackStats));
             List<Trait> pStats = new List<Trait>() { Trait.Unarmed };
             for (int i = 2; i < pStatsFeat!.Traits.Count; i++) {
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -2138,8 +1627,8 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             List<Trait> sStats = new List<Trait>() { Trait.Unarmed, Trait.Finesse, Trait.Agile };
 
             DamageKind primaryDamageType;
-            if (summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)) != null &&
-                summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon))?.Name == "Primary Unarmed Attack") {
+            if (summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)) != null &&
+                summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon))?.Name == "Primary Unarmed Attack") {
                 primaryDamageType = TraitToDamage((Trait?)summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Tag);
                 pStats.Add(DamageToTrait(primaryDamageType));
             }  else if (new FeatName[] { ftPMace, ftPWing, ftPKick, ftPFist, ftPTendril, ftPMermaidTail, ftPSerpentTail, ftPHoof }.Contains(pAttack!.FeatName)) {
@@ -2151,8 +1640,8 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             }
 
             DamageKind secondaryDamageType;
-            if (summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)) != null &&
-                summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon))?.Name == "Secondary Unarmed Attack") {
+            if (summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon)) != null &&
+                summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartWeapon))?.Name == "Secondary Unarmed Attack") {
                 secondaryDamageType = TraitToDamage((Trait?)summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tEnergyHeartDamage))!.Tag);
                 sStats.Add(DamageToTrait(secondaryDamageType));
             } else if (new FeatName[] { ftSWing, ftSKick, ftSFist, ftSTendril, ftSMermaidTail, ftSSerpentTail, ftSHoof }.Contains(sAttack!.FeatName)) {
@@ -2174,64 +1663,16 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             eidolon.WithUnarmedStrike(new Item(pIcon!, pAttack.Name.ToLower().Split(" (")[0], pStats.ToArray()).WithWeaponProperties(new WeaponProperties(damage, primaryDamageType)));
             eidolon.WithAdditionalUnarmedStrike(new Item(sIcon!, sAttack.Name.ToLower().Split(" (")[0], sStats.ToArray()).WithWeaponProperties(new WeaponProperties("1d6", secondaryDamageType)));
 
-            var evoFeats = summoner.PersistentCharacterSheet.Calculated.AllFeats.Where(ft => ft is EvolutionFeat).ToArray();
-            evoFeats = Array.ConvertAll(evoFeats, ft => (EvolutionFeat)ft);
-            var evoSubFeats = summoner.PersistentCharacterSheet.Calculated.AllFeats.Where(ft => ft is EvolutionSubFeat).ToArray();
-            evoSubFeats = Array.ConvertAll(evoSubFeats, ft => (EvolutionSubFeat)ft);
+            var evoFeats = summoner.PersistentCharacterSheet?.Calculated.AllFeats.Where(ft => ft is EvolutionFeat).ToArray();
+            evoFeats = Array.ConvertAll(evoFeats!, ft => (EvolutionFeat)ft);
+            var evoSubFeats = summoner.PersistentCharacterSheet?.Calculated.AllFeats.Where(ft => ft is EvolutionSubFeat).ToArray();
+            evoSubFeats = Array.ConvertAll(evoSubFeats!, ft => (EvolutionSubFeat)ft);
 
             eidolon.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Wounded));
             eidolon.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Doomed));
-            eidolon.AddQEffect(new QEffect() {
-                ProvideMainAction = (effect) => {
-                    if (summoner.PersistentCharacterSheet.Calculated.AllFeats.Where(ft => ft.HasTrait(tTandem)).ToList().Count > 0) {
-                        SubmenuPossibility tandemActions = new SubmenuPossibility(illActTogether, "Tandem Actions");
-                        tandemActions.Subsections.Add(new PossibilitySection("Tandem Actions"));
-                        tandemActions.Subsections[0].PossibilitySectionId = psTandemActions;
-                        return tandemActions;
-                    }
-
-                    return GenerateActTogetherAction(effect.Owner, summoner, summoner);
-
-                },
-                ProvideActionIntoPossibilitySection = (qfActTogether, section) => {
-                    if (summoner.PersistentCharacterSheet.Calculated.AllFeats.Where(ft => ft.HasTrait(tTandem)).ToList().Count == 0) {
-                        return null;
-                    } else if (section.PossibilitySectionId == psTandemActions) {
-                        return GenerateActTogetherAction(qfActTogether.Owner, summoner, summoner);
-                    }
-                    return null;
-                },
-            })
-            .AddQEffect(new QEffect() {
-                ProvideMainAction = qfEidolon => {
-                    Creature? summoner = GetSummoner(qfEidolon.Owner);
-                    if (summoner == null || summoner.OwningFaction != qfEidolon.Owner.OwningFaction || !summoner.Actions.CanTakeActions() || qfEidolon.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
-                        return (Possibility)null;
-                    Possibility output = (Possibility)(ActionPossibility)new CombatAction(qfEidolon.Owner, summoner.Illustration, "Return Control",
-                        new Trait[] { Trait.Basic, tSummoner }, $"Switch back to controlling {summoner.Name}. All unspent actions will be retained.", (Target)Target.Self())
-                    .WithActionCost(0)
-                    .WithActionId(ActionId.EndTurn)
-                    .WithEffectOnSelf(self => {
-                        ActionShareEffect actionShare = (ActionShareEffect)self.QEffects.FirstOrDefault(qf => qf.Id == qfSharedActions);
-                        if (actionShare == null) return;
-
-                        // Remove act together toggle on eidolon
-                        self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
-                        // Remove and log actions
-                        actionShare.LogTurnEnd(self.Actions);
-                        self.Actions.UsedQuickenedAction = true;
-                        self.Actions.ActionsLeft = 0;
-                        self.Actions.WishesToEndTurn = true;
-                        Sfxs.Play(SfxName.EndOfTurn, 0.2f);
-                    });
-
-                    //output.WithPossibilityGroup("Summoner");
-                    return output;
-                }
-            });
 
             // Add subclasses
-            EidolonBond bond = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft is EidolonBond) as EidolonBond;
+            EidolonBond bond = summoner.PersistentCharacterSheet?.Calculated.AllFeats.FirstOrDefault(ft => ft is EidolonBond) as EidolonBond;
             if (bond != null && bond.ClassFeatures != null) {
                 bond.ClassFeatures(eidolon, summoner);
             }
@@ -2239,13 +1680,13 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             // Add Evolution feats
             foreach (EvolutionFeat feat in evoFeats) {
                 if (feat.EffectOnEidolon != null) {
-                    feat.EffectOnEidolon.Invoke(eidolon);
+                    feat.EffectOnEidolon.Invoke(eidolon, feat);
                 }
             }
 
             foreach (EvolutionSubFeat feat in evoSubFeats) {
                 if (feat.EffectOnEidolon != null) {
-                    feat.EffectOnEidolon.Invoke(eidolon);
+                    feat.EffectOnEidolon.Invoke(eidolon, feat);
                 }
             }
 
@@ -2318,45 +1759,64 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 }
             }
 
-            if (eidolon.Level >= 7) {
-                eidolon.AddQEffect(new QEffect("Weapon Specialization", "+2 weapon damage.") {
-                    BonusToDamage = ((self, action, target) => {
-                        if (action.Item == null)
-                            return (Bonus)null;
-                        Proficiency proficiency = action.Owner.Proficiencies.Get(action.Item.Traits);
-                        return proficiency >= Proficiency.Expert ? new Bonus(proficiency == Proficiency.Expert ? 2 : (proficiency == Proficiency.Master ? 3 : (proficiency == Proficiency.Legendary ? 4 : 0)), BonusType.Untyped, "Weapon specialization") : (Bonus)null;
-                    })
-                });
+            if ((!archetype && eidolon.Level >= 7) || (summoner.HasFeat(ftExpertCombatEidolon) && (summoner.HasEffect(QEffectId.WeaponSpecialization) || summoner.HasEffect(QEffectId.GreaterWeaponSpecialization)))) {
+                eidolon.AddQEffect(QEffect.WeaponSpecialization());
             }
 
-            //List<Item> wornItems = summoner.CarriedItems.Where(item => item.IsWorn == true && item.HasTrait(Trait.Invested) && item.PermanentQEffectActionWhenWorn != null).ToList<Item>();
-
+            ClassLogic.GenerateActionShareQEffect(summoner, eidolon, forEidolon: true, archetype: archetype);
+            ClassLogic.GenerateEidolonLogic(eidolon, summoner);
 
             eidolon.PostConstructorInitialization(TBattle.Pseudobattle);
             return eidolon;
         }
 
-        private static Creature CreateEidolonBase(string name, Creature summoner, int[] abilityScores, int ac, int dexCap) {
-            int strength = abilityScores[0] + (summoner.PersistentCharacterSheet!.Calculated.HasFeat(ftStrengthBoost) && abilityScores[0] < 4 ? 1 : 0);
-            int dexterity = abilityScores[1] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftDexterityBoost) && abilityScores[1] < 4 ? 1 : 0);
-            int constitution = abilityScores[2] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftConstitutionBoost) ? 1 : 0);
-            int intelligence = abilityScores[3] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftIntelligenceBoost) ? 1 : 0);
-            int wisdom = abilityScores[4] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftWisdomBoost) ? 1 : 0);
-            int charisma = abilityScores[5] + (summoner.PersistentCharacterSheet.Calculated.HasFeat(ftCharismaBoost) ? 1 : 0);
+        private static Creature CreateEidolonBase(string name, Creature summoner, int[] abilityScores, int ac, int dexCap, bool archetype=false) {
+            if (archetype && summoner.Level <= 4 && !PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_ImprovedArchetype")) {
+                for (var i = 0; i < abilityScores.Count(); i++) {
+                    if (abilityScores[i] == 4) abilityScores[i] = 3;
+                }
+            }
+
+            int strength = CalculateAbilityScore(abilityScores[0], tEidolonASIStr);
+            int dexterity = CalculateAbilityScore(abilityScores[1], tEidolonASIDex);
+            int constitution = CalculateAbilityScore(abilityScores[2], tEidolonASICon);
+            int intelligence = CalculateAbilityScore(abilityScores[3], tEidolonASIInt);
+            int wisdom = CalculateAbilityScore(abilityScores[4], tEidolonASIWis);
+            int charisma = CalculateAbilityScore(abilityScores[5], tEidolonASICha);
             int level = summoner.Level;
             int trained = 2 + level;
             int expert = trained + 2;
             int master = expert + 2;
 
+            int CalculateAbilityScore(int baseValue, Trait asiTrait) {
+                var boosts = summoner.PersistentCharacterSheet!.Calculated.AllFeats.Count(ft => ft.HasTrait(asiTrait));
+                //var above4 = boosts - baseValue;
+                int i = boosts;
+                int output = baseValue;
+                bool spare = false;
+                while (i > 0) {
+                    i -= 1;
+                    if (output < 4 || spare) {
+                        output += 1;
+                        spare = false;
+                    }
+                    else {
+                        spare = true;
+                    }
+
+                }
+                return output;
+            }
+
             Abilities abilities = new Abilities(strength, dexterity, constitution, intelligence, wisdom, charisma);
-            Illustration illustration1 = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPortrait))?.Illustration;
+            Illustration illustration1 = summoner.PersistentCharacterSheet!.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tPortrait))?.Illustration;
             string name1 = name;
             List<Trait> alignment = summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tAlignment))?.Traits;
             EidolonBond subclass = (EidolonBond) summoner.PersistentCharacterSheet.Calculated.AllFeats.FirstOrDefault(ft => ft.HasTrait(tSummonerSubclass));
             List<Trait> traits = new List<Trait>();
             for (int i = 1; i < alignment!.Count; i++) {
 #pragma warning disable CS0618 // Type or member is obsolete
-                if (alignment[i] != Trait.Mod)
+                if (alignment[i] != Trait.Mod && alignment[i] != ModManager.ModBeingLoadedTrait)
                     traits.Add(alignment[i]);
 #pragma warning restore CS0618 // Type or member is obsolete
             }
@@ -2370,11 +1830,11 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
 
             int perception = wisdom + (int)summoner.Proficiencies.Get(Trait.Perception) + level;
             int speed1 = 5;
-            Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + (level >= 11 ? expert : trained), constitution + (level >= 11 ? master : expert), dexterity + (level >= 9 ? expert : trained), wisdom + (level >= 15 ? master : expert));
+            var acProf = (level >= 11 && !archetype) || (summoner.HasFeat(ftExpertCombatEidolon) && summoner.Proficiencies.Get(Trait.UnarmoredDefense) >= Proficiency.Expert) ? expert : trained;
+            Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + acProf, constitution + (int)summoner.Proficiencies.Get(Trait.Fortitude), dexterity + (int)summoner.Proficiencies.Get(Trait.Reflex), wisdom + (int)summoner.Proficiencies.Get(Trait.Will));
             int hp = summoner.MaxHP;
-            //summoner.Skills.IsTrained
-            Trait[] skillTraits = new Trait[] { Trait.Acrobatics, Trait.Arcana, Trait.Athletics, Trait.Crafting, Trait.Deception, Trait.Diplomacy, Trait.Intimidation,
-                Trait.Medicine, Trait.Nature, Trait.Occultism, Trait.Performance, Trait.Religion, Trait.Society, Trait.Stealth, Trait.Survival, Trait.Thievery };
+            Trait[] skillTraits = [Trait.Acrobatics, Trait.Arcana, Trait.Athletics, Trait.Crafting, Trait.Deception, Trait.Diplomacy, Trait.Intimidation,
+                Trait.Medicine, Trait.Nature, Trait.Occultism, Trait.Performance, Trait.Religion, Trait.Society, Trait.Stealth, Trait.Survival, Trait.Thievery];
             Skills skills = new Skills();
             foreach (Trait trait in skillTraits) {
                 int prof = (int)summoner.Proficiencies.Get(trait);
@@ -2384,15 +1844,13 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 }
             }
 
-            return new Creature(illustration1!, name1, traits, level, perception, speed1, defenses, hp, abilities, skills)
-                .WithProficiency(Trait.Unarmed, (level >= 5 ? (level >= 13 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
-                .WithProficiency(Trait.Spell, level < 9 ? Proficiency.Trained : level < 17 ? Proficiency.Expert : Proficiency.Master )
-                .WithProficiency(Trait.UnarmoredDefense, (level >= 11 ? (level >= 19 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained))
+            var unarmedProf = !archetype ? (level >= 5 ? (level >= 13 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained) : summoner.HasFeat(ftExpertCombatEidolon) ? Proficiency.Expert : Proficiency.Trained;
+
+            var eidolon = new Creature(illustration1!, name1, traits, level, perception, speed1, defenses, hp, abilities, skills)
+                .WithProficiency(Trait.Unarmed, unarmedProf)
+                .WithProficiency(Trait.Spell, level < 9 ? Proficiency.Trained : level < 17 ? Proficiency.Expert : Proficiency.Master)
+                .WithProficiency(Trait.UnarmoredDefense, level >= 11 ? (level >= 19 ? Proficiency.Master : Proficiency.Expert) : Proficiency.Trained)
                 .WithEntersInitiativeOrder(false)
-                //.WithSpellProficiencyBasedOnSpellAttack(summoner.ClassOrSpellDC() - 10, abilities1.Strength >= abilities1.Dexterity ? Ability.Strength : Ability.Dexterity)
-                .AddQEffect(new ActionShareEffect() {
-                    Id = qfSharedActions,
-                })
                 .AddQEffect(InvestedWeaponLogic.EidolonInvestedWeaponQEffect())
                 .AddQEffect(new QEffect() {
                     StateCheckLayer = 1,
@@ -2403,224 +1861,16 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     }
                 })
                 .AddQEffect(new QEffect("Eidolon Bond", "You and your eidolon share your actions and multiple attack penalty. Each round, you can use any of your actions (including reactions and free actions) for yourself or your eidolon. " +
-                "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities.") {
-                    PreventTakingAction = action => {
-                        if (action.ActionId == ActionId.Delay) {
-                            return "Your eidolon cannot take this action.";
-                        }
-                        return null;
-                    },
-                    PreventTargetingBy = action => {
-                        if (action.SpellId == SpellId.Dominate) {
-                            return "Eidolons cannot be dominated.";
-                        }
-                        return null;
-                    },
-                    StateCheckWithVisibleChanges = async qf => {
-                        Creature summoner = GetSummoner(qf.Owner);
-                        if (summoner == null) return;
+                "Your eidolon gains all of your skill proficiancies and uses your spell attack and save DC for its special abilities."));
 
-                        // Handle instant death effect
-                        if (qf.Tag is bool && summoner!.Alive) {
-                            await CommonSpellEffects.DealDirectSplashDamage(CombatAction.CreateSimple(qf.Owner, "Eidolon Health Share"), DiceFormula.FromText("999", "Eidolon Hit by Instant Death Effect"), summoner, DamageKind.Untyped);
-                            qf.Tag = null;
-                        }
-
-                        // PAST THIS POINT, INACTIVE EIDOLON NOT AFFECTED
-                        if (qf.Owner.Destroyed == true) {
-                            return;
-                        }
-
-                        if (qf.Owner.HP <= 0 || qf.Owner.HasEffect(QEffectId.Unconscious)) {
-                            qf.Owner.Battle.RemoveCreatureFromGame(qf.Owner);
-                        }
-
-                        if (summoner.OwningFaction != qf.Owner.OwningFaction) {
-                            qf.Owner.OwningFaction = summoner.OwningFaction;
-                        }
-
-                        if (summoner.HasEffect(QEffectId.DurationStunned)) {
-                            qf.Owner.AddQEffect(QEffect.Stunned().WithExpirationEphemeral());
-                        }
-
-                        // Reaction
-                        if (qf.Owner.Actions.IsReactionUsedUp == true) {
-                            summoner.Actions.UseUpReaction();
-                        }
-
-                        // Handle tempHP
-                        if (qf.Owner.TemporaryHP < summoner.TemporaryHP) {
-                            qf.Owner.GainTemporaryHP(summoner.TemporaryHP);
-                        } else if (qf.Owner.TemporaryHP > summoner.TemporaryHP) {
-                            summoner.GainTemporaryHP(qf.Owner.TemporaryHP);
-                        }
-                    },
-                    YouAreTargeted = async (qfHealOrHarm, action) => {
-                        HPShareEffect shareHP = (HPShareEffect)qfHealOrHarm.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                        HPShareEffect summonerShareHP = (HPShareEffect)summoner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond && qf.Source == qfHealOrHarm.Owner);
-
-                        if (shareHP == null || summonerShareHP == null) throw new ArgumentException("shareHP/summonerShareHP cannot be null.", "shareHP/summonerShareHP");
-
-                        if (action == shareHP.CA || action == summonerShareHP.CA || (action.Target is not AreaTarget
-                            && !(action.Target is DependsOnActionsSpentTarget ap && ap.TargetFromActionCount(action.SpentActions) is AreaTarget)
-                            && !(action.Target is DependsOnSpellVariantTarget sv && sv.CreateTargetFromVariant(action.ChosenVariant!) is AreaTarget))) {
-                            return;
-                        }
-
-                        shareHP.LogAction(qfHealOrHarm.Owner, action, action.Owner, SummonerClassEnums.InterceptKind.TARGET);
-                    },
-                    AfterYouAreTargeted = async (qfShareHP, action) => {
-                        Creature summoner = GetSummoner(qfShareHP.Owner);
-                        Creature eidolon = qfShareHP.Owner;
-
-                        if (summoner == null || eidolon == null) return;
-
-                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.TARGET);
-                    },
-                    YouAreDealtDamage = async (qfPreHazardDamage, attacker, damageStuff, defender) => {
-                        // Check if effect is coming from self
-                        if (damageStuff.Power?.Name == "SummonerClass: Share HP" || (damageStuff.Power != null && damageStuff.Power.HasTrait(tTandem))) {
-                            return null;
-                        }
-
-                        HPShareEffect shareHP = (HPShareEffect)qfPreHazardDamage.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                        if (shareHP == null) return null;
-
-                        // Check if caught by target check
-                        if (shareHP.CheckForTargetLog(damageStuff.Power!, attacker)) {
-                            return null;
-                        }
-
-                        shareHP.LogAction(qfPreHazardDamage.Owner, damageStuff.Power, attacker, SummonerClassEnums.InterceptKind.DAMAGE);
-                        return null;
-
-                        //if (attacker == qfPreHazardDamage.Owner.Battle.Pseudocreature) {
-                        //    qfPreHazardDamage.Owner.Battle.Log("{b}HAZARD DAMAGE LOGGED{/b}");
-                        //}
-                        //return null;
-                    },
-                    AfterYouTakeDamageOfKind = async (qfPostHazardDamage, action, kind) => {
-                        Creature summoner = GetSummoner(qfPostHazardDamage.Owner);
-                        Creature eidolon = qfPostHazardDamage.Owner;
-
-                        if (summoner == null || eidolon == null) return;
-
-                        await HandleHealthShare(eidolon, summoner, SummonerClassEnums.InterceptKind.DAMAGE);
-                    },
-                    AfterYouAreHealed = async (self, action, amount) => {
-                        if (self.Owner.Destroyed) {
-                            return;
-                        }
-
-                        // Check if effect is coming from self or a tandem action
-                        if (action != null && (action.Name == "SummonerClass: Share HP" || action.HasTrait(tTandem))) {
-                            return;
-                        }
-
-                        Creature eidolon = self.Owner;
-                        Creature summoner = GetSummoner(eidolon);
-
-                        HPShareEffect shareHP = (HPShareEffect)self.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-
-                        if (eidolon == null || summoner == null || shareHP == null) return;
-
-                        // Check if caught by target check
-                        if (shareHP!.CheckForTargetLog(action!, action!.Owner)) {
-                            return;
-                        }
-
-                        FlatHeal(summoner, DiceFormula.FromText($"{amount}", $"Eidolon Health Share ({action.Name})"), action);
-                    },
-                    BonusToSpellSaveDCs = qf => {
-                        if (qf.Owner.Spellcasting == null) {
-                            return null;
-                        }
-
-                        Creature summoner = GetSummoner(qf.Owner);
-
-                        if (summoner == null) return null;
-
-                        int sDC = summoner.Proficiencies.Get(Trait.Spell).ToNumber(summoner.ProficiencyLevel) + summoner.Spellcasting?.PrimarySpellcastingSource?.SpellcastingAbilityModifier ?? 0;
-                        int eDC = qf.Owner.Proficiencies.Get(Trait.Spell).ToNumber(qf.Owner.ProficiencyLevel) + qf.Owner.Spellcasting.PrimarySpellcastingSource?.SpellcastingAbilityModifier ?? 0;
-                        return new Bonus(sDC - eDC, BonusType.Untyped, "Summoner Spellcasting DC");
-                    },
-                    BonusToAttackRolls = (qf, action, target) => {
-                        if (action.HasTrait(Trait.Spell)) {
-                            if (qf.Owner.Spellcasting == null) {
-                                return null;
-                            }
-
-                            Creature summoner = GetSummoner(qf.Owner);
-
-                            if (summoner == null) return null;
-
-                            int sDC = summoner.Proficiencies.Get(Trait.Spell).ToNumber(summoner.ProficiencyLevel) + summoner.Spellcasting?.PrimarySpellcastingSource?.SpellcastingAbilityModifier ?? 0;
-                            int eDC = qf.Owner.Proficiencies.Get(Trait.Spell).ToNumber(qf.Owner.ProficiencyLevel) + qf.Owner.Spellcasting.PrimarySpellcastingSource?.SpellcastingAbilityModifier ?? 0;
-                            return new Bonus(sDC - eDC, BonusType.Untyped, "Summoner Spellcasting Attack Bonus");
-                        }
-                        return null;
-                    },
-                    EndOfAnyTurn = qfEndOfTurn => {
-                        HPShareEffect shareHP = (HPShareEffect)qfEndOfTurn.Owner.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond);
-                        if (shareHP != null) {
-                            shareHP.Reset();
-                        }
-
-                        Creature summoner = GetSummoner(qfEndOfTurn.Owner);
-                        Creature eidolon = qfEndOfTurn.Owner;
-
-                        if (summoner == null || eidolon == null || shareHP == null) return;
-
-                        // Catch unhandled hazard healing effects
-                        if (summoner.HP > eidolon.HP) {
-                            int healing = summoner.HP - eidolon.HP;
-                            FlatHeal(eidolon, DiceFormula.FromText($"{healing}"), shareHP.CA);
-                        } else if (summoner.HP < eidolon.HP) {
-                            int healing = eidolon.HP - summoner.HP;
-                            FlatHeal(summoner, DiceFormula.FromText($"{healing}"), shareHP.CA);
-                        }
-                    },
-                    AfterYouTakeAction = async (qf, action) => {
-                        Creature eidolon = qf.Owner;
-
-                        // Focus points
-                        if (action.HasTrait(Trait.Focus)) {
-                            summoner.Spellcasting?.FocusPoints = eidolon.Spellcasting?.FocusPoints ?? 0;
-                        }
-
-                        // MAP
-                        if (summoner != null && action.Traits.Contains(Trait.Attack)) {
-                            summoner.Actions.AttackedThisManyTimesThisTurn = eidolon.Actions.AttackedThisManyTimesThisTurn;
-                        }
-                    },
-                    AfterYouAcquireEffect = async (self, nQf) => {
-                        if (nQf.Id == QEffectId.Stunned) {
-                            Creature summoner = GetSummoner(self.Owner);
-                            if (summoner == null) throw new Exception("Summoner is null.");
-                            summoner.AddQEffect(nQf);
-                        }
-
-                        if (nQf.Id == QEffectId.Drained || nQf.Id == QEffectId.MummyRot) {
-                            Creature summoner = GetSummoner(self.Owner);
-                            if (summoner == null) throw new Exception("Summoner is null.");
-                            HandleDrainedSharing(self.Owner, summoner, false, true);
-                        }
-                    },
-                    WhenMonsterDies = async self => {
-                        Creature summoner = GetSummoner(self.Owner);
-                        if (summoner == null) throw new Exception("Summoner is null.");
-                        if (summoner.Alive) {
-                            self.Tag = true;
-                        }
-                    }
-                });
+            return eidolon;
         }
 
-        private async static Task PartnerActs(Creature self, Creature partner) {
+        internal async static Task PartnerActs(Creature self, Creature partner) {
             await PartnerActs(self, partner, false, null);
         }
 
-        private async static Task PartnerActs(Creature self, Creature partner, bool tandem, Func<CombatAction, string?>? limitations) {
+        internal async static Task PartnerActs(Creature self, Creature partner, bool tandem, Func<CombatAction, string?>? limitations) {
             QEffect? limitationEffect = null;
             if (limitations != null) {
                 limitationEffect = new QEffect() {
@@ -2632,8 +1882,10 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
 
             self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
 
-            if (partner.OwningFaction.IsEnemy)
-                await Task.Delay(500);
+            partner.AddQEffect(new QEffect() { Id = qfTandemTurn });
+
+            if (!partner.OwningFaction.IsControlledByHumanUser)
+                await Task.Delay(100);
             Creature oldActiveCreature = partner.Battle.ActiveCreature;
             await partner.Battle.GameLoop.StateCheck();
             partner.Battle.ActiveCreature = partner;
@@ -2708,9 +1960,11 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 partner.RemoveAllQEffects(qf => qf == limitationEffect);
             }
             oldActiveCreature = (Creature)null;
+
+            partner.RemoveAllQEffects(qf => qf.Id == qfTandemTurn);
         }
 
-        private static void HandleDrainedSharing(Creature self, Creature partner, bool isSummoner, bool onGain=false) {
+        internal static void HandleDrainedSharing(Creature self, Creature partner, bool isSummoner, bool onGain=false) {
 
             var drainVal = self.DrainedMaxHPDecrease;
             if (!isSummoner && !onGain) {
@@ -2725,7 +1979,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             }
         }
 
-        private static void HealthShareSafetyCheck(Creature self, Creature partner) {
+        internal static void HealthShareSafetyCheck(Creature self, Creature partner) {
             if (self.MaxHPMinusDrained - self.Damage < partner.MaxHPMinusDrained - partner.Damage) {
                 FlatHeal(self, DiceFormula.FromText($"{(partner.MaxHPMinusDrained - partner.Damage) - (self.MaxHPMinusDrained - self.Damage)}", "Eidolon Health Share (failsafe)"), null);
             } else if (self.MaxHPMinusDrained - self.Damage > partner.MaxHPMinusDrained - partner.Damage) {
@@ -2733,7 +1987,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             }
         }
 
-        private async static Task HandleHealthShare(Creature self, Creature partner, SummonerClassEnums.InterceptKind interceptKind, string? actionName = null) {
+        internal async static Task HandleHealthShare(Creature self, Creature partner, SummonerClassEnums.InterceptKind interceptKind, string? actionName = null) {
             var summoner = partner.HasTrait(Enums.tEidolon) ? self : partner;
 
             HPShareEffect selfShareHP = (HPShareEffect)self.QEffects.FirstOrDefault(qf => qf.Id == qfSummonerBond && qf.Source == partner);
@@ -2953,7 +2207,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                 return tandemStrike;
             }
 
-        private static Possibility? GenerateTandemMovementAction(Creature self, Creature partner, Creature summoner) {
+        internal static Possibility? GenerateTandemMovementAction(Creature self, Creature partner, Creature summoner) {
             if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
                 return null;
             if (self.QEffects.Any(qf => qf.Name == "Tandem Movement Toggled")) {
@@ -3017,23 +2271,22 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             }
         }
 
-        private static Possibility? GenerateActTogetherAction(Creature self, Creature partner, Creature summoner) {
-            if (partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
-                return (Possibility)null;
+        internal static Possibility? GenerateActTogetherAction(Creature self, Creature partner, Creature summoner, bool limited=false) {
+
+            if (self.HasEffect(qfActTogetherUsedUp) || partner == null || !partner.Actions.CanTakeActions() || self.QEffects.FirstOrDefault(qf => qf.Id == qfActTogether) != null)
+                return null;
             if (self.QEffects.Any(qf => qf.Name == "Act Together Toggled")) {
-                Possibility output = (Possibility)(ActionPossibility)new CombatAction(self, new SideBySideIllustration(illActTogether, illCancel), "Cancel Act Together",
+                return (ActionPossibility)new CombatAction(self, new SideBySideIllustration(illActTogether, illCancel), "Cancel Act Together",
                 new Trait[] { tSummoner, tTandem }, $"Cancel act together toggle.", Target.Self())
-                .WithActionCost(0).WithEffectOnSelf(self => {
+                .WithActionCost(0)
+                .WithEffectOnSelf(self => {
                     // Remove toggle from self
                     self.RemoveAllQEffects(qf => qf.Id == qfActTogetherToggle);
                 });
-
-                //output.WithPossibilityGroup("Tandem Actions");
-                return output;
             } else {
                 Possibility actTogether = (ActionPossibility)new CombatAction(self, illActTogether, "Enable Act Together",
                 new Trait[] { tSummoner, tTandem, Trait.Basic },
-                "{b}Frequency: {/b} once per round\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action.",
+                $"{{b}}Frequency: {{/b}} once per {(limited ? "encounter" : "round")}\n\n" + (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action.",
                 Target.Self()) {
                     ShortDescription = (self == summoner ? "Your" : "Your eidolon's") + " next action grants " + (self == summoner ? "your eidolon" : "you") + " an immediate bonus tandem turn, where " + (self == summoner ? "they" : "you") + " they can make a single action."
                 }
@@ -3078,6 +2331,10 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                                     }
                                 };
                                 partner.AddQEffect(actTogether);
+                                if (limited) {
+                                    self.AddQEffect(new QEffect() { Id = qfActTogetherUsedUp });
+                                    partner.AddQEffect(new QEffect() { Id = qfActTogetherUsedUp });
+                                }
                             }
                         }});
                     });
@@ -3258,7 +2515,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             return num2 + num / 2f;
         }
 
-        private static void FlatHeal(Creature target, DiceFormula diceFormula, CombatAction? action=null) {
+        internal static void FlatHeal(Creature target, DiceFormula diceFormula, CombatAction? action=null) {
             if (target.FindQEffect(QEffectId.OutOfCombat) is { } outOfCombat && (outOfCombat.Tag is not bool allowHealing || !allowHealing)) return;
             if (target.HasTrait(Trait.AttackableShell)) return;
 
@@ -3332,6 +2589,69 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                     eidolon.Traits.Add(Trait.Colossal8);
                     break;
             }
+        }
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public class EidolonCreatureTargetingRequirement : CreatureTargetingRequirement {
+        public QEffectId qfEidolon { get; }
+
+        public EidolonCreatureTargetingRequirement(QEffectId qf) {
+            this.qfEidolon = qf;
+        }
+
+        public override Usability Satisfied(Creature source, Creature target) {
+            return target.QEffects.FirstOrDefault(qf => qf.Id == this.qfEidolon && qf.Source == source) != null ? Usability.Usable : Usability.NotUsableOnThisCreature("This ability can only be used on your eidolon.");
+        }
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public class SelectFeySpells : AddToSpellRepertoireOption {
+
+        private bool allowCantrips;
+
+        public SelectFeySpells(string key, string name, int level, Trait classRepertoire, int maxSpellLevel, int maximumNumberOfSpells, bool allowCantrips = false) : base(key, name, level, classRepertoire, Trait.Primal, maxSpellLevel, maximumNumberOfSpells) {
+            this.allowCantrips = allowCantrips;
+        }
+
+        // What spells are shown as optional
+        public override bool Eligible(CalculatedCharacterSheetValues values, Spell spell) {
+            Trait[] allowedTraits = new Trait[] { Trait.Illusion, Trait.Enchantment, Trait.Mental };
+            List<Trait> traits = spell.Traits.ToList().Where(t => allowedTraits.Contains(t)).ToList();
+
+            if ((!spell.HasTrait(Trait.Primal) && !(traits.Count > 0 && spell.HasTrait(Trait.Arcane))) || spell.HasTrait(Trait.SpellCannotBeChosenInCharacterBuilder) || (spell.HasTrait(Trait.Cantrip) && !allowCantrips))
+                return false;
+            if (allowCantrips && spell.HasTrait(Trait.Cantrip)) {
+                return true;
+            } else if (allowCantrips && !spell.HasTrait(Trait.Cantrip)) {
+                return false;
+            }
+            return this.MaximumSpellLevel >= 1 && spell.MinimumSpellLevel <= this.MaximumSpellLevel && !spell.HasTrait(Trait.Cantrip);
+        }
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public class SelectArsonSpells : AddToSpellRepertoireOption {
+
+        private bool allowCantrips;
+
+        public SelectArsonSpells(string key, string name, int level, Trait classRepertoire, int maxSpellLevel, int maximumNumberOfSpells, bool allowCantrips = false) : base(key, name, level, classRepertoire, Trait.Divine, maxSpellLevel, maximumNumberOfSpells) {
+            this.allowCantrips = allowCantrips;
+        }
+
+        // What spells are shown as optional
+        public override bool Eligible(CalculatedCharacterSheetValues values, Spell spell) {
+            Trait[] allowedTraits = [Trait.Fire];
+            List<Trait> traits = spell.Traits.ToList().Where(t => allowedTraits.Contains(t)).ToList();
+
+            if ((!spell.HasTrait(Trait.Divine) && !(traits.Count > 0 && spell.HasTrait(Trait.Arcane))) || spell.HasTrait(Trait.Abjuration) || spell.HasTrait(Trait.SpellCannotBeChosenInCharacterBuilder) || (spell.HasTrait(Trait.Cantrip) && !allowCantrips))
+                return false;
+            if (allowCantrips && spell.HasTrait(Trait.Cantrip)) {
+                return true;
+            } else if (allowCantrips && !spell.HasTrait(Trait.Cantrip)) {
+                return false;
+            }
+            return this.MaximumSpellLevel >= 1 && spell.MinimumSpellLevel <= this.MaximumSpellLevel && !spell.HasTrait(Trait.Cantrip);
         }
     }
 }

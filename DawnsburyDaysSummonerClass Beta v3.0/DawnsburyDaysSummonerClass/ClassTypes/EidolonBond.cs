@@ -24,6 +24,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         public List<Trait> eidolonTraits = new List<Trait>();
         public string ActionText { get; set; } = "";
         public string AbilityText { get; set; } = "";
+        public Trait spellList { get; private set; } = Trait.Arcane;
         public Action<Creature, Creature>? ClassFeatures { get; set; }
 
         public EidolonBond WithActionText(string text) {
@@ -44,31 +45,42 @@ namespace Dawnsbury.Mods.Classes.Summoner {
             return this;
         }
 
-        public EidolonBond(FeatName featName, string flavourText, string rulesText, Trait spellList, List<FeatName> skills, Func<Feat, bool> alignmentOptions, List<Trait> traits, List<Trait> eidolonTraits, List<Feat>? subfeats) : base(featName, flavourText, rulesText, traits.Concat(new List<Trait>() { Enums.tSummonerSubclass }).ToList(), subfeats) {
+        public EidolonBond(FeatName featName, string flavourText, string rulesText, Trait spellList, Skill[] skills, Func<Feat, bool> alignmentOptions, List<Trait> traits, List<Trait> eidolonTraits, List<Feat>? subfeats) : base(featName, flavourText, rulesText, traits.Concat(new List<Trait>() { Enums.tSummonerSubclass }).ToList(), subfeats) {
             Init(spellList, skills, alignmentOptions, eidolonTraits);
         }
 
-        public EidolonBond(FeatName featName, string flavourText, string rulesText, Trait spellList, List<FeatName> skills, Func<Feat, bool> alignmentOptions, List<Trait> eidolonTraits) : base(featName, flavourText, rulesText, new List<Trait>() { Enums.tSummonerSubclass }, null) {
+        public EidolonBond(FeatName featName, string flavourText, string rulesText, Trait spellList, Skill[] skills, Func<Feat, bool> alignmentOptions, List<Trait> eidolonTraits) : base(featName, flavourText, rulesText, new List<Trait>() { Enums.tSummonerSubclass }, null) {
             Init(spellList, skills, alignmentOptions, eidolonTraits);
         }
 
-        private void Init(Trait spellList, List<FeatName> skills, Func<Feat, bool> alignmentOptions, List<Trait> eidolonTraits) {
+        private void Init(Trait spellList, Skill[] skills, Func<Feat, bool> alignmentOptions, List<Trait> eidolonTraits) {
+            this.spellList = spellList;
             this.OnSheet = sheet => {
+                var fullClass = sheet.HasFeat(classSummoner);
+
                 this.eidolonTraits = eidolonTraits;
                 Feat[] alignments = AllFeats.All.Where(alignmentOptions).ToArray();
                 if (alignments.Count() == 1) {
                     sheet.GrantFeat(alignments[0].FeatName);
                 } else {
-                    sheet.AddSelectionOption((SelectionOption)new SingleFeatSelectionOption("EidolonAlignment", "Eidolon Alignment", 1, alignmentOptions));
+                    sheet.AddSelectionOptionRightNow(new SingleFeatSelectionOption("EidolonAlignment", "Eidolon Alignment", 1, alignmentOptions));
                 }
                 sheet.SpellTraditionsKnown.Add(spellList);
                 sheet.SpellRepertoires.Add(Enums.tSummoner, new SpellRepertoire(Ability.Charisma, spellList));
                 sheet.SetProficiency(Trait.Spell, Proficiency.Trained);
-                foreach (FeatName skill in skills) {
-                    sheet.GrantFeat(skill);
+                foreach (Skill skill in skills) {
+                    sheet.TrainInThisOrSubstitute(skill);
                 }
+
+                if (!fullClass && PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_ImprovedArchetype")) {
+                    sheet.AddFeat(AllFeats.GetFeatByFeatName(ftInitialEidolonAbility), null);
+                }
+
+                if (!fullClass) return;
+
                 if (this.FeatName == Enums.scFeyEidolon)
                     sheet.AddFeat(AllFeats.All.FirstOrDefault(ft => ft.FeatName == Enums.ftMagicalUnderstudy)!, null);
+
                 SpellRepertoire repertoire = sheet.SpellRepertoires[Enums.tSummoner];
                 if (this.FeatName == Enums.scFeyEidolon) {
                     sheet.AddSelectionOption((SelectionOption)new SelectFeySpells("SummonerCantrips", "Cantrips", 1, Enums.tSummoner, 0, 5, true));
@@ -151,30 +163,33 @@ namespace Dawnsbury.Mods.Classes.Summoner {
                 repertoire.SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(SummonerClassLoader.spells[SummonerSpellId.EidolonBoost], Enums.tSummoner, sheet.MaximumSpellLevel));
             };
             this.OnCreature = (sheet, creature) => {
-                // Signature-afy spells
-                SpellRepertoire repertoire = sheet.SpellRepertoires[Enums.tSummoner];
-                List<Spell> spells = repertoire.SpellsKnown.Where(spell => spell.HasTrait(Trait.Cantrip) == false).ToList();
+                if (!sheet.SpellRepertoires.TryGetValue(tSummoner, out var repertoire)) return;
 
-                if (spells.Count() > 5) {
-                    return;
-                }
+                if (sheet.HasFeat(classSummoner)) {
+                    // Signature-afy spells
+                    List<Spell> spells = repertoire.SpellsKnown.Where(spell => spell.HasTrait(Trait.Cantrip) == false).ToList();
 
-                if (!PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_PsychicSpellProgression")) {
-                    for (int i = 0; i < spells.Count(); i++) {
-                        for (int spellLvl = spells[i].MinimumSpellLevel; spellLvl < 10; spellLvl++) {
-                            if (spells.FirstOrDefault(s => s.SpellId == spells[i].SpellId && s.SpellLevel == spellLvl) == null) {
-                                repertoire.SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(spells[i].SpellId, Enums.tSummoner, spellLvl));
+                    if (spells.Count() > 5) {
+                        return;
+                    }
+
+                    if (!PlayerProfile.Instance.IsBooleanOptionEnabled("Summoner_PsychicSpellProgression")) {
+                        for (int i = 0; i < spells.Count(); i++) {
+                            for (int spellLvl = spells[i].MinimumSpellLevel; spellLvl < 10; spellLvl++) {
+                                if (spells.FirstOrDefault(s => s.SpellId == spells[i].SpellId && s.SpellLevel == spellLvl) == null) {
+                                    repertoire.SpellsKnown.Add(AllSpells.CreateModernSpellTemplate(spells[i].SpellId, Enums.tSummoner, spellLvl));
+                                }
                             }
                         }
                     }
                 }
-                if (sheet.HasFeat(Enums.ftAbundantSpellcasting1)) {
+                if (sheet.HasFeat(ftAbundantSpellcasting1)) {
                     Spell spell = TraditionToSpell(sheet.SpellRepertoires[Enums.tSummoner].SpellList, 1);
                     if (repertoire.SpellsKnown.FirstOrDefault(s => s.SpellId == spell.SpellId && s.SpellLevel == spell.SpellLevel) == null) {
                         repertoire.SpellsKnown.Add(spell);
                     }
                 }
-                if (sheet.HasFeat(Enums.ftAbundantSpellcasting4)) {
+                if (sheet.HasFeat(ftAbundantSpellcasting4)) {
                     Spell spell = TraditionToSpell(sheet.SpellRepertoires[Enums.tSummoner].SpellList, 2);
                     var test = repertoire.SpellsKnown;
                     if (repertoire.SpellsKnown.FirstOrDefault(s => s.SpellId == spell.SpellId && s.SpellLevel == spell.SpellLevel) == null) {
