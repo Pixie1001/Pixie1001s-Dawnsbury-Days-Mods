@@ -1,59 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dawnsbury.Core;
+﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
-using Dawnsbury.Phases.Menus;
-using Dawnsbury.Phases.Menus.StoryMode;
-using HarmonyLib;
+using Dawnsbury.Core;
 using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.CharacterBuilder.Library;
+using Dawnsbury.Core.CharacterBuilder.Spellcasting;
+using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Coroutines.Options;
+using Dawnsbury.Core.Creatures;
+using Dawnsbury.Core.Intelligence;
+using Dawnsbury.Core.Mechanics;
+using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Rules;
-using System.Data;
-using System.Runtime.CompilerServices;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Mechanics;
-using static Dawnsbury.Core.Mechanics.Rules.RunestoneRules;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Phases.Ingame;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using Dawnsbury.Display;
-using Dawnsbury.Audio;
-using Dawnsbury.Phases.Popups;
-using System.Reflection;
-using Dawnsbury.Display.Text;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using System.Runtime.Intrinsics.Arm;
-using System.Text.Json;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.IO;
-using Dawnsbury.Phases.Menus.CampaignViews;
-using System.IO;
-using Dawnsbury.Display.Controls.Listbox;
-using Dawnsbury.Display.Controls;
-using Dawnsbury.Core.Coroutines.Options;
-using static System.Net.Mime.MediaTypeNames;
-using Dawnsbury.Campaign.LongTerm;
-using Dawnsbury.Core.Mechanics.Core;
-using Dawnsbury.Core.CombatActions;
+using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.Intelligence;
-using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Core.StatBlocks;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
 using Dawnsbury.Core.StatBlocks.Monsters.L5;
+using Dawnsbury.Core.Tiles;
+using Dawnsbury.Display;
+using Dawnsbury.Display.Controls;
+using Dawnsbury.Display.Controls.Listbox;
+using Dawnsbury.Display.DragAndDrop;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Display.Text;
+using Dawnsbury.IO;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
+using Dawnsbury.Phases.Ingame;
+using Dawnsbury.Phases.Menus;
+using Dawnsbury.Phases.Menus.CampaignViews;
+using Dawnsbury.Phases.Menus.StoryMode;
+using Dawnsbury.Phases.Popups;
+using HarmonyLib;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics.Arm;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using static Dawnsbury.Core.Mechanics.Rules.RunestoneRules;
+using static System.Collections.Specialized.BitVector32;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
 {
@@ -503,11 +510,117 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
             if (item != null && item.HasTrait(ModTraits.Wand)) {
                 __result = false;
                 foreach (Trait trait in __instance.Calculated.SpellTraditionsKnown) {
+                    var spellId = item.ItemModifications.FirstOrDefault(mod => mod.SpellId != SpellId.None && mod.Tag != null)?.SpellId ?? SpellId.None;
+
                     if (item.HasTrait(trait)) {
+                        __result = true;
+                    }
+
+                    if (__instance.Calculated.PreparedSpells.GetValueOrDefault(Trait.Cleric)?.AdditionalPreparableSpells.Contains(spellId) ?? false) {
+                        __result = true;
+                    }
+
+                    if (__instance.Calculated.PreparedSpells.Any(kvp => kvp.Value.AdditionalPreparableSpells.Contains(spellId))) {
+                        __result = true;
+                    }
+
+                    if (__instance.Calculated.SpellRepertoires.Any(repertoire => repertoire.Value.AdditionalSpellsAllowed.Contains(spellId))) {
+                        __result = true;
+                    }
+
+                    if (__instance.Calculated.KineticistChoices.KineticActivation && (item.Traits.ContainsOneOf(__instance.Calculated.KineticistChoices.Elements) || item.Traits.Contains(Trait.Elementalist))) {
                         __result = true;
                     }
                 }
             }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(RulesBlock), "DetermineUsability")]
+        private static void DetermineUsabilityPatch(ref string __result, Item? item) {
+            if (item != null && item.HasTrait(ModTraits.Wand)) {
+                List<CharacterSheet> characters = MouseOver.InventoryStyle switch {
+                    InventoryStyle.None => [],
+                    InventoryStyle.CampaignParty => CampaignState.Instance?.Heroes.Select(hero => hero.CharacterSheet).WhereNotNull().ToList() ?? [],
+                    InventoryStyle.RandomModeParty => CharacterLibrary.Instance.SelectedRandomEncounterParty.WhereNotNull().ToList(),
+                    InventoryStyle.SingleCharacter => MouseOver.InventorySingleCharacter != null ? [MouseOver.InventorySingleCharacter] : new List<CharacterSheet>(),
+                    _ => throw new Exception("Unknown inventory style")
+                };
+                List<CharacterSheet> proficients = characters.Where(cr => cr != null && cr.CanUse(item)).ToList();
+                List<CharacterSheet> others = characters.Except(proficients).ToList();
+
+                var spellId = item.ItemModifications.FirstOrDefault(mod => mod.SpellId != SpellId.None && mod.Tag != null)?.SpellId ?? SpellId.None;
+                if (spellId == SpellId.None) return;
+                var spell = AllSpells.TemplateSpells.GetValueOrDefault(spellId);
+                if (spell == null) return;
+
+                // if (proficients.Any()) __result += "\n{icon:SealYes} Can use: {b}" + string.Join(", ", proficients.Select(sheet => sheet.Name)) + "{/b}";
+                var trickMagicItemCharacters = others.Where(sheet => spell.CombatActionSpell.ActionCost != 3 && spell.CombatActionSpell.ActionCost != Constants.ACTION_COST_REACTION && sheet.Calculated.AllFeatNames.Contains(FeatName.TrickMagicItem)).ToList();
+                var nonTrickMagicItemCharacters = others.Except(trickMagicItemCharacters).ToList();
+                if (trickMagicItemCharacters.Any()) __result += "\n{icon:TrickMagicItemRequired} With Trick Magic Item only: {b}" + string.Join(", ", trickMagicItemCharacters.Select(sheet => sheet.Name)) + "{/b}";
+                if (nonTrickMagicItemCharacters.Any()) __result += "\n{icon:BadScroll} Cannot use: {b}" + string.Join(", ", nonTrickMagicItemCharacters.Select(sheet => sheet.Name)) + "{/b}";
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(CharacterInventoryControl), "DrawSlot")]
+        private static bool DrawSlotPrePatch(Rectangle rectangle, InventoryItemSlot itemSlot, string textIfEmpty, Action<Item>? onUpdate) {
+            if (itemSlot.IsUsableInMenu) return true;
+
+            var item = itemSlot.Item;
+            if (item == null) return true;
+            var spellId = item.ItemModifications.FirstOrDefault(mod => mod.SpellId != SpellId.None && mod.Tag != null)?.SpellId ?? SpellId.None;
+            if (spellId == SpellId.None) return true;
+            var spell = AllSpells.TemplateSpells.GetValueOrDefault(spellId);
+            if (spell == null) return true;
+
+            if (item.HasTrait(ModTraits.Wand)) {
+                // Handle mouse over
+                bool mo = Root.IsMouseOverNative(rectangle);
+                if (mo) {
+                    DragAndDrop.MouseOverDragReceptacle = new ItemSlotReceptacle(itemSlot, onUpdate);
+                }
+
+                if (mo) {
+                    InventoryContextMenu.MouseOver(itemSlot, item, itemSlot.CharacterSheet?.Inventory);
+                }
+
+                if (mo) {
+                    MouseOver.MouseOverItem = item;
+                    DragAndDrop.MouseOverDraggableItem = new InventoryItemDraggableItem(itemSlot);
+                }
+                Primitives.DrawAndFillRectangleNative(rectangle, mo ? ColorScheme.Instance.General_Background_Lighter1 : ColorScheme.Instance.General_Background, Color.Black);
+                var rectText = new Rectangle(rectangle.X + 1, rectangle.Bottom - rectangle.Height * 1 / 4 - 1, rectangle.Width - 2, rectangle.Height * 1 / 4);
+                var rectIcon = new Rectangle(rectangle.X + 1, rectangle.Y + 2, rectangle.Width - 2, rectangle.Height - rectText.Height - 2);
+                int alpha = DragAndDrop.DraggedItem?.ItemFromSlot?.Item == item ? 150 : 255;
+                Primitives.DrawImageNative(item.Illustration, rectIcon, (itemSlot.IsUsableInMenu ? Color.White : Color.LightPink).Alpha(alpha), scale: true);
+                var totalSubitemCount = item.Runes.Count + item.StoredItems.Count;
+
+                var illustration = IllustrationName.None;
+                var tooltip = "";
+
+                if (itemSlot.CharacterSheet != null
+                    && itemSlot.CharacterSheet.Calculated.AllFeatNames.Contains(FeatName.TrickMagicItem)
+                    && spell.CombatActionSpell.ActionCost != 3
+                    && spell.CombatActionSpell.ActionCost != Constants.ACTION_COST_REACTION) {
+                    illustration = IllustrationName.TrickMagicItemRequired;
+                    tooltip = "This spell is not on your spell list, so you need to use Trick Magic Item to cast from this scroll. That cost an extra {icon:Action}action and has a chance to fail. {i}(The scroll is not expended if you fail.){/i}";
+                } else {
+                    illustration = IllustrationName.BadScroll;
+                    tooltip = "This spell is not on your spell list, so you can't cast it. {i}(You could take the Trick Magic Item general feat to cast spells like this from scrolls.){/i}";
+                }
+
+                var rectBad = new Rectangle(rectIcon.X, rectIcon.Y, rectIcon.Width / 2, rectIcon.Height / 2);
+                Primitives.DrawImageNative(Assets.TextureFromName(illustration),
+                    rectBad, Color.White.Alpha(alpha), scale: true);
+                if (Root.IsMouseOverNative(rectBad)) {
+                    Tooltip.DrawTooltipAround(rectBad, tooltip);
+                }
+                Writer.DrawStringNative(item.Name, rectText, alignment: Writer.TextAlignment.Middle, color: Color.Black.Alpha(alpha), font: BitmapFontGroup.Mia32Font);
+
+                return false;
+            }
+            return true;
         }
 
         [HarmonyPostfix]

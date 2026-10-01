@@ -1831,7 +1831,7 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
             int perception = wisdom + (int)summoner.Proficiencies.Get(Trait.Perception) + level;
             int speed1 = 5;
             var acProf = (level >= 11 && !archetype) || (summoner.HasFeat(ftExpertCombatEidolon) && summoner.Proficiencies.Get(Trait.UnarmoredDefense) >= Proficiency.Expert) ? expert : trained;
-            Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + acProf, constitution + (int)summoner.Proficiencies.Get(Trait.Fortitude), dexterity + (int)summoner.Proficiencies.Get(Trait.Reflex), wisdom + (int)summoner.Proficiencies.Get(Trait.Will));
+            Defenses defenses = new Defenses(10 + ac + (dexterity < dexCap ? dexterity : dexCap) + acProf, constitution + (int)summoner.Proficiencies.Get(Trait.Fortitude) + level, dexterity + (int)summoner.Proficiencies.Get(Trait.Reflex) + level, wisdom + (int)summoner.Proficiencies.Get(Trait.Will) + level);
             int hp = summoner.MaxHP;
             Trait[] skillTraits = [Trait.Acrobatics, Trait.Arcana, Trait.Athletics, Trait.Crafting, Trait.Deception, Trait.Diplomacy, Trait.Intimidation,
                 Trait.Medicine, Trait.Nature, Trait.Occultism, Trait.Performance, Trait.Religion, Trait.Society, Trait.Stealth, Trait.Survival, Trait.Thievery];
@@ -2314,10 +2314,12 @@ Your eidolon deals {dmg} piercing damage (basic Fortitude save against your spel
                                 }
 
                                 self.AddQEffect(new QEffect {
+                                    Id = qfActTogetherUsedThisRound,
                                     PreventTakingAction = action => action.Name == "Enable Act Together" ? "Act together already used this round" : null,
                                     ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
                                 });
                                 partner.AddQEffect(new QEffect {
+                                    Id = qfActTogetherUsedThisRound,
                                     PreventTakingAction = action => action.Name == "Enable Act Together" ? "Act together already used this round" : null,
                                     ExpiresAt = ExpirationCondition.ExpiresAtStartOfYourTurn
                                 });

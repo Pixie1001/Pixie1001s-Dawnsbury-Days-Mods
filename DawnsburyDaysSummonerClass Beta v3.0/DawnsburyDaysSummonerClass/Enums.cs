@@ -215,6 +215,7 @@ namespace Dawnsbury.Mods.Classes.Summoner {
         internal static QEffectId qfImmuneToUnsettlingMovement = ModManager.RegisterEnumMember<QEffectId>("Summoner_ImmuneToUnsettlingMovement");
         internal static QEffectId qfTandemTurn = ModManager.RegisterEnumMember<QEffectId>("Summoner_TandemTurn");
         internal static QEffectId qfActTogetherUsedUp = ModManager.RegisterEnumMember<QEffectId>("Summoner_qfActTogetherUsedUp");
+        internal static QEffectId qfActTogetherUsedThisRound = ModManager.RegisterEnumMember<QEffectId>("Summoner_qfActTogetherUsedThisRound");
 
         // Actions
         internal static ActionId acCelestialPassion = ModManager.RegisterEnumMember<ActionId>("CelestialPassion");

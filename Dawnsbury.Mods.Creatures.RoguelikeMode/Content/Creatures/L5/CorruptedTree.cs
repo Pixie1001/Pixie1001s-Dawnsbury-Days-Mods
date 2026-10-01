@@ -21,8 +21,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 "Corrupted Tree",
                 [Trait.Plant, Trait.Evil, Trait.Chaotic],
                 5, 15, 0,
-                new Defenses(19, 16, 8, 12),
-                60,
+                new Defenses(18, 16, 8, 12),
+                65,
                 new Abilities(5, 0, 4, -1, 2, 0),
                 new Skills(nature: 13, stealth: 13))
             .WithCharacteristics(false, false)
@@ -82,7 +82,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 [Trait.Plant, Trait.Evil, Trait.Chaotic],
                 1, 10, 6,
                 new Defenses(16, 10, 7, 4),
-                12,
+                10,
                 new Abilities(4, 1, 3, -5, 2, 0),
                 new Skills(athletics: 7, stealth: 4))
             .WithCharacteristics(false, false)
@@ -100,10 +100,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
             if (owner.HasEffect(QEffectId.Weak))
             {
                 creature.ApplyWeakAdjustments(true);
+                creature.MaxHP = 8;
             }
             else if (owner.HasEffect(QEffectId.Elite))
             {
                 creature.ApplyEliteAdjustments();
+                creature.MaxHP = 10;
             }
 
             owner.AddQEffect(new()

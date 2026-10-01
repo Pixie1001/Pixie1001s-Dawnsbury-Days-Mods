@@ -3038,9 +3038,9 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                                             return null;
                                         }
 
-                                        if (!wandHolder.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(wand.Traits)) {
-                                            return null;
-                                        }
+                                        //if (!wandHolder.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(wand.Traits) && wandHolder.Spellcasting) {
+                                        //    return null;
+                                        //}
 
                                         Spell spell = (Spell)item.ItemModifications.FirstOrDefault(mod => mod.Kind == ItemModificationKind.CustomPermanent && mod.Tag != null && mod.Tag is Spell)?.Tag;
                                         spell = spell?.Duplicate(wandHolder, spell.SpellLevel, true);
@@ -3048,6 +3048,8 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                                         if (spell == null) {
                                             return null;
                                         }
+
+                                        spell = new ScrollProperties(spell).CreateReadySpell(wandHolder, wand);
 
                                         Possibility spellPossibility = Possibilities.CreateSpellPossibility(spell.CombatActionSpell);
                                         spellPossibility.PossibilitySize = PossibilitySize.Full;
@@ -3078,7 +3080,7 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                                                 }
                                                 action.Owner = wandHolder;
                                                 action.Item = wand;
-                                                action.SpellcastingSource = wandHolder.Spellcasting?.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
+                                                action.SpellcastingSource = spell.CombatActionSpell.SpellcastingSource; //wandHolder.Spellcasting?.Sources.FirstOrDefault(source => action.Traits.Contains(source.SpellcastingTradition));
 
                                                 if (used != null && used.Tag != (object)true) {
                                                     if (firstLoop) {
@@ -3132,15 +3134,15 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
             }
 
             ItemModification mod = new ItemModification(ItemModificationKind.CustomPermanent) {
-                Tag = baseSpell.Duplicate(null, (int)level, true)
-                //SpellId = spellId,
+                Tag = baseSpell.Duplicate(null, (int)level, true),
+                SpellId = spellId,
                 //HeightenedToSpellLevel = baseSpell.Duplicate(null, (int)level, true).SpellLevel
             };
 
             List<Trait> traits = new List<Trait> { ModTraits.Wand, Trait.Magical, Trait.Unarmed, Trait.Melee, Trait.SpecificMagicWeapon, ModTraits.Roguelike };
 
             foreach (Trait trait in baseSpell.Traits) {
-                if (new Trait[] { Trait.Divine, Trait.Occult, Trait.Arcane, Trait.Primal, Trait.Elemental }.Contains(trait)) {
+                if (new Trait[] { Trait.Divine, Trait.Occult, Trait.Arcane, Trait.Primal, Trait.Elemental, Trait.Elementalist }.Contains(trait) || trait.GetTraitProperties().IsElementTrait) {
                     traits.Add(trait);
                 }
             }

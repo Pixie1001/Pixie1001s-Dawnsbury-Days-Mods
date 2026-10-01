@@ -542,16 +542,17 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             output.FeatGroup = Military;
             yield return output;
 
+            var boosts = new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() };
             output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Labourer"),
                 "You've spent years performing arduous physical labor, perhaps as penance for your crimes or as part of the efforts to rebuild after the Night of the Shooting Stars. " +
                 "You may have embraced adventuring as an easier method to make your way in the world, or to use the fruits of your difficult lifestyle for a greater purpose.",
-                "You're trained in {b}Athletics{/b}. You gain the {b}Hefty Hauler{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Strength, Ability.Constitution), new FreeAbilityBoost() })
+                "You're trained in {b}Athletics{/b}. You gain the {b}Hefty Hauler{/b} feat.", boosts)
             .WithOnSheet(sheet =>
             {
                 sheet.GrantFeat(FeatName.Athletics);
             });
 
-            HandleOptionalAssurance(output, Skill.Athletics, FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER]);
+            HandleOptionalAssurance(output, boosts, Skill.Athletics, FeatNames.feats[FeatNames.FeatId.HEFTY_HAULER]);
 
             output.FeatGroup = Trade;
             yield return output;
@@ -694,15 +695,16 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             output.FeatGroup = Trade;
             yield return output;
 
+            boosts = new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Intelligence), new FreeAbilityBoost() };
             output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Hermit"),
                 "In an isolated place—like a cave, remote oasis, or secluded mansion—you lived a life of solitude. Adventuring might represent your first foray out among other people in some time. " +
                 "This might be a welcome reprieve from solitude or an unwanted change, but in either case, you're likely still rough around the edges.",
-                "You're trained in {b}Nature{/b}. You gain the {b}Fount of Knowledge{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Constitution, Ability.Intelligence), new FreeAbilityBoost() })
+                "You're trained in {b}Nature{/b}. You gain the {b}Fount of Knowledge{/b} feat.", boosts)
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Nature);
             });
 
-            HandleOptionalAssurance(output, Skill.Nature, FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
+            HandleOptionalAssurance(output, boosts, Skill.Nature, FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
 
             output.FeatGroup = Intellectual;
             yield return output;
@@ -1125,15 +1127,16 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             output.FeatGroup = Trade;
             yield return output;
 
+            boosts = new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Wisdom), new FreeAbilityBoost() };
             output = new BackgroundSelectionFeat(ModManager.RegisterFeatName("Academic"),
                 "You have a knack for learning, and sequestered yourself from the outside world to learn all you could. You read about so many wondrous places and things in your books, and always dreamed about one day seeing the real things. " +
                 "Eventually, that curiosity led you to leave your studies and become an adventurer.",
-                "You're trained in {b}Arcana{/b}. You gain the {b}Fount of Knowledge{/b} feat.", new List<AbilityBoost>() { new LimitedAbilityBoost(Ability.Intelligence, Ability.Wisdom), new FreeAbilityBoost() })
+                "You're trained in {b}Arcana{/b}. You gain the {b}Fount of Knowledge{/b} feat.", boosts)
             .WithOnSheet(sheet => {
                 sheet.GrantFeat(FeatName.Arcana);
             });
 
-            HandleOptionalAssurance(output, Skill.Arcana, FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
+            HandleOptionalAssurance(output, boosts, Skill.Arcana, FeatNames.feats[FeatNames.FeatId.FOUNT_OF_KNOWLEDGE]);
 
             output.FeatGroup = Intellectual;
             yield return output;
@@ -1552,7 +1555,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
             return new Item[] { dragonwhisky, rotgut, berserkersBrew }[R.Next(0, 3)];
         }
 
-        internal static void HandleOptionalAssurance(Feat bg, Skill skill, FeatName defaultFeat) {
+        internal static void HandleOptionalAssurance(Feat bg, List<AbilityBoost> abilityBoosts, Skill skill, FeatName defaultFeat) {
             if (ModManager.TryParse("Assurance", out FeatName assuranceMain) && ModManager.TryParse("Assurance - " + skill.ToStringOrTechnical(), out FeatName assuranceSub))
             {
                 var assuranceShell = new TrueFeat(ModManager.RegisterFeatName($"BoB_{bg.FeatName}_Assurance", $"Assurance ({skill.HumanizeTitleCase2()})"), 1, "", "", [])
@@ -1560,7 +1563,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                         sheet.GrantFeat(assuranceMain, assuranceSub);
                     });
                 ModManager.AddFeat(assuranceShell);
-                bg.RulesText = $"You're trained in {{b}}{skill.HumanizeTitleCase2()}{{/b}}. You gain the {{b}}{defaultFeat.HumanizeTitleCase2()}{{/b}} or {{b}}Assurance ({skill.HumanizeTitleCase2()}){{/b}} feat.";
+                bg.RulesText = "You receive two ability boosts: {b}" + string.Join(", ", abilityBoosts) + ".{/b}\n\n" + $"You're trained in {{b}}{skill.HumanizeTitleCase2()}{{/b}}. You gain the {{b}}{defaultFeat.HumanizeTitleCase2()}{{/b}} or {{b}}Assurance ({skill.HumanizeTitleCase2()}){{/b}} feat.";
                 bg.OnSheet += sheet => {
                     var assuranceFeat2 = AllFeats.GetFeatByFeatNameOptional(assuranceSub);
                     assuranceShell.FlavorText = assuranceFeat2?.FlavorText;

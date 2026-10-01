@@ -973,7 +973,7 @@ You brandish your holy symbol, preventing vampires from willingly moving within 
             };
         }
 
-        public static QEffect Counterattack(string weaponName=null, string name = "Counterattack") {
+        public static QEffect Counterattack(string? weaponName=null, string name = "Counterattack") {
             return new QEffect($"{name} {{icon:Reaction}}", $"After being attacked by an adjacent enemy, you may make a {(weaponName != null ? "{weaponName} " : "")}Strike against your attacker.") {
                 YouAreTargeted = async (self, action) => {
                     var weapon = weaponName != null ? self.Owner.MeleeWeapons.FirstOrDefault(wpn => wpn.Name == weaponName) : null;

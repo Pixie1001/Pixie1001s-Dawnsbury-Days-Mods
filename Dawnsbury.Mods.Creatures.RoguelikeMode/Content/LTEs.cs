@@ -632,7 +632,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 };
             });
 
-            LongTermEffects.EasyRegister("Mushroom Sickness", LongTermEffectDuration.UntilLongRest, (_, value) => {
+            LongTermEffects.EasyRegister("Mushroom Sickness", LongTermEffectDuration.UntilLongRest, (final, value) => {
                 QEffect effect = new QEffect("Mushroom Sickness", $"This creature is afflicted by sickness {value} for the duration of the encounter. Retching cannot be used to remove this sickness.") {
                     Innate = false,
                     Value = value,
@@ -640,7 +640,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                     LongTermEffectDuration = LongTermEffectDuration.UntilLongRest,
                     BonusToAllChecksAndDCs = (qf) => new Bonus(-qf.Value, BonusType.Status, "sickened"),
                     PreventTakingAction = (ca) => ca.ActionId != ActionId.Drink ? null : "You're sickened.",
-                    EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness")!),
+                    EndOfCombat = final == null ? async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("Mushroom Sickness", "final", value)!) : null,
                 };
                 effect.PreventTargetingBy = ca => ca.ActionId != ActionId.Administer || effect.Owner.HasEffect(QEffectId.Unconscious) ? null : "sickened";
 

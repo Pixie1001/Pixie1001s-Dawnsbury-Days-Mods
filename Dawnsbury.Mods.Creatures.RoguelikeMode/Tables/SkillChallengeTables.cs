@@ -1,35 +1,39 @@
 ﻿using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
 using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Campaign.LongTerm;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Campaign.Path.CampaignStops;
 using Dawnsbury.Core;
+using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
+using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
+using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
+using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
+using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Targeting;
+using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Treasure;
+using Dawnsbury.Core.Noncombat.Dialogue;
+using Dawnsbury.Display;
+using Dawnsbury.Display.Illustrations;
+using Dawnsbury.Modding;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using FMOD;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dawnsbury.Display;
-using Dawnsbury.Campaign.LongTerm;
-using Dawnsbury.Campaign.Path;
-using Dawnsbury.Core.CharacterBuilder.Feats;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using FMOD;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content;
-using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
-using Dawnsbury.Display.Illustrations;
-using Dawnsbury.Modding;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -1215,17 +1219,20 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             Sfxs.Play(SfxName.BookClosed);
             if (BonusLogic != null) {
                 foreach (var entry in BonusLogic) {
-            QEffect bonus = new QEffect();
-                    bonus.ExpiresAt = ExpirationCondition.Ephemeral;
-                    bonus.BonusToSkills = skill => {
-                        var output = entry(Nominee, skill);
-                        if (output is null) return null;
-                        return new Bonus(output.Value.Item1, BonusType.Untyped, output.Value.Item2);
-                    };
-                Nominee.AddQEffect(bonus);
+                QEffect bonus = new QEffect();
+                        bonus.ExpiresAt = ExpirationCondition.Ephemeral;
+                        bonus.BonusToSkills = skill => {
+                            var output = entry(Nominee, skill);
+                            if (output is null) return null;
+                            return new Bonus(output.Value.Item1, BonusType.Untyped, output.Value.Item2);
+                        };
+                    Nominee.AddQEffect(bonus);
+                }
             }
-            }
-            CheckResult output = CommonSpellEffects.RollCheck("Skill Challenge", new ActiveRollSpecification(TaggedChecks.SkillCheck(Skill), Checks.FlatDC(DC)), Nominee, Nominee);
+            var ca = new CombatAction(Nominee, IllustrationName.Good, "Skill Challenge", [Trait.NoncombatSkillCheck], "Roll a skill check or Perception check as demanded by a noncombat dialogue.", Target.Distance(1000))
+                    .WithActiveRollSpecification(new ActiveRollSpecification(TaggedChecks.SkillCheck([Skill]), Checks.FlatDC(DC)))
+                    .WithActionCost(0);
+            CheckResult output = CommonSpellEffects.RollCheck(ca, Nominee);
             return output;
         }
     }
