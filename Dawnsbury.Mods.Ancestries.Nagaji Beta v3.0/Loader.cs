@@ -45,8 +45,8 @@ namespace Dawnsbury.Mods.Ancestries.Nagaji {
         // Feats
         internal static FeatName ftHoodedNagaji = ModManager.RegisterFeatName("Hooded Nagaji");
         internal static FeatName ftSacredNagaji = ModManager.RegisterFeatName("Sacred Nagaji");
-        internal static FeatName ftColdMinded = ModManager.RegisterFeatName("Water Nagaji");
-        internal static FeatName ftWaterNagaji = ModManager.RegisterFeatName("Cold Minded");
+        internal static FeatName ftColdMinded = ModManager.RegisterFeatName("Cold Minded");
+        internal static FeatName ftWaterNagaji = ModManager.RegisterFeatName("Water Nagaji");
         internal static FeatName ftVenomSpit = ModManager.RegisterFeatName("Venom Spit");
         internal static FeatName ftHypnoticLure = ModManager.RegisterFeatName("Hypnotic Lure");
         internal static FeatName ftHypnoticGaze = ModManager.RegisterFeatName("Hypnotic Gaze");
