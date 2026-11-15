@@ -7,7 +7,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class BesetByMinnowsLv1 : NormalEncounter
     {
-        public BesetByMinnowsLv1(string filename) : base("Beset by Minnows", filename, null)
+        public BesetByMinnowsLv1(string filename) : base("Beset by Minnows", filename, null, true)
         {
             this.Map.Description = CommonEncounterFuncs.DefaultAquoticCombatDesc;
         }

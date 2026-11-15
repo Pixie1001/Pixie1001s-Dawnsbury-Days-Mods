@@ -1,15 +1,16 @@
-﻿using Dawnsbury.Core.Creatures;
+﻿using Dawnsbury.Campaign.Encounters;
+using Dawnsbury.Core.Animations.Movement;
+using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Creatures.Parts;
 using Dawnsbury.Core.Tiles;
+using Dawnsbury.Display;
 using Dawnsbury.Modding;
-using Dawnsbury.Campaign.Encounters;
-using Dawnsbury.Core.Animations.Movement;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Tiles;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModTraits;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
-using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
-using Dawnsbury.Display;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 {
@@ -43,6 +44,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
                     return HuntingSpider.Create();
                 case var v when v.Equals(CreatureIds.Drider):
                     return Drider.Create();
+                case var v when v.Equals(CreatureIds.FeralDrider):
+                    return FeralDrider.Create();
                 case var v when v.Equals(CreatureIds.DrowArcanist):
                     return DrowArcanist.Create();
                 case var v when v.Equals(CreatureIds.DrowShadowcaster):
@@ -290,6 +293,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
 
             // Level 3 Creatures - Drow
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.Drider);
+            RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.FeralDrider);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowPriestess);
             RegisterAndAddCreatureToDictonary(Creatures, CreatureIds.DrowShadowcaster);
 
@@ -379,6 +383,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content
             RegisterTile(TripWire.Create());
             RegisterTile(TripWireSpawnLocation.Create());
             RegisterTile(AcidTrapSpawnLocation.Create());
+            RegisterTile(ScalingLock.Create());
         }
 
         internal static void ModifyCreatures() {

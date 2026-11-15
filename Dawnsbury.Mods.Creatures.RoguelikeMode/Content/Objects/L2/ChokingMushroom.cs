@@ -33,13 +33,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         public static Creature Create() {
             QEffect qfCurrentDC = new QEffect() { Value = 14 };
 
-            Creature hazard = new Creature(Illustrations.ChokingMushroom, "Choking Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            Creature hazard = CommonQEffects.MakeLivingObject(new Creature(Illustrations.ChokingMushroom, "Choking Mushroom", new List<Trait>() { Trait.Plant, Trait.NoPhysicalUnarmedAttack }, 2, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()))
             .WithSpawnAsGaia()
             .WithAllowFriendlyFireFromHumans()
+            .AddQEffect(QEffect.DamageImmunity(DamageKind.Bleed))
             .WithTactics(Tactic.DoNothing)
             .WithEntersInitiativeOrder(false)
             .AddQEffect(qfCurrentDC)
-            //.AddQEffect(CommonQEffects.Hazard())
             .AddQEffect(new QEffect("Choking Spores", "This predatory mushroom exhudes a cloud of poisonous spores to suffocate its prey. Creatures walking through the spores suffer 1d4 poison damage vs. a DC 17 Basic fortitude save, and become sickened 1 on a critical failure."))
             ;
 
@@ -190,10 +190,6 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     }
                 }
             };
-
-            //effect.AddGrantingOfTechnical(cr => !cr.OwningFaction.IsHumanControlled, qfShroom => {
-            //    qfShroom.ai
-            //});
 
             hazard.AddQEffect(effect);
 

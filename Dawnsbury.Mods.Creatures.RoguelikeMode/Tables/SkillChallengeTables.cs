@@ -28,6 +28,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.BossFights;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using FMOD;
 using System;
 using System.Collections.Generic;
@@ -880,12 +881,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                         } else if (result >= CheckResult.Success) {
                             var bara = Baraquielle.Create(battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
                             Sfxs.Play(SfxName.EarthSpell);
-                            await battle.Cinematics.LineAsync(bara, $"W-what...!? A mere mortal and a refined and untouchable archangel such as myself...? What a laughable thought!", null);
-                            await battle.Cinematics.LineAsync(bara, $"You think you can simply woo me with vapid compliments about the impeccable softness of my wings and the definition of my mighty thews!", null);
-                            await battle.Cinematics.LineAsync(bara, $"In all my years I have never seen a mortal show such brazen audacity... such reckless bravery in the face of societal taboo...!", null);
-                            await battle.Cinematics.LineAsync(bara, $"E-even if I did like you, it's not like we could ever be together, stupid!", null);
-                            await battle.Cinematics.LineAsync(bara, $"W-which just to be clear I-I don't!", null);
-                            await battle.Cinematics.LineAsync(bara, $"Stupid!", null);
+                            await battle.Cinematics.LineAsync(bara, $"W-what...!? A mere mortal and a refined and untouchable archangel such as myself...? What a laughable thought!", SoundEffects.skill1);
+                            await battle.Cinematics.LineAsync(bara, $"You think you can simply woo me with vapid compliments about the impeccable softness of my wings and the definition of my mighty thews!", SoundEffects.skill2);
+                            await battle.Cinematics.LineAsync(bara, $"In all my years I have never seen a mortal show such brazen audacity... such reckless bravery in the face of societal taboo...!", SoundEffects.skill3);
+                            await battle.Cinematics.LineAsync(bara, $"E-even if I did like you, it's not like we could ever be together, stupid!", SoundEffects.skill4);
+                            await battle.Cinematics.LineAsync(bara, $"W-which just to be clear I-I don't!", SoundEffects.skill5);
+                            await battle.Cinematics.LineAsync(bara, $"Stupid!", SoundEffects.skill6);
                             await battle.Cinematics.NarratorLineAsync($"Before {opt3.Nominee.Name} can get a word in edgewise, Baraquielle abruptly absconds into the air, sending the party stumbling as the blushing angel makes her exit.", null);
                             await battle.Cinematics.NarratorLineAsync($"{opt3.Nominee.Name} doesn't gain anything, because they're a stupid baka that Baraquielle definitely won't remember...!", null);
                             opt3.Nominee.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!", null, null)!);

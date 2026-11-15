@@ -17,6 +17,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             // Run setup
             this.ReplaceTriggerWithCinematic(TriggerName.StartOfEncounter, async battle => {
                 if (battle.CampaignState == null) {
+                    // TODO: Replace this with an event selector
+                    SkillChallengeTables.LoadSkillChallengeTables();
+                    await SkillChallengeTables.events.FirstOrDefault(e => e.Name == "Angel Encounter")!.Run(this.CharacterLevel, battle);
                     await battle.EndTheGame(true, "Sorry. Skill challenges can only be played out in campaign mode.");
                     return;
                 }

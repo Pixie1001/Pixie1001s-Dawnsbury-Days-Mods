@@ -95,6 +95,11 @@
 	<li>Torch.png by Freepik - published on FlatIcon.com, [here](https://www.flaticon.com/free-icon/torch_1021216?related_id=1021114&origin=search)</li>
 </ul>
 
+## Potion Junkies
+<ul>
+	<li>Feral Drider.png by Potion Junkies - published on the Unity Asset Store, [Here](https://assetstore.unity.com/packages/2d/characters/greek-fantasy-enemies-204779)</li>
+</ul>
+
 ## Creative Commons Artwork
 <ul>
 	<li>SkillChallengeBG.png By David Revoy / Blender Foundation - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=22488172</li>

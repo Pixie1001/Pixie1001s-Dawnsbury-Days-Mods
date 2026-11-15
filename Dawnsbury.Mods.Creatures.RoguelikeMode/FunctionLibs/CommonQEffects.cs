@@ -69,6 +69,30 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs {
             };
         }
 
+        public static Creature MakeLivingObject(Creature hazard) {
+            hazard.WeaknessAndResistance.ImmunityToCriticalHits = true;
+            hazard.WeaknessAndResistance.ImmunityToForcedMovement = true;
+            hazard.RemoveAllQEffects(qf => qf.Id == QEffectId.ObjectImmunities);
+            hazard.AddQEffect(new QEffect() {
+                Id = QEffectId.ObjectImmunities,
+                StateCheck = qfSelf => {
+                    var self = qfSelf.Owner;
+                    self.WeaknessAndResistance.AddImmunity(DamageKind.Mental);
+                    self.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Sickened).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Stunned).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Unconscious).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Prone).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.ImmunityToCondition(QEffectId.Deafened).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.TraitImmunity(Trait.Nonlethal).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.TraitImmunity(Trait.Mental).WithExpirationEphemeral());
+                    self.AddQEffect(QEffect.TraitImmunity(Trait.Polymorph).WithExpirationEphemeral());
+                }
+            });
+            hazard.Traits.Add(Trait.NoPhysicalUnarmedAttack);
+            hazard.WithCharacteristics(false, false);
+            return hazard;
+        }
+
         public static Creature MakeVampire(Creature vampire, int resistance=5, int fastHealing=5, Func<AI, List<Option>, Option?>? aiOverride=null) {
             var vampireDC = 23;
 
@@ -1018,6 +1042,19 @@ You brandish your holy symbol, preventing vampires from willingly moving within 
 
             QEffect effect = new QEffect("Powerful Adversary", $"This creature acts twice in the initiative order each round while above half HP, once at their regular postion and again {INIT_DROP} points below that. In addition it has significantly increased HP for its level.") {
                 StartOfCombat = async self => {
+                    self.StateCheckWithVisibleChanges = async self => {
+                        if (CampaignState.Instance != null && CampaignState.Instance.AdventurePath?.Name == "Roguelike Mode" && CampaignState.Instance.Tags.TryGetValue("SeenMiniBoss", out string val) == false) {
+                            CampaignState.Instance.Tags.Add("SeenMiniBoss", "true");
+                            var advisor1 = R.ChooseAtRandomVisualOnly(self.Owner.Battle.AllCreatures.Where(cr => cr.PersistentCharacterSheet != null).ToArray());
+                            if (advisor1 == null) return;
+                            advisor1.Battle.Cinematics.EnterCutscene();
+                            Sfxs.Play(SfxName.Drum, 0.5f);
+                            await self.Owner.Battle.Cinematics.LineAsync(self.Owner, "...", null);
+                            await advisor1.Battle.Cinematics.LineAsync(advisor1, "Hold. That enemy looks stronger than others we've faced thus far. We should be wary.", null);
+                            await self.Owner.Battle.Cinematics.NarratorLineAsync("You've encountered a {b}powerful adversary{/b}. Unlike other enemies, these creatures act twice in the initiative round and have double the hit points of a typical creature of their level. However, once reduced below half of their max HP, this second turn is lost.");
+                            advisor1.Battle.Cinematics.ExitCutscene();
+                        }
+                    };
                     self.Owner.AddQEffect(new QEffect() { Id = QEffectId.ActsMultipleTimesInInitiative });
                     self.Owner.MaxHP = self.Owner.MaxHP * 2;
                     self.Owner.AddQEffect(new QEffect("Extra Turn", "This creature acts twice in initiative each round while above half HP.") {

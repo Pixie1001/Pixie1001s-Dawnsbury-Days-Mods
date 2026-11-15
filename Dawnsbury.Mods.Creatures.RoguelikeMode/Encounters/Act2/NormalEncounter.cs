@@ -18,11 +18,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
     {
 
         internal bool SetLoot = false;
+        internal bool noAdjustment = false;
 
-        public NormalEncounter(string name, string filename, List<Item>? rewards= null) : base(name, filename, rewards, 0)
+        public NormalEncounter(string name, string filename, List<Item>? rewards= null, bool noAdjustment=false) : base(name, filename, rewards, 0)
         {
             this.CharacterLevel = CampaignState.Instance?.CurrentLevel ?? this.Map.Level;
             this.RewardGold = 0;
+            this.noAdjustment = noAdjustment;
 
             if (rewards != null)
                 SetLoot = true;
@@ -44,7 +46,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
                 CommonEncounterFuncs.SetItemRewards(Rewards, CharacterLevel, EncounterType.NORMAL);
             }
 
-            if (this.CharacterLevel == 3 || this.CharacterLevel == 7)
+            if (noAdjustment) { }
+            else if (this.CharacterLevel == 3 || this.CharacterLevel == 7)
                 CommonEncounterFuncs.ApplyEliteAdjustments(battle);
             else if (this.CharacterLevel == 1 || this.CharacterLevel == 5)
                 CommonEncounterFuncs.ApplyWeakAdjustments(battle);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="768" tileheight="768" tilecount="87" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="CustomCreatures" tilewidth="768" tileheight="768" tilecount="89" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <properties>
@@ -522,5 +522,17 @@
    <property name="Id" value="Vampire Thrall"/>
   </properties>
   <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Creatures/UnknownCreature.png" width="256" height="256"/>
+ </tile>
+ <tile id="2080">
+  <properties>
+   <property name="Id" value="ScalingLock"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/Creatures/ScalingLockTile.png" width="256" height="256"/>
+ </tile>
+ <tile id="2081" x="0" y="0" width="512" height="512">
+  <properties>
+   <property name="Id" value="Feral Drider"/>
+  </properties>
+  <image source="D:/Save Files/Code/C-Sharp/Pixie1001s-Dawnsbury-Days-Mods/CustomMaps/CustomCreatures/FeralDrider.png" width="768" height="768"/>
  </tile>
 </tileset>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="12" height="22" tilewidth="256" tileheight="256" infinite="0" nextlayerid="12" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="12" height="22" tilewidth="256" tileheight="256" infinite="0" nextlayerid="13" nextobjectid="1">
  <properties>
   <property name="EncounterDescription">The party's quest soon takes them to a far flung fortress, constructed during some bygone subterranean war before being abandoned to condemn the significance of what it was built over to secrecy.
 
@@ -12,8 +12,8 @@ Yet as the party explores its ancient halls, the discreet shuffling of archers a
   <property name="IsDark" type="bool" value="true"/>
  </properties>
  <tileset firstgid="1" source="BasicTileset.tsx"/>
- <tileset firstgid="138" source="DlcTileset.tsx"/>
- <tileset firstgid="222" source="CustomCreatures.tsx"/>
+ <tileset firstgid="141" source="DlcTileset.tsx"/>
+ <tileset firstgid="226" source="CustomCreatures.tsx"/>
  <imagelayer id="11" name="Image Layer 1">
   <image source="BG_GrandStaircase.jpg" width="1117" height="2048"/>
  </imagelayer>
@@ -22,13 +22,13 @@ Yet as the party explores its ancient halls, the discreet shuffling of archers a
 22,22,22,22,22,21,21,22,22,22,22,22,
 22,21,21,21,21,21,21,21,21,21,21,21,
 22,21,21,21,21,21,21,21,21,21,21,21,
-22,186,21,186,18,18,18,18,186,21,186,22,
-22,186,21,186,18,18,18,18,186,21,186,22,
-22,186,186,186,18,18,18,18,186,186,186,22,
-22,186,186,186,18,18,18,18,186,186,186,22,
-22,186,186,186,18,18,18,18,186,186,186,22,
-22,186,186,186,18,18,18,18,186,186,186,22,
-22,186,186,186,18,18,18,18,186,186,186,22,
+22,189,21,189,18,18,18,18,189,21,189,22,
+22,189,21,189,18,18,18,18,189,21,189,22,
+22,189,189,189,18,18,18,18,189,189,189,22,
+22,189,189,189,18,18,18,18,189,189,189,22,
+22,189,189,189,18,18,18,18,189,189,189,22,
+22,189,189,189,18,18,18,18,189,189,189,22,
+22,189,189,189,18,18,18,18,189,189,189,22,
 22,21,21,21,21,21,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,22,
 22,21,21,21,21,21,21,21,21,21,21,22,
@@ -47,9 +47,9 @@ Yet as the party explores its ancient halls, the discreet shuffling of archers a
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,251,0,0,0,0,0,0,
+0,0,0,0,0,255,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,239,0,0,0,0,0,0,239,0,0,
+0,0,243,0,0,0,0,0,0,243,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
@@ -81,6 +81,32 @@ Yet as the party explores its ancient halls, the discreet shuffling of archers a
 0,0,0,0,28,28,28,28,0,0,0,0,
 0,0,0,0,28,28,28,28,0,0,0,0,
 0,0,0,0,28,28,28,28,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="12" name="Topmost layer: Metadata" width="12" height="22">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,2306,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,

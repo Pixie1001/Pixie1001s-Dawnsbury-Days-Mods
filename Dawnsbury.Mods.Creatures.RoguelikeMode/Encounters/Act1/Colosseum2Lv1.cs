@@ -2,6 +2,7 @@
 using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Core;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.Champion;
 using Dawnsbury.Core.Creatures;
 using Dawnsbury.Core.Mechanics.Enumerations;
 using Dawnsbury.Core.Mechanics.Targeting;
@@ -44,7 +45,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
 
                         for (int i = 0; i < 3; i++)
                         {
-                            var creature = Ardamok.Create().ApplyWeakAdjustments(false);
+                            var creature = Ardamok.Create();
+                            if (CharacterLevel == 1) {
+                                creature.ApplyWeakAdjustments(false);
+                            } else if (CharacterLevel >= 3 && i <= 1)
+                                creature.ApplyEliteAdjustments();
                             battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 2 + ((i / 2) % 2));
                         }
 
@@ -69,8 +74,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
                     if (await AskToContinueBattle(battle, round))
                     {
                         RewardGold += (int)(CommonEncounterFuncs.GetGoldReward(CharacterLevel, EncounterType.NORMAL) * 0.8);
+                        var champion = R.Coin() ? YoungChimera.Create() : FlailSnail.Create();
+                        if (CharacterLevel == 1) {
+                            champion.ApplyWeakAdjustments(false);
+                        } else if (CharacterLevel >= 3)
+                            champion.ApplyEliteAdjustments();
 
-                        battle.SpawnCreature(R.Coin() ? YoungChimera.Create().ApplyWeakAdjustments(false) : FlailSnail.Create().ApplyWeakAdjustments(false), battle.Enemy, 7, 2);
+                        battle.SpawnCreature(champion, battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {

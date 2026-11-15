@@ -142,9 +142,5 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
 
             return monster;
         }
-
-        private static ValueTuple<int, bool> Test() {
-            return (1, true);
-        }
     }
 }

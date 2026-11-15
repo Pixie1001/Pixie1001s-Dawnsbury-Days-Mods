@@ -46,25 +46,59 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
 
                         Rewards.AddRange(newItemRewards);
 
-                        for (int i = 0; i < 2; i++)
-                        {
-                            var creature = Bodyguard.Create().ApplyWeakAdjustments(false);
-                            creature.MainName = "Gladiator";
-                            battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
-                        }
+                        if (CharacterLevel == 1) {
+                            for (int i = 0; i < 2; i++) {
+                                var creature = Bodyguard.Create().ApplyWeakAdjustments(false);
+                                creature.MainName = "Gladiator";
+                                battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
+                            }
 
-                        for (int i = 0; i < 2; i++)
-                        {
-                            battle.SpawnCreature(Pikeman.Create().ApplyWeakAdjustments(false), battle.Enemy, 6 + i % 2, 2);
-                        }
+                            for (int i = 0; i < 2; i++) {
+                                battle.SpawnCreature(Pikeman.Create().ApplyWeakAdjustments(false), battle.Enemy, 6 + i % 2, 2);
+                            }
 
-                        foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
-                        {
-                            await character.HealAsync($"{character.Level}d4+{character.Level * 2}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
+                            foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You)) {
+                                await character.HealAsync($"{character.Level}d4+{character.Level * 2}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
 
-                            if (character.Spellcasting != null && character.Spellcasting.FocusPoints < character.Spellcasting.FocusPointsMaximum)
-                            {
-                                character.Spellcasting.FocusPoints++;
+                                if (character.Spellcasting != null && character.Spellcasting.FocusPoints < character.Spellcasting.FocusPointsMaximum) {
+                                    character.Spellcasting.FocusPoints++;
+                                }
+                            }
+                        } else if (CharacterLevel == 2) {
+                            for (int i = 0; i < 2; i++) {
+                                var creature = Bodyguard.Create();
+                                creature.MainName = "Gladiator";
+                                battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
+                            }
+
+                            for (int i = 0; i < 2; i++) {
+                                battle.SpawnCreature(Pikeman.Create(), battle.Enemy, 6 + i % 2, 2);
+                            }
+
+                            foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You)) {
+                                await character.HealAsync($"{character.Level}d4+{character.Level * 2}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
+
+                                if (character.Spellcasting != null && character.Spellcasting.FocusPoints < character.Spellcasting.FocusPointsMaximum) {
+                                    character.Spellcasting.FocusPoints++;
+                                }
+                            }
+                        } else {
+                            for (int i = 0; i < 2; i++) {
+                                var creature = Bodyguard.Create();
+                                creature.MainName = "Gladiator";
+                                battle.SpawnCreature(creature, battle.Enemy, 6 + i % 2, 3);
+                            }
+
+                            for (int i = 0; i < 2; i++) {
+                                battle.SpawnCreature(Pikeman.Create().ApplyEliteAdjustments(false), battle.Enemy, 6 + i % 2, 2);
+                            }
+
+                            foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You)) {
+                                await character.HealAsync($"{character.Level}d4+{character.Level * 2}", new(character, IllustrationName.Heal, "Heal", [Trait.Healing], "", Target.Self()));
+
+                                if (character.Spellcasting != null && character.Spellcasting.FocusPoints < character.Spellcasting.FocusPointsMaximum) {
+                                    character.Spellcasting.FocusPoints++;
+                                }
                             }
                         }
                     }
@@ -80,7 +114,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1
                     {
                         var champion = R.Coin() ? RalknarTheRude.Create() : SorantonTheSkilled.Create();
 
-                        battle.SpawnCreature(champion.ApplyWeakAdjustments(false), battle.Enemy, 7, 2);
+                        if (CharacterLevel == 1) {
+                            champion.ApplyWeakAdjustments(false);
+                        } else if (CharacterLevel >= 3)
+                            champion.ApplyEliteAdjustments();
+                        battle.SpawnCreature(champion, battle.Enemy, 7, 2);
 
                         foreach (var character in battle.AllCreatures.Where((creature) => creature.OwningFaction == battle.You))
                         {

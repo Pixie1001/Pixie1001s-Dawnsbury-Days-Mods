@@ -109,7 +109,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
 
             List<Item> itemList = Items.ShopItems.Where(item => !item.HasTrait(Trait.DoNotAddToCampaignShop)).Concat(CreateSpecialItems()).Where(item => levelRange(item.Level) && !item.HasTrait(Trait.Consumable) && !item.HasTrait(ModTraits.Wand)).ToList();
 
-            List<Item> weaponTable = itemList.Where(item => (item.Price >= 10 && !item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart") && item.HasTrait(Trait.Runestone)
+            List<Item> weaponTable = itemList.Where(item => (item.Price >= 10 && !item.HasTrait(Trait.MagicalStaff) && !item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart") && item.HasTrait(Trait.Runestone)
             || (item.Name.Contains("handwraps of mighty blows") && item.Runes.Count > 0)
             || (item.HasTrait(Trait.Material) && item.HasTrait(Trait.ColdIron)))
             && levelRange(item.Level)).ToList();
@@ -125,31 +125,31 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
                 // Ranged or melee
                 if (character.Abilities.Dexterity > character.Abilities.Strength) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.Name.Contains("Staff Of") && (item.HasTrait(Trait.Finesse) || item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.Name.Contains("Staff Of") && (item.HasTrait(Trait.Finesse) || item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else if (character.Abilities.Strength > character.Abilities.Dexterity) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.Name.Contains("Staff Of") && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.Name.Contains("Staff Of") && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.Name.Contains("Staff Of") && (item.HasTrait(Trait.Simple) || item.HasTrait(Trait.Martial)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.Name.Contains("Staff Of") && (item.HasTrait(Trait.Simple) || item.HasTrait(Trait.Martial)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
             } else if (new string[] { "gunslinger", "envoy", "soldier", "mechanic" }.Contains(className)) {
                 // Full ranged
-                weaponTable = weaponTable.Concat(itemList.Where(item => ((item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                weaponTable = weaponTable.Concat(itemList.Where(item => ((item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
             } else if (new string[] { "barbarian", "champion", "swashbuckler", "portalist", "solarian" }.Contains(className)) {
                 // Full melee
                 if (character.Abilities.Dexterity > character.Abilities.Strength) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.HasTrait(Trait.Simple) && item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.HasTrait(Trait.Simple) && item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else if (character.Abilities.Strength > character.Abilities.Dexterity) {
                     weaponTable = weaponTable.Concat(itemList.Where(item =>
-                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else {
-                    weaponTable = weaponTable.Concat(itemList.Where(item => (item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    weaponTable = weaponTable.Concat(itemList.Where(item => (item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.HasTrait(Trait.Simple) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
             } else if (new string[] { "psychic", "witch", "bard", "sorcerer", "wizard", "cleric", "druid", "oracle", "necromancer", "animist", "witchwarper" }.Contains(className)) {
                 // Full caster
-                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon)).ToList();
+                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon) || item.HasTrait(Trait.MagicalStaff)).ToList();
                 weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList(); // || character.PersistentCharacterSheet.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits))
                 weaponTable = weaponTable.Concat(itemList.Where(item => item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart"))).ToList();
             } else if (new string[] { "monk", "shifter", }.Contains(className)) {
@@ -158,13 +158,13 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Tables {
             } else if (new string[] { "magus", "summoner", "technomancer",  }.Contains(className)) {
                 // hybrid
                 if (character.Abilities.Dexterity > character.Abilities.Strength) {
-                    weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && (item.HasTrait(Trait.Finesse) || item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && (item.HasTrait(Trait.Finesse) || item.HasTrait(Trait.Ranged)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else if (character.Abilities.Strength > character.Abilities.Dexterity) {
-                    weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && !item.HasTrait(Trait.Finesse) && !item.HasTrait(Trait.Ranged) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 } else {
-                    weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(ModTraits.CannotHavePropertyRune)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
+                    weaponTable = weaponTable.Concat(itemList.Where(item => ((item.HasTrait(Trait.Weapon) && item.Price >= 35 && item.Runes.Count == 0) || item.HasTrait(Trait.SpecificMagicWeapon) || item.HasTrait(Trait.SpecificMagicItem)) && character.Proficiencies.Get(item.Traits) >= Proficiency.Trained).ToList()).ToList();
                 }
-                weaponTable = weaponTable.Concat(itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon))).ToList();
+                weaponTable = itemList.Where(item => item.Name.Contains("Staff Of") || item.HasTrait(ModTraits.CasterWeapon) || item.HasTrait(Trait.MagicalStaff)).ToList();
                 weaponTable = weaponTable.Concat(Items.ShopItems.Where(item => character.PersistentCharacterSheet!.Calculated.SpellTraditionsKnown.ContainsOneOf(item.Traits) && item.HasTrait(ModTraits.Wand) && item.HasTrait(ModTraits.Darksteel) && levelRange(item.Level))).ToList();
                 weaponTable = weaponTable.Concat(itemList.Where(item => item.Traits.Any(tr => tr.HumanizeLowerCase2() == "spellheart"))).ToList();
             } else if (new string[] { "kineticist", }.Contains(className)) {

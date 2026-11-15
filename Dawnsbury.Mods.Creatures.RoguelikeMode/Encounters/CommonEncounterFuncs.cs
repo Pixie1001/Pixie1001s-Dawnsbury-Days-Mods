@@ -114,7 +114,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
         }
         
         public static void ApplyEliteAdjustments(TBattle battle) {
-            foreach (Creature enemy in battle.AllCreatures.Where(cr => cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList()) {
+            foreach (Creature enemy in battle.AllCreatures.Where(cr => !cr.Occupies.HasEffect(QEffectIds.ScalingLock) && cr.OwningFaction.IsEnemy && !cr.QEffects.Any(qf => qf.Id == QEffectIds.Hazard)).ToList()) {
                 StrengthenCreature(enemy);
                 }
             }

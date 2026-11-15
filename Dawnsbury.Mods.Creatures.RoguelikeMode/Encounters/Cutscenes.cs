@@ -50,6 +50,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters
             foreach (Creature egg in eggs) {
                 battle.RemoveCreatureFromGame(egg);
             }
+            if (battle.Encounter.CharacterLevel == 3) {
+                for (int i = 0; i < 1; i++) {
+                    CommonEncounterFuncs.WeakenCreature(UtilityFunctions.ChooseAtRandom(battle.AllCreatures.Where(cr => cr.Level == 3 && cr.Illustration == Illustrations.DemonicPustule).ToList())!);
+                }
+            }
         }
 
         public async static Task AbandonedTempleCutscene(TBattle battle) {

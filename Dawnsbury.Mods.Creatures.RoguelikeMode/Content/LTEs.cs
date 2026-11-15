@@ -34,6 +34,7 @@ using Dawnsbury.Core.Tiles;
 using Dawnsbury.Display.Text;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
+using Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -250,31 +251,35 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
             });
 
             LongTermEffects.EasyRegister("It's Not Like I Like You!", LongTermEffectDuration.Forever, (_, _) => {
-                var requiredRoll = 18;
-                var lteEffect = new QEffect("It's Not like I Like You!", $"B-Baka...!", ExpirationCondition.Never, null, IllustrationName.BaraquielleLarge) {
+                var requiredRoll = 17;
+                var lteEffect = new QEffect("It's Not like I Like You!", $"B-Baka...!", ExpirationCondition.Never, null, Illustrations.TsundereBaraquielleLarge) {
                     HideFromPortrait = true,
                     LongTermEffectDuration = LongTermEffectDuration.Forever,
                     Tag = false,
                     EndOfAnyTurn = self => self.Tag = false,
                     EndOfCombat = async (effect, b) => effect.Owner.LongTermEffects?.Add(WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!")!),
                     YouAreDealtLethalDamage = async (self, attacker, dmg, defender) => {
-                        string[] defendLines = [
-                            "Noooo...! I- I mean, b-be more careful next time or whatever. Y-you're embarrassing heaven!",
-                            "Just to be clear, I- I'm only here because of my lawful good alignment...!",
-                            "B-baka!",
-                            "Stay away from them! O-only I'm allowed to smite them!",
-                            "Just to be clear, I-I'm only doing this so I don't have to see you around in Heaven or whatever...!"
+                        ValueTuple<string, string>[] defendLines = [
+                            ("Noooo...! I- I mean, b-be more careful next time or whatever. Y-you're embarrassing heaven!", SoundEffects.intercept1),
+                            ("Just to be clear, I- I'm only here because of my lawful good alignment...!", SoundEffects.intercept2),
+                            ("B-baka!", SoundEffects.intercept3),
+                            ("Stay away from them! O-only I'm allowed to smite them!", SoundEffects.intercept4),
+                            ("Just to be clear, I-I'm only doing this so I don't have to see you around in Heaven or whatever...!", SoundEffects.intercept5)
                         ];
 
                         if (!((bool?)self.Tag == false && defender.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= requiredRoll)) return null;
 
                         var bara = Baraquielle.Create(defender.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge).WithIsNamedMonster();
                         defender.Battle.Cinematics.EnterCutscene();
-                        defender.Battle.SpawnIllusoryCreature(bara, defender.Occupies.GetShuntoffTile(bara));
+                        defender.Battle.SpawnIllusoryCreature(bara, defender.Occupies.GetShuntoffTileAlsoAvoidAdditionalOccupant(defender));
                         Sfxs.Play(SfxName.PhaseBolt);
                         bara.AnimationData.ColorBlinkFast(Color.Yellow);
                         defender.Battle.SmartCenterCreatureAlways(bara);
-                        await defender.Battle.Cinematics.LineAsync(bara, defendLines.GetRandomVisualOnly()!);
+                        var chosenLine = defendLines.GetRandomVisualOnly()!;
+                        if (attacker.Occupies != null)
+                            await attacker.FictitiousSingleTileMoveBack();
+                        defender.Overhead($"*{self.Name!}*", Color.LightPink, "Baraquielle intercepts the attack.");
+                        await defender.Battle.Cinematics.LineAsync(bara, chosenLine.Item1, chosenLine.Item2);
                         Sfxs.Play(SfxName.ShieldSpell);
                         await defender.Battle.Cinematics.WaitATinyBit();
                         Sfxs.Play(SfxName.PhaseBolt);
@@ -290,12 +295,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 };
 
                 lteEffect.AfterYouAreDealtDamageOfKind = async (attacker, action, kind, you) => {
-                    string[] healLines = [
-                        "Be more careful next time, stupid!",
-                        "I-I'm only doing this because I feel bad for you...!",
-                        "S-stop looking at me like that! I do this for all the agents of Heaven...!",
-                        "Stop getting hurt! If this keeps up I'll have to follow you around {i}all the time{/i} as your pocket healer... F-for important archangel related reasons... W-which to be clear would be a thing I-I don't want to happen!",
-                        "B-BAKA...!"
+                    ValueTuple<string, string>[] healLines = [
+                        ("Be more careful next time, stupid!", SoundEffects.heal1),
+                        ("I-I'm only doing this because I feel bad for you...!", SoundEffects.heal2),
+                        ("S-stop looking at me like that! I do this for all the agents of Heaven...!", SoundEffects.heal3),
+                        ("Stop getting hurt! If this keeps up I'll have to follow you around {i}all the time{/i} as your pocket healer... F-for important archangel related reasons... W-which to be clear would be a thing I-I don't want to happen!", SoundEffects.heal4),
+                        ("B-BAKA...!", SoundEffects.heal5)
                     ];
 
                     Tile? tile = attacker.Battle.Map.AllTiles.Where(t => t.HasLineOfEffectToIgnoreLesser(you.Occupies) < CoverKind.Blocked && t.DistanceTo(you) <= 19).MinBy(t => t.DistanceTo(you));
@@ -304,11 +309,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
                     var bara = Baraquielle.Create(you.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
                     you.Battle.Cinematics.EnterCutscene();
-                    you.Battle.SpawnIllusoryCreature(bara, tile.GetShuntoffTile(bara));
+                    you.Battle.SpawnIllusoryCreature(bara, tile.GetShuntoffTileAlsoAvoidAdditionalOccupant(you));
                     Sfxs.Play(SfxName.PhaseBolt);
                     bara.AnimationData.ColorBlinkFast(Color.Yellow);
                     you.Battle.SmartCenterCreatureAlways(bara);
-                    await you.Battle.Cinematics.LineAsync(bara, healLines.GetRandomVisualOnly()!);
+                    var chosenLine = healLines.GetRandomVisualOnly();
+                    if (attacker.Occupies != null)
+                        await attacker.FictitiousSingleTileMoveBack();
+                    you.Overhead($"*{lteEffect.Name!}*", Color.LightPink);
+                    await you.Battle.Cinematics.LineAsync(bara, chosenLine.Item1, chosenLine.Item2);
                     you.Battle.Cinematics.ExitCutscene();
 
                     bara.Actions.ResetToFull();
@@ -327,26 +336,34 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                 };
 
                 lteEffect.AfterYouDealDamage = async (you, action, target) => {
-                    string[] attackLines = ["I- ah... I just happened to be in smiting range...! I-Idiot...",
-                            $"Aha...! I've found you at once {{i}}*(squints)*{{/i}} villain...? W-whose totally at like... The very top of my hit list for very offical archangel reasons! (sneaks glance at {you.Name})",
-                            "Watching you? N-no, I'm way too important to be someone's guardian angel! U-unless... Ahh... N-nevermind!",
-                            "Nice hit I guess... F-for a mortal or whatever...",
-                            "So cool... {i}(looks around frantically){/i}. W-wait the plane shift spell wasn't supposed to... Ummm... {b}V-VIOLENCE!{/b}"
+                    ValueTuple<string, string>[] attackLines = [
+                        ("I- ah... I just happened to be in smiting range...! I-Idiot...", SoundEffects.attack1),
+                        ($"Aha...! I've found you at once {{i}}*(squints)*{{/i}} villain...? W-whose totally at like... The very top of my hit list for very offical archangel reasons! (sneaks glance at {you.Name})", SoundEffects.attack2),
+                        ("Watching you? N-no, I'm way too important to be someone's guardian angel! U-unless... Ahh... N-nevermind!", SoundEffects.attack3),
+                        ("Nice hit I guess... F-for a mortal or whatever...", SoundEffects.attack4),
+                        ("So cool... {i}(looks around frantically){/i}. W-wait the plane shift spell wasn't supposed to... Ummm... {b}V-VIOLENCE!{/b}", SoundEffects.attack5)
                     ];
 
                     if (!((bool?)lteEffect.Tag == false && target.Occupies.Neighbours.TilesPlusSelf.Any(t => t.PrimaryOccupant != null && !t.AlwaysBlocksLineOfEffect) && R.NextD20() >= requiredRoll)) return;
 
+                    if (target.HP == 0) return;
+
                     var bara = Baraquielle.Create(you.Battle.Encounter).WithLargeIllustration(Illustrations.TsundereBaraquielleLarge);
+                    if (you.Level == 3 || you.Level == 4 || you.Level >= 7)
+                        CommonEncounterFuncs.StrengthenCreature(bara);
                     you.Battle.Cinematics.EnterCutscene();
-                    you.Battle.SpawnIllusoryCreature(bara, you.Occupies.GetShuntoffTile(bara));
+                    await you.FictitiousSingleTileMoveBack();
+                    you.Battle.SpawnIllusoryCreature(bara, target.Occupies.GetShuntoffTileAlsoAvoidAdditionalOccupant(target));
                     Sfxs.Play(SfxName.PhaseBolt);
                     bara.AnimationData.ColorBlinkFast(Color.Yellow);
                     you.Battle.SmartCenterCreatureAlways(bara);
-                    await you.Battle.Cinematics.LineAsync(bara, attackLines.GetRandomVisualOnly()!);
+                    var chosenLine = attackLines.GetRandomVisualOnly();
+                    you.Overhead($"*{lteEffect.Name!}*", Color.LightPink, "Baraquielle performs a follow up attack.");
+                    await you.Battle.Cinematics.LineAsync(bara, chosenLine.Item1, chosenLine.Item2);
                     you.Battle.Cinematics.ExitCutscene();
                     await bara.MakeStrike(bara.CreateStrike(bara.PrimaryWeapon!).WithActionCost(0), target);
                     Sfxs.Play(SfxName.PhaseBolt);
-                    bara.AnimationData.ColorBlinkFast(Color.Yellow);
+                    bara.AnimationData.ColorBlink(Color.Yellow);
                     you.Battle.RemoveCreatureFromGame(bara);
                     you.Battle.SmartCenterCreatureAlways(you);
 

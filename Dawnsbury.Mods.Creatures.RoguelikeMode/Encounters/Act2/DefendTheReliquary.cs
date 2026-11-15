@@ -4,16 +4,7 @@ using Dawnsbury.Campaign.Encounters;
 using Dawnsbury.Campaign.LongTerm;
 using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
-using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.Creatures;
-using Dawnsbury.Core.Creatures.Parts;
-using Dawnsbury.Core.Mechanics;
-using Dawnsbury.Core.Mechanics.Enumerations;
-using Dawnsbury.Core.Mechanics.Targeting;
-using Dawnsbury.Core.Mechanics.Treasure;
-using Dawnsbury.Core.StatBlocks;
 using Dawnsbury.Core.StatBlocks.Monsters.L_1;
 using Dawnsbury.Core.StatBlocks.Monsters.L1;
 using Dawnsbury.Core.StatBlocks.Monsters.L2;
@@ -29,8 +20,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.FunctionLibs;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Reflection;
 using System.Xml.Linq;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
 
@@ -67,11 +57,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
                     battle.SmartCenterCreatureAlways(baraquielle);
 
-                    await battle.Cinematics.LineAsync(baraquielle, "Thank you adventurers. Your performance was...");
-                    await battle.Cinematics.LineAsync(baraquielle, "{i}(looks away){/i} Satisfactory.");
-                    await battle.Cinematics.LineAsync(baraquielle, "Please vacate the area whilst I complete the ritual. I trust you will speak of it to no one.");
-                    await battle.Cinematics.LineAsync(baraquielle, "However as you have aided Heaven in this most trying of challenges, so too shall Heaven render her aid upon you.");
-                    await battle.Cinematics.LineAsync(baraquielle, "Whatever foul cretin awaits you at the end of your expedition, I shall face it beside you.");
+                    await battle.Cinematics.LineAsync(baraquielle, "Thank you adventurers. Your performance was...", SoundEffects.tdpost1);
+                    await battle.Cinematics.LineAsync(baraquielle, "{i}(looks away){/i} Satisfactory.", SoundEffects.tdpost2);
+                    await battle.Cinematics.LineAsync(baraquielle, "Please vacate the area whilst I complete the ritual. I trust you will speak of it to no one.", SoundEffects.tdpost3);
+                    await battle.Cinematics.LineAsync(baraquielle, "However as you have aided Heaven in this most trying of challenges, so too shall Heaven render her aid upon you.", SoundEffects.tdpost4);
+                    await battle.Cinematics.LineAsync(baraquielle, "Whatever foul cretin awaits you at the end of your expedition, I shall face it beside you.", SoundEffects.tdpost5);
                     battle.Cinematics.ExitCutscene();
 
                     var pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet?.IsCampaignCharacter ?? false);
@@ -114,12 +104,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             baraquielle.Subtitle = "Archangel of retribution";
 
             battle.Cinematics.EnterCutscene();
-            await battle.Cinematics.LineAsync(baraquielle, "Ready yourselves adventurers. Just as I suspected, my senses detect a great many creatures of an evil alignment heading towards the reliquary as we speak.");
+
+            
+
+            await battle.Cinematics.LineAsync(baraquielle, "Ready yourselves adventurers. Just as I suspected, my senses detect a great many creatures of an evil alignment heading towards the reliquary as we speak.", SoundEffects.tdstart1);
             if (battle.Encounter.CharacterLevel <= 4)
-                await battle.Cinematics.LineAsync(baraquielle, "They are of paltry power before the full might of heaven, but alas, I cannot wield my full power lest the Starborn send forth a legion of greater demons.");
-            await battle.Cinematics.LineAsync(baraquielle, "I will aid you in this fight as best I can, but you must be prepared to lay down your lives to protect the reliquary.");
-            await battle.Cinematics.LineAsync(baraquielle, "Without it, the terms between the mortal realms and the other side shall be rendered null and void, and the Demon Queen of Spiders shall have free reign to renegotiate the terms as she pleases.");
-            await battle.Cinematics.LineAsync(baraquielle, "That {i}cannot{/i} be allowed to happen.");
+                await battle.Cinematics.LineAsync(baraquielle, "They are of paltry power before the full might of heaven, but alas, I cannot wield my full power lest the Starborn send forth a legion of greater demons.", SoundEffects.tdstart2);
+            await battle.Cinematics.LineAsync(baraquielle, "I will aid you in this fight as best I can, but you must be prepared to lay down your lives to protect the reliquary.", SoundEffects.tdstart3);
+            await battle.Cinematics.LineAsync(baraquielle, "Without it, the terms between the mortal realms and the other side shall be rendered null and void, and the Demon Queen of Spiders shall have free reign to renegotiate the terms as she pleases.", SoundEffects.tdstart4);
+            await battle.Cinematics.LineAsync(baraquielle, "That {i}cannot{/i} be allowed to happen.", SoundEffects.tdstart5);
             battle.Cinematics.ExitCutscene();
 
             await TelegraphWave(battle);
@@ -139,9 +132,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
             battle.Cinematics.EnterCutscene();
             battle.SmartCenterTileAlways(tile);
             if (battle.RoundNumber == 0)
-                await battle.Cinematics.LineAsync(baraquielle, "Now prepare yourselves! I sense they will attack from this direction first.", null, true);
+                await battle.Cinematics.LineAsync(baraquielle, "Now prepare yourselves! I sense they will attack from this direction first.", SoundEffects.tdlocation1, true);
             else
-                await battle.Cinematics.LineAsync(baraquielle, "I sense a strong evil presence approaching from yonder direction!", null, true);
+                await battle.Cinematics.LineAsync(baraquielle, "I sense a strong evil presence approaching from yonder direction!", SoundEffects.tdlocation2, true);
             battle.Cinematics.ExitCutscene();
         }
 
@@ -155,7 +148,16 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
 
                 if (level == 1 || level == 5) {
                     chosenWave!.ForEach(cr => CommonEncounterFuncs.WeakenCreature(cr));
-                } else if (level == 3 || level >= 7) {
+                } else if (level == 3) {
+                    int i = 0;
+                    foreach (var cr in chosenWave!) {
+                        i += 1;
+                        if (i == 2) {
+                            continue;
+                        }
+                        CommonEncounterFuncs.StrengthenCreature(cr);
+                    }
+                } else if (level >= 7) {
                     chosenWave!.ForEach(cr => CommonEncounterFuncs.StrengthenCreature(cr));
                 }
 
@@ -172,14 +174,14 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act2 {
                 battle.Cinematics.EnterCutscene();
                 battle.SmartCenterCreatureAlways(chosenWave![0]);
                 if (battle.RoundNumber == round[0]) {
-                    await battle.Cinematics.LineAsync(baraquielle, "The minions of evil arrive at last. To arms!", null, true);
-                    await battle.Cinematics.LineAsync(baraquielle, "Put them to the sword at once so that I might complete the ritual unmolested!", null, true);
+                    await battle.Cinematics.LineAsync(baraquielle, "The minions of evil arrive at last. To arms!", SoundEffects.tdlocation3, true);
+                    await battle.Cinematics.LineAsync(baraquielle, "Put them to the sword at once so that I might complete the ritual unmolested!", SoundEffects.tdlocation4, true);
                 } else if (battle.RoundNumber == round[1])
-                    await battle.Cinematics.LineAsync(baraquielle, "More wretched evil-doers approach!", null, true);
+                    await battle.Cinematics.LineAsync(baraquielle, "More wretched evil-doers approach!", SoundEffects.tdspawn1, true);
                 else if (battle.RoundNumber == round[2])
-                    await battle.Cinematics.LineAsync(baraquielle, "Another group approaches! Vanquish them in the name of Heaven!", null, true);
+                    await battle.Cinematics.LineAsync(baraquielle, "Another group approaches! Vanquish them in the name of Heaven!", SoundEffects.tdspawn2, true);
                 else if (battle.RoundNumber == round[3]) {
-                    await battle.Cinematics.LineAsync(baraquielle, "The befouled screeching of my alignment sense is at last beginning to quiet. I believe this group is the last of them.", null, true);
+                    await battle.Cinematics.LineAsync(baraquielle, "The befouled screeching of my alignment sense is at last beginning to quiet. I believe this group is the last of them.", SoundEffects.tdspawn3, true);
                     finalWave = true;
                 } 
                 battle.Cinematics.ExitCutscene();

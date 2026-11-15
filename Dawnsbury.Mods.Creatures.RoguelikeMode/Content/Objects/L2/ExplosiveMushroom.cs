@@ -29,10 +29,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             var dmg = 2 + level + "d6";
             var dc = 17 + level;
 
-            Creature hazard = new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Object, Trait.Plant }, level, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills())
+            Creature hazard = CommonQEffects.MakeLivingObject(new Creature(Illustrations.BoomShroom, "Explosive Mushroom", new List<Trait>() { Trait.Plant }, level, 0, 0, new Defenses(10, 10, 0, 0), 20, new Abilities(0, 0, 0, 0, 0, 0), new Skills()))
                     .WithTactics(Tactic.DoNothing)
+                    .WithSpawnAsGaia()
+                    .WithAllowFriendlyFireFromHumans()
                     .WithEntersInitiativeOrder(false)
-                    .AddQEffect(CommonQEffects.Hazard())
+                    .AddQEffect(QEffect.DamageImmunity(DamageKind.Bleed))
                     .AddQEffect(new QEffect("Combustible Spores",
                     $"This mushroom expels a cloud of highly reactive spores. Upon taking fire or electricity damage, the spores ignite in a devastating chain reaction, dealing {dmg} fire damage vs. a DC {dc} Basic reflex save to each creature within a 10 foot radius.") {
                         AfterYouTakeDamageOfKind = async (self, action, kind) => {

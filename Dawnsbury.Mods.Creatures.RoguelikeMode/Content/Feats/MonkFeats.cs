@@ -8,8 +8,6 @@ using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Kineticist;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Archetypes;
-using Dawnsbury.Core.CharacterBuilder.Selections.Selected;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
 using Dawnsbury.Core.Coroutines.Options;
@@ -24,9 +22,6 @@ using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
 using Dawnsbury.Core.Mechanics.Treasure;
 using Dawnsbury.Core.Possibilities;
-using Dawnsbury.Core.StatBlocks.Monsters.L_1;
-using Dawnsbury.Core.Tiles;
-using Dawnsbury.Display;
 using Dawnsbury.Display.Illustrations;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
@@ -201,7 +196,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         }
 
         public static bool IsMonasticArcheryWeapon(Creature monk, Item weapon) {
-            return (weapon.HasTrait(Trait.MonkWeapon) && weapon.HasTrait(Trait.Bow) && !weapon.HasTrait(Trait.Advanced)) || (new Trait[] { Trait.Longbow, Trait.Shortbow, Trait.CompositeLongbow, Trait.CompositeShortbow }.Contains(weapon.MainTrait));
+            return (weapon.HasTrait(Trait.MonkWeapon) && weapon.HasTrait(Trait.Bow) && !weapon.HasTrait(Trait.Advanced)) || weapon.Traits.Contains(Trait.TrueBow);
         }
 
         internal static void ReplaceKiStrike(CalculatedCharacterSheetValues sheet, Creature monk) {

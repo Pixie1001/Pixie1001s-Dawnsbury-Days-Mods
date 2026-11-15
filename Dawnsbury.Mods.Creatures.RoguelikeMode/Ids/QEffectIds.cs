@@ -52,6 +52,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Ids {
         // Tile Effects IDs
         internal static TileQEffectId ChokingSpores { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Choking Spores");
         internal static TileQEffectId Maelstrom { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_Maelstrom");
+        internal static TileQEffectId ScalingLock { get; } = ModManager.RegisterEnumMember<TileQEffectId>("RL_ScalingLock");
 
         public static void RegisterConflictedIds() {
             Parry = ModManager.TryParse("Parry", out QEffectId parry) ? parry : ModManager.RegisterEnumMember<QEffectId>("Parry");

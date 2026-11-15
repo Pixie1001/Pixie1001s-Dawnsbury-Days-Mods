@@ -487,12 +487,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Patches
                 return true;
             }
 
-            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty)) {
+            if (equipment != null && equipment.HasTrait(Trait.SpecificMagicItem) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponProperty)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be inscribed with property runes.");
                 return false;
             }
 
-            if (equipment != null && equipment.HasTrait(ModTraits.CannotHavePropertyRune) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponMaterial)) {
+            if (equipment != null && equipment.HasTrait(Trait.SpecificMagicItem) && (runestone.RuneProperties.RuneKind == RuneKind.WeaponMaterial)) {
                 __result = new SubitemAttachmentResult(SubitemAttachmentResultKind.Unallowed, "Specific magic items cannot be reforged with weapon materials.");
                 return false;
             }

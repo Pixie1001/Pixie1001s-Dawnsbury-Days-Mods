@@ -1,3 +1,11 @@
 RL
-* Fixed monastic weaponry to now work with melee monk weapons after accidentally breaking it in a previous patch
-* Drow Sorceress's Shadow Step is now prevented by Dimensional Anchor.
+* Added VA work to Baraquiel's lines!
+* The 'It's Not Like I like You' long term effect no longer causes crashes, should occur more often and have it's visual effects and log clarity improved.
+* The Shifting Rune should no longer show magical weapons added in the mod as possible options (might not work yet in the stable branch)
+* Magical staves should not longer appear as loot options for martial classes
+* Level 3 encounters have been adjusted so that only some of the enemies gain an elite template
+* Fixed the scaling on the Beset by Minnows and Colossium encounters.
+* A message explaining the Powerful Adversary trait will now appear the first time you encounter a relevant enemy each run
+* Fixed Javelins costing 2 GP
+* Replaced Drider in the 'Lair of the Drider' encounter with a Feral Drider varient that performs an AoE swipe on nearby enemies when attacked, instead of a traditional attack of opportunity. 
+* Organic hazards can now be targeted by necromancy, healing and poison effects.

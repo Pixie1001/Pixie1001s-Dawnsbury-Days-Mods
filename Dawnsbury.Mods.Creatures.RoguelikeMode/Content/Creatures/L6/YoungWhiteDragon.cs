@@ -32,12 +32,11 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
     {
         public static Creature Create()
         {
-            return new Creature(Illustrations.WhiteDragon, "Young White Dragon", [Trait.Chaotic, Trait.Evil, Trait.Cold, Trait.Dragon], 6, 13, 16, new Defenses(23, 16, 14, 11), 115, new Abilities(6, 2, 4, -1, 1, 0), new Skills(acrobatics: 10, arcana: 7, athletics: 16, deception: 15, intimidation: 12, stealth: 14))
+            return new Creature(Illustrations.WhiteDragon, "Young White Dragon", [Trait.Chaotic, Trait.Evil, Trait.Cold, Trait.Dragon, Trait.Large], 6, 13, 16, new Defenses(23, 16, 14, 11), 115, new Abilities(6, 2, 4, -1, 1, 0), new Skills(acrobatics: 10, arcana: 7, athletics: 16, deception: 15, intimidation: 12, stealth: 14))
                 .WithCreatureId(CreatureIds.YoungWhiteDragon)
                 .WithCharacteristics(false, true)
                 .AddQEffect(QEffect.Flying())
                 .AddQEffect(QEffect.DamageImmunity(DamageKind.Cold))
-                //.AddQEffect(QEffect.TraitImmunity(Trait.Cold))
                 .AddQEffect(QEffect.ImmunityToCondition(QEffectId.Paralyzed))
                 .AddQEffect(QEffect.DamageWeakness(DamageKind.Fire, 5))
                 .AddQEffect(QEffect.BreathWeapon("icy breath", Target.Cone(6), Defense.Reflex, 24, DamageKind.Cold, DiceFormula.FromText("7d6", "icy breath"), SfxName.RayOfFrost))
@@ -161,13 +160,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures
                 })
                 // Consider Shape Ice ??
                 .Builder
-                .AddNaturalWeapon(NaturalWeaponKind.Jaws, 17, [Trait.Reach, Trait.Cold], "2d8+9", DamageKind.Piercing, wp => wp.WithAdditionalDamage("1d6", DamageKind.Cold))
-                .AddNaturalWeapon(NaturalWeaponKind.Claw, 17, [Trait.Reach, Trait.Agile], "2d6+9", DamageKind.Slashing)
-                .AddNaturalWeapon(NaturalWeaponKind.Tail, 15, [Trait.Ranged, Trait.DoesNotProvoke], "1d8+8", DamageKind.Bludgeoning, wp => {
-                    wp.WithMaximumRange(3);
-                    wp.WithRangeIncrement(3);
-                    wp.Sfx = SfxName.SwordStrike;
-                })
+                .AddNaturalWeapon(NaturalWeaponKind.Jaws, 17, [Trait.Cold], "2d8+9", DamageKind.Piercing, wp => wp.WithAdditionalDamage("1d6", DamageKind.Cold))
+                .AddNaturalWeapon(NaturalWeaponKind.Claw, 17, [Trait.Agile], "2d6+9", DamageKind.Slashing, wp => wp.OverrideReach = 1)
+                .AddNaturalWeapon(NaturalWeaponKind.Tail, 15, [Trait.Reach], "1d8+8", DamageKind.Bludgeoning)
                 .AddMainAction((self) =>
                 {
                     return new CombatAction(self, IllustrationName.Unknown, "Ground Slam", [], "All creatures without flying in a 10 foot emanation must succeed a DC 24 Reflex save or fall prone and take 2d6 bludgeoning damage. You can then Step.", Target.SelfExcludingEmanation(2))

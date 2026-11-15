@@ -5,8 +5,6 @@ using Dawnsbury.Core;
 using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.Animations.Movement;
-using Dawnsbury.Core.CharacterBuilder;
-using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
@@ -46,22 +44,7 @@ using Dawnsbury.Mods.Creatures.RoguelikeMode.Ids;
 using Dawnsbury.Mods.Creatures.RoguelikeMode.Tables;
 using FMOD;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Buffers.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Text.RegularExpressions;
-using System.Threading;
-using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 using static Dawnsbury.Mods.Creatures.RoguelikeMode.Ids.ModEnums;
-using static HarmonyLib.Code;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
@@ -78,7 +61,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithMainTrait(ModTraits.FightingFan)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
 
-        public static ItemName Javelin { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Javelin", itemName => new Item(itemName, Illustrations.Javelin, "javelin", 0, 2,
+        public static ItemName Javelin { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Javelin", itemName => new Item(itemName, Illustrations.Javelin, "javelin", 0, 0,
             Trait.Thrown30Feet, ModTraits.ThrownOnly, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
         .WithMainTrait(ModTraits.Javelin)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)));
@@ -258,7 +241,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName AlicornPike { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornPike", itemName => {
             var item = new Item(itemName, Illustrations.AlicornPike, "alicorn pike", 4, 30,
-                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.Forceful, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Reach, Trait.TwoHanded, Trait.Polearm, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.Forceful, Trait.SpecificMagicItem, ModTraits.Roguelike)
             .WithDescription("{i}An illustrious pike, forged from the horn of a unicorn and infused with their goodly healing powers.{/i}\n\nWhilst wielding this pike, you gain Regeneration 4.")
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -337,7 +320,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName AlicornDagger { get; } = ModManager.RegisterNewItemIntoTheShop("AlicornDagger", itemName => {
             var item = new Item(itemName, Illustrations.AlicornDagger, "alicorn dagger", 4, 30,
-                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
+                Trait.Magical, Trait.GhostTouch, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.WizardWeapon, Trait.Knife, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike)
             .WithMainTrait(Trait.Dagger)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -431,7 +414,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName SpideryHalberd { get; } = ModManager.RegisterNewItemIntoTheShop("SpideryHalberd", itemName => {
             var item = new Item(itemName, Illustrations.SpideryHalberd, "Spidery Halberd", 3, 40,
-                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike)
+                Trait.Magical, Trait.Reach, Trait.VersatileS, Trait.Martial, Trait.Polearm, Trait.TwoHanded, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike)
             .WithMainTrait(Trait.Halberd)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -771,7 +754,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName StaffOfSpellPenetration { get; } = ModManager.RegisterNewItemIntoTheShop("Staff of Spell Penetration", itemName => {
             Item item = new Item(itemName, Illustrations.StaffOfSpellPenetration, "staff of spell penetration", 2, 40,
-                new Trait[] { Trait.Magical, Trait.Club, Trait.Simple, Trait.WizardWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.CasterWeapon, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Club, Trait.Simple, Trait.WizardWeapon, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.CasterWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Staff)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning))
@@ -913,7 +896,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName Hexshot { get; } = ModManager.RegisterNewItemIntoTheShop("Hexshot", itemName => {
             Item item = new Item(itemName, Illustrations.Hexshot, "hexshot", 3, 40,
-                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Firearm, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, Trait.RogueWeapon, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileB, Trait.FatalD8, Trait.Reload1, Trait.Firearm, Trait.Simple, Trait.DoNotAddToCampaignShop, Trait.WizardWeapon, Trait.RogueWeapon, ModTraits.CasterWeapon, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(ModTraits.Hexshot)
             .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -966,7 +949,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName SerpentineBow { get; } = ModManager.RegisterNewItemIntoTheShop("Serpentine Bow", itemName => {
             Item item = new Item(itemName, Illustrations.SerpentineBow, "serpentine bow", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Propulsive, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Propulsive, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, Trait.TrueBow, ModTraits.Roguelike })
             .WithMainTrait(Trait.CompositeShortbow)
             .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1019,7 +1002,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName SmokingSword { get; } = ModManager.RegisterNewItemIntoTheShop("Smoking Sword", itemName => {
             Item item = new Item(itemName, new WandIllustration(IllustrationName.ElementFire, IllustrationName.Longsword), "smoking sword", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Martial, Trait.Sword, Trait.Fire, Trait.VersatileP, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike
+                new Trait[] { Trait.Magical, Trait.Martial, Trait.Sword, Trait.Fire, Trait.VersatileP, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.BoostedWeapon, ModTraits.Roguelike
             })
             .WithMainTrait(Trait.Longsword)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
@@ -1033,7 +1016,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName StormHammer { get; } = ModManager.RegisterNewItemIntoTheShop("Storm Hammer", itemName => {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.Warhammer), "storm hammer", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Shove, Trait.Martial, Trait.Hammer, Trait.Electricity, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.BoostedWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Warhammer)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithWeaponProperties(new WeaponProperties("1d8", DamageKind.Bludgeoning))
@@ -1046,7 +1029,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName ChillwindBow { get; } = ModManager.RegisterNewItemIntoTheShop("Chillwind Bow", itemName => {
             Item item = new Item(itemName, Illustrations.ChillwindBow, "chillwind bow", 3, 25,
-                new Trait[] { Trait.Magical, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.Cold, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.BoostedWeapon, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.OneHandPlus, Trait.DeadlyD10, Trait.Bow, Trait.Martial, Trait.RogueWeapon, Trait.ElvenWeapon, Trait.Cold, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.BoostedWeapon, ModTraits.Roguelike })
             .WithMainTrait(Trait.Shortbow)
             .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1061,7 +1044,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName Sparkcaster { get; } = ModManager.RegisterNewItemIntoTheShop("Sparkcaster", itemName => {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.ElementAir, IllustrationName.HeavyCrossbow), "sparkcaster", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Reload2, Trait.Simple, Trait.Bow, Trait.TwoHanded, Trait.Crossbow, Trait.WizardWeapon, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Reload2, Trait.Simple, Trait.Bow, Trait.TwoHanded, Trait.Crossbow, Trait.WizardWeapon, Trait.Electricity, Trait.DoNotAddToCampaignShop, ModTraits.CasterWeapon, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(Trait.HeavyCrossbow)
             .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1121,7 +1104,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName VipersSpit { get; } = ModManager.RegisterNewItemIntoTheShop("VipersSpit", itemName => {
             Item item = new Item(itemName, new DualIllustration(IllustrationName.AcidArrow, IllustrationName.HandCrossbow), "viper's spit", 3, 25,
-                new Trait[] { Trait.Magical, Trait.Reload1, Trait.Simple, Trait.Bow, Trait.Crossbow, Trait.RogueWeapon, Trait.Acid, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.Reload1, Trait.Simple, Trait.Bow, Trait.Crossbow, Trait.RogueWeapon, Trait.Acid, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(Trait.HandCrossbow)
             .WithItemGreaterGroup(ItemGreaterGroup.RangedMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1185,7 +1168,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName SpiderChopper { get; } = ModManager.RegisterNewItemIntoTheShop("Spider Chopper", itemName => {
             Item item = new Item(itemName, Illustrations.SpiderChopper, "spider chopper", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                               new Trait[] { Trait.Magical, Trait.Sweep, Trait.Martial, Trait.Axe, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(Trait.BattleAxe)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1213,7 +1196,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName Widowmaker { get; } = ModManager.RegisterNewItemIntoTheShop("Widowmaker", itemName => {
             Item item = new Item(itemName, Illustrations.Widowmaker, "widowmaker", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                               new Trait[] { Trait.Magical, Trait.Agile, Trait.Finesse, Trait.Thrown10Feet, Trait.VersatileS, Trait.Simple, Trait.Knife, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(Trait.Dagger)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1241,7 +1224,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName FlashingRapier { get; } = ModManager.RegisterNewItemIntoTheShop("Flashing Rapier", itemName => {
             Item item = new Item(itemName, IllustrationName.Rapier, "flashing rapier", 3, 25,
-                               new Trait[] { Trait.Magical, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                               new Trait[] { Trait.Magical, Trait.DeadlyD8, Trait.Disarm, Trait.Finesse, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(Trait.Rapier)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1292,7 +1275,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName HungeringBlade { get; } = ModManager.RegisterNewItemIntoTheShop("Hungering Blade", itemName => {
             Item item = new Item(itemName, Illustrations.HungeringBlade, "hungering blade", 3, 25,
-                new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike })
+                new Trait[] { Trait.Magical, Trait.VersatileP, Trait.TwoHanded, Trait.Martial, Trait.Sword, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike })
             .WithMainTrait(Trait.Greatsword)
             .WithItemGreaterGroup(ItemGreaterGroup.MeleeMagicWeapons)
             .WithItemGroup("Roguelike mode")
@@ -1804,7 +1787,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
 
         public static ItemName DuergarSkullShield { get; } = ModManager.RegisterNewItemIntoTheShop("RL_DuergarSkullShield", itemName => {
             var item = new Item(itemName, Illustrations.DuergarSkullShield, "duergar skull shield", 3, 60,
-                [Trait.Magical, Trait.Enchantment, Trait.Shield, Trait.Martial, Trait.DoNotAddToCampaignShop, ModTraits.CannotHavePropertyRune, ModTraits.Roguelike])
+                [Trait.Magical, Trait.Enchantment, Trait.Shield, Trait.Martial, Trait.DoNotAddToCampaignShop, Trait.SpecificMagicItem, ModTraits.Roguelike])
             .WithMainTrait(Trait.SteelShield)
             .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning))
             .WithShieldProperties(6)
@@ -1886,6 +1869,17 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
             .WithDescription("{i}This bandolier is perfect for sharing expensive weapon runes between a wide array of side arms and thrown weapons.{/i}\n\n" +
             "The thrower's bandoldier holds an infinite number of daggers, hatchets and light hammers within it, which can be drawn from the bandolier as an action {icon:Action}, or a {icon:FreeAction} if you have the Quick Draw feat.\n\n" +
             "The bandolier, unlike most worn items, can also be invested with weapon runes. These runes will affect any weapon drawn from the bandolier, making them more powerful.")
+            // TODO: Make bandolier work with individual items
+            //.WithStoresItem((bag, heldItem) =>
+            //{
+            //    var thrownTraits = new Trait[] { Trait.Thrown10Feet, Trait.Thrown20Feet, Trait.Thrown30Feet, Trait.Thrown40Feet, Trait.Thrown50Feet, Trait.Thrown60Feet };
+            //    if (!(heldItem.Traits.ContainsOneOf(thrownTraits) || (heldItem.HasTrait(Trait.Runestone) && !heldItem.HasTrait(Trait.Material))))
+            //        return "WRONG ITEM KIND";
+            //    if (bag.StoredItems.Where(itm => itm.HasTrait(Trait.Weapon)).Count() >= 10)
+            //        return "This thrower's bandolier only has space for 10 items.";
+            //    else
+            //        return null;
+            //})
             .WithPermanentQEffectWhenWorn((qfTB, item) => {
                 qfTB.StartOfCombat = async self => {
                     var dagger = Items.CreateNew(ItemName.Dagger);
