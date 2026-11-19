@@ -62,12 +62,12 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
                     if (section.PossibilitySectionId != PossibilitySectionId.InvisibleActions) return null;
                     // TODO: Hook this up to the transformation
                     return (ActionPossibility) new CombatAction(self.Owner, new SideBySideIllustration(IllustrationName.PickUp, Illustrations.Javelin), "Draw javelin", [Trait.Basic, Trait.Manipulate], "",
-                        Target.Self((user, ai) => !user.HasEffect(QEffectIds.MaenadForm) && !user.HeldItems.Any(itm => itm.ItemName == CustomItems.Javelin) ? 15f : 0f)
-                        .WithAdditionalRestriction(user => user.HasFreeHand ? user.CarriedItems.Any(itm => itm.ItemName == CustomItems.Javelin) ? null : "out of javelins" : "no free hand"))
+                        Target.Self((user, ai) => !user.HasEffect(QEffectIds.MaenadForm) && !user.HeldItems.Any(itm => itm.ItemName == ItemName.Javelin) ? 15f : 0f)
+                        .WithAdditionalRestriction(user => user.HasFreeHand ? user.CarriedItems.Any(itm => itm.ItemName == ItemName.Javelin) ? null : "out of javelins" : "no free hand"))
                     .WithActionCost(0)
                     .WithSoundEffect(SfxName.PickUpLight)
                     .WithEffectOnSelf(async (action, user) => {
-                        var javelin = user.CarriedItems.FirstOrDefault(itm => itm.ItemName == CustomItems.Javelin);
+                        var javelin = user.CarriedItems.FirstOrDefault(itm => itm.ItemName == ItemName.Javelin);
                         if (javelin == null) return;
                         user.CarriedItems.Remove(javelin);
                         user.AddHeldItem(javelin);
@@ -76,8 +76,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             })
             .AddQEffect(new QEffect() {
                 ProvideActionIntoPossibilitySection = (self, section) => {
-                    if (section.PossibilitySectionId != PossibilitySectionId.InvisibleActions || !self.Owner.HeldItems.Any(itm => itm.ItemName == CustomItems.Javelin)) return null;
-                    var ca = (ActionPossibility) StrikeRules.CreateStrike(self.Owner, self.Owner.HeldItems.FirstOrDefault(itm => itm.ItemName == CustomItems.Javelin)!, RangeKind.Ranged, -1, true)
+                    if (section.PossibilitySectionId != PossibilitySectionId.InvisibleActions || !self.Owner.HeldItems.Any(itm => itm.ItemName == ItemName.Javelin)) return null;
+                    var ca = (ActionPossibility) StrikeRules.CreateStrike(self.Owner, self.Owner.HeldItems.FirstOrDefault(itm => itm.ItemName == ItemName.Javelin)!, RangeKind.Ranged, -1, true)
                     .WithGoodnessAgainstEnemy((targeting, a, d) => {
                         return targeting.OwnerAction?.StrikeModifiers.CalculatedTrueDamageFormula?.ExpectedValue ?? 0f;
                     });
@@ -88,7 +88,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
             .AddQEffect(new QEffect("Javelins", "The Echidnadite High Priestess has this many more javelins in their inventory.", ExpirationCondition.Never, null, Illustrations.Javelin) {
                 Value = numJavelins + 1,
                 AfterYouTakeAction = async (self, ca) => {
-                    var javelins = self.Owner.CarriedItems.Where(itm => itm.ItemName == CustomItems.Javelin).Count();
+                    var javelins = self.Owner.CarriedItems.Where(itm => itm.ItemName == ItemName.Javelin).Count();
                     self.Value = javelins;
                     if (javelins <= 0)
                         self.ExpiresAt = ExpirationCondition.Immediately;
@@ -144,7 +144,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content.Creatures {
         }
 
         private static Item CreateJavelin() {
-            var item = Items.CreateNew(CustomItems.Javelin);
+            var item = Items.CreateNew(ItemName.Javelin);
             item.WeaponProperties!.DamageDieCount = 2;
             item.WeaponProperties!.ItemBonus = 1;
             item.WeaponProperties!.WithAdditionalPersistentDamage("1d6", DamageKind.Bleed);

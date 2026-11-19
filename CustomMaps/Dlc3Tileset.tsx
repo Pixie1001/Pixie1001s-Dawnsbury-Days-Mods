@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="136" columns="0">
+<tileset version="1.10" tiledversion="1.11.0" name="DawnsburyDaysAdditionalTileset" tilewidth="256" tileheight="256" tilecount="138" columns="0">
   <grid orientation="orthogonal" width="1" height="1" />
   <tile id="0">
     <properties>
@@ -685,6 +685,16 @@
   <tile id="136">
     <properties>
       <property name="Id" value="CorpseFleetTechnomancer" />
+    </properties>
+  </tile>
+  <tile id="137">
+    <properties>
+      <property name="Id" value="HornedDevil" />
+    </properties>
+  </tile>
+  <tile id="138">
+    <properties>
+      <property name="Id" value="Cthulhu" />
     </properties>
   </tile>
 </tileset>

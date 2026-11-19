@@ -43,9 +43,9 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Encounters.Act1 {
 
                 Creature td = battle.AllCreatures.FirstOrDefault(cr => cr.OwningFaction.IsEnemy);
                 Creature pm = battle.AllCreatures.FirstOrDefault(cr => cr.PersistentCharacterSheet != null);
-                var boon1 = WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!", null, null).OnApply();
+                //var boon1 = WellKnownLongTermEffects.CreateLongTermEffect("It's Not Like I Like You!", null, null).OnApply();
 
-                pm.AddQEffect(boon1);
+                //pm.AddQEffect(boon1);
 
                 //var boon1 = new QEffect("Lyra's Boon", $"You can use the Baraquielle's Boon once.", ExpirationCondition.Never, null, Illustrations.Baraquielle) {
                 //    HideFromPortrait = true,

@@ -264,8 +264,8 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                         if (user.QEffects.Any(qf => qf.Id == QEffectIds.ShootingStarStance)) {
                             Item? shuriken = null;
 
-                            if (user.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken) || user.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn) != null) {
-                                shuriken = Items.CreateNew(CustomItems.Shuriken);
+                            if (user.CarriedItems.Any(item => item.ItemName == ItemName.Shuriken) || user.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn) != null) {
+                                shuriken = Items.CreateNew(ItemName.Shuriken);
                                 CombatAction combatAction = StrikeRules.CreateStrike(user, shuriken, RangeKind.Ranged, -1, true);
                                 var result = combatAction.CanBeginToUse(user);
 
@@ -317,15 +317,15 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                 // Add shurikens
                                 Item? bandolier = self.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn);
 
-                                if (bandolier != null || self.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken)) {
+                                if (bandolier != null || self.CarriedItems.Any(item => item.ItemName == ItemName.Shuriken)) {
                                     var uniqueShurikens = new List<(Item?, Item)>();
                                     int numShurikens = 0;
                                     var allShurikens = new List<(Item?, Item)>();
                                     foreach (var item in self.CarriedItems) {
-                                        if (item.ItemName == CustomItems.Shuriken)
+                                        if (item.ItemName == ItemName.Shuriken)
                                             allShurikens.Add((null, item));
                                         foreach (var subItem in item.StoredItems) {
-                                            if (subItem.ItemName == CustomItems.Shuriken)
+                                            if (subItem.ItemName == ItemName.Shuriken)
                                                 allShurikens.Add((item, subItem));
                                         }
                                     }
@@ -356,7 +356,7 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
                                     }
 
                                     if (bandolier != null) {
-                                        var shuriken = Items.CreateNew(CustomItems.Shuriken);
+                                        var shuriken = Items.CreateNew(ItemName.Shuriken);
                                         shuriken.Traits.Add(Trait.EncounterEphemeral);
                                         foreach (Item rune in bandolier.Runes) {
                                             if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)

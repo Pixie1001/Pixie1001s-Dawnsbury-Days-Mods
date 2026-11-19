@@ -61,10 +61,10 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithMainTrait(ModTraits.FightingFan)
         .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing)));
 
-        public static ItemName Javelin { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Javelin", itemName => new Item(itemName, Illustrations.Javelin, "javelin", 0, 0,
-            Trait.Thrown30Feet, ModTraits.ThrownOnly, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
-        .WithMainTrait(ModTraits.Javelin)
-        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)));
+        //public static ItemName Javelin { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Javelin", itemName => new Item(itemName, Illustrations.Javelin, "javelin", 0, 0,
+        //    Trait.Thrown30Feet, ModTraits.ThrownOnly, Trait.Knife, Trait.Simple, ModTraits.Roguelike)
+        //.WithMainTrait(ModTraits.Javelin)
+        //.WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Piercing)));
 
         public static ItemName Kusarigama { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Kusarigama", itemName => new Item(itemName, Illustrations.Kusarigama, "kusarigama", 0, 2,
             Trait.Uncommon, Trait.Disarm, Trait.Reach, Trait.Trip, Trait.VersatileB, Trait.TwoHanded, Trait.Knife, Trait.Martial, Trait.MonkWeapon, ModTraits.Roguelike)
@@ -166,22 +166,17 @@ namespace Dawnsbury.Mods.Creatures.RoguelikeMode.Content {
         .WithMainTrait(ModTraits.Hatchet)
         .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Slashing)));
 
-        public static ItemName LightHammer { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Light hammer", itemName => new Item(itemName, Illustrations.LightHammer, "light hammer", 0, 0,
-            Trait.Agile, Trait.Thrown20Feet, Trait.Martial, Trait.Hammer, ModTraits.Roguelike)
-        .WithMainTrait(ModTraits.LightHammer)
-        .WithWeaponProperties(new WeaponProperties("1d6", DamageKind.Bludgeoning)));
+        //public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => {
+        //    Item item = new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
+        //        Trait.Agile, Trait.Thrown20Feet, ModTraits.ThrownOnly, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
+        //.WithMainTrait(ModTraits.Shuriken)
+        //    .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing));
 
-        public static ItemName Shuriken { get; } = ModManager.RegisterNewItemIntoTheShop("RL_Shuriken", itemName => {
-            Item item = new Item(itemName, Illustrations.Shuriken, "shuriken", 0, 0,
-                Trait.Agile, Trait.Thrown20Feet, ModTraits.ThrownOnly, Trait.Martial, Trait.Knife, ModTraits.Reload0, Trait.MonkWeapon, ModTraits.Roguelike)
-        .WithMainTrait(ModTraits.Shuriken)
-            .WithWeaponProperties(new WeaponProperties("1d4", DamageKind.Slashing));
-
-            item.StateCheckWhenWielded = (wielder, shuriken) => {
-                ShurikenStrikeModofierLogic(wielder, shuriken);
-            };
-            return item;
-        });
+        //    item.StateCheckWhenWielded = (wielder, shuriken) => {
+        //        ShurikenStrikeModofierLogic(wielder, shuriken);
+        //    };
+        //    return item;
+        //});
 
         public static ItemName ScourgeOfFangs { get; } = ModManager.RegisterNewItemIntoTheShop("ScourgeOfFangs", itemName => {
             Item item = new Item(itemName, IllustrationName.Whip, "scourge of fangs", 3, 60,
@@ -1888,7 +1883,7 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                             dagger.WithModificationRune(rune.ItemName);
                     }
 
-                    var hammer = Items.CreateNew(LightHammer);
+                    var hammer = Items.CreateNew(ItemName.LightHammer);
                     foreach (Item rune in item.Runes) {
                         if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, hammer) == null)
                             hammer.WithModificationRune(rune.ItemName);
@@ -1900,13 +1895,13 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                             axe.WithModificationRune(rune.ItemName);
                     }
 
-                    var shuriken = Items.CreateNew(Shuriken);
+                    var shuriken = Items.CreateNew(ItemName.Shuriken);
                     foreach (Item rune in item.Runes) {
                         if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
                             shuriken.WithModificationRune(rune.ItemName);
                     }
 
-                    var javelin = Items.CreateNew(Javelin);
+                    var javelin = Items.CreateNew(ItemName.Javelin);
                     foreach (Item rune in item.Runes) {
                         if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, javelin) == null)
                             javelin.WithModificationRune(rune.ItemName);
@@ -1927,7 +1922,7 @@ The next {b}" + charges + "{/b} times you are targeted by the {i}magic missile{/
                     foreach (Item throwable in (qfTB.Tag as List<Item>)!) {
                         menu.Subsections[0].AddPossibility((ActionPossibility)new CombatAction(qfTB.Owner, (qfTB.Tag as List<Item>)![0].Illustration, $"Draw {throwable.Name.CapitalizeEachWord()}", new Trait[] { Trait.Manipulate, Trait.Basic },
                         $"Draw a {throwable.Name} from your thrower's bandolier." +
-                        ((throwable.ItemName == CustomItems.Shuriken) ? "\n\n{b}Special{/b} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action." : ""),
+                        ((throwable.ItemName == ItemName.Shuriken) ? "\n\n{b}Special{/b} While equipped, you can also thrown an unlimited number of shurikens without using an action to draw them, using the Throw Shuriken action." : ""),
                         Target.Self().WithAdditionalRestriction(you => you.HasFreeHand ? null : "free hand required"))
                     .WithActionCost(cost)
                     .WithSoundEffect(SfxName.ItemGet)
@@ -2597,7 +2592,7 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
             //items.Add("wand of bless", CreateWand(SpellId.Fireball, 3));
 
-            List<ItemName> items = new List<ItemName>() { GreaterCompanionBunny, LunaRunestone, RingOfDeathDefiance, RodOfHealing, MaskOfSkills, BottomlessFlask, DuergarSkullShield, CompanionBunny, GnomishPuzzleBox, GreaterSacredSerpent, SacredSerpent, Javelin, RingOfMonsters, RunestoneOfOpportunism, RunestoneOfMirrors, CloakOfDuplicity, RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, Shuriken, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
+            List<ItemName> items = new List<ItemName>() { GreaterCompanionBunny, LunaRunestone, RingOfDeathDefiance, RodOfHealing, MaskOfSkills, BottomlessFlask, DuergarSkullShield, CompanionBunny, GnomishPuzzleBox, GreaterSacredSerpent, SacredSerpent, RingOfMonsters, RunestoneOfOpportunism, RunestoneOfMirrors, CloakOfDuplicity, RunestoneOfPandemomium, SceptreOfPandemonium, GreaterDemonBoundRing, MedusaEyeChoker, SerpentineBow, GreaterScourgeOfFangs, FightingFan, Kusarigama, HookSword, Kama, Sai, Nunchaku, SpiderHatchling, AlicornDagger, AlicornPike, ThrowersBandolier, SpellbanePlate, SceptreOfTheSpider, DeathDrinkerAmulet, GreaterDeathDrinkerAmulet, RobesOfTheWarWizard, GreaterRobesOfTheWarWizard, WhisperMail, KrakenMail, DuelingSpear, DemonBoundRing, ShifterFurs, SmokingSword, StormHammer, ChillwindBow, Sparkcaster, HungeringBlade, SpiderChopper, WebwalkerArmour, DreadPlate, Hexshot, ProtectiveAmulet, MaskOfConsumption, FlashingRapier, Widowmaker, DolmanOfVanishing, BloodBondAmulet };
 
             // Roguelike Wands
             CreateWand(SpellId.Fireball, null);
@@ -2697,17 +2692,17 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                     StateCheckWithVisibleChanges = async _ => {
                         Item? bandolier = creature.CarriedItems.FirstOrDefault(item => item.ItemName == ThrowersBandolier && item.IsWorn);
 
-                        if (bandolier == null && !creature.CarriedItems.Any(item => item.ItemName == Shuriken))
+                        if (bandolier == null && !creature.CarriedItems.Any(item => item.ItemName == ItemName.Shuriken))
                             return;
 
                         var uniqueShurikens = new List<(Item?, Item)>();
                         int numShurikens = 0;
                         var allShurikens = new List<(Item?, Item)>();
                         foreach (var item in creature.CarriedItems) {
-                            if (item.ItemName == Shuriken)
+                            if (item.ItemName == ItemName.Shuriken)
                                 allShurikens.Add((null, item));
                             foreach (var subItem in item.StoredItems) {
-                                if (subItem.ItemName == Shuriken)
+                                if (subItem.ItemName == ItemName.Shuriken)
                                     allShurikens.Add((item, subItem));
                             }
                         }
@@ -2745,7 +2740,7 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                                     }
 
                                     if (bandolier != null) {
-                                        var shuriken = Items.CreateNew(Shuriken);
+                                        var shuriken = Items.CreateNew(ItemName.Shuriken);
                                         shuriken.Traits.Add(Trait.EncounterEphemeral);
                                         foreach (Item rune in bandolier.Runes) {
                                             if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
@@ -3339,15 +3334,15 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
             Item? bandolier = self.CarriedItems.FirstOrDefault(item => item.ItemName == CustomItems.ThrowersBandolier && item.IsWorn);
             var possibilities = new List<Option>();
 
-            if (bandolier != null || self.CarriedItems.Any(item => item.ItemName == CustomItems.Shuriken)) {
+            if (bandolier != null || self.CarriedItems.Any(item => item.ItemName == ItemName.Shuriken)) {
                 var uniqueShurikens = new List<(Item?, Item)>();
                 int numShurikens = 0;
                 var allShurikens = new List<(Item?, Item)>();
                 foreach (var item in self.CarriedItems) {
-                    if (item.ItemName == CustomItems.Shuriken)
+                    if (item.ItemName == ItemName.Shuriken)
                         allShurikens.Add((null, item));
                     foreach (var subItem in item.StoredItems) {
-                        if (subItem.ItemName == CustomItems.Shuriken)
+                        if (subItem.ItemName == ItemName.Shuriken)
                             allShurikens.Add((item, subItem));
                     }
                 }
@@ -3378,7 +3373,7 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
                 }
 
                 if (bandolier != null) {
-                    var shuriken = Items.CreateNew(CustomItems.Shuriken);
+                    var shuriken = Items.CreateNew(ItemName.Shuriken);
                     shuriken.Traits.Add(Trait.EncounterEphemeral);
                     foreach (Item rune in bandolier.Runes) {
                         if (rune.RuneProperties?.CanBeAppliedTo == null || rune.RuneProperties?.CanBeAppliedTo(rune, shuriken) == null)
@@ -3429,11 +3424,11 @@ You extract the lifeforce from an ally wearing a matching amulet, dealing 2d8 da
 
             var count = -1;
 
-            count += self.CarriedItems.Where(item => item.ItemName == CustomItems.Shuriken).Count();
+            count += self.CarriedItems.Where(item => item.ItemName == ItemName.Shuriken).Count();
 
             foreach (var item in self.CarriedItems) {
                 foreach (var subItem in item.StoredItems) {
-                    if (subItem.ItemName == CustomItems.Shuriken)
+                    if (subItem.ItemName == ItemName.Shuriken)
                         count += 1;
                 }
             }

@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Threading;
-using Dawnsbury;
+﻿using Dawnsbury;
 using Dawnsbury.Audio;
 using Dawnsbury.Auxiliary;
+using Dawnsbury.Campaign.Path;
 using Dawnsbury.Core;
-using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Animations;
 using Dawnsbury.Core.CharacterBuilder;
 using Dawnsbury.Core.CharacterBuilder.AbilityScores;
 using Dawnsbury.Core.CharacterBuilder.Feats;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Common;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.Spellbook;
 using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb;
+using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
 using Dawnsbury.Core.CharacterBuilder.Selections.Options;
 using Dawnsbury.Core.CharacterBuilder.Spellcasting;
 using Dawnsbury.Core.CombatActions;
@@ -30,6 +24,7 @@ using Dawnsbury.Core.Intelligence;
 using Dawnsbury.Core.Mechanics;
 using Dawnsbury.Core.Mechanics.Core;
 using Dawnsbury.Core.Mechanics.Enumerations;
+using Dawnsbury.Core.Mechanics.Rules;
 using Dawnsbury.Core.Mechanics.Targeting;
 using Dawnsbury.Core.Mechanics.Targeting.TargetingRequirements;
 using Dawnsbury.Core.Mechanics.Targeting.Targets;
@@ -44,13 +39,20 @@ using Dawnsbury.Display.Illustrations;
 using Dawnsbury.Display.Text;
 using Dawnsbury.IO;
 using Dawnsbury.Modding;
-using System.Reflection.Metadata;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Reflection.Metadata;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
-using Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.Specific;
+using System.Threading;
 using System.Xml;
-using Dawnsbury.Campaign.Path;
 using static Dawnsbury.Core.CharacterBuilder.FeatsDb.TrueFeatDb.BarbarianFeatsDb.AnimalInstinctFeat;
 
 namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
@@ -1020,7 +1022,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                 sheet.GrantFeat(FeatName.Diplomacy);
             });
 
-            var counterTune = new Feat(ModManager.RegisterFeatName("BoB_Counter Tune", "Counter Tune"), "", "", [tBoB], null)
+            var counterTune = new Feat(ModManager.RegisterFeatName("BoB_Counter Tune", "Counter Tune"), "Your musical talent is such that you can drown out the roars and auditory magics of your adversaries.", $" once per day, you can attempt to counteract an auditory action being attempted by an enemy, by blotting it out with a soothing tune of your own. Make a diplomacy or performance check vs. their class or spell save DC. The counteract level of this effect is equal to half your level, rounded up.", [tBoB], null)
             .WithOnCreature(c => {
                 QEffect effect = new QEffect("Counter Tune {icon:Reaction}", "Once per day, when an enemy creature attempts to use an action with the auditory trait, you can attempt to counteract it with a diplomacy or performace check.") {
                 };
@@ -1100,7 +1102,7 @@ namespace Dawnsbury.Mods.Backgrounds.BundleOfBackgrounds {
                     };
                 });
             });
-
+            yield return counterTune;
 
 
             if (ModManager.TryParse("VirtuosicPerformer", out FeatName vp))
